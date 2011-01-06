@@ -1,0 +1,130 @@
+#!/usr/bin/env python
+'''
+Created on Dec 19, 2010
+
+@author: quandtan
+'''
+
+import sys,os,getopt,traceback,shutil
+from applicake.utils import Utilities,Generator,IniFile
+from applicake.app import Application
+
+class WorkflowInitiator(Application):     
+    
+    def _create_jobdir(self):
+        self.log.debug('get job_id....')
+        jobid = str(Generator().job_id(self._dirname))
+        self.log.debug('job_id [%s]' % jobid)
+        job_dirname = os.path.join(self._dirname,jobid)                 
+        os.mkdir(job_dirname)
+        if(os.path.exists(job_dirname)):
+            self.log.debug('job_dir [%s] was created.' % job_dirname)
+        else:
+            self.log.fatal('job_dir [%s] was not created.' % job_dirname)
+            sys.exit(1)
+        return job_dirname
+            
+    def _preprocessing(self):
+        self.log.debug('method has no real implementation')                                           
+                
+    def _run(self,command=None):
+        try:
+            print(os.path.abspath(self._log_filename))
+            self.log.info('Start [%s]' % self._create_jobdir.__name__)
+            job_dirname = self._create_jobdir()
+            self.log.info('Finished [%s]' % self._create_jobdir.__name__)    
+            
+            
+#            out_filename = os.path.join(job_dirname,os.path.split(self._config_filename)[1])
+#            ini_file = IniFile(in_filename=self._config_filename,out_filename=out_filename,lock=False)    
+            ini_file = IniFile(in_filename=self._config_filename,lock=False) 
+            
+            
+            
+            
+            
+            self.log.debug('Start [%s]' % ini_file.read_ini.__name__)
+            config = ini_file.read_ini()
+            self.log.debug('Finished [%s]' % ini_file.read_ini.__name__)
+            config.update({'DIR':job_dirname})
+            self.log.debug("add DIR to config file content in memory")
+            self.log.debug('Start [%s]' % ini_file.write_ini_value_product.__name__)
+            param_filenames = ini_file.write_ini_value_product(config=config,use_subdir=False,index_key="PARAM_IDX")
+            self.log.debug('generated [%s] parameter files' % len(param_filenames))
+            self.log.debug('Finished [%s]' % ini_file.write_ini_value_product.__name__)
+            self.log.debug('start generating output files (parameter x spectra files) and delete original parameter file')
+            path_config = IniFile(in_filename=self._path_filename).read_ini()
+            for param_filename in param_filenames:
+                ini = IniFile(in_filename=param_filename,lock=False)
+                config = ini.read_ini()
+                config.update(path_config)
+                out_filenames = ini.write_ini_value_product(config=config,use_subdir=False,index_key="SPECTRA_IDX")
+                self._out_filenames.extend(out_filenames)
+                os.remove(param_filename)
+            self.log.debug('generated [%s] output files' % len(self._out_filenames))
+            self.log.debug('finished adding paths to each output file') 
+            return 0
+        except Exception,e:
+            self.log.exception(e)
+            return 1        
+            
+    def _validate_args(self,args):
+        msg_usage = "USAGE    :" + sys.argv[0] + " --input=filespath.txt --config=app.ini --dir=/tmp"        
+        try:
+            options, remainder = getopt.getopt(sys.argv[1:], "i:c:d:", ["input=","config=","dir="])
+        except getopt.GetoptError as err:
+            print(msg_usage)
+            self.log.fatal('ERROR PARSING SYS.ARGV [%s]' % self._log_filename)
+            sys.exit(1)                       
+        if len(options) != 3:  # check if unknown arguments are passed and if all arguments are defined 
+            self.log.fatal("wrong number of arguments [%s]. (Arguments properly not correctly called).\n%s" %(len(options),msg_usage))
+            sys.exit(1)             
+        if len(remainder) > 0:   
+            self.log.fatal("unknown argument")
+            sys.exit(1)             
+        for opt, arg in options:            
+            if opt in ('-i', '--input'):                
+                if not (os.path.exists(arg)):                    
+                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
+                    sys.exit(1)
+                self._path_filename = arg 
+            elif opt in ('-c', '--config'):                
+                if not (os.path.exists(arg)):                    
+                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
+                    sys.exit(1)
+                self._config_filename = arg   
+            elif opt in ('-d', '--dir'):                
+                if not (os.path.exists(arg)):                    
+                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
+                    sys.exit(1)
+                elif not (os.path.isdir(arg)):                    
+                    self.log.fatal("File [%s] does not a directory.\n%s" % (arg,msg_usage))
+                    sys.exit(1)   
+                self._dirname = arg             
+            
+    def _validate_run(self,run_code=None):
+        if 0 < run_code:
+            return run_code 
+        if len(self._out_filenames) == 0: 
+            self.log.error('No output files defined.')
+            return 1
+        for filename in self._out_filenames:
+            if not os.path.exists(filename):
+                self.log.fatal('File [%s] does not exist' % os.path.abspath(filename))
+                return 1
+            else:
+                self.log.debug('File [%s] does exist' % os.path.abspath(filename))
+                
+        return 0       
+            
+
+if __name__ == '__main__':    
+    a = WorkflowInitiator(use_filesystem=True)
+    exit_code = a(sys.argv)
+    print(exit_code)
+    sys.exit(exit_code)
+   
+   
+    
+
+   
