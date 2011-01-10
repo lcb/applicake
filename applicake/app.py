@@ -96,6 +96,7 @@ class Application():
 
 
 class ExternalApplication(Application):
+    
     def _run(self,command=None):
         'Run and monitor the external application. Returns 1 or the original return code of that application'         
         # when the command does not exist, process just dies.therefore a try/catch is needed
@@ -133,7 +134,14 @@ class SimpleApplication(ExternalApplication):
         return self._command
     
     def _validate_args(self,args):
-        self._command= args[1:]    
+#        self._command= args[1:]    
+        cp = CliParserApplication(description='A simple application to call external programs')  
+        parsed_args = cp.get_parsed_args(args[1:])
+        if parsed_args['prefix'] is None:
+            self.log.fatal('cli argument [prefix] was not set')
+            cp.print_usage()
+        else:
+            self._command = parsed_args['prefix']
         
     def _validate_run(self,run_code):
         print("=== stdout ===")
@@ -148,33 +156,57 @@ class SpectraIdentificationApplication(ExternalApplication):
     def _preprocessing(self):
         raise NotImplementedError("Called configure method on abstract class") 
         
-    def _validate_args(self,args):                     
-        msg_usage = "USAGE    :" + sys.argv[0] + " --prefix=my.exe --config=app.conf --template=app.tpl"        
-        try:
-            options, remainder = getopt.getopt(sys.argv[1:], "p:c:t:", ["prefix=", "config=", "template="])
-        except getopt.GetoptError as err:
-            print(msg_usage)
-            self.log.fatal('ERROR PARSING SYS.ARGV [%s]' % self._log_filename)
-            sys.exit(1)
-        if len(options) != 3:  # check if unknown arguments are passed and if all arguments are defined 
-            self.log.fatal("wrong number of arguments [%s]. (Arguments properly not correctly called).\n%s" %(len(options),msg_usage))
-            sys.exit(1)             
-        if len(remainder) > 0:   
-            self.log.fatal("unknown argument")
-            sys.exit(1)             
-        for opt, arg in options:       
-            if opt in ('-p', '--prefix'):                
-                self._command_prefix = arg                  
-            elif opt in ('-c', '--config'):                
-                if not (os.path.exists(arg)):                    
-                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-                    sys.exit(1)
-                self._config_filename = arg                  
-            elif opt in ('-t', '--template'):   
-                if not (os.path.exists(arg)): 
-                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-                    sys.exit(1) 
-                self._template_filename = arg
+#    def _validate_args(self,args):                     
+#        msg_usage = "USAGE    :" + sys.argv[0] + " --prefix='my.exe' --config=app.conf --template=app.tpl"        
+#        try:
+#            options, remainder = getopt.getopt(sys.argv[1:], "p:c:t:", ["prefix=", "config=", "template="])
+#        except getopt.GetoptError as err:
+#            print(msg_usage)
+#            self.log.fatal('ERROR PARSING SYS.ARGV [%s]' % self._log_filename)
+#            sys.exit(1)
+#        if len(options) != 3:  # check if unknown arguments are passed and if all arguments are defined 
+#            self.log.fatal("wrong number of arguments [%s]. (Arguments properly not correctly called).\n%s" %(len(options),msg_usage))
+#            sys.exit(1)             
+#        if len(remainder) > 0:   
+#            self.log.fatal("unknown argument")
+#            sys.exit(1)             
+#        for opt, arg in options:       
+#            if opt in ('-p', '--prefix'):                
+#                self._command_prefix = arg                  
+#            elif opt in ('-c', '--config'):                
+#                if not (os.path.exists(arg)):                    
+#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
+#                    sys.exit(1)
+#                self._config_filename = arg                  
+#            elif opt in ('-t', '--template'):   
+#                if not (os.path.exists(arg)): 
+#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
+#                    sys.exit(1) 
+#                self._template_filename = arg
+
+
+    def _validate_args(self,args):     
+        cp = CliParserApplication('An application used in MS/MS spectrum analysis')  
+        parsed_args = cp.get_parsed_args(args)
+        if parsed_args['prefix'] is None:
+            self.log.fatal('cli argument [prefix] was not set')
+            cp.print_usage()
+        else:
+            self._command_prefix = parsed_args['prefix']
+        if parsed_args['config_filename'] is None:
+            self.log.fatal('cli argument [config] was not set')
+            cp.print_usage()
+        else:
+            self._config_filename = parsed_args['config_filename']
+            if not os.path.exists(self._config_filename):
+                self.log.fatal('file [%s] does not exist' % self._config_filename)
+        if parsed_args['tpl_filename'] is None:
+            self.log.fatal('cli argument [template] was not set')
+            cp.print_usage()
+        else:
+            self._template_filename = parsed_args['template_filename']
+            if not os.path.exists(self._template_filename):
+                self.log.fatal('file [%s] does not exist' % self._template_filename)
                 
     def create_workdir(self,config):
         basedir = None  
@@ -198,6 +230,40 @@ class SpectraIdentificationApplication(ExternalApplication):
             self.log.exception(e)  
             sys.exit(1)
         return wd
+    
+
+import argparse,os
+class CliParser():
+    
+    def __init__(self,description=''):
+        self.parser = argparse.ArgumentParser(description=description)
+        
+    
+    def get_parsed_args(self,args):
+        '''
+        parse command line arguments (sys.argv[1:]) and returns a dictionary with the according key value pairs
+        '''
+        raise NotImplementedError("Called '_preprocessing' method on abstract class") 
+    
+    def print_usage(self):
+        self.parser.parse_args(['-h'])        
+    
+class CliParserApplication():
+    
+    def get_parsed_args(self,parser,args):
+        self.parser.add_argument('-p', action="store", dest="p",type=str,help="prefix of the command to execute")
+        self.parser.add_argument('-c', action="store", dest="c",type=str,help="configuration file in ini file structure")
+        self.parser.add_argument('-t', action="store", dest="t",type=str,help="template of the program specific input file")
+#        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
+#        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
+        a = self.parser.parse_args(args)
+        return {'prefix':a.p,'config_filename':a.c,'tpl_filename':a.t}
+        
+            
+    
+    
+    
+    
 
 
 
