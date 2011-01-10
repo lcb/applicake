@@ -95,43 +95,7 @@ class WorkflowInitiator(Application):
         else:
             self._dirname = dict['dirname']
             if not os.path.exists(self._dirname):
-                self.log.fatal('file [%s] does not exist' % self._dirname)        
-        
-        
-        
-        
-#        msg_usage = "USAGE    :" + sys.argv[0] + " --input=filespath.txt --config=app.ini --dir=/tmp"        
-#        try:
-#            options, remainder = getopt.getopt(sys.argv[1:], "i:c:d:", ["input=","config=","dir="])
-#        except getopt.GetoptError as err:
-#            print(msg_usage)
-#            self.log.fatal('ERROR PARSING SYS.ARGV [%s]' % self._log_filename)
-#            sys.exit(1)                       
-#        if len(options) != 3:  # check if unknown arguments are passed and if all arguments are defined 
-#            self.log.fatal("wrong number of arguments [%s]. (Arguments properly not correctly called).\n%s" %(len(options),msg_usage))
-#            sys.exit(1)             
-#        if len(remainder) > 0:   
-#            self.log.fatal("unknown argument")
-#            sys.exit(1)             
-#        for opt, arg in options:            
-#            if opt in ('-i', '--input'):                
-#                if not (os.path.exists(arg)):                    
-#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-#                    sys.exit(1)
-#                self._input_filename = arg 
-#            elif opt in ('-c', '--config'):                
-#                if not (os.path.exists(arg)):                    
-#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-#                    sys.exit(1)
-#                self._config_filename = arg   
-#            elif opt in ('-d', '--dir'):                
-#                if not (os.path.exists(arg)):                    
-#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-#                    sys.exit(1)
-#                elif not (os.path.isdir(arg)):                    
-#                    self.log.fatal("File [%s] does not a directory.\n%s" % (arg,msg_usage))
-#                    sys.exit(1)   
-#                self._dirname = arg             
+                self.log.fatal('file [%s] does not exist' % self._dirname)                  
             
     def _validate_run(self,run_code=None):
         if 0 < run_code:
@@ -144,8 +108,7 @@ class WorkflowInitiator(Application):
                 self.log.fatal('File [%s] does not exist' % os.path.abspath(filename))
                 return 1
             else:
-                self.log.debug('File [%s] does exist' % os.path.abspath(filename))
-                
+                self.log.debug('File [%s] does exist' % os.path.abspath(filename))                
         return 0       
             
 
