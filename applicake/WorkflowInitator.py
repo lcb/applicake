@@ -45,7 +45,7 @@ class WorkflowInitiator(Application):
             
 #            out_filename = os.path.join(job_dirname,os.path.split(self._config_filename)[1])
 #            ini_file = IniFile(in_filename=self._config_filename,out_filename=out_filename,lock=False)    
-            ini_file = IniFile(in_filename=self._config_filename,lock=False) 
+            ini_file = IniFile(input_filename=self._config_filename,lock=False) 
 
             
             self.log.debug('Start [%s]' % ini_file.read_ini.__name__)
@@ -58,10 +58,10 @@ class WorkflowInitiator(Application):
             self.log.debug('generated [%s] parameter files' % len(param_filenames))
             self.log.debug('Finished [%s]' % ini_file.write_ini_value_product.__name__)
             self.log.debug('start generating output files (parameter x spectra files) and delete original parameter file')
-            path_config = IniFile(in_filename=self._input_filename).read_ini()
+            path_config = IniFile(input_filename=self._input_filename).read_ini()
             self._output_filenames = []
             for param_filename in param_filenames:
-                ini = IniFile(in_filename=param_filename,lock=False)
+                ini = IniFile(input_filename=param_filename,lock=False)
                 config = ini.read_ini()
                 config.update(path_config)
                 out_filenames = ini.write_ini_value_product(config=config,use_subdir=False,index_key="SPECTRA_IDX")

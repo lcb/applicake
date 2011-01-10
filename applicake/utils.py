@@ -53,17 +53,17 @@ class FileLocker():
     
 class IniFile(): 
     
-    def __init__(self,in_filename,out_filename=None,lock=False):
-        self._in_filename = in_filename 
-        if out_filename is None:       
-            self._out_filename = in_filename
+    def __init__(self,input_filename,output_filename=None,lock=False):
+        self._input_filename = input_filename 
+        if output_filename is None:       
+            self._output_filename = input_filename
         else:
-            self._out_filename = out_filename
+            self._output_filename = output_filename
         self._lock = lock
         
     def add_to_ini(self,dictionary):
 #        locker = FileLocker()        
-#        file = open(self._in_filename,'r')
+#        file = open(self._input_filename,'r')
 #        locker.lock(file,locker.LOCK_EX)
         config = self.read_ini()
         config.update(dictionary)
@@ -73,54 +73,54 @@ class IniFile():
     def read_ini(self): 
         'Read file in windows ini format and returns a dictionary like object (ConfigObj)'
         if not self._lock:
-            return ConfigObj(self._in_filename)
+            return ConfigObj(self._input_filename)
         else:
             locker = FileLocker()
-            file = open(self._in_filename,'r')        
+            file = open(self._input_filename,'r')        
             locker.lock(file,locker.LOCK_EX)
-            config = ConfigObj(self._in_filename)
+            config = ConfigObj(self._input_filename)
             locker.unlock(file)       
             return config        
     
     def write_ini(self,dictionary):
         config = ConfigObj(dictionary)
-        config.filename = self._out_filename
+        config.filename = self._output_filename
         if not self._lock:
             config.write()
         else:        
             locker = FileLocker()
-            file = open(self._out_filename,'r')
+            file = open(self._output_filename,'r')
             locker.lock(file,locker.LOCK_EX)
             config.write()
             locker.unlock(file)
             
     def write_ini_value_product(self,config=None, use_subdir=True,index_key=None):
         'Takes an ini file as input and generates a new ini file for each value combination'
-        out_filenames = []
+        output_filenames = []
         if config is None:
             config = self.read_ini()
         keys = config.keys()
         values = config.values()
         elements = Utilities().get_list_product(values)
-        orig_out_filename = self._out_filename
+        orig_output_filename = self._output_filename
         for idx,element in enumerate(elements): 
             dictionary = None
             if use_subdir:
-                dir = os.path.dirname(orig_out_filename)               
+                dir = os.path.dirname(orig_output_filename)               
                 sub_dir = os.path.join(dir,str(idx))
                 os.mkdir(sub_dir)
-                self._out_filename=os.path.join(sub_dir,os.path.basename(orig_out_filename))
+                self._output_filename=os.path.join(sub_dir,os.path.basename(orig_output_filename))
                 dictionary = dict(zip(keys, element))
                 dictionary['DIR'] = sub_dir
             else:                           
-                self._out_filename= ''.join((orig_out_filename,".",str(idx)))    
+                self._output_filename= ''.join((orig_output_filename,".",str(idx)))    
                 dictionary = dict(zip(keys, element))
                 # if no sub dir is generated, the index key can be used to generate a unique path later on
             if index_key is not None:
                 dictionary[index_key]=idx
             self.write_ini(dictionary)
-            out_filenames.append(self._out_filename)  
-        return out_filenames
+            output_filenames.append(self._output_filename)  
+        return output_filenames
 
 class Logger():
     
@@ -153,14 +153,14 @@ class Utilities():
             _list.append(element)
         return _list              
 
-    def substitute_template(self,template_filename,dictionary,out_filename=None):
+    def substitute_template(self,template_filename,dictionary,output_filename=None):
         fh = open(template_filename,'r')
         content = fh.read()
         fh.close()
         mod_content = Template(content).safe_substitute(dictionary)
-        if out_filename is None:
-            out_filename = template_filename    
-        fh = open(out_filename,'w')
+        if output_filename is None:
+            output_filename = template_filename    
+        fh = open(output_filename,'w')
         fh.write(mod_content)
         fh.close()
         

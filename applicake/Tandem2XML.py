@@ -12,35 +12,30 @@ class Tandem2XML(ExternalApplication):
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Script to wrap the Tandem2XML tool of the Trans-Proteomic Pipeline (TPP)')
         parser.add_argument('-p','--prefix', action="store", dest="prefix",type=str,help="prefix of the command to execute")
-        parser.add_argument('-i','--input', action="store", dest="input",type=str,help="input file")
-        parser.add_argument('-o','--output', action="store", dest="output",type=str,help="output file")
+        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="configuration file in ini file structure")
+        parser.add_argument('-o','--output', action="store", dest="output_filename",type=str,help="output file to generate")
         a = parser.parse_args()
-        return {'prefix':a.prefix,'input':a.input,'output':a.output}  
+        return {'prefix':a.prefix,'input_filename':a.input_filename,'output_filename':a.output_filename}      
     
     def _validate_parsed_args(self,dict):    
         if not os.path.exists(dict['in']):
-            self.log.fatal('file [%s] does not exist' % dict['in'])
+            self.log.fatal('file [%s] does not exist' % dict['input_filename'])
             sys.exit(1)            
-        self._command = '%s %s %s' % (dict['prefix'], dict['in'],dict['out'])        
+        self._command = '%s %s %s' % (dict['prefix'], dict['input_filename'],dict['output_filename'])        
 
     def _validate_run(self,run_code):        
-#        if 0 < run_code:
-#            return run_code 
-#        if len(self._out_filenames) == 0: 
-#            self.log.error('No output files defined.')
-#            return 1
-#        for filename in self._out_filenames:
-#            if not os.path.exists(filename):
-#                self.log.error('File [%s] does not exist' % os.path.abspath(filename))
-#                return 1
-#            else:
-#                self.log.debug('File [%s] does exist' % os.path.abspath(filename))
-#            stdout = self.stdout.read()
-#            
-#        if 'Valid models = 0' in stdout:
-#            self.log.error('No valid model found')
-#            return 1
-        return 0      
+        if 0 < run_code:
+            return run_code 
+        if not os.path.exists(self.output_filename):
+            self.log.error('File [%s] does not exist' % os.path.abspath(self._output_filename))
+            return 1
+        else:
+            self.log.debug('File [%s] does exist' % os.path.abspath(self._output_filename))
+        stdout = self.stdout.read()            
+        if 'Valid models = 0' in stdout:
+            self.log.error('No valid model found')
+            return 1
+        return 0       
 
 if "__main__" == __name__:
     # init the application object (__init__)

@@ -13,7 +13,7 @@ class Tandem(SpectraIdentificationApplication):
     
     def _create_input_files(self,config):
         default_filename = os.path.join(self._wd,'default.params' )            
-        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,out_filename=default_filename)
+        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=default_filename)
         self.log.debug('Created [%s]' % default_filename)
         taxonomy_filename = os.path.join(self._wd,'taxonomy.params')
         db_filename = None
@@ -49,9 +49,9 @@ class Tandem(SpectraIdentificationApplication):
     
     
     def _preprocessing(self):
-        self.log.debug('Read ini file [%s]' % os.path.abspath(self._input_filename))
-        config = IniFile(in_filename=self._input_filename).read_ini()                
-        self.log.debug(config)
+        self.log.debug('Read input file [%s]' % os.path.abspath(self._input_filename))
+        config = IniFile(input_filename=self._input_filename).read_ini()                
+        self.log.debug("content: %s" % config)
         self.log.debug('Start %s' % self.create_workdir.__name__)
         self._wd = self.create_workdir(config)
         self.log.debug('Finished %s' % self.create_workdir.__name__) 

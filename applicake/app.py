@@ -161,9 +161,9 @@ class SpectraIdentificationApplication(ExternalApplication):
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
         parser.add_argument('-p','--prefix', action="store", dest="prefix",type=str,help="prefix of the command to execute")
-        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="configuration file in ini file structure")
+        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-t','--template', action="store", dest="template_filename",type=str,help="template of the program specific input file")
-        parser.add_argument('-o','--output', action="store", dest="output_filename",type=str,help="output file to generate")
+        parser.add_argument('-o','--output', action="store", dest="output_filename",type=str,help="output file")
 #        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
 #        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
         a = parser.parse_args()
@@ -179,7 +179,7 @@ class SpectraIdentificationApplication(ExternalApplication):
         else:
             self._command_prefix = dict['prefix']
         if dict['input_filename'] is None:
-            self.log.fatal('argument [config] was not set')
+            self.log.fatal('argument [input] was not set')
             sys.exit(1)
         else:
             self._input_filename = dict['input_filename']
@@ -214,6 +214,4 @@ class SpectraIdentificationApplication(ExternalApplication):
             self.log.exception(e)  
             sys.exit(1)
         return wd
-
-
         
