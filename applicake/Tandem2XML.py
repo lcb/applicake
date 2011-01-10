@@ -13,7 +13,7 @@ class Tandem2XML(ExternalApplication):
         parser = argparse.ArgumentParser(description='Script to wrap the Tandem2XML tool of the Trans-Proteomic Pipeline (TPP)')
         parser.add_argument('-p','--prefix', action="store", dest="prefix",type=str,help="prefix of the command to execute")
         parser.add_argument('-i','--input', action="store", dest="input",type=str,help="input file")
-        parser.add_argument('-i','--output', action="store", dest="output",type=str,help="output file")
+        parser.add_argument('-o','--output', action="store", dest="output",type=str,help="output file")
         a = parser.parse_args()
         return {'prefix':a.prefix,'input':a.input,'output':a.output}  
     

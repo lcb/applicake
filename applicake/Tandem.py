@@ -23,7 +23,6 @@ class Tandem(SpectraIdentificationApplication):
             spectra_filename = config['SPECTRA']
             (dir,name) = os.path.split(spectra_filename)
             (basename,ext) = os.path.splitext(name)
-            self._out_filenames.append(os.path.join(self._wd,basename + "." + self.name))
         except Exception,e:
             self.log.exception(e)
             sys.exit(1)           
@@ -33,11 +32,14 @@ class Tandem(SpectraIdentificationApplication):
             sink.write('<file format="peptide" URL="%s"/>' % db_filename)
             sink.write("</taxon>\n</bioml>")
         self.log.debug('Created [%s]' % taxonomy_filename)
-        self._run_filename = os.path.join(self._wd,'run.params' )         
+        self._run_filename = os.path.join(self._wd,'run.params' )
+        (dir,filename) = os.path.split(self.output_filename)
+        if dir is None:
+             self.output_filename = os.path.join(self._wd,self.output_filename)       
         with open(self._run_filename, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+default_filename+"</note>\n")
-            sink.write("<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>"+self._out_filenames[0]+"</note>\n")
+            sink.write("<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>"+self._output_filename+"</note>\n")
             sink.write("<note type='input' label='list path, taxonomy information'>"+taxonomy_filename+"</note>\n")
             sink.write("<note type='input' label='spectrum, path'>"+spectra_filename+"</note>\n")
             sink.write("<note type='input' label='protein, taxon'>database</note>\n</bioml>\n")
@@ -46,8 +48,8 @@ class Tandem(SpectraIdentificationApplication):
     
     
     def _preprocessing(self):
-        self.log.debug('Read ini file [%s]' % os.path.abspath(self._config_filename))
-        config = IniFile(in_filename=self._config_filename).read_ini()                
+        self.log.debug('Read ini file [%s]' % os.path.abspath(self._input_filename))
+        config = IniFile(in_filename=self._input_filename).read_ini()                
         self.log.debug(config)
         self.log.debug('Start %s' % self.create_workdir.__name__)
         self._wd = self.create_workdir(config)
@@ -60,17 +62,12 @@ class Tandem(SpectraIdentificationApplication):
     def _validate_run(self,run_code):        
         if 0 < run_code:
             return run_code 
-        if len(self._out_filenames) == 0: 
-            self.log.error('No output files defined.')
+        if not os.path.exists(self.output_filename):
+            self.log.error('File [%s] does not exist' % os.path.abspath(self.output_filename))
             return 1
-        for filename in self._out_filenames:
-            if not os.path.exists(filename):
-                self.log.error('File [%s] does not exist' % os.path.abspath(filename))
-                return 1
-            else:
-                self.log.debug('File [%s] does exist' % os.path.abspath(filename))
-            stdout = self.stdout.read()
-            
+        else:
+            self.log.debug('File [%s] does exist' % os.path.abspath(self.output_filename))
+        stdout = self.stdout.read()            
         if 'Valid models = 0' in stdout:
             self.log.error('No valid model found')
             return 1

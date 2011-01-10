@@ -59,14 +59,15 @@ class WorkflowInitiator(Application):
             self.log.debug('Finished [%s]' % ini_file.write_ini_value_product.__name__)
             self.log.debug('start generating output files (parameter x spectra files) and delete original parameter file')
             path_config = IniFile(in_filename=self._input_filename).read_ini()
+            self._output_filenames = []
             for param_filename in param_filenames:
                 ini = IniFile(in_filename=param_filename,lock=False)
                 config = ini.read_ini()
                 config.update(path_config)
                 out_filenames = ini.write_ini_value_product(config=config,use_subdir=False,index_key="SPECTRA_IDX")
-                self._out_filenames.extend(out_filenames)
+                self._output_filenames.extend(out_filenames)
                 os.remove(param_filename)
-            self.log.debug('generated [%s] output files' % len(self._out_filenames))
+            self.log.debug('generated [%s] output files' % len(self._output_filenames))
             self.log.debug('finished adding paths to each output file') 
             return 0
         except Exception,e:
@@ -135,10 +136,10 @@ class WorkflowInitiator(Application):
     def _validate_run(self,run_code=None):
         if 0 < run_code:
             return run_code 
-        if len(self._out_filenames) == 0: 
-            self.log.error('No output files defined.')
+        if len(self._output_filenames) == 0: 
+            self.log.error('No output files generated.')
             return 1
-        for filename in self._out_filenames:
+        for filename in self._output_filenames:
             if not os.path.exists(filename):
                 self.log.fatal('File [%s] does not exist' % os.path.abspath(filename))
                 return 1
