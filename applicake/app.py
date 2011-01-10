@@ -6,7 +6,7 @@ Created on Nov 11, 2010
 @author: quandtan
 '''
 
-import sys,getopt,logging,os,cStringIO
+import sys,getopt,logging,os,cStringIO,argparse
 from subprocess import Popen, PIPE
 from applicake.utils import Logger as logger
 
@@ -18,10 +18,13 @@ class Application():
         "Running the class' main logic and returns the exit code of the validate_run method"      
         self.log.debug('application class file [%s]' % args[0])
         self.log.debug('arguments [%s]' % args[1:])
-        self.log.debug('Python class [%s]' % self.__class__.__name__)     
-        self.log.info('Start [%s]' % self._validate_args.__name__)
-        self._validate_args(args)        
-        self.log.info('Finish [%s]' % self._validate_args.__name__)              
+        self.log.debug('Python class [%s]' % self.__class__.__name__)   
+        self.log.info('Start [%s]' % self._get_parsed_args.__name__)
+        parsed_args = self._get_parsed_args()        
+        self.log.info('Finish [%s]' % self._get_parsed_args.__name__)          
+        self.log.info('Start [%s]' % self._validate_parsed_args.__name__)
+        self._validate_parsed_args(parsed_args)        
+        self.log.info('Finish [%s]' % self._validate_parsed_args.__name__)              
         self.log.info('Start [%s]' % self._preprocessing.__name__)
         command = self._preprocessing()        
         self.log.info('Finish [%s]' % self._preprocessing.__name__)
@@ -55,7 +58,7 @@ class Application():
         else:
             self.log = logger(level=self._log_level).logger  
             
-        #TODO: _validate_args should contain possibility to change log level via commandline argument
+        #TODO: _validate_parsed_args should contain possibility to change log level via commandline argument
                   
     def _clean_up(self):
         'Delete old .out, .err, .log files before initializing the logger'
@@ -63,6 +66,12 @@ class Application():
         for file in files:
             if os.path.exists(file):
                 os.remove(file) 
+                
+    def _get_parsed_args(self):
+        '''
+        Parse command line arguments and returns dictionary with according key/value pairs
+        '''
+        raise NotImplementedError("Called '_get_parsed_args' method on abstact class")               
                     
     def _run(self,command=None):
         '''
@@ -81,11 +90,11 @@ class Application():
         '''
         raise NotImplementedError("Called '_preprocessing' method on abstract class") 
 
-    def _validate_args(self,args=None):
+    def _validate_parsed_args(self,dictionary=None):
         '''
-        Validate the command line arguments possibly passed to the application.
+        Validate the parsed command line arguments.
         '''
-        raise NotImplementedError("Called '_validate_args' method on abstact class")
+        raise NotImplementedError("Called '_validate_parsed_args' method on abstact class")
 
     def _validate_run(self,run_code=None):
         '''
@@ -96,22 +105,33 @@ class Application():
 
 
 class ExternalApplication(Application):
+    'Simple application that executes an external program'
+    
+    def _get_parsed_args(self):
+        parser = argparse.ArgumentParser(description='A simple application to call external programs')
+        parser.add_argument('-p','--prefix', action="store", dest="p",type=str,help="prefix of the command to execute")
+        a = parser.parse_args()
+        return {'prefix':a.p} 
+        
+    
+    def _preprocessing(self):
+        return self._command
     
     def _run(self,command=None):
         'Run and monitor the external application. Returns 1 or the original return code of that application'         
-        # when the command does not exist, process just dies.therefore a try/catch is needed
+        # when the command does not exist, process just dies.therefore a try/catch is needed          
         try:     
             if self._use_filesystem:
                 self.stdout = open(self._stdout_filename, 'w+')
-                self.stderr = open(self._stderr_filename, 'w+')                           
-                p = Popen(command, shell=False, stdout=self.stdout, stderr=self.stderr)
+                self.stderr = open(self._stderr_filename, 'w+')                        
+                p = Popen(command, shell=True, stdout=self.stdout, stderr=self.stderr)
                 p.wait()
                 #set pointer back to 1st character. therefore, fh has not to be closed (and opened again in validate_run ()
                 self.stdout.seek(0)
                 self.stderr.seek(0)                                
                 return p.returncode                       
             else:
-                p = Popen(command, shell=False, stdout=PIPE, stderr=PIPE)            
+                p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
                 output, error = p.communicate()                                                                                                                                                                            
                 self.stdout = cStringIO.StringIO(output)
                 self.stderr = cStringIO.StringIO(error)
@@ -125,38 +145,34 @@ class ExternalApplication(Application):
         except Exception,e:
             self.log.exception(e)
             return 1     
-
-
-class SimpleApplication(ExternalApplication): 
-    'simple application class that takes a string as argument and execute it.'      
     
-    def _preprocessing(self):
-        return self._command
-    
-    def _validate_args(self,args):
-#        self._command= args[1:]    
-        cp = CliParserApplication(description='A simple application to call external programs')  
-        parsed_args = cp.get_parsed_args(args[1:])
-        if parsed_args['prefix'] is None:
-            self.log.fatal('cli argument [prefix] was not set')
-            cp.print_usage()
-        else:
-            self._command = parsed_args['prefix']
+    def _validate_parsed_args(self,dictionary):
+#        self._command= args[1:]     
+        self._command = dictionary['prefix']            
         
     def _validate_run(self,run_code):
         print("=== stdout ===")
         print(self.stdout.read())
         print("=== stderr ===")  
         print(self.stderr.read())   
-        return run_code
+        return run_code        
     
                 
 class SpectraIdentificationApplication(ExternalApplication):
     
+    def _get_parsed_args(self):
+        self.parser.add_argument('-p','--prefix', action="store", dest="p",type=str,help="prefix of the command to execute")
+        self.parser.add_argument('-c','--config', action="store", dest="c",type=str,help="configuration file in ini file structure")
+        self.parser.add_argument('-t','--template', action="store", dest="t",type=str,help="template of the program specific input file")
+#        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
+#        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
+        a = self.parser.parse_args()
+        return {'prefix':a.p,'config_filename':a.c,'tpl_filename':a.t}       
+    
     def _preprocessing(self):
         raise NotImplementedError("Called configure method on abstract class") 
         
-#    def _validate_args(self,args):                     
+#    def _validate_parsed_args(self,args):                     
 #        msg_usage = "USAGE    :" + sys.argv[0] + " --prefix='my.exe' --config=app.conf --template=app.tpl"        
 #        try:
 #            options, remainder = getopt.getopt(sys.argv[1:], "p:c:t:", ["prefix=", "config=", "template="])
@@ -185,26 +201,24 @@ class SpectraIdentificationApplication(ExternalApplication):
 #                self._template_filename = arg
 
 
-    def _validate_args(self,args):     
-        cp = CliParserApplication('An application used in MS/MS spectrum analysis')  
-        parsed_args = cp.get_parsed_args(args)
-        if parsed_args['prefix'] is None:
-            self.log.fatal('cli argument [prefix] was not set')
-            cp.print_usage()
+    def _validate_parsed_args(self,dictionary):     
+        if dictionary['prefix'] is None:
+            self.log.fatal('argument [prefix] was not set')
+            sys.exit(1)
         else:
-            self._command_prefix = parsed_args['prefix']
-        if parsed_args['config_filename'] is None:
-            self.log.fatal('cli argument [config] was not set')
-            cp.print_usage()
+            self._command_prefix = dictionary['prefix']
+        if dictionary['config_filename'] is None:
+            self.log.fatal('argument [config] was not set')
+            sys.exit(1)
         else:
-            self._config_filename = parsed_args['config_filename']
+            self._config_filename = dictionary['config_filename']
             if not os.path.exists(self._config_filename):
                 self.log.fatal('file [%s] does not exist' % self._config_filename)
-        if parsed_args['tpl_filename'] is None:
+        if dictionary['tpl_filename'] is None:
             self.log.fatal('cli argument [template] was not set')
-            cp.print_usage()
+            sys.exit(1)
         else:
-            self._template_filename = parsed_args['template_filename']
+            self._template_filename = dictionary['template_filename']
             if not os.path.exists(self._template_filename):
                 self.log.fatal('file [%s] does not exist' % self._template_filename)
                 
@@ -232,35 +246,34 @@ class SpectraIdentificationApplication(ExternalApplication):
         return wd
     
 
-import argparse,os
-class CliParser():
-    
-    def __init__(self,description=''):
-        self.parser = argparse.ArgumentParser(description=description)
-        
-    
-    def get_parsed_args(self,args):
-        '''
-        parse command line arguments (sys.argv[1:]) and returns a dictionary with the according key value pairs
-        '''
-        raise NotImplementedError("Called '_preprocessing' method on abstract class") 
-    
-    def print_usage(self):
-        self.parser.parse_args(['-h'])        
-    
-class CliParserApplication():
-    
-    def get_parsed_args(self,parser,args):
-        self.parser.add_argument('-p', action="store", dest="p",type=str,help="prefix of the command to execute")
-        self.parser.add_argument('-c', action="store", dest="c",type=str,help="configuration file in ini file structure")
-        self.parser.add_argument('-t', action="store", dest="t",type=str,help="template of the program specific input file")
-#        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
-#        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
-        a = self.parser.parse_args(args)
-        return {'prefix':a.p,'config_filename':a.c,'tpl_filename':a.t}
-        
-            
-    
+#import argparse,os
+#class CliParser():
+#    
+#    def __init__(self,description=''):
+#        self.parser = argparse.ArgumentParser(description=description)
+#        
+#    
+#    def get_parsed_args(self,log=None):
+#        '''
+#        parse command line arguments (sys.argv[1:]) and returns a dictionary with the according key value pairs
+#        '''
+#        raise NotImplementedError("Called '_preprocessing' method on abstract class")   
+#
+#class CliParserExternalApplication(CliParser):
+#         
+#    
+#class CliParserTemplateApplication(CliParser):  
+#    
+#    def get_parsed_args(self,log=None):
+#        self.parser.add_argument('-p','--prefix', action="store", dest="p",type=str,help="prefix of the command to execute")
+#        self.parser.add_argument('-c','--config', action="store", dest="c",type=str,help="configuration file in ini file structure")
+#        self.parser.add_argument('-t','--template', action="store", dest="t",type=str,help="template of the program specific input file")
+##        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
+##        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
+#        a = self.parser.parse_args()
+#        return {'prefix':a.p,'config_filename':a.c,'tpl_filename':a.t}        
+#            
+#    
     
     
     

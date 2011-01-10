@@ -9,7 +9,7 @@ Created on Dec 19, 2010
 
 
 import sys,logging
-from applicake.app import SimpleApplication as app
+from applicake.app import ExternalApplication as app
 from utils import Generator as gen
 import fcntl
 

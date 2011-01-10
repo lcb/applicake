@@ -9,7 +9,7 @@ import shutil
 from applicake.app import SpectraIdentificationApplication
 from applicake.utils import Utilities,IniFile
 
-class Xtandem(SpectraIdentificationApplication):
+class Tandem(SpectraIdentificationApplication):
     
     def _create_input_files(self,config):
         default_filename = os.path.join(self._wd,'default.params' )            
@@ -78,7 +78,7 @@ class Xtandem(SpectraIdentificationApplication):
 
 if "__main__" == __name__:
     # init the application object (__init__)
-    a = Xtandem(use_filesystem=True,name=None)
+    a = Tandem(use_filesystem=True,name=None)
     # call the application object as method (__call__)
     exit_code = a(sys.argv)
     #copy the log file to the working dir
