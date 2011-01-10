@@ -90,7 +90,7 @@ class Application():
         '''
         raise NotImplementedError("Called '_preprocessing' method on abstract class") 
 
-    def _validate_parsed_args(self,dictionary=None):
+    def _validate_parsed_args(self,dict=None):
         '''
         Validate the parsed command line arguments.
         '''
@@ -146,9 +146,8 @@ class ExternalApplication(Application):
             self.log.exception(e)
             return 1     
     
-    def _validate_parsed_args(self,dictionary):
-#        self._command= args[1:]     
-        self._command = dictionary['prefix']            
+    def _validate_parsed_args(self,dict):    
+        self._command = dict['prefix']            
         
     def _validate_run(self,run_code):
         print("=== stdout ===")
@@ -161,66 +160,39 @@ class ExternalApplication(Application):
 class SpectraIdentificationApplication(ExternalApplication):
     
     def _get_parsed_args(self):
-        self.parser.add_argument('-p','--prefix', action="store", dest="p",type=str,help="prefix of the command to execute")
-        self.parser.add_argument('-c','--config', action="store", dest="c",type=str,help="configuration file in ini file structure")
-        self.parser.add_argument('-t','--template', action="store", dest="t",type=str,help="template of the program specific input file")
+        parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
+        parser.add_argument('-p','--prefix', action="store", dest="prefix",type=str,help="prefix of the command to execute")
+        parser.add_argument('-c','--config', action="store", dest="config_filename",type=str,help="configuration file in ini file structure")
+        parser.add_argument('-t','--template', action="store", dest="template_filename",type=str,help="template of the program specific input file")
 #        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
 #        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
-        a = self.parser.parse_args()
-        return {'prefix':a.p,'config_filename':a.c,'tpl_filename':a.t}       
+        a = parser.parse_args()
+        return {'prefix':a.prefix,'config_filename':a.config_filename,'template_filename':a.template_filename}       
     
     def _preprocessing(self):
         raise NotImplementedError("Called configure method on abstract class") 
-        
-#    def _validate_parsed_args(self,args):                     
-#        msg_usage = "USAGE    :" + sys.argv[0] + " --prefix='my.exe' --config=app.conf --template=app.tpl"        
-#        try:
-#            options, remainder = getopt.getopt(sys.argv[1:], "p:c:t:", ["prefix=", "config=", "template="])
-#        except getopt.GetoptError as err:
-#            print(msg_usage)
-#            self.log.fatal('ERROR PARSING SYS.ARGV [%s]' % self._log_filename)
-#            sys.exit(1)
-#        if len(options) != 3:  # check if unknown arguments are passed and if all arguments are defined 
-#            self.log.fatal("wrong number of arguments [%s]. (Arguments properly not correctly called).\n%s" %(len(options),msg_usage))
-#            sys.exit(1)             
-#        if len(remainder) > 0:   
-#            self.log.fatal("unknown argument")
-#            sys.exit(1)             
-#        for opt, arg in options:       
-#            if opt in ('-p', '--prefix'):                
-#                self._command_prefix = arg                  
-#            elif opt in ('-c', '--config'):                
-#                if not (os.path.exists(arg)):                    
-#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-#                    sys.exit(1)
-#                self._config_filename = arg                  
-#            elif opt in ('-t', '--template'):   
-#                if not (os.path.exists(arg)): 
-#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-#                    sys.exit(1) 
-#                self._template_filename = arg
 
-
-    def _validate_parsed_args(self,dictionary):     
-        if dictionary['prefix'] is None:
+    def _validate_parsed_args(self,dict):     
+        if dict['prefix'] is None:
             self.log.fatal('argument [prefix] was not set')
             sys.exit(1)
         else:
-            self._command_prefix = dictionary['prefix']
-        if dictionary['config_filename'] is None:
+            self._command_prefix = dict['prefix']
+        if dict['config_filename'] is None:
             self.log.fatal('argument [config] was not set')
             sys.exit(1)
         else:
-            self._config_filename = dictionary['config_filename']
+            self._config_filename = dict['config_filename']
             if not os.path.exists(self._config_filename):
                 self.log.fatal('file [%s] does not exist' % self._config_filename)
-        if dictionary['tpl_filename'] is None:
+        if dict['template_filename'] is None:
             self.log.fatal('cli argument [template] was not set')
             sys.exit(1)
         else:
-            self._template_filename = dictionary['template_filename']
+            self._template_filename = dict['template_filename']
             if not os.path.exists(self._template_filename):
                 self.log.fatal('file [%s] does not exist' % self._template_filename)
+                sys.exit(1)
                 
     def create_workdir(self,config):
         basedir = None  
@@ -231,53 +203,12 @@ class SpectraIdentificationApplication(ExternalApplication):
             wd = os.path.join(basedir,param_idx)
             wd = os.path.join(wd,spectra_idx)
             wd = os.path.join(wd,self.name)                       
-#            wd = os.path.join(basedir,self.name)
-
-#        except:
-#            basedir = os.path.abspath(os.curdir)
-#            self.log.error('config does not contain a key/value pair for [DIR]: use current dir [%s]' % basedir)
-#        basedir = os.path.join(basedir,self.name) 
-#        try:
             os.makedirs(wd)
             self.log.debug('Created workdir [%s]' % wd)
         except Exception,e:
             self.log.exception(e)  
             sys.exit(1)
         return wd
-    
-
-#import argparse,os
-#class CliParser():
-#    
-#    def __init__(self,description=''):
-#        self.parser = argparse.ArgumentParser(description=description)
-#        
-#    
-#    def get_parsed_args(self,log=None):
-#        '''
-#        parse command line arguments (sys.argv[1:]) and returns a dictionary with the according key value pairs
-#        '''
-#        raise NotImplementedError("Called '_preprocessing' method on abstract class")   
-#
-#class CliParserExternalApplication(CliParser):
-#         
-#    
-#class CliParserTemplateApplication(CliParser):  
-#    
-#    def get_parsed_args(self,log=None):
-#        self.parser.add_argument('-p','--prefix', action="store", dest="p",type=str,help="prefix of the command to execute")
-#        self.parser.add_argument('-c','--config', action="store", dest="c",type=str,help="configuration file in ini file structure")
-#        self.parser.add_argument('-t','--template', action="store", dest="t",type=str,help="template of the program specific input file")
-##        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
-##        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
-#        a = self.parser.parse_args()
-#        return {'prefix':a.p,'config_filename':a.c,'tpl_filename':a.t}        
-#            
-#    
-    
-    
-    
-
 
 
         

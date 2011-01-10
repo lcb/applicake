@@ -5,7 +5,7 @@ Created on Dec 19, 2010
 @author: quandtan
 '''
 
-import sys,os,getopt,traceback,shutil
+import sys,os,getopt,traceback,shutil,argparse
 from applicake.utils import Utilities,Generator,IniFile
 from applicake.app import Application
 
@@ -23,6 +23,14 @@ class WorkflowInitiator(Application):
             self.log.fatal('job_dir [%s] was not created.' % job_dirname)
             sys.exit(1)
         return job_dirname
+         
+    def _get_parsed_args(self):
+        parser = argparse.ArgumentParser(description='Script which initiates a workflow')
+        parser.add_argument('-i','--input', action="store", dest="input",type=str,help="input file")
+        parser.add_argument('-c','--config', action="store", dest="config",type=str,help="config file")
+        parser.add_argument('-d','--dir', action="store", dest="dir",type=str,help="base directory")
+        a = parser.parse_args()
+        return {'input_filename':a.input,'config_filename':a.config,'dirname':a.dir}                          
             
     def _preprocessing(self):
         self.log.debug('method has no real implementation')                                           
@@ -38,10 +46,7 @@ class WorkflowInitiator(Application):
 #            out_filename = os.path.join(job_dirname,os.path.split(self._config_filename)[1])
 #            ini_file = IniFile(in_filename=self._config_filename,out_filename=out_filename,lock=False)    
             ini_file = IniFile(in_filename=self._config_filename,lock=False) 
-            
-            
-            
-            
+
             
             self.log.debug('Start [%s]' % ini_file.read_ini.__name__)
             config = ini_file.read_ini()
@@ -53,7 +58,7 @@ class WorkflowInitiator(Application):
             self.log.debug('generated [%s] parameter files' % len(param_filenames))
             self.log.debug('Finished [%s]' % ini_file.write_ini_value_product.__name__)
             self.log.debug('start generating output files (parameter x spectra files) and delete original parameter file')
-            path_config = IniFile(in_filename=self._path_filename).read_ini()
+            path_config = IniFile(in_filename=self._input_filename).read_ini()
             for param_filename in param_filenames:
                 ini = IniFile(in_filename=param_filename,lock=False)
                 config = ini.read_ini()
@@ -68,39 +73,64 @@ class WorkflowInitiator(Application):
             self.log.exception(e)
             return 1        
             
-    def _validate_args(self,args):
-        msg_usage = "USAGE    :" + sys.argv[0] + " --input=filespath.txt --config=app.ini --dir=/tmp"        
-        try:
-            options, remainder = getopt.getopt(sys.argv[1:], "i:c:d:", ["input=","config=","dir="])
-        except getopt.GetoptError as err:
-            print(msg_usage)
-            self.log.fatal('ERROR PARSING SYS.ARGV [%s]' % self._log_filename)
-            sys.exit(1)                       
-        if len(options) != 3:  # check if unknown arguments are passed and if all arguments are defined 
-            self.log.fatal("wrong number of arguments [%s]. (Arguments properly not correctly called).\n%s" %(len(options),msg_usage))
-            sys.exit(1)             
-        if len(remainder) > 0:   
-            self.log.fatal("unknown argument")
-            sys.exit(1)             
-        for opt, arg in options:            
-            if opt in ('-i', '--input'):                
-                if not (os.path.exists(arg)):                    
-                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-                    sys.exit(1)
-                self._path_filename = arg 
-            elif opt in ('-c', '--config'):                
-                if not (os.path.exists(arg)):                    
-                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-                    sys.exit(1)
-                self._config_filename = arg   
-            elif opt in ('-d', '--dir'):                
-                if not (os.path.exists(arg)):                    
-                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
-                    sys.exit(1)
-                elif not (os.path.isdir(arg)):                    
-                    self.log.fatal("File [%s] does not a directory.\n%s" % (arg,msg_usage))
-                    sys.exit(1)   
-                self._dirname = arg             
+    def _validate_parsed_args(self,dict):
+        if dict['input_filename'] is None:
+            self.log.fatal('argument [input] was not set')
+            sys.exit(1)
+        else:
+            self._input_filename = dict['input_filename']
+            if not os.path.exists(self._input_filename):
+                self.log.fatal('file [%s] does not exist' % self._input_filename)
+        if dict['config_filename'] is None:
+            self.log.fatal('argument [config] was not set')
+            sys.exit(1)
+        else:
+            self._config_filename = dict['config_filename']
+            if not os.path.exists(self._config_filename):
+                self.log.fatal('file [%s] does not exist' % self._config_filename)
+        if dict['dirname'] is None:
+            self.log.fatal('argument [dir] was not set')
+            sys.exit(1)
+        else:
+            self._dirname = dict['dirname']
+            if not os.path.exists(self._dirname):
+                self.log.fatal('file [%s] does not exist' % self._dirname)        
+        
+        
+        
+        
+#        msg_usage = "USAGE    :" + sys.argv[0] + " --input=filespath.txt --config=app.ini --dir=/tmp"        
+#        try:
+#            options, remainder = getopt.getopt(sys.argv[1:], "i:c:d:", ["input=","config=","dir="])
+#        except getopt.GetoptError as err:
+#            print(msg_usage)
+#            self.log.fatal('ERROR PARSING SYS.ARGV [%s]' % self._log_filename)
+#            sys.exit(1)                       
+#        if len(options) != 3:  # check if unknown arguments are passed and if all arguments are defined 
+#            self.log.fatal("wrong number of arguments [%s]. (Arguments properly not correctly called).\n%s" %(len(options),msg_usage))
+#            sys.exit(1)             
+#        if len(remainder) > 0:   
+#            self.log.fatal("unknown argument")
+#            sys.exit(1)             
+#        for opt, arg in options:            
+#            if opt in ('-i', '--input'):                
+#                if not (os.path.exists(arg)):                    
+#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
+#                    sys.exit(1)
+#                self._input_filename = arg 
+#            elif opt in ('-c', '--config'):                
+#                if not (os.path.exists(arg)):                    
+#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
+#                    sys.exit(1)
+#                self._config_filename = arg   
+#            elif opt in ('-d', '--dir'):                
+#                if not (os.path.exists(arg)):                    
+#                    self.log.fatal("File [%s] does not exist.\n%s" % (arg,msg_usage))
+#                    sys.exit(1)
+#                elif not (os.path.isdir(arg)):                    
+#                    self.log.fatal("File [%s] does not a directory.\n%s" % (arg,msg_usage))
+#                    sys.exit(1)   
+#                self._dirname = arg             
             
     def _validate_run(self,run_code=None):
         if 0 < run_code:

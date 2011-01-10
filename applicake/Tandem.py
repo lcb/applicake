@@ -55,7 +55,7 @@ class Tandem(SpectraIdentificationApplication):
         self.log.debug('Start %s' % self._create_input_files.__name__)
         run_filename = self._create_input_files(config)
         self.log.debug('Finished %s' % self._create_input_files.__name__)                
-        return [self._command_prefix,self._run_filename]
+        return "cd %s;%s %s" % (self._wd,self._command_prefix,self._run_filename)
         
     def _validate_run(self,run_code):        
         if 0 < run_code:
