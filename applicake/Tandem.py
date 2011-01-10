@@ -33,9 +33,10 @@ class Tandem(SpectraIdentificationApplication):
             sink.write("</taxon>\n</bioml>")
         self.log.debug('Created [%s]' % taxonomy_filename)
         self._run_filename = os.path.join(self._wd,'run.params' )
-        (dir,filename) = os.path.split(self.output_filename)
-        if dir is None:
-             self.output_filename = os.path.join(self._wd,self.output_filename)       
+        (dir,filename) = os.path.split(self._output_filename)
+        self.log.debug(filename)
+        if dir is '':
+             self._output_filename = os.path.join(self._wd,self._output_filename)       
         with open(self._run_filename, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+default_filename+"</note>\n")
@@ -62,11 +63,11 @@ class Tandem(SpectraIdentificationApplication):
     def _validate_run(self,run_code):        
         if 0 < run_code:
             return run_code 
-        if not os.path.exists(self.output_filename):
-            self.log.error('File [%s] does not exist' % os.path.abspath(self.output_filename))
+        if not os.path.exists(self._output_filename):
+            self.log.error('File [%s] does not exist' % os.path.abspath(self._output_filename))
             return 1
         else:
-            self.log.debug('File [%s] does exist' % os.path.abspath(self.output_filename))
+            self.log.debug('File [%s] does exist' % os.path.abspath(self._output_filename))
         stdout = self.stdout.read()            
         if 'Valid models = 0' in stdout:
             self.log.error('No valid model found')

@@ -196,6 +196,8 @@ class SpectraIdentificationApplication(ExternalApplication):
         if dict['output_filename'] is None:
             self.log.fatal('cli argument [output] was not set')
             sys.exit(1)
+        else:
+            self._output_filename = dict['output_filename']           
                 
     def create_workdir(self,config):
         basedir = None  
