@@ -18,9 +18,14 @@ class Tandem2XML(ExternalApplication):
         return {'prefix':a.prefix,'input_filename':a.input_filename,'output_filename':a.output_filename}      
     
     def _validate_parsed_args(self,dict):    
-        if not os.path.exists(dict['in']):
-            self.log.fatal('file [%s] does not exist' % dict['input_filename'])
-            sys.exit(1)            
+        if dict['input_filename'] is None:
+            self.log.fatal('argument [input] was not set')
+            sys.exit(1)
+        else:
+            self._input_filename = dict['input_filename']
+            self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
+            if not os.path.exists(self._input_filename):
+                self.log.fatal('file [%s] does not exist' % self._input_filename)           
         self._command = '%s %s %s' % (dict['prefix'], dict['input_filename'],dict['output_filename'])        
 
     def _validate_run(self,run_code):        

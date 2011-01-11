@@ -183,6 +183,7 @@ class SpectraIdentificationApplication(ExternalApplication):
             sys.exit(1)
         else:
             self._input_filename = dict['input_filename']
+            self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
             if not os.path.exists(self._input_filename):
                 self.log.fatal('file [%s] does not exist' % self._input_filename)
         if dict['template_filename'] is None:
@@ -190,6 +191,7 @@ class SpectraIdentificationApplication(ExternalApplication):
             sys.exit(1)
         else:
             self._template_filename = dict['template_filename']
+            self.log.debug("template file [%s]" % os.path.abspath(self._template_filename))
             if not os.path.exists(self._template_filename):
                 self.log.fatal('file [%s] does not exist' % self._template_filename)
                 sys.exit(1)

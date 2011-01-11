@@ -17,12 +17,14 @@ class Tandem(SpectraIdentificationApplication):
         self.log.debug('Created [%s]' % default_filename)
         taxonomy_filename = os.path.join(self._wd,'taxonomy.params')
         db_filename = None
-        spectra_filename = None        
+        spectra_filename = None
+        self._result_filename = None        
         try:
             db_filename = config['DBASE']
-            spectra_filename = config['SPECTRA']
+            spectra_filename = config['FILE']
             (dir,name) = os.path.split(spectra_filename)
             (basename,ext) = os.path.splitext(name)
+            self._result_filename = os.path.join(self._wd,basename + "." + self.name)
         except Exception,e:
             self.log.exception(e)
             sys.exit(1)           
@@ -33,14 +35,14 @@ class Tandem(SpectraIdentificationApplication):
             sink.write("</taxon>\n</bioml>")
         self.log.debug('Created [%s]' % taxonomy_filename)
         self._run_filename = os.path.join(self._wd,'run.params' )
-        (dir,filename) = os.path.split(self._output_filename)
-        self.log.debug(filename)
-        if dir is '':
-             self._output_filename = os.path.join(self._wd,self._output_filename)       
+#        (dir,filename) = os.path.split(self._output_filename)
+#        self.log.debug(filename)
+#        if dir is '':
+#             self._output_filename = os.path.join(self._wd,self._output_filename)       
         with open(self._run_filename, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+default_filename+"</note>\n")
-            sink.write("<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>"+self._output_filename+"</note>\n")
+            sink.write("<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>"+self._result_filename+"</note>\n")
             sink.write("<note type='input' label='list path, taxonomy information'>"+taxonomy_filename+"</note>\n")
             sink.write("<note type='input' label='spectrum, path'>"+spectra_filename+"</note>\n")
             sink.write("<note type='input' label='protein, taxon'>database</note>\n</bioml>\n")
@@ -63,15 +65,32 @@ class Tandem(SpectraIdentificationApplication):
     def _validate_run(self,run_code):        
         if 0 < run_code:
             return run_code 
-        if not os.path.exists(self._output_filename):
-            self.log.error('File [%s] does not exist' % os.path.abspath(self._output_filename))
+        if not os.path.exists(self._result_filename):
+            self.log.error('File [%s] does not exist' % os.path.abspath(self._result_filename))
             return 1
         else:
-            self.log.debug('File [%s] does exist' % os.path.abspath(self._output_filename))
+            self.log.debug('File [%s] does exist' % os.path.abspath(self._result_filename))
         stdout = self.stdout.read()            
         if 'Valid models = 0' in stdout:
             self.log.error('No valid model found')
             return 1
+        else:
+            self.log.debug("more that 0 valid models found")
+        self.log.debug("read file [%s]" % os.path.abspath(self._output_filename))
+        ini = IniFile(input_filename=self._input_filename,output_filename=self._output_filename)
+        config = ini.read_ini()
+        self.log.debug("update value of 'FILE' [%s]" %  self._result_filename)
+        config['FILE'] = self._result_filename
+        self.log.debug("write file [%s]" % os.path.abspath(self._output_filename))
+        ini.write_ini(config)
+        self.log.debug("content:%s" % config)
+        if not os.path.exists(self._output_filename):
+            self.log.fatal("File [%s] does not exist" % os.path.abspath(self._output_filename))
+            return 1
+        else:
+            self.log.debug("File [%s] does exist" % os.path.abspath(self._output_filename))            
+        self.log.debug("finished writing output file [%s]" % self._output_filename)
+        
         return 0      
 
 if "__main__" == __name__:

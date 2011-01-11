@@ -62,13 +62,9 @@ class IniFile():
         self._lock = lock
         
     def add_to_ini(self,dictionary):
-#        locker = FileLocker()        
-#        file = open(self._input_filename,'r')
-#        locker.lock(file,locker.LOCK_EX)
         config = self.read_ini()
         config.update(dictionary)
-        self.write_ini(config)        
-#        locker.unlock(file)         
+        self.write_ini(config)               
         
     def read_ini(self): 
         'Read file in windows ini format and returns a dictionary like object (ConfigObj)'

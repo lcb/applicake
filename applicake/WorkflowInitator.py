@@ -26,11 +26,11 @@ class WorkflowInitiator(Application):
          
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Script which initiates a workflow')
-        parser.add_argument('-i','--input', action="store", dest="input",type=str,help="input file")
-        parser.add_argument('-c','--config', action="store", dest="config",type=str,help="config file")
-        parser.add_argument('-d','--dir', action="store", dest="dir",type=str,help="base directory")
+        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-c','--config', action="store", dest="config_filename",type=str,help="config file")
+        parser.add_argument('-d','--dir', action="store", dest="dirname",type=str,help="base directory")
         a = parser.parse_args()
-        return {'input_filename':a.input,'config_filename':a.config,'dirname':a.dir}                          
+        return {'input_filename':a.input_filename,'config_filename':a.config_filename,'dirname':a.dirname}                          
             
     def _preprocessing(self):
         self.log.debug('method has no real implementation')                                           
@@ -40,14 +40,8 @@ class WorkflowInitiator(Application):
             print(os.path.abspath(self._log_filename))
             self.log.info('Start [%s]' % self._create_jobdir.__name__)
             job_dirname = self._create_jobdir()
-            self.log.info('Finished [%s]' % self._create_jobdir.__name__)    
-            
-            
-#            out_filename = os.path.join(job_dirname,os.path.split(self._config_filename)[1])
-#            ini_file = IniFile(in_filename=self._config_filename,out_filename=out_filename,lock=False)    
+            self.log.info('Finished [%s]' % self._create_jobdir.__name__)       
             ini_file = IniFile(input_filename=self._config_filename,lock=False) 
-
-            
             self.log.debug('Start [%s]' % ini_file.read_ini.__name__)
             config = ini_file.read_ini()
             self.log.debug('Finished [%s]' % ini_file.read_ini.__name__)
