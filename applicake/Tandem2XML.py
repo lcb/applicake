@@ -1,45 +1,38 @@
+#!/usr/bin/env python
 '''
 Created on Jan 10, 2011
 
 @author: quandtan
 '''
 
-import os,sys,shutil,argparse
-from applicake.app import ExternalApplication
+import os,sys,shutil,argparse,string
+from applicake.app import WorkflowApplication
 
-class Tandem2XML(ExternalApplication):
+class Tandem2XML(WorkflowApplication):
     
-    def _get_parsed_args(self):
-        parser = argparse.ArgumentParser(description='Script to wrap the Tandem2XML tool of the Trans-Proteomic Pipeline (TPP)')
-        parser.add_argument('-p','--prefix', action="store", dest="prefix",type=str,help="prefix of the command to execute")
-        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="configuration file in ini file structure")
-        parser.add_argument('-o','--output', action="store", dest="output_filename",type=str,help="output file to generate")
-        a = parser.parse_args()
-        return {'prefix':a.prefix,'input_filename':a.input_filename,'output_filename':a.output_filename}      
+    def _get_app_inputfilename(self,config):
+        return config['RESULT'] 
     
-    def _validate_parsed_args(self,dict):    
-        if dict['input_filename'] is None:
-            self.log.fatal('argument [input] was not set')
-            sys.exit(1)
-        else:
-            self._input_filename = dict['input_filename']
-            self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
-            if not os.path.exists(self._input_filename):
-                self.log.fatal('file [%s] does not exist' % self._input_filename)           
-        self._command = '%s %s %s' % (dict['prefix'], dict['input_filename'],dict['output_filename'])        
-
+    def _get_command(self,prefix,input_filename):
+        (root,ext) = os.path.splitext(input_filename)
+        self.pepxml_filename  = string.replace(input_filename,ext,'pepxml')
+        self._iniFile.add_to_ini({'PEPXML':self.pepxml_filename})
+        return "%s %s %s" % (prefix,input_filename,self.pepxml_filename)     
+    
+    
     def _validate_run(self,run_code):        
         if 0 < run_code:
             return run_code 
-        if not os.path.exists(self.output_filename):
-            self.log.error('File [%s] does not exist' % os.path.abspath(self._output_filename))
+        if not os.path.exists(self.pepxml_filename):
+            self.log.error('File [%s] does not exist' % os.path.abspath(self.pepxml_filename))
             return 1
         else:
-            self.log.debug('File [%s] does exist' % os.path.abspath(self._output_filename))
-        stdout = self.stdout.read()            
-        if 'Valid models = 0' in stdout:
-            self.log.error('No valid model found')
+            self.log.debug('File [%s] does exist' % os.path.abspath(self.pepxml_filename))
+        if not os.path.exists(self._output_filename):
+            self.log.fatal("File [%s] does not exist" % os.path.abspath(self._output_filename))
             return 1
+        else:
+            self.log.debug("File [%s] does exist" % os.path.abspath(self._output_filename))               
         return 0       
 
 if "__main__" == __name__:

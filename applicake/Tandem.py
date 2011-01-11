@@ -11,7 +11,7 @@ from applicake.utils import Utilities,IniFile
 
 class Tandem(SpectraIdentificationApplication):
     
-    def _create_input_files(self,config):
+    def _get_app_inputfilename(self,config):
         default_filename = os.path.join(self._wd,'default.params' )            
         Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=default_filename)
         self.log.debug('Created [%s]' % default_filename)
@@ -21,7 +21,7 @@ class Tandem(SpectraIdentificationApplication):
         self._result_filename = None        
         try:
             db_filename = config['DBASE']
-            spectra_filename = config['FILE']
+            spectra_filename = config['MZXML']
             (dir,name) = os.path.split(spectra_filename)
             (basename,ext) = os.path.splitext(name)
             self._result_filename = os.path.join(self._wd,basename + "." + self.name)
@@ -34,33 +34,20 @@ class Tandem(SpectraIdentificationApplication):
             sink.write('<file format="peptide" URL="%s"/>' % db_filename)
             sink.write("</taxon>\n</bioml>")
         self.log.debug('Created [%s]' % taxonomy_filename)
-        self._run_filename = os.path.join(self._wd,'run.params' )
-#        (dir,filename) = os.path.split(self._output_filename)
-#        self.log.debug(filename)
-#        if dir is '':
-#             self._output_filename = os.path.join(self._wd,self._output_filename)       
-        with open(self._run_filename, "w") as sink:
+        input_filename = os.path.join(self._wd,'input.params' )    
+        with open(input_filename, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+default_filename+"</note>\n")
             sink.write("<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>"+self._result_filename+"</note>\n")
             sink.write("<note type='input' label='list path, taxonomy information'>"+taxonomy_filename+"</note>\n")
             sink.write("<note type='input' label='spectrum, path'>"+spectra_filename+"</note>\n")
             sink.write("<note type='input' label='protein, taxon'>database</note>\n</bioml>\n")
-        self.log.debug('Created [%s]' % self._run_filename)
+        self.log.debug('Created [%s]' % input_filename)
+        return input_filename    
         
-    
-    
-    def _preprocessing(self):
-        self.log.debug('Read input file [%s]' % os.path.abspath(self._input_filename))
-        config = IniFile(input_filename=self._input_filename).read_ini()                
-        self.log.debug("content: %s" % config)
-        self.log.debug('Start %s' % self.create_workdir.__name__)
-        self._wd = self.create_workdir(config)
-        self.log.debug('Finished %s' % self.create_workdir.__name__) 
-        self.log.debug('Start %s' % self._create_input_files.__name__)
-        run_filename = self._create_input_files(config)
-        self.log.debug('Finished %s' % self._create_input_files.__name__)                
-        return "cd %s;%s %s" % (self._wd,self._command_prefix,self._run_filename)
+        
+    def _get_command(self,prefix,input_filename):
+        return "cd %s;%s %s" % (self._wd,prefix,input_filename)    
         
     def _validate_run(self,run_code):        
         if 0 < run_code:
@@ -77,20 +64,17 @@ class Tandem(SpectraIdentificationApplication):
         else:
             self.log.debug("more that 0 valid models found")
         self.log.debug("read file [%s]" % os.path.abspath(self._output_filename))
-        ini = IniFile(input_filename=self._input_filename,output_filename=self._output_filename)
-        config = ini.read_ini()
-        self.log.debug("update value of 'FILE' [%s]" %  self._result_filename)
-        config['FILE'] = self._result_filename
+        config = self._iniFile.read_ini()
+        self.log.debug("add key 'RESULT' with value [%s] to config" %  self._result_filename)
+        config.update({'RESULT':self._result_filename})
+        self.log.debug("content:%s" % config)        
+        self._iniFile.write_ini(config)        
         self.log.debug("write file [%s]" % os.path.abspath(self._output_filename))
-        ini.write_ini(config)
-        self.log.debug("content:%s" % config)
         if not os.path.exists(self._output_filename):
             self.log.fatal("File [%s] does not exist" % os.path.abspath(self._output_filename))
             return 1
         else:
-            self.log.debug("File [%s] does exist" % os.path.abspath(self._output_filename))            
-        self.log.debug("finished writing output file [%s]" % self._output_filename)
-        
+            self.log.debug("File [%s] does exist" % os.path.abspath(self._output_filename))                    
         return 0      
 
 if "__main__" == __name__:

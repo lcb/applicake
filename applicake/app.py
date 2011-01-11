@@ -9,6 +9,7 @@ Created on Nov 11, 2010
 import sys,getopt,logging,os,cStringIO,argparse
 from subprocess import Popen, PIPE
 from applicake.utils import Logger as logger
+from applicake.utils import IniFile
 
                  
 class Application():
@@ -154,9 +155,74 @@ class ExternalApplication(Application):
         print("=== stderr ===")  
         print(self.stderr.read())   
         return run_code        
+
+class WorkflowApplication(ExternalApplication):
     
+    def _get_app_inputfilename(self):
+        raise NotImplementedError("Called '_create_app_inputfiles' method on abstact class")
+    
+    def _get_command(self,prefix,input_filename):
+        raise NotImplementedError("Called '_get_command' method on abstact class")     
+    
+    def _get_parsed_args(self):
+        parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
+        parser.add_argument('-p','--prefix', action="store", dest="prefix",type=str,help="prefix of the command to execute")
+        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-o','--output', action="store", dest="output_filename",type=str,help="output file")
+        a = parser.parse_args()
+        return {'prefix':a.prefix,'input_filename':a.input_filename,'output_filename':a.output_filename}      
+    
+    def _preprocessing(self):
+        self.log.debug('Read input file [%s]' % os.path.abspath(self._input_filename))
+        self._iniFile = IniFile(input_filename=self._input_filename,output_filename=self._output_filename)
+        config = self._iniFile.read_ini()                
+        self.log.debug("content: %s" % config)
+        self.log.info('Start %s' % self.create_workdir.__name__)
+        self._wd = self.create_workdir(config)
+        self.log.info('Finished %s' % self.create_workdir.__name__) 
+        self.log.info('Start %s' % self._get_app_inputfilename.__name__)
+        app_input_filename = self._get_app_inputfilename(config)
+        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)                
+        return self._get_command(prefix=self._command_prefix,input_filename=app_input_filename)   
+    
+    def _validate_parsed_args(self,dict):     
+        if dict['prefix'] is None:
+            self.log.fatal('argument [prefix] was not set')
+            sys.exit(1)
+        else:
+            self._command_prefix = dict['prefix']
+        if dict['input_filename'] is None:
+            self.log.fatal('argument [input] was not set')
+            sys.exit(1)
+        else:
+            self._input_filename = dict['input_filename']
+            self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
+            if not os.path.exists(self._input_filename):
+                self.log.fatal('file [%s] does not exist' % self._input_filename)
+        if dict['output_filename'] is None:
+            self.log.fatal('cli argument [output] was not set')
+            sys.exit(1)
+        else:
+            self._output_filename = dict['output_filename']                                  
                 
-class SpectraIdentificationApplication(ExternalApplication):
+    def create_workdir(self,config):
+        basedir = None  
+        try:
+            basedir = config['DIR'] 
+            param_idx = config['PARAM_IDX']
+            spectra_idx =  config['SPECTRA_IDX']
+            wd = os.path.join(basedir,param_idx)
+            wd = os.path.join(wd,spectra_idx)
+            wd = os.path.join(wd,self.name)                       
+            os.makedirs(wd)
+            self.log.debug('Created workdir [%s]' % wd)
+        except Exception,e:
+            self.log.exception(e)  
+            sys.exit(1)
+        return wd          
+                            
+                            
+class SpectraIdentificationApplication(WorkflowApplication):   
     
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
@@ -167,10 +233,7 @@ class SpectraIdentificationApplication(ExternalApplication):
 #        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
 #        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
         a = parser.parse_args()
-        return {'prefix':a.prefix,'input_filename':a.input_filename,'template_filename':a.template_filename,'output_filename':a.output_filename}       
-    
-    def _preprocessing(self):
-        raise NotImplementedError("Called configure method on abstract class") 
+        return {'prefix':a.prefix,'input_filename':a.input_filename,'template_filename':a.template_filename,'output_filename':a.output_filename}         
 
     def _validate_parsed_args(self,dict):     
         if dict['prefix'] is None:
@@ -200,20 +263,6 @@ class SpectraIdentificationApplication(ExternalApplication):
             sys.exit(1)
         else:
             self._output_filename = dict['output_filename']           
-                
-    def create_workdir(self,config):
-        basedir = None  
-        try:
-            basedir = config['DIR'] 
-            param_idx = config['PARAM_IDX']
-            spectra_idx =  config['SPECTRA_IDX']
-            wd = os.path.join(basedir,param_idx)
-            wd = os.path.join(wd,spectra_idx)
-            wd = os.path.join(wd,self.name)                       
-            os.makedirs(wd)
-            self.log.debug('Created workdir [%s]' % wd)
-        except Exception,e:
-            self.log.exception(e)  
-            sys.exit(1)
-        return wd
+                   
+      
         
