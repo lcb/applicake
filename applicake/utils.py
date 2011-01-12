@@ -4,11 +4,11 @@ Created on Dec 14, 2010
 @author: quandtan
 '''
 
-import logging,itertools,os,fcntl,time,random
+import logging,itertools,os,fcntl,time,random,xml.parsers.expat,sys
 #import win32con, win32file, pywintypes,fcntl
 from configobj import ConfigObj #easy_install configobj
-from string import Template
-
+from string import Template 
+ 
 class Generator():
     
     def job_id(self,dirname):
@@ -54,11 +54,11 @@ class FileLocker():
 class IniFile(): 
     
     def __init__(self,input_filename,output_filename=None,lock=False):
-        self._input_filename = input_filename 
+        self.input_filename = input_filename 
         if output_filename is None:       
-            self._output_filename = input_filename
+            self.output_filename = input_filename
         else:
-            self._output_filename = output_filename
+            self.output_filename = output_filename
         self._lock = lock
         
     def add_to_ini(self,dictionary):
@@ -69,23 +69,25 @@ class IniFile():
     def read_ini(self): 
         'Read file in windows ini format and returns a dictionary like object (ConfigObj)'
         if not self._lock:
-            return ConfigObj(self._input_filename)
+            return ConfigObj(self.input_filename)
         else:
             locker = FileLocker()
-            file = open(self._input_filename,'r')        
+            file = open(self.input_filename,'r')        
             locker.lock(file,locker.LOCK_EX)
-            config = ConfigObj(self._input_filename)
+            config = ConfigObj(self.input_filename)
             locker.unlock(file)       
             return config        
     
     def write_ini(self,dictionary):
         config = ConfigObj(dictionary)
-        config.filename = self._output_filename
+        config.filename = self.output_filename
+        # need to set input pointer to output pointer that read_ini() always gets the latest config
+        self.input_filename = self.output_filename
         if not self._lock:
             config.write()
         else:        
             locker = FileLocker()
-            file = open(self._output_filename,'r')
+            file = open(self.output_filename,'r')
             locker.lock(file,locker.LOCK_EX)
             config.write()
             locker.unlock(file)
@@ -98,24 +100,24 @@ class IniFile():
         keys = config.keys()
         values = config.values()
         elements = Utilities().get_list_product(values)
-        orig_output_filename = self._output_filename
+        orig_output_filename = self.output_filename
         for idx,element in enumerate(elements): 
             dictionary = None
             if use_subdir:
                 dir = os.path.dirname(orig_output_filename)               
                 sub_dir = os.path.join(dir,str(idx))
                 os.mkdir(sub_dir)
-                self._output_filename=os.path.join(sub_dir,os.path.basename(orig_output_filename))
+                self.output_filename=os.path.join(sub_dir,os.path.basename(orig_output_filename))
                 dictionary = dict(zip(keys, element))
                 dictionary['DIR'] = sub_dir
             else:                           
-                self._output_filename= ''.join((orig_output_filename,".",str(idx)))    
+                self.output_filename= ''.join((orig_output_filename,".",str(idx)))    
                 dictionary = dict(zip(keys, element))
                 # if no sub dir is generated, the index key can be used to generate a unique path later on
             if index_key is not None:
                 dictionary[index_key]=idx
             self.write_ini(dictionary)
-            output_filenames.append(self._output_filename)  
+            output_filenames.append(self.output_filename)  
         return output_filenames
 
 class Logger():
@@ -159,17 +161,21 @@ class Utilities():
         fh = open(output_filename,'w')
         fh.write(mod_content)
         fh.close()
-        
-#    def mk_subdir(self,base_dirname):
-#        sub_dirname = random.
-#        basedir = os.path.join(base_dirname,) 
-        
-
-        
+              
+class XmlValidator():    
     
+    def __init__(self,xml_filename):
+        self._filename = xml_filename
+
+    def parsefile(self):
+        parser = xml.parsers.expat.ParserCreate()
+        parser.ParseFile(open(self._filename, "r"))
+
+    def is_wellformatted(self): 
+        try:
+            self.parsefile()
+            return True
+        except Exception, e:
+            sys.stderr.write(e)
+            return False       
         
-                       
-#print list(itertools.product(['a1','a2','a3'], ['b1','b2','b3'],['c1','c2','c3','c4','c5'],['d1','d2']))
-#somelists = [['a1','a2','a3'], ['b1','b2','b3'],['c1','c2','c3','c4','c5'],['d1','d2']]
-#for element in itertools.product(*somelists):
-#    print element

@@ -47,34 +47,32 @@ class Tandem(SpectraIdentificationApplication):
         
         
     def _get_command(self,prefix,input_filename):
+        self._iniFile.add_to_ini({'RESULT':self._result_filename})
+        self.log.debug("add key 'RESULT' with value [%s] to config" % self._result_filename)
         return "cd %s;%s %s" % (self._wd,prefix,input_filename)    
         
-    def _validate_run(self,run_code):        
+    def _validate_run(self,run_code): 
+        result = os.path.abspath(self._result_filename)
+        output = os.path.abspath(self._output_filename)       
         if 0 < run_code:
             return run_code 
-        if not os.path.exists(self._result_filename):
-            self.log.error('File [%s] does not exist' % os.path.abspath(self._result_filename))
+        if not os.path.exists(result):
+            self.log.error('File [%s] does not exist' % result)
             return 1
         else:
-            self.log.debug('File [%s] does exist' % os.path.abspath(self._result_filename))
+            self.log.debug('File [%s] does exist' % result)
         stdout = self.stdout.read()            
         if 'Valid models = 0' in stdout:
             self.log.error('No valid model found')
             return 1
         else:
             self.log.debug("more that 0 valid models found")
-        self.log.debug("read file [%s]" % os.path.abspath(self._output_filename))
-        config = self._iniFile.read_ini()
-        self.log.debug("add key 'RESULT' with value [%s] to config" %  self._result_filename)
-        config.update({'RESULT':self._result_filename})
-        self.log.debug("content:%s" % config)        
-        self._iniFile.write_ini(config)        
-        self.log.debug("write file [%s]" % os.path.abspath(self._output_filename))
-        if not os.path.exists(self._output_filename):
-            self.log.fatal("File [%s] does not exist" % os.path.abspath(self._output_filename))
+        if not os.path.exists(output):
+            self.log.error("File [%s] does not exist" % output)
             return 1
         else:
-            self.log.debug("File [%s] does exist" % os.path.abspath(self._output_filename))                    
+            self.log.debug("File [%s] does exist" % output)  
+            self.log.debug("content:%s" % self._iniFile.read_ini())                    
         return 0      
 
 if "__main__" == __name__:

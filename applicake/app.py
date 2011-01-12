@@ -182,8 +182,11 @@ class WorkflowApplication(ExternalApplication):
         self.log.info('Finished %s' % self.create_workdir.__name__) 
         self.log.info('Start %s' % self._get_app_inputfilename.__name__)
         app_input_filename = self._get_app_inputfilename(config)
-        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)                
-        return self._get_command(prefix=self._command_prefix,input_filename=app_input_filename)   
+        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)             
+        self.log.info('Start %s' % self._get_command.__name__)
+        command = self._get_command(prefix=self._command_prefix,input_filename=app_input_filename)   
+        self.log.info('FINISHED %s' % self._get_command.__name__)
+        return command   
     
     def _validate_parsed_args(self,dict):     
         if dict['prefix'] is None:
