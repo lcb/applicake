@@ -14,8 +14,7 @@ class Tandem2XML(WorkflowApplication):
         return config['RESULT'] 
     
     def _get_command(self,prefix,input_filename):
-        (root,ext) = os.path.splitext(input_filename)
-        self.pepxml_filename  = string.replace(input_filename,ext,'pepxml')
+        self.pepxml_filename  = os.path.join(self._wd,'tandem.pepxml')
         self._iniFile.add_to_ini({'PEPXML':self.pepxml_filename})
         return "%s %s %s" % (prefix,input_filename,self.pepxml_filename)     
     
