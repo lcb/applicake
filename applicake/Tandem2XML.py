@@ -15,33 +15,20 @@ class Tandem2XML(WorkflowApplication):
         return config['RESULT'] 
     
     def _get_command(self,prefix,input_filename):
-        self.pepxml_filename  = os.path.join(self._wd,'tandem.pepxml')
-        self._iniFile.add_to_ini({'PEPXML':self.pepxml_filename})
-        self.log.debug("add key 'PEPXML' with value [%s] to ini" % self.pepxml_filename)
-        return "%s %s %s" % (prefix,input_filename,self.pepxml_filename)     
+        self._result_filename  = os.path.join(self._wd, self.name  + '.pepxml')
+        self._iniFile.add_to_ini({'PEPXML':self._result_filename})
+        self.log.debug("add key 'PEPXML' with value [%s] to ini" % self._result_filename)
+        return "%s %s %s" % (prefix,input_filename,self._result_filename)     
     
-    
-    def _validate_run(self,run_code):        
-        result = self.pepxml_filename
-        output = os.path.abspath(self._output_filename)
-        if 0 < run_code:
-            return run_code 
-        if not os.path.exists(result):
-            self.log.error('File [%s] does not exist' % result)
+    def _validate_run(self,run_code):                
+        exit_code = super(Tandem2XML, self)._validate_run(run_code)
+        if 0 != exit_code:
+            return exit_code
+        if not XmlValidator(self._result_filename).is_wellformatted():
+            self.log.error('File [%s] is not well-formed' % self._result_filename)
             return 1
         else:
-            self.log.debug('File [%s] does exist' % result)
-        if not XmlValidator(result).is_wellformatted():
-            self.log.error('File [%s] is not well-formed' % result)
-            return 1
-        else:
-            self.log.debug('File [%s] is well-formed'% result )
-        if not os.path.exists(output):
-            self.log.error("File [%s] does not exist" % output)
-            return 1
-        else:
-            self.log.debug("File [%s] does exist" % output)
-            self.log.debug("content:%s" % self._iniFile.read_ini())               
+            self.log.debug('File [%s] is well-formed'% self._result_filename )
         return 0       
 
 if "__main__" == __name__:

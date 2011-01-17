@@ -12,7 +12,7 @@ from applicake.utils import Logger as logger
 from applicake.utils import IniFile
 
                  
-class Application():
+class Application(object):
     'Application class to prepare and verify the execution of external programs'      
         
     def __call__(self, args):
@@ -27,9 +27,12 @@ class Application():
         self._validate_parsed_args(parsed_args)        
         self.log.info('Finish [%s]' % self._validate_parsed_args.__name__)              
         self.log.info('Start [%s]' % self._preprocessing.__name__)
-        command = self._preprocessing()        
+        command = self._preprocessing()     
         self.log.info('Finish [%s]' % self._preprocessing.__name__)
         if command is not None:
+            #necessary when e.g. the template file contains '\n' what will cause problems when using concatenated shell commands
+            self.log.debug('remove all [\\n] from command string')
+            command  = command.replace('\n','')   
             self.log.info('Command [%s]' % str(command))
         self.log.info('Start [%s]' % self._run.__name__)
         run_code = self._run(command)
@@ -45,11 +48,13 @@ class Application():
     def __init__(self, use_filesystem=True,log_level=logging.DEBUG,name=None):
         'Initialization of variables and basic preparation of running the class'
         if name is None:
-            name = self.__class__.__name__
+            name = str(self.__class__.__name__).lower()
         self.name=name  
         self._stdout_filename = ''.join([self.name,".out"])
         self._stderr_filename = ''.join([self.name,".err"]) 
         self._log_filename = ''.join([self.name,".log"])
+        self._params_ext = ".params"
+        self._tpl_ext = ".tpl"
         self._use_filesystem = use_filesystem
         self._log_level = log_level                    
         self._clean_up()
@@ -209,7 +214,7 @@ class WorkflowApplication(ExternalApplication):
             self._output_filename = dict['output_filename']                                  
                 
     def create_workdir(self,config):
-        basedir = None  
+        wd = None
         try:
             basedir = config['DIR'] 
             param_idx = config['PARAM_IDX']
@@ -220,9 +225,30 @@ class WorkflowApplication(ExternalApplication):
             os.makedirs(wd)
             self.log.debug('Created workdir [%s]' % wd)
         except Exception,e:
+#            if os.access( wd, os.F_OK):
+#                self.log.error("File [%s] already exists and can be accessed" % wd)
+#            else:                
             self.log.exception(e)  
             sys.exit(1)
-        return wd          
+        return wd    
+    
+    def _validate_run(self,run_code):
+        output = os.path.abspath(self._output_filename)
+        result = os.path.abspath(self._result_filename)        
+        if 0 < run_code:
+            return run_code 
+        if not os.path.exists(result):
+            self.log.error('File [%s] does not exist' % result)
+            return 1
+        else:
+            self.log.debug('File [%s] does exist' % result)
+        if not os.path.exists(output):
+            self.log.error("File [%s] does not exist" % output)
+            return 1
+        else:
+            self.log.debug("File [%s] does exist" % output)
+            self.log.debug("content:%s" % self._iniFile.read_ini())               
+        return 0              
                             
                             
 class TemplateApplication(WorkflowApplication):   

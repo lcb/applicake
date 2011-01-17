@@ -24,8 +24,8 @@ class Generator():
         file = open(filename,'w')    
         file.write(str(jobid))
         locker.unlock(file)            
-        return jobid       
-        
+        return jobid   
+    
 
 class FileLocker():
     'Python cookbook receipe 2.28 "File Locking Using a Cross-Platform API" '

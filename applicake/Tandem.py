@@ -12,10 +12,10 @@ from applicake.utils import Utilities#,IniFile
 class Tandem(TemplateApplication):
     
     def _get_app_inputfilename(self,config):
-        default_filename = os.path.join(self._wd,'default.params' )            
+        default_filename = os.path.join(self._wd,'default' + self._params_ext )            
         Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=default_filename)
         self.log.debug('Created [%s]' % default_filename)
-        taxonomy_filename = os.path.join(self._wd,'taxonomy.params')
+        taxonomy_filename = os.path.join(self._wd,'taxonomy' + self._params_ext)
         db_filename = None
         spectra_filename = None
         self._result_filename = None        
@@ -34,7 +34,7 @@ class Tandem(TemplateApplication):
             sink.write('<file format="peptide" URL="%s"/>' % db_filename)
             sink.write("</taxon>\n</bioml>")
         self.log.debug('Created [%s]' % taxonomy_filename)
-        input_filename = os.path.join(self._wd,'input.params' )    
+        input_filename = os.path.join(self._wd, self.name + self._params_ext )    
         with open(input_filename, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+default_filename+"</note>\n")
@@ -51,29 +51,17 @@ class Tandem(TemplateApplication):
         self.log.debug("add key 'RESULT' with value [%s] to ini" % self._result_filename)
         return "cd %s;%s %s" % (self._wd,prefix,input_filename)    
         
-    def _validate_run(self,run_code): 
-        result = os.path.abspath(self._result_filename)
-        output = os.path.abspath(self._output_filename)       
-        if 0 < run_code:
-            return run_code 
-        if not os.path.exists(result):
-            self.log.error('File [%s] does not exist' % result)
-            return 1
-        else:
-            self.log.debug('File [%s] does exist' % result)
+    def _validate_run(self,run_code):  
+        exit_code = super(Tandem, self)._validate_run(run_code)
+        if 0 != exit_code:
+            return exit_code
         stdout = self.stdout.read()            
         if 'Valid models = 0' in stdout:
             self.log.error('No valid model found')
             return 1
         else:
-            self.log.debug("more that 0 valid models found")
-        if not os.path.exists(output):
-            self.log.error("File [%s] does not exist" % output)
-            return 1
-        else:
-            self.log.debug("File [%s] does exist" % output)  
-            self.log.debug("content:%s" % self._iniFile.read_ini())                    
-        return 0      
+            self.log.debug("more that 0 valid models found") 
+        return 0            
 
 if "__main__" == __name__:
     # init the application object (__init__)
