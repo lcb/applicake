@@ -6,10 +6,10 @@ Created on Nov 17, 2010
 '''
 import sys,os
 import shutil
-from applicake.app import SpectraIdentificationApplication
-from applicake.utils import Utilities,IniFile
+from applicake.app import TemplateApplication
+from applicake.utils import Utilities#,IniFile
 
-class Tandem(SpectraIdentificationApplication):
+class Tandem(TemplateApplication):
     
     def _get_app_inputfilename(self,config):
         default_filename = os.path.join(self._wd,'default.params' )            

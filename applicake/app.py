@@ -158,7 +158,7 @@ class ExternalApplication(Application):
 
 class WorkflowApplication(ExternalApplication):
     
-    def _get_app_inputfilename(self):
+    def _get_app_inputfilename(self,config):
         raise NotImplementedError("Called '_create_app_inputfiles' method on abstact class")
     
     def _get_command(self,prefix,input_filename):
@@ -225,7 +225,7 @@ class WorkflowApplication(ExternalApplication):
         return wd          
                             
                             
-class SpectraIdentificationApplication(WorkflowApplication):   
+class TemplateApplication(WorkflowApplication):   
     
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
