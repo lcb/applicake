@@ -42,6 +42,7 @@ class Omssa(TemplateApplication):
             if not line.startswith('Info:'):
                 self.log.error("stderr contains following line [%s]" % line)
                 return 1
+        self.log.debug('stderr contains only lines starting with [Info:]')
         return 0    
         
 if "__main__" == __name__:
