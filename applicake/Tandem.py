@@ -48,7 +48,7 @@ class Tandem(TemplateApplication):
         
     def _get_command(self,prefix,input_filename):
         self._iniFile.add_to_ini({'RESULT':self._result_filename})
-        self.log.debug("add key 'RESULT' with value [%s] to config" % self._result_filename)
+        self.log.debug("add key 'RESULT' with value [%s] to ini" % self._result_filename)
         return "cd %s;%s %s" % (self._wd,prefix,input_filename)    
         
     def _validate_run(self,run_code): 

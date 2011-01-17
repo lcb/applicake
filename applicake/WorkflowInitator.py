@@ -46,7 +46,7 @@ class WorkflowInitiator(Application):
             config = ini_file.read_ini()
             self.log.debug('Finished [%s]' % ini_file.read_ini.__name__)
             config.update({'DIR':job_dirname})
-            self.log.debug("add DIR to config file content in memory")
+            self.log.debug("add key 'DIR' with value [%s] to ini" % job_dirname)
             self.log.debug('Start [%s]' % ini_file.write_ini_value_product.__name__)
             param_filenames = ini_file.write_ini_value_product(config=config,use_subdir=False,index_key="PARAM_IDX")
             self.log.debug('generated [%s] parameter files' % len(param_filenames))
