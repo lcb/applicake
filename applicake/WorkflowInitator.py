@@ -102,7 +102,7 @@ class WorkflowInitiator(Application):
                 self.log.fatal('File [%s] does not exist' % os.path.abspath(filename))
                 return 1
             else:
-                self.log.debug('File [%s] does exist' % os.path.abspath(filename))                
+                self.log.debug('File [%s] does exist' % os.path.abspath(filename))                    
         return 0       
             
 

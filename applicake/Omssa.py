@@ -5,8 +5,7 @@ Created on Jan 17, 2011
 @author: quandtan
 '''
 
-import sys,os
-import shutil
+import sys,os,shutil
 from string import Template
 from applicake.app import TemplateApplication
 from applicake.utils import Utilities
@@ -31,7 +30,6 @@ class Omssa(TemplateApplication):
             self.log.debug('added [ -teppm] to parameters')       
         self._result_filename  = os.path.join(self._wd,self.name + ".pepxml")
         self._iniFile.add_to_ini({'PEPXML':self._result_filename})
-#        ' -fm '+input_path+' -op '+ output_path+
         return "%s %s -fm %s -op %s" %(prefix,params,search_filename,self._result_filename)
     
     def _validate_run(self,run_code):               
