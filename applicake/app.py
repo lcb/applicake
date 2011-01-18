@@ -9,8 +9,7 @@ Created on Nov 11, 2010
 import sys,getopt,logging,os,cStringIO,argparse
 from subprocess import Popen, PIPE
 from applicake.utils import Logger as logger
-from applicake.utils import IniFile
-
+from applicake.utils import IniFile,Generator
                  
 class Application(object):
     'Application class to prepare and verify the execution of external programs'      
@@ -62,7 +61,7 @@ class Application(object):
             self.log = logger(level=self._log_level,file=self._log_filename).logger
         else:
             self.log = logger(level=self._log_level).logger  
-            
+        self.log.debug(os.path.abspath(self._log_filename))    
         #TODO: _validate_parsed_args should contain possibility to change log level via commandline argument
                   
     def _clean_up(self):
@@ -106,7 +105,7 @@ class Application(object):
         Validate the results of the _run() and return [0] if proper succeeded.
         The optional parameter run_code can be passed e.g. when the _run() executed an external application.
         '''
-        raise NotImplementedError("Called '_validate_run' method on abstact class")
+        raise NotImplementedError("Called '_validate_run' method on abstact class")  
 
 
 class ExternalApplication(Application):
@@ -116,8 +115,7 @@ class ExternalApplication(Application):
         parser = argparse.ArgumentParser(description='A simple application to call external programs')
         parser.add_argument('-p','--prefix', action="store", dest="p",type=str,help="prefix of the command to execute")
         a = parser.parse_args()
-        return {'prefix':a.p} 
-        
+        return {'prefix':a.p}         
     
     def _preprocessing(self):
         return self._command
@@ -165,9 +163,9 @@ class WorkflowApplication(ExternalApplication):
     
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
-        parser.add_argument('-p','--prefix', action="store", dest="prefix",type=str,help="prefix of the command to execute")
-        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="input file")
-        parser.add_argument('-o','--output', action="store", dest="output_filename",type=str,help="output file")
+        parser.add_argument('-p','--prefix',required=True, nargs='1',action="store", dest="prefix",type=str,help="prefix of the command to execute")
+        parser.add_argument('-i','--input',required=True, nargs='1',action="store", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-o','--output',required=True,nargs='1', action="store", dest="output_filename",type=str,help="output file")
         a = parser.parse_args()
         return {'prefix':a.prefix,'input_filename':a.input_filename,'output_filename':a.output_filename}      
     
@@ -188,25 +186,13 @@ class WorkflowApplication(ExternalApplication):
         return command   
     
     def _validate_parsed_args(self,dict):     
-        if dict['prefix'] is None:
-            self.log.fatal('argument [prefix] was not set')
+        self._command_prefix = dict['prefix']
+        self._input_filename = dict['input_filename']
+        self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
+        if not os.path.exists(self._input_filename):
+            self.log.fatal('file [%s] does not exist' % self._input_filename)
             sys.exit(1)
-        else:
-            self._command_prefix = dict['prefix']
-        if dict['input_filename'] is None:
-            self.log.fatal('argument [input] was not set')
-            sys.exit(1)
-        else:
-            self._input_filename = dict['input_filename']
-            self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
-            if not os.path.exists(self._input_filename):
-                self.log.fatal('file [%s] does not exist' % self._input_filename)
-                sys.exit(1)
-        if dict['output_filename'] is None:
-            self.log.fatal('cli argument [output] was not set')
-            sys.exit(1)
-        else:
-            self._output_filename = dict['output_filename']                                  
+        self._output_filename = dict['output_filename']                                  
                 
     def create_workdir(self,config):
         wd = None
@@ -250,41 +236,25 @@ class TemplateApplication(WorkflowApplication):
     
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
-        parser.add_argument('-p','--prefix', action="store", dest="prefix",type=str,help="prefix of the command to execute")
-        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="input file")
-        parser.add_argument('-t','--template', action="store", dest="template_filename",type=str,help="template of the program specific input file")
-        parser.add_argument('-o','--output', action="store", dest="output_filename",type=str,help="output file")
+        parser.add_argument('-p','--prefix',required=True,nargs=1, action="store", dest="prefix",type=str,help="prefix of the command to execute")
+        parser.add_argument('-i','--input',required=True,nargs=1, action="store", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
+        parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
         a = parser.parse_args()
-        return {'prefix':a.prefix,'input_filename':a.input_filename,'template_filename':a.template_filename,'output_filename':a.output_filename}         
+        return {'prefix':a.prefix[0],'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]}         
 
     def _validate_parsed_args(self,dict):     
-        if dict['prefix'] is None:
-            self.log.fatal('argument [prefix] was not set')
+        self._command_prefix = dict['prefix']
+        self._input_filename = dict['input_filename']
+        self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
+        if not os.path.exists(self._input_filename):
+            self.log.fatal('file [%s] does not exist' % self._input_filename)
+        self._template_filename = dict['template_filename']
+        self.log.debug("template file [%s]" % os.path.abspath(self._template_filename))
+        if not os.path.exists(self._template_filename):
+            self.log.fatal('file [%s] does not exist' % self._template_filename)
             sys.exit(1)
-        else:
-            self._command_prefix = dict['prefix']
-        if dict['input_filename'] is None:
-            self.log.fatal('argument [input] was not set')
-            sys.exit(1)
-        else:
-            self._input_filename = dict['input_filename']
-            self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
-            if not os.path.exists(self._input_filename):
-                self.log.fatal('file [%s] does not exist' % self._input_filename)
-        if dict['template_filename'] is None:
-            self.log.fatal('cli argument [template] was not set')
-            sys.exit(1)
-        else:
-            self._template_filename = dict['template_filename']
-            self.log.debug("template file [%s]" % os.path.abspath(self._template_filename))
-            if not os.path.exists(self._template_filename):
-                self.log.fatal('file [%s] does not exist' % self._template_filename)
-                sys.exit(1)
-        if dict['output_filename'] is None:
-            self.log.fatal('cli argument [output] was not set')
-            sys.exit(1)
-        else:
-            self._output_filename = dict['output_filename']           
+        self._output_filename = dict['output_filename']           
                    
       
         

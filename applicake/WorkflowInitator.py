@@ -22,35 +22,33 @@ class WorkflowInitiator(Application):
         else:
             self.log.fatal('job_dir [%s] was not created.' % job_dirname)
             sys.exit(1)
-        return job_dirname
+        return job_dirname      
          
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Script which initiates a workflow')
-        parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="input file")
-        parser.add_argument('-c','--config', action="store", dest="config_filename",type=str,help="config file")
-        parser.add_argument('-d','--dir', action="store", dest="dirname",type=str,help="base directory")
+        parser.add_argument('-i','--input', required=True,nargs=1,action="store", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-c','--config', required=True,nargs=1,action="store", dest="config_filename",type=str,help="config file")
+        parser.add_argument('-d','--dir', required=True,nargs=1,action="store", dest="dirname",type=str,help="base directory")
         a = parser.parse_args()
-        return {'input_filename':a.input_filename,'config_filename':a.config_filename,'dirname':a.dirname}                          
+        return {'input_filename':a.input_filename[0],'config_filename':a.config_filename[0],'dirname':a.dirname[0]}                          
             
     def _preprocessing(self):
-        self.log.debug('method has no real implementation')                                           
+        self.log.info('Start %s' % self._create_jobdir.__name__)
+        self._wd = self._create_jobdir()
+        self.log.info('Finished %s' % self._create_jobdir.__name__)   
+        self._iniFile = IniFile(input_filename=self._config_filename,lock=False) 
+        self.log.debug('Start [%s]' % self._iniFile.read_ini.__name__)
+        config = self._iniFile.read_ini()
+        self.log.debug('Finished [%s]' % self._iniFile.read_ini.__name__)
+        self._iniFile.add_to_ini({'DIR':self._wd})
+        self.log.debug("add key 'DIR' with value [%s] to ini" % self._wd)                                              
                 
     def _run(self,command=None):
         try:
-            print(os.path.abspath(self._log_filename))
-            self.log.info('Start [%s]' % self._create_jobdir.__name__)
-            job_dirname = self._create_jobdir()
-            self.log.info('Finished [%s]' % self._create_jobdir.__name__)       
-            ini_file = IniFile(input_filename=self._config_filename,lock=False) 
-            self.log.debug('Start [%s]' % ini_file.read_ini.__name__)
-            config = ini_file.read_ini()
-            self.log.debug('Finished [%s]' % ini_file.read_ini.__name__)
-            config.update({'DIR':job_dirname})
-            self.log.debug("add key 'DIR' with value [%s] to ini" % job_dirname)
-            self.log.debug('Start [%s]' % ini_file.write_ini_value_product.__name__)
-            param_filenames = ini_file.write_ini_value_product(config=config,use_subdir=False,index_key="PARAM_IDX")
+            self.log.debug('Start [%s]' % self._iniFile.write_ini_value_product.__name__)  
+            param_filenames = self._iniFile.write_ini_value_product(config=self._iniFile.read_ini(),use_subdir=False,index_key="PARAM_IDX")
             self.log.debug('generated [%s] parameter files' % len(param_filenames))
-            self.log.debug('Finished [%s]' % ini_file.write_ini_value_product.__name__)
+            self.log.debug('Finished [%s]' % self._iniFile.write_ini_value_product.__name__)
             self.log.debug('start generating output files (parameter x spectra files) and delete original parameter file')
             path_config = IniFile(input_filename=self._input_filename).read_ini()
             self._output_filenames = []
@@ -69,27 +67,15 @@ class WorkflowInitiator(Application):
             return 1        
             
     def _validate_parsed_args(self,dict):
-        if dict['input_filename'] is None:
-            self.log.fatal('argument [input] was not set')
-            sys.exit(1)
-        else:
-            self._input_filename = dict['input_filename']
-            if not os.path.exists(self._input_filename):
-                self.log.fatal('file [%s] does not exist' % self._input_filename)
-        if dict['config_filename'] is None:
-            self.log.fatal('argument [config] was not set')
-            sys.exit(1)
-        else:
-            self._config_filename = dict['config_filename']
-            if not os.path.exists(self._config_filename):
-                self.log.fatal('file [%s] does not exist' % self._config_filename)
-        if dict['dirname'] is None:
-            self.log.fatal('argument [dir] was not set')
-            sys.exit(1)
-        else:
-            self._dirname = dict['dirname']
-            if not os.path.exists(self._dirname):
-                self.log.fatal('file [%s] does not exist' % self._dirname)                  
+        self._input_filename = dict['input_filename']
+        if not os.path.exists(self._input_filename):
+            self.log.fatal('file [%s] does not exist' % self._input_filename)
+        self._config_filename = dict['config_filename']
+        if not os.path.exists(self._config_filename):
+            self.log.fatal('file [%s] does not exist' % self._config_filename)
+        self._dirname = dict['dirname']
+        if not os.path.exists(self._dirname):
+            self.log.fatal('file [%s] does not exist' % self._dirname)                  
             
     def _validate_run(self,run_code=None):
         if 0 < run_code:
