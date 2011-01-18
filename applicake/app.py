@@ -140,12 +140,6 @@ class ExternalApplication(Application):
                 output, error = p.communicate()                                                                                                                                                                            
                 self.stdout = cStringIO.StringIO(output)
                 self.stderr = cStringIO.StringIO(error)
-                stdout = self.stdout.read()
-                stderr = self.stderr.read()
-                print("=== stdout ===")
-                print(stdout)
-                print("=== stderr ===")  
-                print(stderr) 
                 return p.returncode  
         except Exception,e:
             self.log.exception(e)
@@ -207,6 +201,7 @@ class WorkflowApplication(ExternalApplication):
             self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
             if not os.path.exists(self._input_filename):
                 self.log.fatal('file [%s] does not exist' % self._input_filename)
+                sys.exit(1)
         if dict['output_filename'] is None:
             self.log.fatal('cli argument [output] was not set')
             sys.exit(1)
@@ -259,8 +254,6 @@ class TemplateApplication(WorkflowApplication):
         parser.add_argument('-i','--input', action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-t','--template', action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output', action="store", dest="output_filename",type=str,help="output file")
-#        parser.add_argument('-b', action="store_true", dest='2', default=False,help='test of a boolean')
-#        parser.add_argument('-i', action="store", dest="3", default=0, type=int,help='test of a integer')
         a = parser.parse_args()
         return {'prefix':a.prefix,'input_filename':a.input_filename,'template_filename':a.template_filename,'output_filename':a.output_filename}         
 
