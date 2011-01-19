@@ -5,7 +5,7 @@ Created on Jan 18, 2011
 @author: quandtan
 '''
 
-import os,sys,shutil,argparse
+import os,sys,shutil,argparse,glob
 from applicake.app import WorkflowApplication
 from applicake.Omssa import Omssa 
 from applicake.app import ExternalApplication
@@ -17,9 +17,10 @@ class TppProphets(WorkflowApplication):
     '''
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
-        parser.add_argument('-i','--input', required=True,nargs='+',action="store", dest="input_filenames",type=str,help="input files")
+        parser.add_argument('-t','--tandem',nargs=1,action="store", dest="tandem",type=str,help="xtandem ini file pattern")
+        parser.add_argument('-o','--omssa',nargs=1,action="store", dest="omssa",type=str,help="omssa ini file pattern")
         a = parser.parse_args()
-        return {'input_filenames':a.input_filenames}         
+        return {'tandem':a.tandem,'omssa':a.omssa}         
 
     
     def _preprocessing(self):
@@ -43,8 +44,12 @@ class TppProphets(WorkflowApplication):
             return 1           
 
     def _validate_parsed_args(self,dict):
-        for e in dict['input_filenames']:
-            print e
+        if dict['tandem'] is not None:
+            for filename in glob.glob("%s*" % dict['tandem']):
+                print filename
+        if dict['omssa'] is not None:
+            for filename in glob.glob("%s*" % dict['omssa']):
+                print filename            
 
     def _validate_run(self,run_code=None):
         self.log.debug('not implemented')       
