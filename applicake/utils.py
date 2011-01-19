@@ -76,9 +76,19 @@ class IniFile():
             locker.lock(file,locker.LOCK_EX)
             config = ConfigObj(self.input_filename)
             locker.unlock(file)       
-            return config        
+            return config
+               
+    def update_ini(self,dictionary):
+        'Updates file in windows ini format and returns the updated dictionary like object (ConfigObj)'
+        config = self.read_ini()
+        for k,v in dictionary.items():
+            config[k]=v
+        self.write_ini(config)   
+        return config 
+            
     
     def write_ini(self,dictionary):
+        'Write file in windows ini format'
         config = ConfigObj(dictionary)
         config.filename = self.output_filename
         # need to set input pointer to output pointer that read_ini() always gets the latest config

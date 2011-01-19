@@ -10,15 +10,6 @@ import shutil
 from applicake.app import TemplateApplication
 
 class MzXML2Search(TemplateApplication):
-    '''
-    classdocs
-    '''
-
-    def _get_app_inputfilename(self,config):
-        src = self._template_filename
-        dest = os.path.join(a._wd, self.name + self._params_ext)
-        shutil.move(src, dest)
-        return dest
     
     def _get_command(self,prefix,input_filename):
         mzxml_filename = self._iniFile.read_ini()['MZXML']

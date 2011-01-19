@@ -7,7 +7,7 @@ Created on Jan 18, 2011
 
 import os,sys,shutil,argparse,glob
 from applicake.app import WorkflowApplication
-from applicake.Omssa import Omssa 
+from applicake.omssa import Omssa 
 from applicake.app import ExternalApplication
 from applicake.utils import IniFile
 

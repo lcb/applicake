@@ -10,14 +10,7 @@ from string import Template
 from applicake.app import TemplateApplication
 from applicake.utils import Utilities
 
-class Omssa(TemplateApplication):
-    '''
-    classdocs
-    '''
-    def _get_app_inputfilename(self,config):
-        dest = os.path.join(self._wd,'omssa' + self._params_ext)
-        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
-        return dest        
+class Omssa(TemplateApplication):      
     
     def _get_command(self,prefix,input_filename):
         config = self._iniFile.read_ini()

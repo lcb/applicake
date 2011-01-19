@@ -9,7 +9,7 @@ Created on Nov 11, 2010
 import sys,getopt,logging,os,cStringIO,argparse
 from subprocess import Popen, PIPE
 from applicake.utils import Logger as logger
-from applicake.utils import IniFile,Generator
+from applicake.utils import IniFile,Generator,Utilities
                  
 class Application(object):
     'Application class to prepare and verify the execution of external programs'      
@@ -163,11 +163,11 @@ class WorkflowApplication(ExternalApplication):
     
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
-        parser.add_argument('-p','--prefix',required=True, nargs='1',action="store", dest="prefix",type=str,help="prefix of the command to execute")
-        parser.add_argument('-i','--input',required=True, nargs='1',action="store", dest="input_filename",type=str,help="input file")
-        parser.add_argument('-o','--output',required=True,nargs='1', action="store", dest="output_filename",type=str,help="output file")
+        parser.add_argument('-p','--prefix',required=True, nargs=1,action="store", dest="prefix",type=str,help="prefix of the command to execute")
+        parser.add_argument('-i','--input',required=True, nargs=1,action="store", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
         a = parser.parse_args()
-        return {'prefix':a.prefix,'input_filename':a.input_filename,'output_filename':a.output_filename}      
+        return {'prefix':a.prefix[0],'input_filename':a.input_filename[0],'output_filename':a.output_filename[0]}      
     
     def _preprocessing(self):
         self.log.debug('Read input file [%s]' % os.path.abspath(self._input_filename))
@@ -232,7 +232,12 @@ class WorkflowApplication(ExternalApplication):
         return 0              
                             
                             
-class TemplateApplication(WorkflowApplication):   
+class TemplateApplication(WorkflowApplication):
+    
+    def _get_app_inputfilename(self,config):
+        dest = os.path.join(self._wd,self.name + self._params_ext)
+        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
+        return dest         
     
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
@@ -256,5 +261,14 @@ class TemplateApplication(WorkflowApplication):
             sys.exit(1)
         self._output_filename = dict['output_filename']           
                    
-      
-        
+class SequenceTemplateApplication(TemplateApplication):
+          
+    def _get_parsed_args(self):
+        parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
+        parser.add_argument('-p','--prefix',required=True,nargs='+', action="store", dest="prefix",type=str,help="prefix of the command to execute")
+        parser.add_argument('-i','--input',required=True,nargs=1, action="store", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
+        parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
+        a = parser.parse_args()
+        return {'prefix':a.prefix,'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]} 
+               
