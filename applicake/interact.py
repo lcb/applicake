@@ -44,7 +44,16 @@ class Interact(SequenceTemplateApplication):
         exit_code = super(Interact, self)._validate_run(run_code)
         if 0 != exit_code:
             return exit_code
-
+        if not 'model complete after' in self.stdout:
+            self.log.error('PeptideProphet model did not complete.')
+            return 1
+        else:
+            self.log.debug('PeptideProphet model did complete.')
+        if 'No decoys with label' in self.stderr:
+            self.log.error('found no decoy hits')
+            return 1             
+        else:
+            self.log.debug('did find decoy hits')
         return 0       
 
 if "__main__" == __name__:
