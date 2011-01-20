@@ -5,7 +5,7 @@ Created on Jan 10, 2011
 @author: quandtan
 '''
 
-import os,sys,shutil,argparse,string
+import os,sys,shutil
 from applicake.app import WorkflowApplication
 from applicake.utils import XmlValidator
 

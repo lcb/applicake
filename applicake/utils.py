@@ -189,6 +189,25 @@ class Utilities():
         fh = open(output_filename,'w')
         fh.write(mod_content)
         fh.close()
+        
+
+def get_cksum(self,filename, md5=True,exclude_line="", include_line=""):        
+    """compute md5 for a file. allows to get md5 before including a line in the file or when excluding a specific line"""
+    import hashlib
+    cksum = None
+    if md5:
+        cksum = hashlib.md5()
+    else:
+        cksum = hashlib.sha224()
+    for line in open(filename,"rb"):
+        if exclude_line and line.startswith(exclude_line):
+            continue
+        cksum.update(line)
+    cksum.update(include_line)
+    return cksum.hexdigest()
+     
+
+        
               
 class XmlValidator():    
     

@@ -14,8 +14,8 @@ class Interact(SequenceTemplateApplication):
         pepxml_filename = config['PEPXML']        
         db_filename = config['DBASE']
         self._result_filename  = os.path.join(self._wd, self.name  + '.pepxml')
-        self._iniFile.add_to_ini({'INTERACT':self._result_filename})
-        self.log.debug("add key 'INTERACT' with value [%s] to ini" % self._result_filename)
+        self._iniFile.update_ini({'PEPXML':self._result_filename})
+        self.log.debug("updated key 'PEPXML' with value [%s] in ini" % self._result_filename)
 
         # prefix is for this class a [] instead of a string
         prefixes = prefix

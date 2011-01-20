@@ -232,6 +232,32 @@ class WorkflowApplication(ExternalApplication):
         return 0              
                             
                             
+class CollectorApplication(WorkflowApplication):
+    def _get_parsed_args(self):
+        parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
+        parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefix",type=str,help="prefix of the command to execute")
+        parser.add_argument('-i','--input',required=True,nargs='+', action="append", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-t','--template',required=True,nargs='+', action="append", dest="template_filename",type=str,help="template of the program specific input file")
+        parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
+        a = parser.parse_args()
+        return {'prefix':Utilities().flatten(a.prefix),
+                'input_filename':Utilities().flatten(a.input_filename),
+                'template_filename':Utilities().flatten(a.template_filename),
+                'output_filename':a.output_filename[0]}  
+
+    def _validate_parsed_args(self,dict):     
+        self._command_prefix = dict['prefix']
+        self._input_filename = dict['input_filename']
+        self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
+        if not os.path.exists(self._input_filename):
+            self.log.fatal('file [%s] does not exist' % self._input_filename)
+        self._template_filename = dict['template_filename']
+        self.log.debug("template file [%s]" % os.path.abspath(self._template_filename))
+        if not os.path.exists(self._template_filename):
+            self.log.fatal('file [%s] does not exist' % self._template_filename)
+            sys.exit(1)
+        self._output_filename = dict['output_filename']                                         
+                            
 class TemplateApplication(WorkflowApplication):
     
     def _get_app_inputfilename(self,config):
@@ -245,7 +271,7 @@ class TemplateApplication(WorkflowApplication):
         parser.add_argument('-i','--input',required=True,nargs=1, action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
-        a = parser.parse_args() 
+        a = parser.parse_args()
         return {'prefix':a.prefix[0],'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]}         
 
     def _validate_parsed_args(self,dict):     
@@ -265,13 +291,10 @@ class SequenceTemplateApplication(TemplateApplication):
           
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
-        parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefix",type=str,help="prefix of the command to execute")    
+        parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefix",type=str,help="prefix of the command to execute")
         parser.add_argument('-i','--input',required=True,nargs=1, action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
-        a = parser.parse_args()       
-        # flattening necessary because otherwise list of lists passed. e.g.[[1],[2],[3]]    
-        return {'prefix':Utilities().flatten(a.prefix),'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]}
-    
-       
+        a = parser.parse_args()
+        return {'prefix':Utilities().flatten(a.prefix),'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]} 
                
