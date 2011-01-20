@@ -149,7 +149,25 @@ class Logger():
             self.logger.addHandler(fh)
                 
                 
-class Utilities():                   
+class Utilities():  
+    
+    def flatten(self,sequence):
+        """flatten(sequence) -> list    
+        Returns a single, flat list which contains all elements retrieved
+        from the sequence and all recursively contained sub-sequences
+        (iterables).
+        Examples:
+        >>> [1, 2, [3,4], (5,6)]
+        [1, 2, [3, 4], (5, 6)]
+        >>> flatten([[[1,2,3], (42,None)], [4,5], [6], 7, MyVector(8,9,10)])
+        [1, 2, 3, 42, None, 4, 5, 6, 7, 8, 9, 10]"""    
+        result = []
+        for e in sequence:
+            if hasattr(e, "__iter__") and not isinstance(e, basestring):
+                result.extend(self.flatten(e))
+            else:
+                result.append(e)
+        return result                
     
     def get_list_product(self,list_of_lists):
         # itertools.product() fails, when not all elements of the list are also lists.

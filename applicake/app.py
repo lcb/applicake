@@ -245,7 +245,7 @@ class TemplateApplication(WorkflowApplication):
         parser.add_argument('-i','--input',required=True,nargs=1, action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
-        a = parser.parse_args()
+        a = parser.parse_args() 
         return {'prefix':a.prefix[0],'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]}         
 
     def _validate_parsed_args(self,dict):     
@@ -265,10 +265,13 @@ class SequenceTemplateApplication(TemplateApplication):
           
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
-        parser.add_argument('-p','--prefix',required=True,nargs='+', action="store", dest="prefix",type=str,help="prefix of the command to execute")
+        parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefix",type=str,help="prefix of the command to execute")    
         parser.add_argument('-i','--input',required=True,nargs=1, action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
-        a = parser.parse_args()
-        return {'prefix':a.prefix,'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]} 
+        a = parser.parse_args()       
+        # flattening necessary because otherwise list of lists passed. e.g.[[1],[2],[3]]    
+        return {'prefix':Utilities().flatten(a.prefix),'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]}
+    
+       
                

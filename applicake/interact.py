@@ -23,7 +23,7 @@ class Interact(SequenceTemplateApplication):
         if len(prefixes) != 3:
             self.log.fatal('number of prefixes is not correct [%s]' % len(prefixes))
             sys.exit(1)        
-        params = open(input_filename,'r').f.readlines()
+        params = open(input_filename,'r').readlines()
         self.log.debug('splitted params [%s]' %params)
         cmd = None
         if not len(prefixes)==len(params):
@@ -33,10 +33,10 @@ class Interact(SequenceTemplateApplication):
             cmds = []
             # InteractParser <outfile> <file1.pep.xml> <file2.pep.xml>... <options>
             cmds.append('%s %s %s %s' % (prefixes[0],self._result_filename,pepxml_filename,params[0]))
-            #PeptideProphetParser output.pep.xml DECOY=DECOY_ MINPROB=0 NONPARAM
-            cmds.append('%s %s %s' % (prefixes[1],self._result_filename,params[1]))
             #RefreshParser <xmlfile> <database> (<min ntt>) (DEGEN) (PROT_MW) (PREV_AA_LEN=<length(default=1)>) (NEXT_AA_LEN=<length(default=1)>) (RESTORE_NONEXISTENT_IF_PREFIX=str)
-            cmds.append('%s %s %s' % (prefixes[2],self._result_filename,db_filename,params[2]))
+            cmds.append('%s %s %s %s' % (prefixes[1],self._result_filename,db_filename,params[1]))
+            #PeptideProphetParser output.pep.xml DECOY=DECOY_ MINPROB=0 NONPARAM
+            cmds.append('%s %s %s' % (prefixes[2],self._result_filename,params[2]))            
         
         return ';'.join(cmds)
     
