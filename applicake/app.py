@@ -6,7 +6,7 @@ Created on Nov 11, 2010
 @author: quandtan
 '''
 
-import sys,getopt,logging,os,cStringIO,argparse
+import sys,getopt,logging,os,cStringIO,argparse,glob
 from subprocess import Popen, PIPE
 from applicake.utils import Logger as logger
 from applicake.utils import IniFile,Generator,Utilities
@@ -155,8 +155,13 @@ class ExternalApplication(Application):
 
 class WorkflowApplication(ExternalApplication):
     
+#    def _get_app_inputfilename(self,config):
+#        raise NotImplementedError("Called '_create_app_inputfiles' method on abstact class")
+    
     def _get_app_inputfilename(self,config):
-        raise NotImplementedError("Called '_create_app_inputfiles' method on abstact class")
+        dest = os.path.join(self._wd,self.name + self._params_ext)
+        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
+        return dest    
     
     def _get_command(self,prefix,input_filename):
         raise NotImplementedError("Called '_get_command' method on abstact class")     
@@ -232,38 +237,82 @@ class WorkflowApplication(ExternalApplication):
         return 0              
                             
                             
-class CollectorApplication(WorkflowApplication):
+class CollectorApplication(WorkflowApplication):   
+    
+    def _get_command(self,prefix,input_filename,dictionary):
+        raise NotImplementedError("Called '_get_command' method on abstact class")         
+    
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
         parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefix",type=str,help="prefix of the command to execute")
         parser.add_argument('-i','--input',required=True,nargs='+', action="append", dest="input_filename",type=str,help="input file")
-        parser.add_argument('-t','--template',required=True,nargs='+', action="append", dest="template_filename",type=str,help="template of the program specific input file")
+        parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
         a = parser.parse_args()
-        return {'prefix':Utilities().flatten(a.prefix),
-                'input_filename':Utilities().flatten(a.input_filename),
-                'template_filename':Utilities().flatten(a.template_filename),
-                'output_filename':a.output_filename[0]}  
+        return {'prefix':Utilities().get_flatten_sequence(a.prefix),
+                'input_filename':Utilities().get_flatten_sequence(a.input_filename),
+                'template_filename':a.template_filename[0],
+                'output_filename':a.output_filename[0]} 
+        
+    def _preprocessing(self):
+        pepxml_by_paramidx = {}
+        self._iniFile = None
+        config = None
+        for ini_filebasename in self._input_filename:
+            for ini_file in glob.glob("%s*" % (ini_filebasename)):
+                self._iniFile = IniFile(input_filename=ini_file,lock=False)
+                config = self._iniFile.read_ini()
+                idx = config['PARAM_IDX']
+                pepxml = config['PEPXML'] 
+                if pepxml_by_paramidx.has_key(idx):
+                    pepxml_by_paramidx[idx].append(pepxml)
+                else:
+                    pepxml_by_paramidx[idx] = [pepxml]
+        # takes the last config to create the work directory
+        self.log.debug('pep xml files:[%s]'% pepxml_by_paramidx)
+        for e in pepxml_by_paramidx.items():
+            self.log.debug('[%s] pepxml for param idx [%s]' % (len(e[1]),e[0]))
+            for filename in e[1]:
+                if not os.path.exists(filename):
+                    self.log.fatal('file [%s] does not exist' % filename)
+                    sys.exit(1)
+        self.log.debug('all pepxml files exist')
+        self.log.debug("content of last read ini file: %s" % config)
+        self.log.info('Start %s' % self.create_workdir.__name__)
+        self._wd = self.create_workdir(config)
+        self.log.info('Finished %s' % self.create_workdir.__name__)                
+        self.log.info('Start %s' % self._get_app_inputfilename.__name__)
+        app_input_filename = self._get_app_inputfilename(config)
+        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)             
+        self.log.info('Start %s' % self._get_command.__name__)
+        command = self._get_command(prefix=self._command_prefix,input_filename=app_input_filename,dictionary=pepxml_by_paramidx)   
+        self.log.info('FINISHED %s' % self._get_command.__name__)
+        return command      
+        
 
     def _validate_parsed_args(self,dict):     
         self._command_prefix = dict['prefix']
         self._input_filename = dict['input_filename']
-        self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
-        if not os.path.exists(self._input_filename):
-            self.log.fatal('file [%s] does not exist' % self._input_filename)
         self._template_filename = dict['template_filename']
+        self._output_filename = dict['output_filename']
+#        for e in self._input_filename:            
+#            self.log.debug("input file [%s]" % os.path.abspath(e))
+#            if not os.path.exists(e):
+#                self.log.fatal('file [%s] does not exist' % e)
+#                sys.exit(1) 
         self.log.debug("template file [%s]" % os.path.abspath(self._template_filename))
         if not os.path.exists(self._template_filename):
             self.log.fatal('file [%s] does not exist' % self._template_filename)
-            sys.exit(1)
-        self._output_filename = dict['output_filename']                                         
+            sys.exit(1)                      
+        self._output_filename = dict['output_filename']      
+                                                   
                             
 class TemplateApplication(WorkflowApplication):
     
-    def _get_app_inputfilename(self,config):
-        dest = os.path.join(self._wd,self.name + self._params_ext)
-        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
-        return dest         
+#    def _get_app_inputfilename(self,config):
+#        dest = os.path.join(self._wd,self.name + self._params_ext)
+#        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
+#        return dest         
     
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
@@ -296,5 +345,8 @@ class SequenceTemplateApplication(TemplateApplication):
         parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
         a = parser.parse_args()
-        return {'prefix':Utilities().flatten(a.prefix),'input_filename':a.input_filename[0],'template_filename':a.template_filename[0],'output_filename':a.output_filename[0]} 
+        return {'prefix':Utilities().get_flatten_sequence(a.prefix),
+                'input_filename':a.input_filename[0],
+                'template_filename':a.template_filename[0],
+                'output_filename':a.output_filename[0]} 
                
