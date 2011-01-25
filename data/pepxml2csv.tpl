@@ -1,0 +1,2 @@
+-IPROPHET -header -cP=0.0
+-IPROPHET -DECOY=DECOY_

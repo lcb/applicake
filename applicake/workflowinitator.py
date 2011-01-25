@@ -6,15 +6,15 @@ Created on Dec 19, 2010
 '''
 
 import sys,os,getopt,traceback,shutil,argparse
-from applicake.utils import Utilities,Generator,IniFile
+from applicake.utils import Utilities,Workflow,IniFile
 from applicake.app import Application
 
 class WorkflowInitiator(Application):     
     
     def _create_jobdir(self):
-        self.log.debug('get job_id....')
-        jobid = str(Generator().job_id(self._dirname))
-        self.log.debug('job_id [%s]' % jobid)
+        self.log.debug('get_jobid....')
+        jobid = str(Workflow().get_jobid(self._dirname))
+        self.log.debug('get_jobid [%s]' % jobid)
         job_dirname = os.path.join(self._dirname,jobid)                 
         os.mkdir(job_dirname)
         if(os.path.exists(job_dirname)):

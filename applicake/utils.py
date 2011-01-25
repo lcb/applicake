@@ -9,9 +9,9 @@ import logging,itertools,os,fcntl,time,random,xml.parsers.expat,sys
 from configobj import ConfigObj #easy_install configobj
 from string import Template 
  
-class Generator():
+class Workflow():
     
-    def job_id(self,dirname):
+    def get_jobid(self,dirname):
         'Return a unique job id'
         jobid = 1
         filename = os.path.join(dirname, 'jobid.txt')

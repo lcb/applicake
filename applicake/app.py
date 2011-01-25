@@ -9,7 +9,7 @@ Created on Nov 11, 2010
 import sys,getopt,logging,os,cStringIO,argparse,glob
 from subprocess import Popen, PIPE
 from applicake.utils import Logger as logger
-from applicake.utils import IniFile,Generator,Utilities
+from applicake.utils import IniFile,Workflow,Utilities
                  
 class Application(object):
     'Application class to prepare and verify the execution of external programs'      
