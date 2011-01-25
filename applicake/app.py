@@ -242,6 +242,12 @@ class CollectorApplication(WorkflowApplication):
     def _get_command(self,prefix,input_filename,dictionary):
         raise NotImplementedError("Called '_get_command' method on abstact class")         
     
+    
+    def _get_app_inputfilename(self,config):
+        dest = os.path.join(self._wd,self.name + self._params_ext)
+        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
+        return dest    
+    
     def _get_parsed_args(self):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
         parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefix",type=str,help="prefix of the command to execute")
@@ -289,6 +295,22 @@ class CollectorApplication(WorkflowApplication):
         self.log.info('FINISHED %s' % self._get_command.__name__)
         return command      
         
+        
+    def _preprocessing(self):
+#        self.log.debug('Read input file [%s]' % os.path.abspath(self._input_filename))
+#        self._iniFile = IniFile(input_filename=self._input_filename,output_filename=self._output_filename)
+#        config = self._iniFile.read_ini()                
+#        self.log.debug("content: %s" % config)        
+        self.log.info('Start %s' % self.create_workdir.__name__)
+        self._wd = self.create_workdir(config)
+        self.log.info('Finished %s' % self.create_workdir.__name__) 
+        self.log.info('Start %s' % self._get_app_inputfilename.__name__)
+        app_input_filename = self._get_app_inputfilename(config)
+        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)             
+        self.log.info('Start %s' % self._get_command.__name__)
+        command = self._get_command(prefix=self._command_prefix,input_filename=app_input_filename)   
+        self.log.info('FINISHED %s' % self._get_command.__name__)
+        return command        
 
     def _validate_parsed_args(self,dict):     
         self._command_prefix = dict['prefix']
