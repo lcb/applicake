@@ -15,8 +15,9 @@ class InterProphet(TemplateApplication):
 
     def _get_command(self,prefix,input_filename):
         config = self._iniFile.read_ini()
-        self._pepxml_filename = config['PEPXML']
-        self.log.debug('pepxml filenames [%s' % self._pepxml_filename)
+        # in case multiple pepxml files are passed via the key
+        self._pepxml_filename = ' '.join.config['PEPXML'].split(',')        
+        self.log.debug('split pepxml filename [%s] by [","] and joined by [" "]' % self._pepxml_filename)        
         content = open(input_filename,'r').read()
         params = Template(content).safe_substitute(config)
         self.log.debug('parameter [%s]' % params)     

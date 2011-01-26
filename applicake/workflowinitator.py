@@ -6,7 +6,7 @@ Created on Dec 19, 2010
 '''
 
 import sys,os,getopt,traceback,shutil,argparse
-from applicake.utils import Utilities,Workflow,IniFile
+from applicake.utils import Workflow,IniFile
 from applicake.app import Application
 
 class WorkflowInitiator(Application):     
@@ -37,9 +37,9 @@ class WorkflowInitiator(Application):
         self._wd = self._create_jobdir()
         self.log.info('Finished %s' % self._create_jobdir.__name__)   
         self._iniFile = IniFile(input_filename=self._config_filename,lock=False) 
-        self.log.debug('Start [%s]' % self._iniFile.read_ini.__name__)
-        config = self._iniFile.read_ini()
-        self.log.debug('Finished [%s]' % self._iniFile.read_ini.__name__)
+#        self.log.debug('Start [%s]' % self._iniFile.read_ini.__name__)
+#        config = self._iniFile.read_ini()
+#        self.log.debug('Finished [%s]' % self._iniFile.read_ini.__name__)
         self._iniFile.add_to_ini({'DIR':self._wd})
         self.log.debug("add key 'DIR' with value [%s] to ini" % self._wd)                                              
                 
