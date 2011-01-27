@@ -24,12 +24,12 @@ class WorkflowInitiator(Application):
             sys.exit(1)
         return job_dirname      
          
-    def _get_parsed_args(self):
+    def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Script which initiates a workflow')
         parser.add_argument('-i','--input', required=True,nargs=1,action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-c','--config', required=True,nargs=1,action="store", dest="config_filename",type=str,help="config file")
         parser.add_argument('-d','--dir', required=True,nargs=1,action="store", dest="dirname",type=str,help="base directory")
-        a = parser.parse_args()
+        a = parser.parse_args(args)
         return {'input_filename':a.input_filename[0],'config_filename':a.config_filename[0],'dirname':a.dirname[0]}                          
             
     def _preprocessing(self):

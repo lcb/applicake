@@ -15,82 +15,41 @@ class TppCollector(CollectorApplication):
     '''
     classdocs
     '''
-    def _run(self,ini_filenames):        
+    def _run(self,ini_filenames):       
         for filename in ini_filenames:
             self.log.debug('ini file to process [%s]' % filename)
             exit_code = 0
-            a = InterProphet(use_filesystem=True,name=None)
-            exit_code = a([' ','-p','InterProphetParser','-i',filename,'-t',self._template_filenames[0],'-o',filename])
+            prog = InterProphet(use_filesystem=True,name=None)
+            exit_code = prog(['interprophet.py','-p','InterProphetParser','-i',filename,'-t',self._template_filenames[0],'-o',filename])
             if exit_code == 0:
-                self.log.debug('prog [%s] with finished with exit_code [%s]' % (a.name,exit_code))
-                self.log.debug('content of the log file: [\n%s\n]' % open(a._log_filename,'r').read())
+                self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name,exit_code))
                 #copy the log file to the working dir
-                for fn in [a._log_filename,a._stderr_filename,a._stdout_filename]:
-                    shutil.move(fn, os.path.join(a._wd,fn))                 
-                a = PepXML2CSV(use_filesystem=True,name=None)
-                exit_code = a([' ','-p','pepxml2csv','-p','fdr2probability','-i',filename,'-t',self._template_filenames[1],'-o',filename])
+                for fn in [prog._log_filename,prog._stderr_filename,prog._stdout_filename]:
+                    shutil.move(fn, os.path.join(prog._wd,fn))                 
+                prog = PepXML2CSV(use_filesystem=True,name=None)
+                exit_code = prog(['pepxml2csv.py','--prefix=pepxml2csv','--prefix=fdr2probability','--input='+filename,'--template='+self._template_filenames[1],'--output='+filename])
             if exit_code == 0:
-                self.log.debug('prog [%s] with finished with exit_code [%s]' % (a.name,exit_code))
-                self.log.debug('content of the log file: [\n%s\n]' % open(a._log_filename,'r').read())
+                self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name,exit_code))
                 #copy the log file to the working dir
-                for fn in [a._log_filename,a._stderr_filename,a._stdout_filename]:
-                    shutil.move(fn, os.path.join(a._wd,fn))  
-                a = ProteinProphet(use_filesystem=True,name=None)
-                exit_code = a([' ','-p','ProteinProphet','-i',filename,'-t',self._template_filenames[2],'-o',filename])
+                for fn in [prog._log_filename,prog._stderr_filename,prog._stdout_filename]:
+                    shutil.move(fn, os.path.join(prog._wd,fn))  
+                prog = ProteinProphet(use_filesystem=True,name=None)
+                exit_code = prog(['proteinprophet.py','--prefix=ProteinProphet','--input='+filename,'--template='+self._template_filenames[2],'--output='+filename])
             if exit_code == 0:
-                self.log.debug('prog [%s] with finished with exit_code [%s]' % (a.name,exit_code))
-                self.log.debug('content of the log file: [\n%s\n]' % open(a._log_filename,'r').read())
+                self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name,exit_code))
                 #copy the log file to the working dir
-                for fn in [a._log_filename,a._stderr_filename,a._stdout_filename]:
-                    shutil.move(fn, os.path.join(a._wd,fn))                     
-                a = OpenbisExport(use_filesystem=True,name=None)
-                exit_code = a([' ','-p','ProteinProphet','-i',filename,'-t',self._template_filenames[2],'-o',filename])
+                for fn in [prog._log_filename,prog._stderr_filename,prog._stdout_filename]:
+                    shutil.move(fn, os.path.join(prog._wd,fn))                     
+                prog = OpenbisExport(use_filesystem=True,name=None)
+                exit_code = prog(['openbisexport.py','--prefix=protxml2spectralcount','--prefix=protxml2openbis','--input='+filename,'--template='+self._template_filenames[3],'--output='+filename])                
             if exit_code == 0:
-                self.log.debug('prog [%s] with finished with exit_code [%s]' % (a.name,exit_code))
-                self.log.debug('content of the log file: [\n%s\n]' % open(a._log_filename,'r').read())
+                self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name,exit_code))
                 #copy the log file to the working dir
-                for fn in [a._log_filename,a._stderr_filename,a._stdout_filename]:
-                    shutil.move(fn, os.path.join(a._wd,fn))                        
+                for fn in [prog._log_filename,prog._stderr_filename,prog._stdout_filename]:
+                    shutil.move(fn, os.path.join(prog._wd,fn))                        
             if exit_code != 0:
-                return exit_code        
-                    
-                                   
-            
-#            progs = []
-#            progs.append(InterProphet(use_filesystem=True,name=None))
-#            progs.append(PepXML2CSV(use_filesystem=True,name=None))
-#            progs.append(ProteinProphet(use_filesystem=True,name=None))
-#            progs.append(OpenbisExport(use_filesystem=True,name=None))
-#            if len(progs) == len(self._template_filenames):
-#                self.log.debug('number of progs and templates is the same [%s]' % len(progs))
-#            else:
-#                self.log.error('number of progs [%s] does not match number of templates [%s]' % (len(progs),len(self._template_filenames)) )
-#                return 1
-#            args = []
-#            args.append([' ','-p','InterProphetParser','-i',filename,'-t',self._template_filenames[0],'-o',filename])
-#            args.append([' ','-p','pepxml2csv','-p','fdr2probability','-i',filename,'-t',self._template_filenames[1],'-o',filename])
-#            args.append([' ','-p','ProteinProphet','-i',filename,'-t',self._template_filenames[2],'-o',filename])
-#            args.append([' ','-p','protxml2spectralcount','-p','protxml2openbis','-i',filename,'-t',self._template_filenames[3],'-o',filename])            
-#            if len(progs) == len(args):
-#                self.log.debug('number of progs and args is the same [%s]' % len(progs))
-#            else:
-#                self.log.error('number of progs [%s] does not match number of args [%s]' % (len(progs),len(args)) )
-#                return 1
-#            for j,prog in enumerate(progs):
-#                exit_code = prog(args[j])
-#                self.log.debug('prog [%s] with num [%s] finished with exit_code [%s]' % (prog.name,j,exit_code))
-#                self.log.debug('content of the log file: [\n%s\n]' % open(prog._log_filename,'r').read())
-#                #copy the log file to the working dir
-#                for fn in [prog._log_filename,prog._stderr_filename,prog._stdout_filename]:
-#                    shutil.move(fn, os.path.join(prog._wd,fn))                
-#                if exit_code != 0:
-#                    return exit_code                
-                      
-    def _validate_parsed_args(self,dict):
-        self._input_filenames = dict['input_filenames']
-        self._template_filenames = dict['template_filenames']        
-        super(TppCollector, self)._validate_parsed_args(dict)
-        
+                self.log.debug('content of the log file[%s]: [\n%s\n]' % (prog._log_filename,open(prog._log_filename,'r').read()))                
+                return exit_code                             
 
 if "__main__" == __name__:
     # init the application object (__init__)
@@ -101,4 +60,5 @@ if "__main__" == __name__:
     for filename in [a._log_filename,a._stderr_filename,a._stdout_filename]:
         shutil.move(filename, os.path.join(a._wd,filename))
     print(exit_code)
-    sys.exit(exit_code)
+    sys.exit(exit_code)   
+    

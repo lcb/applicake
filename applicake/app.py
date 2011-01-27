@@ -20,7 +20,7 @@ class Application(object):
         self.log.debug('arguments [%s]' % args[1:])
         self.log.debug('Python class [%s]' % self.__class__.__name__)   
         self.log.info('Start [%s]' % self._get_parsed_args.__name__)
-        parsed_args = self._get_parsed_args()        
+        parsed_args = self._get_parsed_args(args[1:])        
         self.log.info('Finish [%s]' % self._get_parsed_args.__name__)          
         self.log.info('Start [%s]' % self._validate_parsed_args.__name__)
         self._validate_parsed_args(parsed_args)        
@@ -71,10 +71,11 @@ class Application(object):
             if os.path.exists(file):
                 os.remove(file) 
                 
-    def _get_parsed_args(self):
+    def _get_parsed_args(self,args):        
         '''
         Parse command line arguments and returns dictionary with according key/value pairs
         '''
+        # need to pass args as otherwise sys.argv is used and this complicates this for the collector
         raise NotImplementedError("Called '_get_parsed_args' method on abstact class")               
                     
     def _run(self,command=None):
@@ -111,10 +112,10 @@ class Application(object):
 class ExternalApplication(Application):
     'Simple application that executes an external program'
     
-    def _get_parsed_args(self):
+    def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='A simple application to call external programs')
         parser.add_argument('-p','--prefix', action="store", dest="p",type=str,help="prefix of the command to execute")
-        a = parser.parse_args()
+        a = parser.parse_args(args)
         return {'prefix':a.p}         
     
     def _preprocessing(self):
@@ -166,13 +167,13 @@ class WorkflowApplication(ExternalApplication):
     def _get_command(self,prefix,input_filename):
         raise NotImplementedError("Called '_get_command' method on abstact class")     
     
-    def _get_parsed_args(self):
+    def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
         parser.add_argument('-p','--prefix',required=True, nargs=1,action="store", dest="prefix",type=str,help="prefix of the command to execute")
         parser.add_argument('-i','--input',required=True, nargs=1,action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
         parser.add_argument('-n','--name',required=False,default=self.name,nargs=1, action="store", dest="name",type=str,help="identifier used in the process")
-        a = parser.parse_args()
+        a = parser.parse_args(args)
         if type(a.name) is list:
             a.name = a.name[0]        
         return {'prefix':a.prefix[0],'input_filename':a.input_filename[0],'output_filename':a.output_filename[0],'name':a.name}      
@@ -193,7 +194,7 @@ class WorkflowApplication(ExternalApplication):
         self.log.info('FINISHED %s' % self._get_command.__name__)
         return command   
     
-    def _validate_parsed_args(self,dict):     
+    def _validate_parsed_args(self,dict):   
         self._command_prefix = dict['prefix']
         self._input_filename = dict['input_filename']
         self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
@@ -248,14 +249,14 @@ class TemplateApplication(WorkflowApplication):
 #        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
 #        return dest         
     
-    def _get_parsed_args(self):
+    def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
         parser.add_argument('-p','--prefix',required=True,nargs=1, action="store", dest="prefix",type=str,help="prefix of the command to execute")
         parser.add_argument('-i','--input',required=True,nargs=1, action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
         parser.add_argument('-n','--name',required=False,default=self.name,nargs=1, action="store", dest="name",type=str,help="identifier used in the process")
-        a = parser.parse_args()
+        a = parser.parse_args(args)
         if type(a.name) is list:
             a.name = a.name[0]
         return {'prefix':a.prefix[0],
@@ -265,7 +266,7 @@ class TemplateApplication(WorkflowApplication):
                 'name':a.name
                 }         
 
-    def _validate_parsed_args(self,dict):     
+    def _validate_parsed_args(self,dict):    
         self._command_prefix = dict['prefix']
         self._input_filename = dict['input_filename']
         self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
@@ -281,14 +282,14 @@ class TemplateApplication(WorkflowApplication):
                    
 class SequenceTemplateApplication(TemplateApplication):
           
-    def _get_parsed_args(self):
+    def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
         parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefix",type=str,help="prefix of the command to execute")
         parser.add_argument('-i','--input',required=True,nargs=1, action="store", dest="input_filename",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs=1, action="store", dest="template_filename",type=str,help="template of the program specific input file")
         parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
         parser.add_argument('-n','--name',required=False,default=self.name,nargs=1, action="store", dest="name",type=str,help="identifier used in the process")
-        a = parser.parse_args()
+        a = parser.parse_args(args)
         if type(a.name) is list:
             a.name = a.name[0]
         return {'prefix':Utilities().get_flatten_sequence(a.prefix),
@@ -307,7 +308,7 @@ class CollectorApplication(Application):
         self.log.debug('arguments [%s]' % args[1:])
         self.log.debug('Python class [%s]' % self.__class__.__name__)   
         self.log.info('Start [%s]' % self._get_parsed_args.__name__)
-        parsed_args = self._get_parsed_args()        
+        parsed_args = self._get_parsed_args(args[1:])        
         self.log.info('Finish [%s]' % self._get_parsed_args.__name__)          
         self.log.info('Start [%s]' % self._validate_parsed_args.__name__)
         self._validate_parsed_args(parsed_args)        
@@ -327,12 +328,12 @@ class CollectorApplication(Application):
         self.log.info('exit_code [%s]' % exit_code)
         return exit_code    
       
-    def _get_parsed_args(self):
+    def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
 #        parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefixes",type=str,help="prefix of the command to execute")
         parser.add_argument('-i','--input',required=True,nargs='+', action="append", dest="input_filenames",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs='+', action="append", dest="template_filenames",type=str,help="template of the program specific input file")
-        a = parser.parse_args()
+        a = parser.parse_args(args)
         return {
 #                'prefixes':Utilities().get_flatten_sequence(a.prefix),
                 'input_filenames':Utilities().get_flatten_sequence(a.input_filenames),
@@ -386,7 +387,9 @@ class CollectorApplication(Application):
         raise NotImplementedError("Called '_run' method on abstract class")          
                
 
-    def _validate_parsed_args(self,dict):               
+    def _validate_parsed_args(self,dict):   
+        self._input_filenames = dict['input_filenames']
+        self._template_filenames = dict['template_filenames']             
         self.log.debug("template filenames [%s]" % self._template_filenames)
         self.log.debug(" num of template filenames [%s]" % len(self._template_filenames))
         for filename in self._template_filenames:
@@ -394,6 +397,9 @@ class CollectorApplication(Application):
                 self.log.fatal('file [%s] does not exist' % filename)
                 sys.exit(1)        
             
+    def _validate_run(self,run_code):              
+        return 0   
+    
     def create_workdir(self,config):
         wd = None
         try:
@@ -404,4 +410,6 @@ class CollectorApplication(Application):
         except Exception,e:                
             self.log.exception(e)  
             sys.exit(1)
-        return wd                                         
+        return wd  
+    
+                                                     
