@@ -24,7 +24,7 @@ class ProteinProphet(TemplateApplication):
         content = open(input_filename,'r').read()        
         params = Template(content).safe_substitute(config)
         self.log.debug('parameter [%s]' % params)   
-        self._result_filename  = os.path.join(self._wd,self.name + ".protxml")
+        self._result_filename  = os.path.join(self._wd,self.name + ".prot.xml")
         self._iniFile.add_to_ini({'PROTXML':self._result_filename})        
         return '%s %s %s %s' % (prefix,pepxml_filename,self._result_filename,params)      
     

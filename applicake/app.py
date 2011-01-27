@@ -44,7 +44,7 @@ class Application(object):
         self.log.info('exit_code [%s]' % exit_code)
         return exit_code
     
-    def __init__(self, use_filesystem=True,log_level=logging.DEBUG,name=None):
+    def __init__(self, use_filesystem=True,log_level=logging.DEBUG,name=None,log_console=True):
         'Initialization of variables and basic preparation of running the class'
         if name is None:
             name = str(self.__class__.__name__).lower()
@@ -58,9 +58,9 @@ class Application(object):
         self._log_level = log_level                    
         self._clean_up()
         if use_filesystem:
-            self.log = logger(level=self._log_level,file=self._log_filename).logger
+            self.log = logger(level=self._log_level,name=self.name,file=self._log_filename,console=log_console).logger
         else:
-            self.log = logger(level=self._log_level).logger  
+            self.log = logger(level=self._log_level,console=log_console).logger  
         self.log.debug(os.path.abspath(self._log_filename))    
         #TODO: _validate_parsed_args should contain possibility to change log level via commandline argument
                   

@@ -22,7 +22,7 @@ class WorkflowInitiator(Application):
         else:
             self.log.fatal('job_dir [%s] was not created.' % job_dirname)
             sys.exit(1)
-        return job_dirname      
+        return job_dirname,jobid      
          
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Script which initiates a workflow')
@@ -34,14 +34,15 @@ class WorkflowInitiator(Application):
             
     def _preprocessing(self):
         self.log.info('Start %s' % self._create_jobdir.__name__)
-        self._wd = self._create_jobdir()
+        self._wd,jobid = self._create_jobdir()
         self.log.info('Finished %s' % self._create_jobdir.__name__)   
         self._iniFile = IniFile(input_filename=self._config_filename,lock=False) 
 #        self.log.debug('Start [%s]' % self._iniFile.read_ini.__name__)
 #        config = self._iniFile.read_ini()
 #        self.log.debug('Finished [%s]' % self._iniFile.read_ini.__name__)
-        self._iniFile.add_to_ini({'DIR':self._wd})
-        self.log.debug("add key 'DIR' with value [%s] to ini" % self._wd)                                              
+        self._iniFile.add_to_ini({'DIR':self._wd,'JOBID':jobid})
+        self.log.debug("add key 'DIR' with value [%s] to ini" % self._wd)
+        self.log.debug("add key 'JOBID' with value [%s] to ini" % jobid)
                 
     def _run(self,command=None):
         try:

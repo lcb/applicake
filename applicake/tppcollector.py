@@ -15,32 +15,32 @@ class TppCollector(CollectorApplication):
     '''
     classdocs
     '''
-    def _run(self,ini_filenames):       
+    def _run(self,ini_filenames):   
         for filename in ini_filenames:
             self.log.debug('ini file to process [%s]' % filename)
             exit_code = 0
-            prog = InterProphet(use_filesystem=True,name=None)
+            prog = InterProphet(use_filesystem=True,name=None,log_console=False)
             exit_code = prog(['interprophet.py','-p','InterProphetParser','-i',filename,'-t',self._template_filenames[0],'-o',filename])
             if exit_code == 0:
                 self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name,exit_code))
                 #copy the log file to the working dir
                 for fn in [prog._log_filename,prog._stderr_filename,prog._stdout_filename]:
                     shutil.move(fn, os.path.join(prog._wd,fn))                 
-                prog = PepXML2CSV(use_filesystem=True,name=None)
+                prog = PepXML2CSV(use_filesystem=True,name=None,log_console=False)
                 exit_code = prog(['pepxml2csv.py','--prefix=pepxml2csv','--prefix=fdr2probability','--input='+filename,'--template='+self._template_filenames[1],'--output='+filename])
             if exit_code == 0:
                 self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name,exit_code))
                 #copy the log file to the working dir
                 for fn in [prog._log_filename,prog._stderr_filename,prog._stdout_filename]:
                     shutil.move(fn, os.path.join(prog._wd,fn))  
-                prog = ProteinProphet(use_filesystem=True,name=None)
+                prog = ProteinProphet(use_filesystem=True,name=None,log_console=False)
                 exit_code = prog(['proteinprophet.py','--prefix=ProteinProphet','--input='+filename,'--template='+self._template_filenames[2],'--output='+filename])
             if exit_code == 0:
                 self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name,exit_code))
                 #copy the log file to the working dir
                 for fn in [prog._log_filename,prog._stderr_filename,prog._stdout_filename]:
                     shutil.move(fn, os.path.join(prog._wd,fn))                     
-                prog = OpenbisExport(use_filesystem=True,name=None)
+                prog = OpenbisExport(use_filesystem=True,name=None,log_console=False)
                 exit_code = prog(['openbisexport.py','--prefix=protxml2spectralcount','--prefix=protxml2openbis','--input='+filename,'--template='+self._template_filenames[3],'--output='+filename])                
             if exit_code == 0:
                 self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name,exit_code))
@@ -57,8 +57,13 @@ if "__main__" == __name__:
     # call the application object as method (__call__)
     exit_code = a(sys.argv)
     #copy the log file to the working dir
-    for filename in [a._log_filename,a._stderr_filename,a._stdout_filename]:
-        shutil.move(filename, os.path.join(a._wd,filename))
+    for filename in [a._log_filename]:
+        if os.path.exists(filename):
+            shutil.move(filename, os.path.join(a._wd,filename))
+        else:
+            sys.stdout.write('file does not exit [%s] and was therefore not moved to [%s]\n' % (filename,os.path.join(a._wd,filename)) )
     print(exit_code)
-    sys.exit(exit_code)   
+    
+    sys.exit(1)
+#    sys.exit(exit_code)   
     

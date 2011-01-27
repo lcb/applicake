@@ -13,7 +13,7 @@ class Interact(SequenceTemplateApplication):
         config = self._iniFile.read_ini()
         pepxml_filename = config['PEPXML']        
         db_filename = config['DBASE']
-        self._result_filename  = os.path.join(self._wd, self.name  + '.pepxml')
+        self._result_filename  = os.path.join(self._wd, self.name  + '.pep.xml')
         self._iniFile.update_ini({'PEPXML':self._result_filename})
         self.log.debug("updated key 'PEPXML' with value [%s] in ini" % self._result_filename)
 

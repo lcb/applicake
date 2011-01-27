@@ -7,6 +7,7 @@ Created on Jan 25, 2011
 import sys,os,shutil
 from string import Template
 from applicake.app import SequenceTemplateApplication
+from applicake.utils import IniFile
 
 class OpenbisExport(SequenceTemplateApplication):
     '''
@@ -19,7 +20,10 @@ class OpenbisExport(SequenceTemplateApplication):
         csv_filename = config['CSV']        
         self.log.debug('CSV [%s]' % csv_filename)
         db = config['DBASE']
-        self.log.debug('DBASE [%s]' % db)        
+        self.log.debug('DBASE [%s]' % db)    
+        dbasename = os.path.splitext(os.path.split(db)[1])[0]
+        self._iniFile.add_to_ini({'DBASENAME':dbasename})
+        self.log.debug("add key 'DBASENAME' with value [%s] to ini" % dbasename)
         content = open(input_filename,'r').read()        
         params = Template(content).safe_substitute(config)
         self.log.debug('parameter [%s]' % params)   
@@ -50,8 +54,45 @@ class OpenbisExport(SequenceTemplateApplication):
     def _validate_run(self,run_code):               
         exit_code = super(OpenbisExport, self)._validate_run(0)
         if exit_code != 0:
-            return  exit_code
-        return 0   
+            return  exit_code 
+        self.log.info('Start [%s]' % self._copy_to_dropbox.__name__)
+        self._copy_to_dropbox()
+
+        self.log.info('Finish [%s]' % self._copy_to_dropbox.__name__)                        
+        return 0 
+    
+    def _copy_to_dropbox(self):
+        config=self._iniFile.read_ini()
+        dropbox = config['DROPBOX']
+        space = config['SPACE']
+        project = config['PROJECT']
+        param_idx = config['PARAM_IDX']
+        jobid = config['JOBID']
+        dropbox_dirname = '%s+%s+%s.%s'%(space,project,jobid,param_idx)
+        dir = os.path.join(self._wd,dropbox_dirname)
+        self.log.debug('generate dir [%s] to later move it to [%s]...' % (dir,dropbox))
+        os.mkdir(dir)
+        self.log.debug('...successful')        
+        self.log.debug('start copying data to dir...')                
+        for filename in [config['PEPXML'],config['PROTXML'],config['CSV']]:
+            basename = os.path.split(filename)[1]
+            self.log.debug('basename [%s]' % basename)
+            self.log.debug('dir [%s]' % self._wd)  
+            dest = os.path.join(dir,basename)   
+            self.log.debug('...move [%s] to [%s]...' % (filename,dest))                   
+            shutil.move(filename,dest)
+            self.log.debug('...successfully..')
+        props_filename = os.path.join(dir,'search.properties')
+        self.log.debug('...write current config to [%s]...' % props_filename)
+        ini_file = IniFile(input_filename=props_filename,output_filename=props_filename)
+        ini_file.write_ini(config)        
+        self.log.debug('...successfully...')
+        self.log.debug('...moving [%s] to [%s]' % (dir, dropbox))
+        shutil.move(dir,dropbox)
+        self.log.debug('...successfully!')
+        
+            
+        
         
 if "__main__" == __name__:
     # init the application object (__init__)

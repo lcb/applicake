@@ -21,7 +21,7 @@ class InterProphet(TemplateApplication):
         content = open(input_filename,'r').read()
         params = Template(content).safe_substitute(config)
         self.log.debug('parameter [%s]' % params)     
-        self._result_filename  = os.path.join(self._wd,self.name + ".pepxml")
+        self._result_filename  = os.path.join(self._wd,self.name + ".pep.xml")
         self._iniFile.add_to_ini({'PEPXML':self._result_filename})
         return '%s %s %s %s' % (prefix,params,self._pepxml_filename,self._result_filename)        
     

@@ -131,19 +131,18 @@ class IniFile():
         return output_filenames
 
 class Logger():
-    
-    def __init__(self,name='logger',level=logging.DEBUG,file=None):
+    def __init__(self,name='logger',level=logging.DEBUG,file=None,console=True):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)                
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        if (file == None):
+        if console:
             ch = logging.StreamHandler()
             ch.setFormatter(formatter)
             self.logger.addHandler(ch)                
-        else:
-            ch = logging.StreamHandler()
-            ch.setFormatter(formatter)
-            self.logger.addHandler(ch)                  
+        if file is not None:
+#            ch = logging.StreamHandler()
+#            ch.setFormatter(formatter)
+#            self.logger.addHandler(ch)                  
             fh = logging.FileHandler(file)
             fh.setFormatter(formatter)
             self.logger.addHandler(fh)
