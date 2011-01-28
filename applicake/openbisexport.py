@@ -28,7 +28,7 @@ class OpenbisExport(SequenceTemplateApplication):
         params = Template(content).safe_substitute(config)
         self.log.debug('parameter [%s]' % params)   
         protxml_sc_filename  = os.path.join(self._wd,self.name + "_spectralcount.protxml")
-        self._result_filename  = os.path.join(self._wd,self.name + ".protxml")
+        self._result_filename  = os.path.join(self._wd,self.name + ".prot.xml")
         self._iniFile.update_ini({'PROTXML':self._result_filename})        
          # prefix is for this class a [] instead of a string
         prefixes = prefix

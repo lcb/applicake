@@ -20,7 +20,7 @@ class Omssa(TemplateApplication):
         if config['PRECMASSUNIT'].lower() is "ppm":
             params = params + ' -teppm'
             self.log.debug('added [ -teppm] to parameters')       
-        self._result_filename  = os.path.join(self._wd,self.name + ".pepxml")
+        self._result_filename  = os.path.join(self._wd,self.name + ".pep.xml")
         self._iniFile.add_to_ini({'PEPXML':self._result_filename})
         return "%s %s -fm %s -op %s" %(prefix,params,search_filename,self._result_filename)
     

@@ -6,7 +6,7 @@ Created on Nov 11, 2010
 @author: quandtan
 '''
 
-import sys,getopt,logging,os,cStringIO,argparse,glob
+import sys,getopt,logging,os,cStringIO,argparse,glob,shutil
 from subprocess import Popen, PIPE
 from applicake.utils import Logger as logger
 from applicake.utils import IniFile,Workflow,Utilities
@@ -216,11 +216,15 @@ class WorkflowApplication(ExternalApplication):
             os.makedirs(wd)
             self.log.debug('Created workdir [%s]' % wd)
         except Exception,e:
-#            if os.access( wd, os.F_OK):
-#                self.log.error("File [%s] already exists and can be accessed" % wd)
-#            else:                
-            self.log.exception(e)  
-            sys.exit(1)
+            if os.access( wd, os.F_OK):
+                self.log.warning("dir [%s] already exists and can be accessed" % wd)
+                self.log.debug('delete old dir')
+                shutil.rmtree(wd)
+                self.log.debug('create dir')
+                os.makedirs(wd)
+            else:                
+                self.log.warning(e)  
+                sys.exit(1)
         return wd    
     
     def _validate_run(self,run_code):
@@ -242,12 +246,7 @@ class WorkflowApplication(ExternalApplication):
         return 0                                                
                                                    
                             
-class TemplateApplication(WorkflowApplication):
-    
-#    def _get_app_inputfilename(self,config):
-#        dest = os.path.join(self._wd,self.name + self._params_ext)
-#        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
-#        return dest         
+class TemplateApplication(WorkflowApplication):        
     
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
@@ -407,9 +406,14 @@ class CollectorApplication(Application):
             wd = os.path.join(basedir,self.name)                       
             os.makedirs(wd)
             self.log.debug('Created workdir [%s]' % wd)
-        except Exception,e:                
-            self.log.exception(e)  
-            sys.exit(1)
-        return wd  
-    
-                                                     
+        except Exception,e:
+            if os.access( wd, os.F_OK):
+                self.log.warning("dir [%s] already exists and can be accessed" % wd)
+                self.log.debug('delete old dir')
+                shutil.rmtree(wd)
+                self.log.debug('create dir')
+                os.makedirs(wd)
+            else:                
+                self.log.warning(e)  
+                sys.exit(1) 
+        return wd    
