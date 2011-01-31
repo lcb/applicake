@@ -64,6 +64,6 @@ if "__main__" == __name__:
             sys.stdout.write('file does not exit [%s] and was therefore not moved to [%s]\n' % (filename,os.path.join(a._wd,filename)) )
     print(exit_code)
     
-    sys.exit(1)
-#    sys.exit(exit_code)   
+#    sys.exit(1)
+    sys.exit(exit_code)   
     

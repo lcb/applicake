@@ -54,6 +54,7 @@ class Application(object):
         self._log_filename = ''.join([self.name,".log"])
         self._params_ext = ".params"
         self._tpl_ext = ".tpl"
+        self._result_ext = ".result"
         self._use_filesystem = use_filesystem
         self._log_level = log_level                    
         self._clean_up()
@@ -397,7 +398,7 @@ class CollectorApplication(Application):
                 sys.exit(1)        
             
     def _validate_run(self,run_code):              
-        return 0   
+        return run_code   
     
     def create_workdir(self,config):
         wd = None

@@ -7,7 +7,7 @@ Created on Nov 17, 2010
 import sys,os
 import shutil
 from applicake.app import TemplateApplication
-from applicake.utils import Utilities#,IniFile
+from applicake.utils import Utilities
 
 class Tandem(TemplateApplication):
     
@@ -22,9 +22,7 @@ class Tandem(TemplateApplication):
         try:
             db_filename = config['DBASE']
             spectra_filename = config['MZXML']
-            (dir,name) = os.path.split(spectra_filename)
-            (basename,ext) = os.path.splitext(name)
-            self._result_filename = os.path.join(self._wd,basename + "." + self.name)
+            self._result_filename = os.path.join(self._wd,self.name + self._result_ext)
         except Exception,e:
             self.log.exception(e)
             sys.exit(1)           
@@ -43,12 +41,12 @@ class Tandem(TemplateApplication):
             sink.write("<note type='input' label='spectrum, path'>"+spectra_filename+"</note>\n")
             sink.write("<note type='input' label='protein, taxon'>database</note>\n</bioml>\n")
         self.log.debug('Created [%s]' % input_filename)
+        self._iniFile.add_to_ini({'RESULT':self._result_filename})
+        self.log.debug("add key 'RESULT' with value [%s] to ini" % self._result_filename)
         return input_filename    
         
         
     def _get_command(self,prefix,input_filename):
-        self._iniFile.add_to_ini({'RESULT':self._result_filename})
-        self.log.debug("add key 'RESULT' with value [%s] to ini" % self._result_filename)
         return "cd %s;%s %s" % (self._wd,prefix,input_filename)    
         
     def _validate_run(self,run_code):  

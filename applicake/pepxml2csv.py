@@ -51,6 +51,13 @@ class PepXML2CSV(SequenceTemplateApplication):
         try:
             num = float(stdout)
             self.log.debug('probability calculated: [%s]' % num)
+            # is necessary as protein prophet throughs error when e.g. 0.999999
+            if num < 1:
+                num = str(num)[:6]
+                self.log.debug('probability cut to : [%s]' % num)
+            else:
+                num = 1
+                self.log.debug('probability cut to : [%s]' % num)
             self._iniFile.add_to_ini({'PROBABILITY':num})            
         except Exception,e:
             self.log.exception(e)  
