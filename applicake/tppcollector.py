@@ -49,7 +49,7 @@ class TppCollector(CollectorApplication):
                     shutil.move(fn, os.path.join(prog._wd,fn))                        
             if exit_code != 0:
                 self.log.debug('content of the log file[%s]: [\n%s\n]' % (prog._log_filename,open(prog._log_filename,'r').read()))                
-            return exit_code                             
+        return exit_code                             
 
 if "__main__" == __name__:
     # init the application object (__init__)
