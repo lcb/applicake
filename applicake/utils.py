@@ -222,6 +222,6 @@ class XmlValidator():
             self.parsefile()
             return True
         except Exception, e:
-            sys.stderr.write(e)
+            print str(e)
             return False       
         
