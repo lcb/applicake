@@ -48,7 +48,7 @@ class Application(object):
         'Initialization of variables and basic preparation of running the class'
         if name is None:
             name = str(self.__class__.__name__).lower()
-        self.name=name  
+        self.name=name.lower()  
         self._stdout_filename = ''.join([self.name,".out"])
         self._stderr_filename = ''.join([self.name,".err"]) 
         self._log_filename = ''.join([self.name,".log"])
@@ -343,7 +343,8 @@ class CollectorApplication(Application):
     def _preprocessing(self):
         pepxml_by_paramidx = {}
         self._iniFile = None
-        config = None
+#        config = None
+        param_configs = {}
         for ini_filebasename in self._input_filenames:
             for ini_file in glob.glob("%s*" % (ini_filebasename)):
                 self._iniFile = IniFile(input_filename=ini_file, lock=False)
@@ -354,31 +355,60 @@ class CollectorApplication(Application):
                     pepxml_by_paramidx[idx].append(pepxml)
                 else:
                     pepxml_by_paramidx[idx] = [pepxml]
-        # takes the last config to create the work directory
-        self.log.debug('pep xml files:[%s]' % pepxml_by_paramidx)
-        for e in pepxml_by_paramidx.items():
-            self.log.debug('[%s] pepxml for param idx [%s]' % (len(e[1]), e[0]))
-            for filename in e[1]:
-                if not os.path.exists(filename):
-                    self.log.fatal('file [%s] does not exist' % filename)
-                    sys.exit(1)        
-        self.log.debug('all pepxml files exist')
-        self.log.debug("content of last read ini file: %s" % config)
+                    param_configs[idx] = config
+#        # takes the last config to create the work directory
+#        self.log.debug('pep xml files:[%s]' % pepxml_by_paramidx)
+#        for e in pepxml_by_paramidx.items():
+#            self.log.debug('[%s] pepxml for param idx [%s]' % (len(e[1]), e[0]))
+#            for filename in e[1]:
+#                if not os.path.exists(filename):
+#                    self.log.fatal('file [%s] does not exist' % filename)
+#                    sys.exit(1)        
+#        self.log.debug('all pepxml files exist')
+#        self.log.debug("content of last read ini file: %s" % config)
+#        self.log.info('Start %s' % self.create_workdir.__name__)
+#        self._wd = self.create_workdir(config)
+#        self.log.info('Finished %s' % self.create_workdir.__name__)
+#        self.log.debug("updated key 'DIR' with value [%s] in ini" % self._wd)   
+#        config['DIR'] = self._wd
+#        self.log.debug("updated key 'SPECTRA_IDX' with value [%s] in ini" % '')
+#        config['SPECTRA_IDX'] = ''
+#        ini_filenames = []
+#        for k,v in pepxml_by_paramidx.iteritems():
+#            config['PARAM_IDX'] = k
+#            config['PEPXML'] = ','.join(v)
+#            ini_filename = os.path.join(config['DIR'],k + '.ini')
+#            IniFile(input_filename=ini_filename).write_ini(config)
+#            ini_filenames.append(ini_filename)
+#            if not os.path.exists(ini_filename):
+#        return ini_filenames     
         self.log.info('Start %s' % self.create_workdir.__name__)
         self._wd = self.create_workdir(config)
         self.log.info('Finished %s' % self.create_workdir.__name__)
-        self.log.debug("updated key 'DIR' with value [%s] in ini" % self._wd)   
-        config['DIR'] = self._wd
-        self.log.debug("updated key 'SPECTRA_IDX' with value [%s] in ini" % '')
-        config['SPECTRA_IDX'] = ''
+        self.log.warning(param_configs)
         ini_filenames = []
         for k,v in pepxml_by_paramidx.iteritems():
-            config['PARAM_IDX'] = k
+            self.log.debug('[%s] pepxml for param idx [%s]' % (len(v), k))
+            for filename in v:
+                if not os.path.exists(filename):
+                    self.log.fatal('file [%s] does not exist' % filename)
+                    sys.exit(1)        
+            self.log.debug('all pepxml files exist')
+            config = param_configs[k]
+            self.log.debug("updated key 'SPECTRA_IDX' with value [%s] in ini" % config['SPECTRA_IDX'])                     
+            self.log.debug("updated key 'DIR' with value [%s] in ini" % self._wd)   
+            config['DIR'] = self._wd            
+            config['SPECTRA_IDX'] = ''
+#            config['PARAM_IDX'] = k
             config['PEPXML'] = ','.join(v)
             ini_filename = os.path.join(config['DIR'],k + '.ini')
             IniFile(input_filename=ini_filename).write_ini(config)
+            self.log.debug("content of ini file [%s] for param [%s]: %s" % (ini_filename,k,config))
+            if not os.path.exists(ini_filename):
+                self.log.fatal('file [%s] does not exsist' % ini_filename)
+                sys.exit(1)
             ini_filenames.append(ini_filename)
-        return ini_filenames     
+        return ini_filenames
     
     def _run(self,ini_filenames):
         '''
@@ -405,8 +435,9 @@ class CollectorApplication(Application):
         try:
             basedir = config['DIR'] 
             wd = os.path.join(basedir,self.name)                       
-            os.makedirs(wd)
             self.log.debug('Created workdir [%s]' % wd)
+            os.makedirs(wd)
+
         except Exception,e:
             if os.access( wd, os.F_OK):
                 self.log.warning("dir [%s] already exists and can be accessed" % wd)
