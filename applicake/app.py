@@ -330,20 +330,19 @@ class CollectorApplication(Application):
       
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
-#        parser.add_argument('-p','--prefix',required=True,nargs='+', action="append", dest="prefixes",type=str,help="prefix of the command to execute")
         parser.add_argument('-i','--input',required=True,nargs='+', action="append", dest="input_filenames",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs='+', action="append", dest="template_filenames",type=str,help="template of the program specific input file")
+        parser.add_argument('-n','--num',required=True, nargs='1', action="store", dest="num_threads",type=str, help="max. number of parallel threads used")
         a = parser.parse_args(args)
         return {
-#                'prefixes':Utilities().get_flatten_sequence(a.prefix),
                 'input_filenames':Utilities().get_flatten_sequence(a.input_filenames),
-                'template_filenames':Utilities().get_flatten_sequence(a.template_filenames)
+                'template_filenames':Utilities().get_flatten_sequence(a.template_filenames),
+                'num_threads':a.num_threads[0]
                 }
         
     def _preprocessing(self):
         pepxml_by_paramidx = {}
         self._iniFile = None
-#        config = None
         param_configs = {}
         for ini_filebasename in self._input_filenames:
             for ini_file in glob.glob("%s*" % (ini_filebasename)):
@@ -355,33 +354,7 @@ class CollectorApplication(Application):
                     pepxml_by_paramidx[idx].append(pepxml)
                 else:
                     pepxml_by_paramidx[idx] = [pepxml]
-                    param_configs[idx] = config
-#        # takes the last config to create the work directory
-#        self.log.debug('pep xml files:[%s]' % pepxml_by_paramidx)
-#        for e in pepxml_by_paramidx.items():
-#            self.log.debug('[%s] pepxml for param idx [%s]' % (len(e[1]), e[0]))
-#            for filename in e[1]:
-#                if not os.path.exists(filename):
-#                    self.log.fatal('file [%s] does not exist' % filename)
-#                    sys.exit(1)        
-#        self.log.debug('all pepxml files exist')
-#        self.log.debug("content of last read ini file: %s" % config)
-#        self.log.info('Start %s' % self.create_workdir.__name__)
-#        self._wd = self.create_workdir(config)
-#        self.log.info('Finished %s' % self.create_workdir.__name__)
-#        self.log.debug("updated key 'DIR' with value [%s] in ini" % self._wd)   
-#        config['DIR'] = self._wd
-#        self.log.debug("updated key 'SPECTRA_IDX' with value [%s] in ini" % '')
-#        config['SPECTRA_IDX'] = ''
-#        ini_filenames = []
-#        for k,v in pepxml_by_paramidx.iteritems():
-#            config['PARAM_IDX'] = k
-#            config['PEPXML'] = ','.join(v)
-#            ini_filename = os.path.join(config['DIR'],k + '.ini')
-#            IniFile(input_filename=ini_filename).write_ini(config)
-#            ini_filenames.append(ini_filename)
-#            if not os.path.exists(ini_filename):
-#        return ini_filenames     
+                    param_configs[idx] = config 
         self.log.info('Start %s' % self.create_workdir.__name__)
         self._wd = self.create_workdir(config)
         self.log.info('Finished %s' % self.create_workdir.__name__)
@@ -419,7 +392,8 @@ class CollectorApplication(Application):
 
     def _validate_parsed_args(self,dict):   
         self._input_filenames = dict['input_filenames']
-        self._template_filenames = dict['template_filenames']             
+        self._template_filenames = dict['template_filenames']
+        self._num_threads = int(dict['num_threads'])             
         self.log.debug("template filenames [%s]" % self._template_filenames)
         self.log.debug(" num of template filenames [%s]" % len(self._template_filenames))
         for filename in self._template_filenames:
