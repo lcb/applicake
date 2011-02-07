@@ -12,7 +12,6 @@ class InterProphet(TemplateApplication):
     '''
     classdocs
     '''
-
     def _get_command(self,prefix,input_filename):
         config = self._iniFile.read_ini()
         # in case multiple pepxml files are passed via the key
