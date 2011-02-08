@@ -158,7 +158,7 @@ class ThreadPool:
 
     def add_task(self, func, *args, **kargs):
         """Add a task to the queue"""
-        self.tasks.put((func, args, kargs))
+        self.tasks.put((func, args, kargs),True)
 
     def wait_completion(self):
         """Wait for completion of all the tasks in the queue"""
@@ -230,12 +230,15 @@ class Worker(Thread):
         self.tasks = tasks
         self.daemon = True
         self.start()
+#        self.join()
     
     def run(self):
         while True:
             func, args, kargs = self.tasks.get()
-            try: func(*args, **kargs)
-            except Exception, e: print e
+            try: 
+                func(*args, **kargs)
+            except Exception, e: 
+                print e
             self.tasks.task_done()
 
               
