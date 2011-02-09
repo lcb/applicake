@@ -33,7 +33,7 @@ class TppCollector(CollectorApplication):
         if exit_code == 0:                         
             prog = PepXML2CSV(use_filesystem=True, name="%s-%s" % (idx,'pepxml2csv'), log_console=False)
             exit_code = prog(['pepxml2csv.py', '--prefix=pepxml2csv', '--prefix=fdr2probability', '--input=' + filename, '--template=' + self._template_filenames[1], '--output=' + filename])
-            self.log.debug('[%s]: prog [%s] with finished with exit_code [%s]' % (filename,prog.name, exit_code))
+            self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name, exit_code))
             for fn in [prog._log_filename, prog._stderr_filename, prog._stdout_filename]:
                 src = os.path.abspath(fn)
                 dest = os.path.join(prog._wd, fn)
@@ -42,7 +42,7 @@ class TppCollector(CollectorApplication):
         if exit_code == 0:                 
             prog = ProteinProphet(use_filesystem=True, name="%s-%s" % (idx,'proteinprophet'), log_console=False)
             exit_code = prog(['proteinprophet.py', '--prefix=ProteinProphet', '--input=' + filename, '--template=' + self._template_filenames[2], '--output=' + filename])
-            self.log.debug('[%s]: prog [%s] with finished with exit_code [%s]' % (filename,prog.name, exit_code))
+            self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name, exit_code))
             for fn in [prog._log_filename, prog._stderr_filename, prog._stdout_filename]:
                 src = os.path.abspath(fn)
                 dest = os.path.join(prog._wd, fn)
@@ -52,7 +52,7 @@ class TppCollector(CollectorApplication):
             prog = OpenbisExport(use_filesystem=True, name="%s-%s" % (idx,'openbisexport'), log_console=False)
             exit_code = prog(['openbisexport.py', '--prefix=protxml2spectralcount', '--prefix=protxml2openbis', '--input=' + filename, '--template=' + self._template_filenames[3], '--output=' + filename])
 #                print ("[%s] [%s]: %s" %(os.path.split(filename)[1],3,exit_code))
-            self.log.debug('[%s]: prog [%s] with finished with exit_code [%s]' % (filename,prog.name, exit_code))
+            self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name, exit_code))
             for fn in [prog._log_filename, prog._stderr_filename, prog._stdout_filename]:
                 src = os.path.abspath(fn)
                 dest = os.path.join(prog._wd, fn)
