@@ -8,8 +8,6 @@ import logging,itertools,os,fcntl,time,random,xml.parsers.expat,sys
 #import win32con, win32file, pywintypes,fcntl
 from configobj import ConfigObj #easy_install configobj
 from string import Template 
-from Queue import Queue
-from threading import Thread
  
 class Workflow():
     
@@ -147,22 +145,7 @@ class Logger():
 #            self.logger.addHandler(ch)                  
             fh = logging.FileHandler(file)
             fh.setFormatter(formatter)
-            self.logger.addHandler(fh)
-                
-# http://code.activestate.com/recipes/577187-python-thread-pool/
-class ThreadPool:
-    """Pool of threads consuming tasks from a queue"""
-    def __init__(self, num_threads):
-        self.tasks = Queue(num_threads)
-        for _ in range(num_threads): Worker(self.tasks)
-
-    def add_task(self, func, *args, **kargs):
-        """Add a task to the queue"""
-        self.tasks.put((func, args, kargs),True)
-
-    def wait_completion(self):
-        """Wait for completion of all the tasks in the queue"""
-        self.tasks.join()                
+            self.logger.addHandler(fh)                     
                 
 class Utilities():  
     
@@ -220,27 +203,6 @@ def get_cksum(self,filename, md5=True,exclude_line="", include_line=""):
         cksum.update(line)
     cksum.update(include_line)
     return cksum.hexdigest()
-
-
-# http://code.activestate.com/recipes/577187-python-thread-pool/
-class Worker(Thread):
-    """Thread executing tasks from a given tasks queue"""
-    def __init__(self, tasks):
-        Thread.__init__(self)
-        self.tasks = tasks
-        self.daemon = True
-        self.start()
-#        self.join()
-    
-    def run(self):
-        while True:
-            func, args, kargs = self.tasks.get()
-            try: 
-                func(*args, **kargs)
-            except Exception, e: 
-                print e
-            self.tasks.task_done()
-
               
 class XmlValidator():    
     
@@ -258,4 +220,38 @@ class XmlValidator():
         except Exception, e:
             print str(e)
             return False       
+
+from Queue import Queue
+from threading import Thread
+
+class Worker(Thread):
+    """Thread executing tasks from a given tasks queue"""
+    def __init__(self, tasks):
+        Thread.__init__(self)
+        self.tasks = tasks
+        self.daemon = True
+        self.start()
+    
+    def run(self):
+        while True:
+            func, args, kargs = self.tasks.get()
+            try: func(*args, **kargs)
+            except Exception, e: print e
+            self.tasks.task_done()
+
+class ThreadPool(object):
+    """Pool of threads consuming tasks from a queue"""
+    def __init__(self, num_threads):
+        self.tasks = Queue(num_threads)
+        for _ in range(num_threads): Worker(self.tasks)
+
+    def add_task(self, func, *args, **kargs):
+        """Add a task to the queue"""
+        self.tasks.put((func, args, kargs))
+
+    def wait_completion(self):
+        """Wait for completion of all the tasks in the queue"""
+        self.tasks.join()
+        
+     
 

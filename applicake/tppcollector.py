@@ -10,7 +10,6 @@ from applicake.interprophet import InterProphet
 from applicake.pepxml2csv import PepXML2CSV
 from applicake.proteinprophet import ProteinProphet
 from applicake.openbisexport import OpenbisExport
-#from multiprocessing import Pool
 from applicake.utils import ThreadPool
 
 class TppCollector(CollectorApplication):
@@ -62,18 +61,11 @@ class TppCollector(CollectorApplication):
             self.log.error('file [%s] was not processed because a previous file was processed with errors.' % filename)
 
     def _run(self,ini_filenames):   
-#        p = Pool(self._num_threads)
         self._exit_code = 0
-##        for filename in ini_filenames:
-##            p.apply_async(self._sequence,filename)
-##        p.close()
-##        p.join()
-#        p.map(self._sequence)
-#        return self._exit_code
-        pool = ThreadPool(self._num_threads)
-        for filename in ini_filenames:
+        pool = ThreadPool(self._num_threads)        
+        for filename in ini_filenames:            
             pool.add_task(self._sequence, filename)
-        pool.wait_completion()              
+        pool.wait_completion()             
         return self._exit_code                             
 
 if "__main__" == __name__:
