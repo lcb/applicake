@@ -139,10 +139,7 @@ class Logger():
             ch = logging.StreamHandler()
             ch.setFormatter(formatter)
             self.logger.addHandler(ch)                
-        if file is not None:
-#            ch = logging.StreamHandler()
-#            ch.setFormatter(formatter)
-#            self.logger.addHandler(ch)                  
+        if file is not None:                
             fh = logging.FileHandler(file)
             fh.setFormatter(formatter)
             self.logger.addHandler(fh)                     

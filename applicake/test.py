@@ -161,56 +161,5 @@ if __name__ == '__main__':
     
 #-----------------------------------------------------------------------------    
 
-#from multiprocessing import Process, JoinableQueue
-#class ThreadPool(object):
-#    
-#    def __init__(self,num):
-#        self._queue = JoinableQueue(num)
-#        
-#    
-#    def add_task(self, func, args):
-#        """Add a task to the queue"""
-#        q = self._queue
-#        p = Process(target=func,args=(args,))
-#        q.put(p)
-#        p.start()
-#        p.join()
-#        
-#    def wait_completion(self):
-#        self._queue.join()
-#        
-#class Test(object):
-#    
-#    def __call__(self):
-#        self.run(range(self._num))
-#            
-#    def __init__(self,x):
-#        self._num = x
-#            
-#    def mul(self,x):
-#        from time import sleep
-#        if x == 7: self._exit_code = 1
-#        if self._exit_code != 1:
-#            print x*x
-#            sleep(x)
-#            print x*x*x
-#            sleep(x/5)
-#            print '%s finished' % x
-#        
-#        
-#    def run(self,range):
-#        a = time.asctime()      
-#        self._exit_code = 0
-#        pool = ThreadPool(self._num)        
-#        for i in range:            
-#            pool.add_task(self.mul, i)
-#        pool.wait_completion()
-#        b = time.asctime()
-#        print self._exit_code
-#        print "%s:%s" %(a,b)
-#            
-#if __name__ == '__main__':
-#    t = Test(10)
-#    print "start"
-#    t()      
+    
              

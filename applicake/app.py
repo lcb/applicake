@@ -402,8 +402,8 @@ class CollectorApplication(Application):
                 sys.exit(1)        
             
     def _validate_run(self,run_code):              
-        return run_code   
-    
+        raise NotImplementedError("Called '_run' method on abstract class")
+       
     def create_workdir(self,config):
         wd = None
         try:
