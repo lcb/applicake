@@ -70,7 +70,7 @@ class OpenbisExport(SequenceTemplateApplication):
         jobid = config['JOBID']
         dropbox_dirname = '%s+%s+%s.%s'%(space,project,jobid,param_idx)
         dir = os.path.join(self._wd,dropbox_dirname)
-        self.log.debug('generate dir [%s] to later move it to [%s]...' % (dir,dropbox))
+        self.log.debug('generate dir [%s] to later copy it to [%s]...' % (dir,dropbox))
         os.mkdir(dir)
         self.log.debug('...successful')        
         self.log.debug('start copying data to dir...')                
@@ -87,8 +87,8 @@ class OpenbisExport(SequenceTemplateApplication):
         ini_file = IniFile(input_filename=props_filename,output_filename=props_filename)
         ini_file.write_ini(config)        
         self.log.debug('...successfully...')
-        self.log.debug('...moving [%s] to [%s]' % (dir, dropbox))
-        shutil.move(dir,dropbox)
+        self.log.debug('...copying [%s] to [%s]' % (dir, dropbox))
+        shutil.copytree(dir,os.path.join(dropbox,dropbox_dirname))
         self.log.debug('...successfully!')
         
             
