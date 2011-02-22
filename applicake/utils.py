@@ -172,7 +172,24 @@ class Utilities():
         _list = []
         for element in itertools.product(*list_of_lists):
             _list.append(element)
-        return _list              
+        return _list
+    
+    # http://www.peterbe.com/plog/uniqifiers-benchmark
+    def get_sorted_unique_elements(self,seq, idfun=None):
+        # order preserving 
+        if idfun is None: 
+            def idfun(x): return x 
+        seen = {} 
+        result = [] 
+        for item in seq: 
+            marker = idfun(item) 
+            # in old Python versions: 
+            # if seen.has_key(marker) 
+            # but in new ones: 
+            if marker in seen: continue 
+            seen[marker] = 1 
+            result.append(item) 
+        return result                      
 
     def substitute_template(self,template_filename,dictionary,output_filename=None):
         fh = open(template_filename,'r')
@@ -184,6 +201,7 @@ class Utilities():
         fh = open(output_filename,'w')
         fh.write(mod_content)
         fh.close()
+        
         
 
     def get_cksum(self,filename, md5=True,exclude_line="", include_line=""):        

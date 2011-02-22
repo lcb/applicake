@@ -9,7 +9,6 @@ Created on Dec 19, 2010
 
 import sys,os,shutil,time
 from applicake.app import ExternalApplication as app
-
 #-----------------------------------------------------------------------------
 #from numpy import arange,sqrt, random, linalg
 #from multiprocessing import Pool
@@ -123,43 +122,45 @@ from applicake.app import ExternalApplication as app
 #-----------------------------------------------------------------------------
 # works!!!
 
-from utils import ThreadPool
-class Test(object):
-    
-    def __call__(self):
-        self.run(range(self._num))
-            
-    def __init__(self,x):
-        self._num = x
-            
-    def mul(self,x):
-        from time import sleep
-        if x == 7: self._exit_code = 1
-        if self._exit_code != 1:
-            print x*x
-            sleep(x)
-            print x*x*x
-            sleep(x/5)
-            print '%s finished' % x
-        
-        
-    def run(self,range):
-        a = time.asctime()      
-        self._exit_code = 0
-        pool = ThreadPool(self._num)        
-        for i in range:            
-            pool.add_task(self.mul, i)
-        pool.wait_completion()
-        b = time.asctime()
-        print self._exit_code
-        print "%s:%s" %(a,b)
-            
-if __name__ == '__main__':
-    t = Test(10)
-    print "start"
-    t()
-    
-#-----------------------------------------------------------------------------    
-
+#from utils import ThreadPool
+#class Test(object):
+#    
+#    def __call__(self):
+#        self.run(range(self._num))
+#            
+#    def __init__(self,x):
+#        self._num = x
+#            
+#    def mul(self,x):
+#        from time import sleep
+#        if x == 7: self._exit_code = 1
+#        if self._exit_code != 1:
+#            print x*x
+#            sleep(x)
+#            print x*x*x
+#            sleep(x/5)
+#            print '%s finished' % x
+#        
+#        
+#    def run(self,range):
+#        a = time.asctime()      
+#        self._exit_code = 0
+#        pool = ThreadPool(self._num)        
+#        for i in range:            
+#            pool.add_task(self.mul, i)
+#        pool.wait_completion()
+#        b = time.asctime()
+#        print self._exit_code
+#        print "%s:%s" %(a,b)
+#            
+#if __name__ == '__main__':
+#    t = Test(10)
+#    print "start"
+#    t()
+#    
+##-----------------------------------------------------------------------------    
+data = [1,7,1,1,3,3,4,5]
+uniq_peps = list(set(data))
+print uniq_peps
     
              
