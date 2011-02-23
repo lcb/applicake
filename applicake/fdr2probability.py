@@ -87,16 +87,30 @@ This program adds protein information from the CSV file to the prot.xml file (pa
     def _cal_fdr_peptide(self,dict):
         for k in dict.keys(): 
             #            self._data.headers.append(k)
-            self._data = self._data.sort(dict[k], reverse=True)
-            uniq_peps = list(set(self._data['modified_peptide']))  
-            #            T=[]
+#            self._data = self._data.sort(dict[k], reverse=True)
+            uniq_peps = list(set(self._data['peptide']))  
+            l = len(uniq_peps)
+            T=[]
             t = 0 
-            #            F=[]
+            F=[]
             f = 0
             fdr = []       
-            for e in uniq_peps:
-                self._data.
-            sys.exit(1)
+            for i,e in enumerate(self._data['peptide']):
+                if e in uniq_peps:
+                    uniq_peps.remove(e)
+                    if self._decoy in self._data['protein'][i]:
+                        f += 1
+                    else:
+                        t += 1   
+                T.append(t)
+                F.append(f)                        
+                fdr.append(float(f) / (float(t) + float(f))) 
+            
+            assert l == (T[-1]+F[-1]) 
+            self._data.append(col=T, header='T')            
+            self._data.append(col=F, header='F')
+            self._data.append(col=fdr, header=k)                                        
+            
             
             
 
