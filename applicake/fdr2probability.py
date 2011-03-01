@@ -5,7 +5,7 @@ Created on Feb 21, 2011
 @author: quandtan
 '''
 #
-import argparse,os,sys,tablib,fileinput,logging,glob
+import argparse,os,sys,fileinput,logging,glob,sqlite3,csv
 from applicake.app import Application
         #
 class Fdr2Probability(Application):
@@ -59,16 +59,44 @@ This program adds protein information from the CSV file to the prot.xml file (pa
         return q1               
         #
     def _preprocessing(self):
-        self.log.debug('generate data obj from input file')
-        self._data = tablib.Dataset()
-        header=True
-        for line in fileinput.input(self._input_filename):
-            arr = line.replace('\n','').split(self.sep)
-            if header: 
-                self._data.headers = arr
-                header = False 
-            else: 
-                self._data.append(arr)       
+        self.log.debug('read [%s]' % self._input_filename)
+        reader = csv.DictReader(open(self._input_filename), delimiter='\t')
+        header = reader.fieldnames
+        new_col_names = ['FDR_PPROPHET','FDR_IPROPHET']      
+        self.log.debug('init in-memory db')
+        tbl_name = 'pepcsv'
+        con = sqlite3.connect(':memory:')        
+        # If you want autocommit mode, then set isolation_level to None
+        con.isolation_level = None
+        sql = con.cursor()
+#        cols = ["id INT PRIMARY KEY"]
+        cols =["%s int primary key"% header[0]]
+        cols +=["%s varchar(100) not null"% header[1]]
+        cols +=["%s double not null"% header[2]]
+        cols +=["%s int(11) not null"% header[3]]
+        cols +=["%s varchar(50) not null"% header[4]]
+        cols +=["%s varchar(100) not null"% header[5]]
+        cols +=["%s varchar(255) not null"% header[6]]
+        cols +=["%s char(1) not null"% header[7]]
+        cols +=["%s char(1) not null"% header[8]]
+        cols +=["%s varchar(150) not null"% header[9]]
+        cols +=["%s double not null"% header[10]]
+        cols +=["%s double not null"% header[11]]
+        cols +=["%s int(11) not null"% header[12]]
+        cols +=["%s double not null"% header[13]]
+        cols +=["%s double not null"% header[14]]   
+        cols +=["%s double"% new_col_names[0]]
+        cols +=["%s double"% new_col_names[1]]         
+        sql.execute("drop table if exists %s" % tbl_name)
+        sql.execute('create table if not exists %s (%s)' % (tbl_name,','.join(cols)))            
+        for i in reader:
+            keys = '"' + '","'.join(i.keys()) + '"'
+            values = '"' + '","'.join(i.values()) + '"'                                    
+            cmd  = 'insert into %s (%s) values (%s)' % (tbl_name,keys,values)
+            sql.execute(cmd)
+        self._sql = sql
+        self._tbl_name = tbl_name
+#        self._c.executemany("insert into t (col1, col2) values (?, ?);", to_db)       
         #
     def _calc_fdr_psm(self, dict):
         self._probability_cutoffs = {}
@@ -113,6 +141,13 @@ This program adds protein information from the CSV file to the prot.xml file (pa
             #                                    
     def _run(self,command=None):        
         dict = {'FDR_PPROPHET':'probability_pp','FDR_IPROPHET':'probability_ip'}
+        self._sql.execute('select spectrum from %s order by probability_pp limit 5' % tbl_name)
+        for row in self._sql:
+            print row[0]
+        sys.exit(1)
+        #
+        #
+        #
         if self._level is 'psm':
             self._calc_fdr_psm(dict)
         else:
