@@ -22,7 +22,6 @@ This program adds protein information from the CSV file to the prot.xml file (pa
                     [-FDR=<cutoff>]      - FDR cut-off (default: 0.01) 
                     [-OUT=<newCSV>]      - New CSV file with added FDR column(s)
                     CSVfile              - CSV file from iproph.pepXML
-
     '''
     #
     #
@@ -51,6 +50,14 @@ This program adds protein information from the CSV file to the prot.xml file (pa
                 'cutoff':a.cutoff[0],
                 'name':a.name[0]}
     #
+    def _get_probability(self,fdr_col,prob_col,cutoff):
+        q1 = None
+        for i,e in enumerate(self._data.sort(fdr_col)[fdr_col]):
+            if(cutoff <= e): 
+                q1 = float(self._data[prob_col][i])
+                break
+        return q1               
+        #
     def _preprocessing(self):
         self.log.debug('generate data obj from input file')
         self._data = tablib.Dataset()
@@ -63,8 +70,8 @@ This program adds protein information from the CSV file to the prot.xml file (pa
             else: 
                 self._data.append(arr)       
         #
-
     def _calc_fdr_psm(self, dict):
+        self._probability_cutoffs = {}
         for k in dict.keys(): 
             #            self._data.headers.append(k)
             self._data = self._data.sort(dict[k], reverse=True) 
@@ -73,7 +80,7 @@ This program adds protein information from the CSV file to the prot.xml file (pa
             #            F=[]
             f = 0
             fdr = []
-            for e in self._data['protein']:
+            for i,e in enumerate(self._data['protein']):
                 if self._decoy in e:
                     f += 1
                 else:
@@ -110,10 +117,17 @@ This program adds protein information from the CSV file to the prot.xml file (pa
             self._calc_fdr_psm(dict)
         else:
             self._cal_fdr_peptide(dict)
-        print self._data.headers
-        print self._data.tsv
-        #    
-        
+        idx = None
+        if self._prophet == 'ip': idx = 0
+        else: idx =1 
+        with open(self._output_filename, 'w') as f: 
+            f.write(self._data.tsv)          
+        prob = self._get_probability(dict.keys()[idx],dict.values()[idx],self._cutoff)
+        cutoff_limit = 0.001
+        if prob < cutoff_limit: 
+            prob = cutoff_limit
+        print prob         
+        #            
     def _validate_parsed_args(self,dict):           
         self._input_filename = dict['input_filename']
         self._output_filename = dict['output_filename']
@@ -145,7 +159,7 @@ This program adds protein information from the CSV file to the prot.xml file (pa
 if '__main__'==__name__:       
     a = Fdr2Probability(use_filesystem=False)
     exit_code = a(sys.argv)
-    print(exit_code)
+#    print(exit_code)
     sys.exit(exit_code)      
 
     
