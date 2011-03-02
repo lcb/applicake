@@ -144,7 +144,22 @@ This program adds protein information from the CSV file to the prot.xml file (pa
         if self._prophet == 'ip': idx = 0
         else: idx =1 
         self._write_tsv(dict.values()[idx])                     
-        print self._get_probability(dict.keys()[idx],dict.values()[idx])         
+        print self._get_probability(dict.keys()[idx],dict.values()[idx])
+        sql = self._con.cursor()
+        sql.execute('select count(distinct peptide) from %s ' % self._tbl_name)
+        self.log.debug('num of uniq peptides [%s]' % sql.fetchone()[0])
+        sql.execute('select count(dpeptide) from %s ' % self._tbl_name)
+        self.log.debug('num of  peptides [%s]' % sql.fetchone()[0])
+        sql.execute('select count(distinct peptide) from %s where %s < %s' % self._tbl_name,dict.keys()[idx],self._cutoff)
+        self.log.debug('num of uniq peptides with cutoff [%s]' % sql.fetchone()[0])
+        sql.execute('select count(dpeptide) from %s where %s < %s' % self._tbl_name,dict.keys()[idx],self._cutoff)
+        self.log.debug('num of  peptides with cutoff [%s]' % sql.fetchone()[0])
+        
+        
+        
+        
+        
+                 
         #
     def _validate_parsed_args(self,dict):           
         self._input_filename = dict['input_filename']
