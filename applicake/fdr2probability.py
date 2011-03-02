@@ -50,26 +50,27 @@ This program adds protein information from the CSV file to the prot.xml file (pa
                 'cutoff':a.cutoff[0],
                 'name':a.name[0]}
     #
-    def _get_probability(self,fdr_col,prob_col,cutoff):
-        q1 = None
-        for i,e in enumerate(self._data.sort(fdr_col)[fdr_col]):
-            if(cutoff <= e): 
-                q1 = float(self._data[prob_col][i])
-                break
-        return q1               
+    def _get_probability(self,fdr_col,prob_col):
+        sql = self._con.cursor()
+        sql.execute('select %s from %s where %s < %s order by %s desc limit 1 ' % (prob_col,self._tbl_name,fdr_col,self._cutoff,fdr_col) )
+        prob = sql.fetchone()[0]
+        cutoff_limit = 0.001
+        if prob < cutoff_limit: 
+            prob = cutoff_limit
+        return prob               
         #
     def _preprocessing(self):
         self.log.debug('read [%s]' % self._input_filename)
         reader = csv.DictReader(open(self._input_filename), delimiter='\t')
         header = reader.fieldnames
         new_col_names = ['FDR_PPROPHET','FDR_IPROPHET']      
-        self.log.debug('init in-memory db')
+        self.log.debug('init db')
         tbl_name = 'pepcsv'
-        con = sqlite3.connect(':memory:')        
+        con = sqlite3.connect(':memory:')  
+#        con = sqlite3.connect('/tmp/pepcsv.tbl')
         # If you want autocommit mode, then set isolation_level to None
         con.isolation_level = None
         sql = con.cursor()
-#        cols = ["id INT PRIMARY KEY"]
         cols =["%s int primary key"% header[0]]
         cols +=["%s varchar(100) not null"% header[1]]
         cols +=["%s double not null"% header[2]]
@@ -88,81 +89,63 @@ This program adds protein information from the CSV file to the prot.xml file (pa
         cols +=["%s double"% new_col_names[0]]
         cols +=["%s double"% new_col_names[1]]         
         sql.execute("drop table if exists %s" % tbl_name)
+#        print 'create table if not exists %s (%s)' % (tbl_name,','.join(cols))
         sql.execute('create table if not exists %s (%s)' % (tbl_name,','.join(cols)))            
         for i in reader:
             keys = '"' + '","'.join(i.keys()) + '"'
             values = '"' + '","'.join(i.values()) + '"'                                    
             cmd  = 'insert into %s (%s) values (%s)' % (tbl_name,keys,values)
             sql.execute(cmd)
-        self._sql = sql
+        self._con = con
         self._tbl_name = tbl_name
 #        self._c.executemany("insert into t (col1, col2) values (?, ?);", to_db)       
         #
     def _calc_fdr_psm(self, dict):
         self._probability_cutoffs = {}
         for k in dict.keys(): 
-            #            self._data.headers.append(k)
-            self._data = self._data.sort(dict[k], reverse=True) 
-            #            T=[]
-            t = 0 
-            #            F=[]
-            f = 0
-            fdr = []
-            for i,e in enumerate(self._data['protein']):
-                if self._decoy in e:
-                    f += 1
-                else:
-                    t += 1
-    #                T.append(t)
-    #                F.append(f)
-                fdr.append(float(f) / (float(t) + float(f))) 
-    #            self._data.append(col=T, header='T')            
-    #            self._data.append(col=F, header='F')
-            self._data.append(col=fdr, header=k)
-            #
+            sql = self._con.cursor()
+            sql2 = self._con.cursor()
+            sql.execute('select protein,nrow from %s order by %s desc' % (self._tbl_name,dict[k]))
+            t = 0
+            f = 0  
+            fdr_val = None      
+            for row in sql:
+                if self._decoy in row[0]: f +=1
+                else: t +=1
+                fdr_val = float(f) / (float(t) + float(f))
+                sql2.execute('update %s set %s=%s where nrow=%s' % (self._tbl_name,k,fdr_val,row[1]))
+                               
+                
     def _cal_fdr_peptide(self,dict):
         for k in dict.keys(): 
-            self._data = self._data.sort(dict[k], reverse=True)
-            uniq_peps = list(set(self._data['peptide']))  
-            l = len(uniq_peps)
-            t = 0 
-            f = 0
-            fdr = []       
-            for i,e in enumerate(self._data['peptide']):
-                if e in uniq_peps:
-                    uniq_peps.remove(e)
-                    if self._decoy in self._data['protein'][i]:
-                        f += 1
-                    else:
-                        t += 1                          
-                fdr.append(float(f) / (float(t) + float(f))) 
-            assert l == t+f
-            self._data.append(col=fdr, header=k)    
+            sql = self._con.cursor()
+            sql2 = self._con.cursor()
+            sql.execute('select distinct peptide from %s ' % self._tbl_name)
+            uniq_peps = [row[0] for row in sql]
+            sql.execute('select protein,nrow,peptide from %s order by %s desc' % (self._tbl_name,dict[k]))
+            t = 0
+            f = 0  
+            fdr_val = None      
+            for row in sql:
+                if row[2] in uniq_peps:
+                    uniq_peps.remove(row[2])
+                    if self._decoy in row[0]: f +=1
+                    else: t +=1
+                    fdr_val = float(f) / (float(t) + float(f))
+                sql2.execute('update %s set %s=%s where nrow=%s' % (self._tbl_name,k,fdr_val,row[1]))   
             #                                    
     def _run(self,command=None):        
         dict = {'FDR_PPROPHET':'probability_pp','FDR_IPROPHET':'probability_ip'}
-        self._sql.execute('select spectrum from %s order by probability_pp limit 5' % tbl_name)
-        for row in self._sql:
-            print row[0]
-        sys.exit(1)
-        #
-        #
-        #
-        if self._level is 'psm':
+        if self._level == 'psm':
             self._calc_fdr_psm(dict)
         else:
-            self._cal_fdr_peptide(dict)
+            self._cal_fdr_peptide(dict)     
         idx = None
         if self._prophet == 'ip': idx = 0
         else: idx =1 
-        with open(self._output_filename, 'w') as f: 
-            f.write(self._data.tsv)          
-        prob = self._get_probability(dict.keys()[idx],dict.values()[idx],self._cutoff)
-        cutoff_limit = 0.001
-        if prob < cutoff_limit: 
-            prob = cutoff_limit
-        print prob         
-        #            
+        self._write_tsv(dict.values()[idx])                     
+        print self._get_probability(dict.keys()[idx],dict.values()[idx])         
+        #
     def _validate_parsed_args(self,dict):           
         self._input_filename = dict['input_filename']
         self._output_filename = dict['output_filename']
@@ -190,6 +173,15 @@ This program adds protein information from the CSV file to the prot.xml file (pa
     def _validate_run(self,run_code=None):                   
         return 0
     #
+    def _write_tsv(self,col_sort):
+        fh = open(self._output_filename, 'w')
+        sql = self._con.cursor()
+        sql.execute('select * from %s order by %s desc' % (self._tbl_name, col_sort))
+        col_name_list = [tuple[0] for tuple in sql.description]
+        fh.write("\t".join(col_name_list) + "\n")
+        for row in sql:
+            line = '\t'.join([str(i) for i in row])
+            fh.write(line + "\n")    
     #   
 if '__main__'==__name__:       
     a = Fdr2Probability(use_filesystem=False)
