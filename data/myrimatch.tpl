@@ -28,7 +28,7 @@ DynamicMods = ""
 MaxDynamicMods = 4
 StaticMods = "C 57.021464"
 
-MaxResults = 5
+MaxResults = 1
 
 ThreadCountMultiplier = 4
 
