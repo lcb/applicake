@@ -51,9 +51,9 @@ This program adds protein information from the CSV file to the prot.xml file (pa
                 'name':a.name[0]}
     #
     def _get_probability(self,fdr_col,prob_col):
-        sql = self._con.cursor()
-        sql.execute('select %s from %s where %s < %s order by %s desc limit 1 ' % (prob_col,self._tbl_name,fdr_col,self._cutoff,fdr_col) )
-        prob = sql.fetchone()[0]
+#        sql = self._con.cursor()
+        self._sql.execute('select %s from %s where %s < %s order by %s desc limit 1 ' % (prob_col,self._tbl_name,fdr_col,self._cutoff,fdr_col) )
+        prob = self._sql.fetchone()[0]
         cutoff_limit = 0.001
         if prob < cutoff_limit: 
             prob = cutoff_limit
@@ -98,6 +98,7 @@ This program adds protein information from the CSV file to the prot.xml file (pa
             sql.execute(cmd)
         self._con = con
         self._tbl_name = tbl_name
+        self._sql = self._con.cursor()
 #        self._c.executemany("insert into t (col1, col2) values (?, ?);", to_db)       
         #
     def _calc_fdr_psm(self, dict):
@@ -136,30 +137,29 @@ This program adds protein information from the CSV file to the prot.xml file (pa
             #                                    
     def _run(self,command=None):        
         dict = {'FDR_PPROPHET':'probability_pp','FDR_IPROPHET':'probability_ip'}
+        idx = None
+        if self._prophet == 'pp': idx = 0
+        else: idx =1 
         if self._level == 'psm':
+#            key = dict.keys()[idx]
+#            dict1 = {key:dict[key]}
             self._calc_fdr_psm(dict)
         else:
-            self._cal_fdr_peptide(dict)     
-        idx = None
-        if self._prophet == 'ip': idx = 0
-        else: idx =1 
-        self._write_tsv(dict.values()[idx])                     
+#            key = dict.keys()[idx]
+#            dict = {key:dict[key]}
+            self._cal_fdr_peptide(dict)         
+        self._write_tsv(dict.keys()[idx])                     
         print self._get_probability(dict.keys()[idx],dict.values()[idx])
-        sql = self._con.cursor()
-        sql.execute('select count(distinct peptide) from %s ' % self._tbl_name)
-        self.log.debug('num of uniq peptides [%s]' % sql.fetchone()[0])
-        sql.execute('select count(peptide) from %s ' % self._tbl_name)
-        self.log.debug('num of  peptides [%s]' % sql.fetchone()[0])
-        sql.execute('select count(distinct peptide) from %s where %s < %s' % self._tbl_name,dict.keys()[idx],self._cutoff)
-        self.log.debug('num of uniq peptides with cutoff [%s]' % sql.fetchone()[0])
-        sql.execute('select count(peptide) from %s where %s < %s' % self._tbl_name,dict.keys()[idx],self._cutoff)
-        self.log.debug('num of  peptides with cutoff [%s]' % sql.fetchone()[0])
-        
-        
-        
-        
-        
-                 
+#        sql = self._con.cursor()
+        self._sql.execute('select count(distinct peptide) from %s ' % self._tbl_name)
+        self.log.debug('num of uniq peptides [%s]' % self._sql.fetchone()[0])
+        self._sql.execute('select count(peptide) from %s ' % self._tbl_name)
+        self.log.debug('num of  peptides [%s]' % self._sql.fetchone()[0])
+        self._sql.execute('select count(distinct peptide) from %s where %s < %s' % (self._tbl_name,dict.keys()[idx],self._cutoff))
+        self.log.debug('num of uniq peptides with cutoff [%s]' % self._sql.fetchone()[0])
+        self._sql.execute('select count(peptide) from %s where %s < %s' % (self._tbl_name,dict.keys()[idx],self._cutoff))
+        self.log.debug('num of  peptides with cutoff [%s]' % self._sql.fetchone()[0])
+
         #
     def _validate_parsed_args(self,dict):           
         self._input_filename = dict['input_filename']
@@ -190,11 +190,13 @@ This program adds protein information from the CSV file to the prot.xml file (pa
     #
     def _write_tsv(self,col_sort):
         fh = open(self._output_filename, 'w')
-        sql = self._con.cursor()
-        sql.execute('select * from %s order by %s desc' % (self._tbl_name, col_sort))
-        col_name_list = [tuple[0] for tuple in sql.description]
+#        sql = self._con.cursor()
+        query = 'select * from %s order by %s' % (self._tbl_name, col_sort)
+        self.log.debug(query)
+        self._sql.execute(query)
+        col_name_list = [tuple[0] for tuple in self._sql.description]
         fh.write("\t".join(col_name_list) + "\n")
-        for row in sql:
+        for row in self._sql:
             line = '\t'.join([str(i) for i in row])
             fh.write(line + "\n")    
     #   
