@@ -42,7 +42,7 @@ class Application(object):
         exit_code = self._validate_run(run_code)
         self.log.info('Finish [%s]' % self._validate_run.__name__)
         self.log.info('exit_code [%s]' % exit_code)
-        return exit_code
+        return int(exit_code)
     
     def __init__(self, use_filesystem=True,log_level=logging.DEBUG,name=None,log_console=True):
         'Initialization of variables and basic preparation of running the class'
@@ -326,7 +326,7 @@ class CollectorApplication(Application):
         exit_code = self._validate_run(run_code)
         self.log.info('Finish [%s]' % self._validate_run.__name__)
         self.log.info('exit_code [%s]' % exit_code)
-        return exit_code    
+        return int(exit_code)    
       
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')

@@ -24,45 +24,46 @@ class TppCollector(CollectorApplication):
         self.log.debug('ini file to process [%s]' % filename)
         prog = InterProphet(use_filesystem=True, name="%s-%s" % (idx,'iprophet'), log_console=False)
         self._exit_code = prog(['interprophet.py', '-p', 'InterProphetParser', '-i', filename, '-t', self._template_filenames[0], '-o', filename])
-        self.log.debug('[%s]: prog [%s] finished with exit_code [%s]' % (filename,prog.name, exit_code))
+        self.log.debug('[%s]: prog [%s] finished with exit_code [%s]' % (filename,prog.name, self._exit_code))
         for fn in [prog._log_filename, prog._stderr_filename, prog._stdout_filename]:
             src = os.path.abspath(fn)
             dest = os.path.join(prog._wd, fn)
             try: shutil.move(src, dest)
             except: self.log.error("Error moving [%s] to [%s]" % (src,dest))
-        if exit_code == 0:                         
+        if self._exit_code == 0:                         
             prog = PepXML2CSV(use_filesystem=True, name="%s-%s" % (idx,'pepxml2csv'), log_console=False)
-            exit_code = prog(['pepxml2csv.py', '--prefix=pepxml2csv', '--prefix=fdr2probability.py', '--input=' + filename, '--template=' + self._template_filenames[1], '--output=' + filename])
-            self.log.debug('prog [%s] finished with exit_code [%s]' % (prog.name, exit_code))
+            self._exit_code = prog(['pepxml2csv.py', '--prefix=pepxml2csv', '--prefix=fdr2probability.py', '--input=' + filename, '--template=' + self._template_filenames[1], '--output=' + filename])
+            self.log.debug('prog [%s] finished with exit_code [%s]' % (prog.name, self._exit_code))
             for fn in [prog._log_filename, prog._stderr_filename, prog._stdout_filename]:
                 src = os.path.abspath(fn)
                 dest = os.path.join(prog._wd, fn)
                 try: shutil.move(src, dest)
                 except: self.log.error("Error moving [%s] to [%s]" % (src,dest))
-        if exit_code == 0:                 
+        if self._exit_code == 0:                 
             prog = ProteinProphet(use_filesystem=True, name="%s-%s" % (idx,'proteinprophet'), log_console=False)
-            exit_code = prog(['proteinprophet.py', '--prefix=ProteinProphet', '--input=' + filename, '--template=' + self._template_filenames[2], '--output=' + filename])
-            self.log.debug('prog [%s] finished with exit_code [%s]' % (prog.name, exit_code))
+            self._exit_code = prog(['proteinprophet.py', '--prefix=ProteinProphet', '--input=' + filename, '--template=' + self._template_filenames[2], '--output=' + filename])
+            self.log.debug('prog [%s] finished with exit_code [%s]' % (prog.name, self._exit_code))
             for fn in [prog._log_filename, prog._stderr_filename, prog._stdout_filename]:
                 src = os.path.abspath(fn)
                 dest = os.path.join(prog._wd, fn)
                 try: shutil.move(src, dest)
                 except: self.log.error("Error moving [%s] to [%s]" % (src,dest))
-        if exit_code == 0:                 
+        if self._exit_code == 0:                 
             prog = OpenbisExport(use_filesystem=True, name="%s-%s" % (idx,'openbisexport'), log_console=False)
-            exit_code = prog(['openbisexport.py', '--prefix=protxml2spectralcount', '--prefix=protxml2openbis', '--input=' + filename, '--template=' + self._template_filenames[3], '--output=' + filename])
+            self._exit_code = prog(['openbisexport.py', '--prefix=protxml2spectralcount', '--prefix=protxml2openbis', '--input=' + filename, '--template=' + self._template_filenames[3], '--output=' + filename])
 #                print ("[%s] [%s]: %s" %(os.path.split(filename)[1],3,exit_code))
-            self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name, exit_code))
+            self.log.debug('prog [%s] with finished with exit_code [%s]' % (prog.name, self._exit_code))
             for fn in [prog._log_filename, prog._stderr_filename, prog._stdout_filename]:
                 src = os.path.abspath(fn)
                 dest = os.path.join(prog._wd, fn)
                 try: shutil.move(src, dest)
                 except: self.log.error("Error moving [%s] to [%s]" % (src,dest))
-        if exit_code == 0:             
+        if self._exit_code == 0:             
             self.log.debug('finished collector job for [%s] successfully.' % filename)            
         else:
             self.log.error('[%s]: content of the log file[%s]: [\n%s\n]' % (prog._log_filename, open(prog._log_filename, 'r').read()))
-            self._exit_code = exit_code
+#            self._exit_code = exit_code
+            sys.exit(1)
 
     def _run(self,ini_filenames):   
         self._exit_code = 0
