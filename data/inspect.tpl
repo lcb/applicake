@@ -30,8 +30,7 @@
 
 Instrument,ESI-ION-TRAP
 protease,trypsin
-mods,1
 mod,+57,C,fix
 Unrestrictive,0
-spectra,$MZXML, 1000,2000
+spectra,$MZXML
 db,$DBASE
