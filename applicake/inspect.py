@@ -21,9 +21,9 @@ class Inspect(TemplateApplication):
         fh = open(input_filename, "a")   
         fh.write('\n')  
         if(config['PRECMASSUNIT'] == 'Da'):
-            fh.write('ParentPPM,%s\n' % config['PRECMASSERR'])
-        else:
             fh.write('PMTolerance,%s\n' % config['PRECMASSERR'])
+        else:
+            fh.write('ParentPPM,%s\n' % config['PRECMASSERR'])
         if(config['FRAGMASSUNIT'] == 'Da'):
             fh.write('IonTolerance,%s\n' % config['FRAGMASSERR'])
         else:
