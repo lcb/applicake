@@ -1,2 +1,2 @@
 -IPROPHET -header -cP=0.0
--p ip -l peptide -d DECOY_
+-p ip -l psm -d DECOY_
