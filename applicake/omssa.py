@@ -14,12 +14,12 @@ class Omssa(TemplateApplication):
     def _get_command(self,prefix,input_filename):
         config = self._iniFile.read_ini()
         search_filename = config['SEARCH']
-        content = open(input_filename,'r').read()
-        params = Template(content).safe_substitute(config)
+        params = open(input_filename,'r').read()
+#        params = Template(content).safe_substitute(config)
         self.log.debug('parameter [%s]' % params)
-        if config['PRECMASSUNIT'].lower() is "ppm":
+        if config['PRECMASSUNIT'].lower() == "ppm":
             params = params + ' -teppm'
-            self.log.debug('added [ -teppm] to parameters')       
+            self.log.debug('added [ -teppm] to parameters')             
         self._result_filename  = os.path.join(self._wd,self.name + ".pep.xml")
         self._iniFile.add_to_ini({'PEPXML':self._result_filename})
         return "%s %s -fm %s -op %s" %(prefix,params,search_filename,self._result_filename)
