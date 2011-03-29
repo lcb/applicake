@@ -1,1 +1,1 @@
--mgf -c2-3 -B450 -T6000 -P5 -N0 -pm4 -pi0 -I0.01 -M2 -ACID -Z7
+-mgf -B450 -T6000 -P5 -N0 -pm4 -pi0 -I0.01 -M2 -ACID -Z7
