@@ -18,6 +18,7 @@ class InterProphet(TemplateApplication):
         self._pepxml_filename = ' '.join(config['PEPXML'].split(','))        
         self.log.debug('split pepxml filename [%s] by [","] and joined by [" "]' % self._pepxml_filename)        
         content = open(input_filename,'r').read()
+        # step below most likely unecessary as there was already a substitution by _get_app_inputfilename(). HOWEVER TEST IT!!!!!
         params = Template(content).safe_substitute(config)
         self.log.debug('parameter [%s]' % params)     
         self._result_filename  = os.path.join(self._wd,self.name + ".pep.xml")

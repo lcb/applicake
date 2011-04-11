@@ -332,7 +332,7 @@ class CollectorApplication(Application):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
         parser.add_argument('-i','--input',required=True,nargs='+', action="append", dest="input_filenames",type=str,help="input file")
         parser.add_argument('-t','--template',required=True,nargs='+', action="append", dest="template_filenames",type=str,help="template of the program specific input file")
-        parser.add_argument('-n','--num',required=False,default=1, nargs=1, action="store", dest="num_threads",type=int, help="max. number of parallel threads used")
+        parser.add_argument('-n','--num',required=False,default=[1], nargs=1, action="store", dest="num_threads",type=int, help="max. number of parallel threads used")
         a = parser.parse_args(args)
         return {
                 'input_filenames':Utilities().get_flatten_sequence(a.input_filenames),

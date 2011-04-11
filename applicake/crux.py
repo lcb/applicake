@@ -17,7 +17,8 @@ class Crux(TemplateApplication):
         db = config['DBASE']
         config['DBASE'] = db.replace('.fasta','.idx')
         if(config['PRECMASSUNIT'] == 'Da'):
-            config['PRECMASSUNIT'] = 'mz' 
+            config['PRECMASSUNIT'] = 'mz'
+        self._iniFile.write_ini(config) 
         self.log.debug(config)   
         Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
         return dest               

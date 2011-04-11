@@ -56,7 +56,13 @@ class Interact(SequenceTemplateApplication):
             self.log.error('found no decoy hits')
             return 1             
         else:
-            self.log.debug('did find decoy hits')        
+            self.log.debug('did find decoy hits')   
+        if 'WARNING: Mixture model quality test failed for charge (2+).' in stderr:
+            self.log.error('Mixture model quality test failed for charge (2+). Change PeptideProphet parameter!')
+            return 1             
+        if 'WARNING: Mixture model quality test failed for charge (3+).' in stderr:
+            self.log.error('Mixture model quality test failed for charge (3+). Change PeptideProphet parameter!')
+            return 1                
         if not 'model complete after' in stdout:
             self.log.error('PeptideProphet model did not complete.')
             return 1

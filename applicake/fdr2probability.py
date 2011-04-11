@@ -10,18 +10,7 @@ from applicake.app import Application
         #
 class Fdr2Probability(Application):
     '''
-    Usage:
-  FDR2Probability  [Options] <CSVfile>
-
-This program adds protein information from the CSV file to the prot.xml file (parameter tags) 
-  Options: 
-                    [-?]                 - Show usage and exit 
-                    [-V]                 - Verbose Mode 
-                    [-IPROPHET]          - Use also iProphet probability (default only pepProphet)
-                    [-DECOY=<decoy_tag>]         - Decoy tag in protein name (default: "DECOY_") 
-                    [-FDR=<cutoff>]      - FDR cut-off (default: 0.01) 
-                    [-OUT=<newCSV>]      - New CSV file with added FDR column(s)
-                    CSVfile              - CSV file from iproph.pepXML
+    doc
     '''
     #
     #
@@ -51,7 +40,6 @@ This program adds protein information from the CSV file to the prot.xml file (pa
                 'name':a.name[0]}
     #
     def _get_probability(self,fdr_col,prob_col):
-#        sql = self._con.cursor()
         self._sql.execute('select %s from %s where %s < %s order by %s desc limit 1 ' % (prob_col,self._tbl_name,fdr_col,self._cutoff,fdr_col) )
         prob = self._sql.fetchone()[0]
         cutoff_limit = 0.001
@@ -67,7 +55,6 @@ This program adds protein information from the CSV file to the prot.xml file (pa
         self.log.debug('init db')
         tbl_name = 'pepcsv'
         con = sqlite3.connect(':memory:')  
-#        con = sqlite3.connect('/tmp/pepcsv.tbl')
         # If you want autocommit mode, then set isolation_level to None
         con.isolation_level = None
         sql = con.cursor()
@@ -89,7 +76,6 @@ This program adds protein information from the CSV file to the prot.xml file (pa
         cols +=["%s double"% new_col_names[0]]
         cols +=["%s double"% new_col_names[1]]         
         sql.execute("drop table if exists %s" % tbl_name)
-#        print 'create table if not exists %s (%s)' % (tbl_name,','.join(cols))
         sql.execute('create table if not exists %s (%s)' % (tbl_name,','.join(cols)))            
         for i in reader:
             keys = '"' + '","'.join(i.keys()) + '"'
@@ -98,8 +84,7 @@ This program adds protein information from the CSV file to the prot.xml file (pa
             sql.execute(cmd)
         self._con = con
         self._tbl_name = tbl_name
-        self._sql = self._con.cursor()
-#        self._c.executemany("insert into t (col1, col2) values (?, ?);", to_db)       
+        self._sql = self._con.cursor()       
         #
     def _calc_fdr_psm(self, dict):
         self._probability_cutoffs = {}
@@ -150,7 +135,6 @@ This program adds protein information from the CSV file to the prot.xml file (pa
             self._cal_fdr_peptide(dict)         
         self._write_tsv(dict.keys()[idx])                     
         print self._get_probability(dict.keys()[idx],dict.values()[idx])
-#        sql = self._con.cursor()
         self._sql.execute('select count(distinct peptide) from %s ' % self._tbl_name)
         self.log.debug('num of uniq peptides [%s]' % self._sql.fetchone()[0])
         self._sql.execute('select count(peptide) from %s ' % self._tbl_name)
@@ -190,7 +174,6 @@ This program adds protein information from the CSV file to the prot.xml file (pa
     #
     def _write_tsv(self,col_sort):
         fh = open(self._output_filename, 'w')
-#        sql = self._con.cursor()
         query = 'select * from %s order by %s' % (self._tbl_name, col_sort)
         self.log.debug(query)
         self._sql.execute(query)

@@ -107,6 +107,7 @@ class IniFile():
         output_filenames = []
         if config is None:
             config = self.read_ini()
+        sep = config['PGSEP']
         keys = config.keys()
         values = config.values()
         elements = Utilities().get_list_product(values)
@@ -121,7 +122,7 @@ class IniFile():
                 dictionary = dict(zip(keys, element))
                 dictionary['DIR'] = sub_dir
             else:                           
-                self.output_filename= ''.join((orig_output_filename,".",str(idx)))    
+                self.output_filename= ''.join((orig_output_filename,sep,str(idx)))    
                 dictionary = dict(zip(keys, element))
                 # if no sub dir is generated, the index key can be used to generate a unique path later on
             if index_key is not None:
