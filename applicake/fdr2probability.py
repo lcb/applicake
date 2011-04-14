@@ -40,10 +40,24 @@ class Fdr2Probability(Application):
                 'name':a.name[0]}
     #
     def _get_probability(self,fdr_col,prob_col):
-        self._sql.execute('select %s from %s where %s < %s order by %s desc limit 1 ' % (prob_col,self._tbl_name,fdr_col,self._cutoff,fdr_col) )
-        prob = self._sql.fetchone()[0]
         cutoff_limit = 0.001
+        num_limit = 100
+        prob = None        
+        self._sql.execute('select count(%s) from %s where %s < %s' % (prob_col,self._tbl_name,fdr_col,self._cutoff) )
+        num = self._sql.fetchone()[0]
+        if num < num_limit :
+            self.log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,self._cutoff,num))
+            sys.exit(1)  
+        else:
+            self.log.debug('number of PSMs [%s] matching the probability cutoff [%s][%s]' % (num,prob_col,self._cutoff))                           
+        try:
+            self._sql.execute('select %s from %s where %s < %s order by %s desc limit 1 ' % (prob_col,self._tbl_name,fdr_col,self._cutoff,fdr_col) )            
+            prob = self._sql.fetchone()[0]
+        except:
+            self.log.error('could not fetch a probability value.')
+            sys.exit(1)
         if prob < cutoff_limit: 
+            self.log.debug('probabiliity [%s] is below the cutoff value [%s]. therefore cutoff value is returned.' % (prob,cutoff_limit))
             prob = cutoff_limit
         return prob               
         #
@@ -188,5 +202,4 @@ if '__main__'==__name__:
     exit_code = a(sys.argv)
 #    print(exit_code)
     sys.exit(exit_code)      
-
     

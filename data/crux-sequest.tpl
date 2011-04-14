@@ -41,13 +41,12 @@ precision=8
 decoy-location=target-file
 enzyme=trypsin
 compute-p-values=FALSE
-compute-sp=FALSE
 top-match=3
 spectrum-max-mass=1000000000.000000
 mod=NO MODS
 nmod=NO MODS
 cmod=NO MODS
-
+min-peaks=20
 
 
 
