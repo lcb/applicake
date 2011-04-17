@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## needed to test processing crux results with TPP before r5366
+
 # parse the *.ini file to grep for the value stored for the PEPXML key
 #PEPXML=`find . -maxdepth 1 -name '*search.target.pep.xml'`
 PEPXML=`find . -maxdepth 1 -name '*.ini' | xargs grep 'PEPXML' | perl -nle 'split(/=/);print $_[1]'`
