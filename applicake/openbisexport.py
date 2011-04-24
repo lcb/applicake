@@ -57,7 +57,6 @@ class OpenbisExport(SequenceTemplateApplication):
             return  exit_code 
         self.log.info('Start [%s]' % self._copy_to_dropbox.__name__)
         self._copy_to_dropbox()
-
         self.log.info('Finish [%s]' % self._copy_to_dropbox.__name__)                        
         return 0 
     
