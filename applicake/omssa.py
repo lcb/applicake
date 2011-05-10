@@ -19,8 +19,11 @@ class Omssa(TemplateApplication):
         self.log.debug('parameter [%s]' % params)
         if config['PRECMASSUNIT'].lower() == "ppm":
             params = params + ' -teppm'
-            self.log.debug('added [ -teppm] to parameters')             
-        self._result_filename  = os.path.join(self._wd,self.name + ".pep.xml")
+            self.log.debug('added [ -teppm] to parameters')  
+        # because omssa does not write the correct basename tag,
+        # the mzxml_basename has to be used in the output name of the pep.xml     
+        mzxml_basename = config['MZXML'].split(".")[0].split("/")[-1]             
+        self._result_filename  = os.path.join(self._wd,mzxml_basename + ".pep.xml")
         self._iniFile.add_to_ini({'PEPXML':self._result_filename})
         return "%s %s -fm %s -op %s" %(prefix,params,search_filename,self._result_filename)
     
