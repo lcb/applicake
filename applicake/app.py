@@ -244,13 +244,17 @@ class WorkflowApplication(ExternalApplication):
         else:
             self.log.debug("File [%s] does exist" % output)
             self.log.debug("content:%s" % self._iniFile.read_ini())               
-        return 0  
+        for line in self.stderr.readlines():
+            if 'command not found' in line:
+                self.log.error(line)
+                return 1  
         filesize = os.path.getsize(self._result_filename)
         self.log.debug('file size [%s] of result file [%s] is > 0 KB' % (filesize,self._result_filename))
         if 0 == filesize:
             self.log.error('file size is too small')
-            return 1                                              
-                                                   
+            return 1  
+        ## TODO: check on stderr that 'command not found' does not appear
+        return 0                                                   
                             
 class TemplateApplication(WorkflowApplication):        
     
