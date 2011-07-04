@@ -157,13 +157,8 @@ class ExternalApplication(Application):
 
 class WorkflowApplication(ExternalApplication):
     
-#    def _get_app_inputfilename(self,config):
-#        raise NotImplementedError("Called '_create_app_inputfiles' method on abstact class")
-    
     def _get_app_inputfilename(self,config):
-        dest = os.path.join(self._wd,self.name + self._params_ext)
-        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
-        return dest    
+        return None
     
     def _get_command(self,prefix,input_filename):
         raise NotImplementedError("Called '_get_command' method on abstact class")     
@@ -186,10 +181,10 @@ class WorkflowApplication(ExternalApplication):
         self.log.debug("content: %s" % config)
         self.log.info('Start %s' % self.create_workdir.__name__)
         self._wd = self.create_workdir(config)
-        self.log.info('Finished %s' % self.create_workdir.__name__) 
+        self.log.info('Finished %s' % self.create_workdir.__name__)  
         self.log.info('Start %s' % self._get_app_inputfilename.__name__)
         app_input_filename = self._get_app_inputfilename(config)
-        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)             
+        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)       
         self.log.info('Start %s' % self._get_command.__name__)
         command = self._get_command(prefix=self._command_prefix,input_filename=app_input_filename)   
         self.log.info('FINISHED %s' % self._get_command.__name__)
@@ -256,7 +251,28 @@ class WorkflowApplication(ExternalApplication):
         ## TODO: check on stderr that 'command not found' does not appear
         return 0                                                   
                             
-class TemplateApplication(WorkflowApplication):        
+class TemplateApplication(WorkflowApplication):     
+    
+    def _get_app_inputfilename(self,config):
+        dest = os.path.join(self._wd,self.name + self._params_ext)
+        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
+        return dest   
+    
+#    def _preprocessing(self):
+#        self.log.debug('Read input file [%s]' % os.path.abspath(self._input_filename))
+#        self._iniFile = IniFile(input_filename=self._input_filename,output_filename=self._output_filename)
+#        config = self._iniFile.read_ini()                
+#        self.log.debug("content: %s" % config)
+#        self.log.info('Start %s' % self.create_workdir.__name__)
+#        self._wd = self.create_workdir(config)
+#        self.log.info('Finished %s' % self.create_workdir.__name__) 
+#        self.log.info('Start %s' % self._get_app_inputfilename.__name__)
+#        app_input_filename = self._get_app_inputfilename(config)
+#        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)             
+#        self.log.info('Start %s' % self._get_command.__name__)
+#        command = self._get_command(prefix=self._command_prefix,input_filename=app_input_filename)   
+#        self.log.info('FINISHED %s' % self._get_command.__name__)
+#        return command     
     
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
