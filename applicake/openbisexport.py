@@ -27,6 +27,7 @@ class OpenbisExport(SequenceTemplateApplication):
         content = open(input_filename,'r').read()        
         params = Template(content).safe_substitute(config)
         self.log.debug('parameter [%s]' % params)   
+        #protxml_split_filename  = os.path.join(self._wd,self.name + "_splitgroups.protxml")
         protxml_sc_filename  = os.path.join(self._wd,self.name + "_spectralcount.protxml")
         protxml_mod_filename  = os.path.join(self._wd,self.name + "_modifications.protxml")
         self._result_filename  = os.path.join(self._wd,self.name + ".prot.xml")
@@ -45,12 +46,14 @@ class OpenbisExport(SequenceTemplateApplication):
             sys.exit(1)
         else:
             cmds = []
+#            # protxml2splitgropus
+#            cmds.append('%s -OUT=%s %s %s' % (prefixes[0],protxml_split_filename,params[0],protxml_filename))   
             # protxml2spectralcount [Options] <protXML>
-            cmds.append('%s -CSV=%s -OUT=%s %s %s' % (prefixes[0],csv_filename,protxml_sc_filename,params[0],protxml_filename))
+            cmds.append('%s -CSV=%s -OUT=%s %s %s' % (prefixes[0],csv_filename,protxml_sc_filename,params[0],protxml_filename))   
             # protxml2modifications
-            cmds.append('%s -CSV=%s -OUT=%s %s' % (prefixes[1],csv_filename,protxml_mod_filename,protxml_sc_filename))
+            cmds.append('%s -CSV=%s -OUT=%s %s %s' % (prefixes[1],csv_filename,protxml_mod_filename,params[1],protxml_sc_filename))            
             # protxml2openbis [Options] <protXML>
-            cmds.append('%s -DB=%s -OUT=%s %s %s' % (prefixes[2],db,self._result_filename,params[1],protxml_mod_filename))                
+            cmds.append('%s -DB=%s -OUT=%s %s %s' % (prefixes[2],db,self._result_filename,params[2],protxml_mod_filename))                
         return ';'.join(cmds)       
     
     

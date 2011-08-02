@@ -51,13 +51,19 @@ class WorkflowInitiator(Application):
             self.log.debug('generated [%s] parameter files' % len(param_filenames))
             self.log.debug('Finished [%s]' % self._iniFile.write_ini_value_product.__name__)
             self.log.debug('start generating output files (parameter x spectra files) and delete original parameter file')
-            path_config = IniFile(input_filename=self._input_filename).read_ini()
+            path_config = IniFile(input_filename=self._input_filename).read_ini()            
             self._output_filenames = []
             for param_filename in param_filenames:
                 ini = IniFile(input_filename=param_filename,lock=False)
                 config = ini.read_ini()
                 config.update(path_config)
                 out_filenames = ini.write_ini_value_product(config=config,use_subdir=False,index_key="SPECTRA_IDX")
+                # add DATASET_CODE from path_config as PARENT-DATA-SET-CODES (has to be done after the product writing ;-)
+                for out_filename in out_filenames:
+                    ini = IniFile(input_filename=out_filename,lock=False)
+                    parent_dataset_codes = ','.join(path_config['DATASET_CODE'])
+#                    ini.add_to_ini({'PARENT-DATA-SET-CODES':parent_dataset_codes}) 
+                    ini.add_to_ini({'PARENT-DATA-SET-CODES':path_config['DATASET_CODE']})
                 self._output_filenames.extend(out_filenames)
                 os.remove(param_filename)
             self.log.debug('generated [%s] output files' % len(self._output_filenames))
