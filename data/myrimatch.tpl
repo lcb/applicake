@@ -30,5 +30,5 @@ StaticMods = "C 57.021464"
 
 MaxResults = 1
 
-ThreadCountMultiplier = 4
+ThreadCountMultiplier = 8
 

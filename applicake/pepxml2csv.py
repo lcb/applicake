@@ -39,9 +39,10 @@ class PepXML2CSV(SequenceTemplateApplication):
             cmds = []
             # pepxml2csv  <options> <XML file> 
             cmds.append('%s -OUT=%s %s %s' % (prefixes[0],csv_filename,params[0],pepxml_filename))
-            # fdr2probability -FDR="+fdr_cutoff+" -IPROPHET "+fdr_output_path
-#            cmds.append('%s -OUT=%s -FDR=%s %s %s' % (prefixes[1],self._result_filename,peptide_fdr,params[1],csv_filename))
-            cmds.append('%s -i %s -o %s -c %s %s' % (prefixes[1],csv_filename ,self._result_filename,peptide_fdr,params[1]))        
+            # fdr2probability -FDR="+fdr_cutoff+" -IPROPHET "+fdr_output_path            
+            cmds.append('%s -OUT=%s -FDR=%s %s %s' % (prefixes[1],self._result_filename,peptide_fdr,params[1],csv_filename))
+            # fdr2probability.py
+            #cmds.append('%s -i %s -o %s -c %s %s' % (prefixes[1],csv_filename ,self._result_filename,peptide_fdr,params[1]))        
         return ';'.join(cmds)
     
     def _validate_run(self,run_code):                      
