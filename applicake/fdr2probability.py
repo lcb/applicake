@@ -17,7 +17,7 @@ class Fdr2Probability(Application):
     def __init__(self, use_filesystem=True,log_level=logging.DEBUG,name=None,log_console=True):
         super(Fdr2Probability, self).__init__(use_filesystem=use_filesystem,log_level=log_level,name=name,log_console=log_console)
         self.sep = "\t"
-        #
+    #
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='')
         parser.add_argument('-i','--input',required=True, nargs=1,action="store", dest="input_filename",type=str,help="input file")
@@ -60,7 +60,7 @@ class Fdr2Probability(Application):
             self.log.debug('probabiliity [%s] is below the cutoff value [%s]. therefore cutoff value is returned.' % (prob,cutoff_limit))
             prob = cutoff_limit
         return prob               
-        #
+    #
     def _preprocessing(self):
         self.log.debug('read [%s]' % self._input_filename)
         reader = csv.DictReader(open(self._input_filename), delimiter='\t')
@@ -68,7 +68,8 @@ class Fdr2Probability(Application):
         new_col_names = ['FDR_PPROPHET','FDR_IPROPHET']      
         self.log.debug('init db')
         tbl_name = 'pepcsv'
-        con = sqlite3.connect(':memory:')  
+        con = sqlite3.connect(':memory:') 
+#        con = sqlite3.connect('fdr2probability.db') 
         # If you want autocommit mode, then set isolation_level to None
         con.isolation_level = None
         sql = con.cursor()
@@ -157,6 +158,7 @@ class Fdr2Probability(Application):
         self.log.debug('num of uniq peptides with cutoff [%s]' % self._sql.fetchone()[0])
         self._sql.execute('select count(peptide) from %s where %s < %s' % (self._tbl_name,dict.keys()[idx],self._cutoff))
         self.log.debug('num of  peptides with cutoff [%s]' % self._sql.fetchone()[0])
+        
 
         #
     def _validate_parsed_args(self,dict):           

@@ -30,7 +30,7 @@ class Myrimatch(TemplateApplication):
         self._result_filename  = os.path.join(self._wd,basename + ".pepXML")
         self._iniFile.add_to_ini({'PEPXML':self._result_filename})
         # myrimatch -ProteinDatabase AE004092_sp_9606.fasta B08-02057_p.mzXML 
-        return "%s -cfg %s -workdir %s -ProteinDatabase %s %s" %(prefix,input_filename,self._wd,db_filename,mzxml_filename)
+        return "%s -cpu 8 -cfg %s -workdir %s -ProteinDatabase %s %s" %(prefix,input_filename,self._wd,db_filename,mzxml_filename)
    
     def _validate_run(self,run_code):               
         exit_code = super(Myrimatch, self)._validate_run(run_code)

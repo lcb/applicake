@@ -256,23 +256,7 @@ class TemplateApplication(WorkflowApplication):
     def _get_app_inputfilename(self,config):
         dest = os.path.join(self._wd,self.name + self._params_ext)
         Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
-        return dest   
-    
-#    def _preprocessing(self):
-#        self.log.debug('Read input file [%s]' % os.path.abspath(self._input_filename))
-#        self._iniFile = IniFile(input_filename=self._input_filename,output_filename=self._output_filename)
-#        config = self._iniFile.read_ini()                
-#        self.log.debug("content: %s" % config)
-#        self.log.info('Start %s' % self.create_workdir.__name__)
-#        self._wd = self.create_workdir(config)
-#        self.log.info('Finished %s' % self.create_workdir.__name__) 
-#        self.log.info('Start %s' % self._get_app_inputfilename.__name__)
-#        app_input_filename = self._get_app_inputfilename(config)
-#        self.log.info('Finished %s' % self._get_app_inputfilename.__name__)             
-#        self.log.info('Start %s' % self._get_command.__name__)
-#        command = self._get_command(prefix=self._command_prefix,input_filename=app_input_filename)   
-#        self.log.info('FINISHED %s' % self._get_command.__name__)
-#        return command     
+        return dest       
     
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')

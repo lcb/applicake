@@ -32,7 +32,8 @@ class TppCollector(CollectorApplication):
             except: self.log.error("Error moving [%s] to [%s]" % (src,dest))
         if self._exit_code == 0:                         
             prog = PepXML2CSV(use_filesystem=True, name="%s-%s" % (idx,'pepxml2csv'), log_console=False)
-            self._exit_code = prog(['pepxml2csv.py', '--prefix=pepxml2csv', '--prefix=fdr2probability.py', '--input=' + filename, '--template=' + self._template_filenames[1], '--output=' + filename])
+#            self._exit_code = prog(['pepxml2csv.py', '--prefix=pepxml2csv', '--prefix=fdr2probability.py', '--input=' + filename, '--template=' + self._template_filenames[1], '--output=' + filename])
+            self._exit_code = prog(['pepxml2csv.py', '--prefix=pepxml2csv', '--prefix=fdr2probability', '--input=' + filename, '--template=' + self._template_filenames[1], '--output=' + filename])
             self.log.debug('prog [%s] finished with exit_code [%s]' % (prog.name, self._exit_code))
             for fn in [prog._log_filename, prog._stderr_filename, prog._stdout_filename]:
                 src = os.path.abspath(fn)
