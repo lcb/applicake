@@ -15,17 +15,23 @@ class Inspect2XML(TemplateApplication):
     '''
     
     def _get_app_inputfilename(self,config):
-        return config['RESULT'] 
+        dest = os.path.join(self._wd,self.name + self._params_ext)
+        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=dest)
+        return dest 
     
     def _get_command(self,prefix,input_filename):
         self._result_filename  = os.path.join(self._wd, self.name  + '.pepxml')
         self._iniFile.add_to_ini({'PEPXML':self._result_filename})
         self.log.debug("add key 'PEPXML' with value [%s] to ini" % self._result_filename)
+        config = self._iniFile.read_ini()        
+        searchresult_filename = config['RESULT']
         # replaces the db and mzxml tags in the original template. the db is not a .trie but a fasta as this is needed by the converter 
-        config = self._iniFile.read_ini()
-        Utilities().substitute_template(template_filename=self._template_filename,dictionary=config,output_filename=self._template_filename)
-        dir = os.path.split(config['MZXML'])[0]       
-        return "%s -i %s -o %s -p %s -m %s -d 1" % (prefix,input_filename,self._result_filename,self._template_filename,dir)     
+        dir = None
+        for line in open(input_filename,'rb').readlines():
+            if line.startswith('spectra,'):
+                dir = os.path.split(line.split(',')[1])[0]
+        self.log.debug('dir for spectra file [%s]' % dir)       
+        return "%s -i %s -o %s -p %s -m %s -d 1" % (prefix,searchresult_filename,self._result_filename,os.path.abspath(input_filename),dir)     
     
     def _validate_run(self,run_code):                
         exit_code = super(Inspect2XML, self)._validate_run(run_code)

@@ -43,8 +43,8 @@ class Inspect(TemplateApplication):
             return exit_code
 #        stdout = self.stdout.read()            
         stderr = self.stderr.read()
-        if "Unable to open requested file 'PRM2.bn'" in stderr:
-            self.log.error('could not open "PRM2.bn". Most likely Resource dir has to be set correctly')
+        if "Unable to open requested file " in stderr:
+            self.log.error('could not open requested file. Most likely Resource dir has to be set correctly')
             return 1
         file_size =  os.path.getsize(self._result_filename) 
         if file_size <1:
