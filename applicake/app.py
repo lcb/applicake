@@ -115,7 +115,7 @@ class ExternalApplication(Application):
     
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='A simple application to call external programs')
-        parser.add_argument('-p','--prefix', action="store", dest="p",type=str,help="prefix of the command to execute")
+        parser.add_argument('-p','--prefix', required=True,action="store", dest="p",type=str,help="prefix of the command to execute")
         a = parser.parse_args(args)
         return {'prefix':a.p}         
     
