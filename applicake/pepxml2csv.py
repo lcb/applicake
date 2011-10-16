@@ -48,13 +48,9 @@ class PepXML2CSV(SequenceTemplateApplication):
     def _validate_run(self,run_code):                      
         stdout = self.stdout.read()
         stderr = self.stderr.read()
-        self.log.debug('stdout [%s]' % stdout)  
-        prob = None
-        for line in stdout.split('\n'):
-            if line.isdigit():
-                prob = line
-                return
+        self.log.debug('stdout [%s]' % stdout)          
         try:
+            prob = stdout.split('\n')[-1]
             num = float(prob)
             self.log.debug('probability calculated: [%s]' % num)
             # is necessary as protein prophet throughs error when e.g. 0.999999
