@@ -156,7 +156,7 @@ class Fdr2Probability(Application):
             self._calc_fdr_psm(dict)
         else:
             self._cal_fdr_peptide(dict)  
-#        self._data.saveSV(self._output_filename,delimiter=self.sep)                     
+        self._data.saveSV(self._output_filename,delimiter=self.sep)                    
         print self._get_probability(dict.keys()[idx],dict.values()[idx])
         #
     def _validate_parsed_args(self,dict):           
