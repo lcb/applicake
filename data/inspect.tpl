@@ -28,9 +28,9 @@
 #TagLength,[LENGTH] - Length of peptide sequence tags. Defaults to 3. Accepted values are 1 through 6.
 #RequireTermini,[COUNT] - If set to 1 or 2, require 1 or 2 valid proteolytic termini. Deprecated, because the scoring model already incorporates the number of valid (tryptic) termini.
 
-Instrument,ESI-ION-TRAP
+Instrument,FT-Hybrid
 protease,trypsin
 mod,+57,C,fix
 Unrestrictive,0
-spectra,$MZXML
+spectra,$SEARCH
 db,$DBASE
