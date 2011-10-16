@@ -52,7 +52,9 @@ class Dss(WorkflowApplication):
                         self.log.fatal('mzxml file did not exist previously.')
                         return 1                                
                 self._result_filename = os.path.join(self._dataset_dir,mzxml_filename)
-                self._iniFile.add_to_ini({'MZXML':self._result_filename})
+                self._iniFile.add_to_ini({
+                                          'MZXML':self._result_filename,
+                                          'SEARCH':self._result_filename})
                 self.log.debug("add key 'MZXML' with value [%s] to ini" % self._result_filename)                       
         # to reset the pointer so that super method works properly
         self.stdout.seek(0)     

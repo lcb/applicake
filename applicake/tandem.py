@@ -21,7 +21,7 @@ class Tandem(TemplateApplication):
         self._result_filename = None        
         try:
             db_filename = config['DBASE']
-            spectra_filename = config['MZXML']
+            spectra_filename = config['SEARCH']
             self._result_filename = os.path.join(self._wd,self.name + self._result_ext)
         except Exception,e:
             self.log.exception(e)

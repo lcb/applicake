@@ -24,7 +24,7 @@ class Myrimatch(TemplateApplication):
     
     def _get_command(self,prefix,input_filename):
         config = self._iniFile.read_ini()        
-        mzxml_filename = config['MZXML']
+        mzxml_filename = config['SEARCH']
         db_filename = config['DBASE']
         basename = os.path.splitext(os.path.split(mzxml_filename)[1])[0]    
         self._result_filename  = os.path.join(self._wd,basename + ".pepXML")
