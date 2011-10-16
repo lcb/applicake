@@ -18,7 +18,6 @@ class Fdr2Probability(Application):
     #
     def __init__(self, use_filesystem=True,log_level=logging.DEBUG,name=None,log_console=True):
         super(Fdr2Probability, self).__init__(use_filesystem=use_filesystem,log_level=log_level,name=name,log_console=log_console)
-        self.sep = "\t"
     #
     def _get_parsed_args(self,args):
         parser = argparse.ArgumentParser(description='')
@@ -156,7 +155,7 @@ class Fdr2Probability(Application):
             self._calc_fdr_psm(dict)
         else:
             self._cal_fdr_peptide(dict)  
-        self._data.saveSV(self._output_filename,delimiter=self.sep)                    
+        self._data.saveSV(self._output_filename,delimiter='t')                    
         print self._get_probability(dict.keys()[idx],dict.values()[idx])
         #
     def _validate_parsed_args(self,dict):           
