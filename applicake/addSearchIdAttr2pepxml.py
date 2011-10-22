@@ -9,7 +9,7 @@ from applicake.app import InternalWorkflowApplication
 
 class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
     
-    def _run(self):
+    def main(self):
         config = self._iniFile.read_ini()
         inpath = config['PEPXML']
         root,ext = os.path.splitext(inpath)
