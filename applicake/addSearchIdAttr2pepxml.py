@@ -3,7 +3,7 @@ Created on Oct 22, 2011
 
 @author: quandtan
 '''
-import os,sys,shutil,re
+import os,sys,shutil,re,cStringIO
 import xml.etree.cElementTree as xml
 from applicake.app import InternalWorkflowApplication
 
@@ -14,7 +14,16 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         inpath = config['PEPXML']
         root,ext = os.path.splitext(inpath)
         self._result_filename = re.sub('%s$'% ext, '', inpath) + '_corrected.%s' % ext 
+        fout = open(self._result_filename,'wb')
         config['PEPXML'] = self._result_filename
+        not_found = True
+        for line in cStringIO.StringIO(inpath):
+            if not_found:
+                if line.startswith('<search_summary'):
+                    mod_line = '%s search_id="1">' % re.sub('>$', '', line)
+                    not_found = False
+            fout.write(line)
+        
         ns = '{http://regis-web.systemsbiology.net/protXML}'
         self.log.debug('output file [%s]' % self._result_filename)
         for event, elem in xml.iterparse(inpath):
