@@ -277,8 +277,16 @@ class InternalWorkflowApplication(WorkflowApplication):
         return None         
 
     def _run(self,command=None):
+        try:
+            self.main()
+        except Exception,e:
+            self.stderr = e  
+            self.log.error("exception while running main()")
+            return 1
+        
+    def main(self):
         'Run self-developed code under the Applicake framework'
-        raise NotImplementedError("Called '_run' method on abstact class")
+        raise NotImplementedError("Called '_run' method on abstact class")    
      
     def _set_stream(self):                           
         if self._use_filesystem:
