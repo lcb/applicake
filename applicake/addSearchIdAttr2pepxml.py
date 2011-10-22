@@ -24,14 +24,14 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
                     not_found = False
             fout.write(line)
         
-        ns = '{http://regis-web.systemsbiology.net/protXML}'
-        self.log.debug('output file [%s]' % self._result_filename)
-        for event, elem in xml.iterparse(inpath):
-            if elem.tag == "%ssearch_summary" % ns: 
-                self.log.debug("found <search_summary>")
-                elem.set("search_id", "1")
-                break
-        xml.ElementTree.write(self._result_filename)
+#        ns = '{http://regis-web.systemsbiology.net/protXML}'
+#        self.log.debug('output file [%s]' % self._result_filename)
+#        for event, elem in xml.iterparse(inpath):
+#            if elem.tag == "%ssearch_summary" % ns: 
+#                self.log.debug("found <search_summary>")
+#                elem.set("search_id", "1")
+#                break
+#        xml.ElementTree.write(self._result_filename)
         self._iniFile.write_ini(config)  
                
 if "__main__" == __name__:
