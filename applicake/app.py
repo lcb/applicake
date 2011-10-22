@@ -285,7 +285,7 @@ class InternalWorkflowApplication(WorkflowApplication):
         try:
             self.main()
         except Exception,e:
-            self.stderr = e  
+            self.stderr.write(e)  
             self.log.error("exception while running main()")
             return 1
         
