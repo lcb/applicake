@@ -17,7 +17,7 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         config['PEPXML'] = self._result_filename
         ns = '{http://regis-web.systemsbiology.net/protXML}'
         self.log.debug('output file [%s]' % self._result_filename)
-        for event, elem in xml.iterparse(file):
+        for event, elem in xml.iterparse(inpath):
             if elem.tag == "%ssearch_summary" % ns: 
                 self.log.debug("found <search_summary>")
                 elem.set("search_id", "1")
