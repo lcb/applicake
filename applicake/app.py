@@ -205,7 +205,8 @@ class WorkflowApplication(ExternalApplication):
         keys = ['DIR','PARAM_IDX','SPECTRA_IDX']
         for key in keys:
             if key not in config.keys():
-                self.log.error('key [%s] not found in ini file [%s]' % (key,config))                
+                self.log.error('key [%s] not found in ini file [%s]' % (key,config)) 
+                sys.exit(1)               
         basedir = config['DIR']
         param_idx = config['PARAM_IDX']
         spectra_idx =  config['SPECTRA_IDX']                
