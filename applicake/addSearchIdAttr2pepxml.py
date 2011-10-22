@@ -13,7 +13,9 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         config = self._iniFile.read_ini()
         inpath = config['PEPXML']
         root,ext = os.path.splitext(inpath)
-        self._result_filename = re.sub('%s$'% ext, '', inpath) + '_corrected.%s' % ext 
+        basename = os.path.splitext(os.path.split(inpath)[1])[0]    
+        self._result_filename  = os.path.join(self._wd,basename + '_corrected.%s' % ext)
+#        self._result_filename = re.sub('%s$'% ext, '', inpath) + '_corrected.%s' % ext 
         fout = open(self._result_filename,'wb')
         config['PEPXML'] = self._result_filename
         self._iniFile.write_ini(config)
