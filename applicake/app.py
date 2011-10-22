@@ -6,7 +6,7 @@ Created on Nov 11, 2010
 @author: quandtan
 '''
 
-import sys,getopt,logging,os,cStringIO,argparse,glob,shutil
+import sys,getopt,logging,os,cStringIO,argparse,glob,shutil,traceback
 from subprocess import Popen, PIPE
 from applicake.utils import Logger as logger
 from applicake.utils import IniFile,Workflow,Utilities
@@ -285,7 +285,7 @@ class InternalWorkflowApplication(WorkflowApplication):
         try:
             self.main()
         except Exception,e:
-            self.stderr.write(e)  
+            self.stderr.write(traceback.extract_stack(e))
             self.log.error("exception while running main()")
             return 1
         
