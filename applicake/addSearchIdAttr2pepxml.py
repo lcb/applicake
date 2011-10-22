@@ -17,7 +17,7 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         fout = open(self._result_filename,'wb')
         config['PEPXML'] = self._result_filename
         not_found = True
-        for line in cStringIO.StringIO(inpath):
+        for line in cStringIO.StringIO(open(inpath).read()):
             if not_found:
                 if line.startswith('<search_summary'):
                     mod_line = '%s search_id="1">' % re.sub('>$', '', line)
