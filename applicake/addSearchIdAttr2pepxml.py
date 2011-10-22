@@ -22,8 +22,8 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         not_found = True
         for line in cStringIO.StringIO(open(inpath).read()):
             if not_found:
-                if line.startswith('<search_summary'):
-                    mod_line = '%s search_id="1">' % re.sub('>$', '', line)
+                if line.contains('<search_summary'):
+                    line = '%s search_id="1">' % re.sub('>$', '', line)
                     not_found = False
             fout.write(line)
         
@@ -37,6 +37,7 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
 #        xml.ElementTree.write(self._result_filename)
         if not_found:
             self.log.error('file [%s] did not contain the line pattern [<search_summary]' % inpath)
+            sys.exit(1)
             
           
                
