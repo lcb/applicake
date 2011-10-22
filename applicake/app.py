@@ -202,10 +202,14 @@ class WorkflowApplication(ExternalApplication):
                 
     def create_workdir(self,config):
         wd = None
+        keys = ['DIR','PARAM_IDX','SPECTRA_IDX']
+        for key in keys:
+            if key not in config.keys():
+                self.log.error('key [%s] not found in ini file [%s]' % (key,config))                
+        basedir = config['DIR']
+        param_idx = config['PARAM_IDX']
+        spectra_idx =  config['SPECTRA_IDX']                
         try:
-            basedir = config['DIR'] 
-            param_idx = config['PARAM_IDX']
-            spectra_idx =  config['SPECTRA_IDX']
             wd = os.path.join(basedir,param_idx)
             wd = os.path.join(wd,spectra_idx)
             wd = os.path.join(wd,self.name)                       
