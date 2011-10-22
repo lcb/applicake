@@ -249,7 +249,47 @@ class WorkflowApplication(ExternalApplication):
             self.log.error('file size is too small')
             return 1  
         ## TODO: check on stderr that 'command not found' does not appear
-        return 0                                                   
+        return 0
+
+class InternalWorkflowApplication(WorkflowApplication): 
+
+    def _get_parsed_args(self,args):
+        parser = argparse.ArgumentParser(description='Wrapper around a spectra identification application')
+        parser.add_argument('-i','--input',required=True, nargs=1,action="store", dest="input_filename",type=str,help="input file")
+        parser.add_argument('-o','--output',required=True,nargs=1, action="store", dest="output_filename",type=str,help="output file")
+        parser.add_argument('-n','--name',required=False,default=self.name,nargs=1, action="store", dest="name",type=str,help="identifier used in the process")
+        a = parser.parse_args(args)
+        if type(a.name) is list:
+            a.name = a.name[0]        
+        return {'input_filename':a.input_filename[0],'output_filename':a.output_filename[0],'name':a.name}      
+
+    def _preprocessing(self):
+        self.log.debug('Read input file [%s]' % os.path.abspath(self._input_filename))
+        self._iniFile = IniFile(input_filename=self._input_filename,output_filename=self._output_filename)
+        config = self._iniFile.read_ini()                
+        self.log.debug("content: %s" % config)
+        self.log.info('Start %s' % self.create_workdir.__name__)
+        self._wd = self.create_workdir(config)
+        self.log.info('Finished %s' % self.create_workdir.__name__)  
+        self.log.info('Start %s' % self._set_stream.__name__)
+        self._set_stream()   
+        self.log.info('FINISHED %s' % self._set_stream.__name__)
+        return None         
+
+    def _run(self,command=None):
+        'Run self-developed code under the Applicake framework'
+        raise NotImplementedError("Called '_run' method on abstact class")
+     
+    def _set_stream(self):                           
+        if self._use_filesystem:
+            self.stdout = open(self._stdout_filename, 'w+')
+            self.stderr = open(self._stderr_filename, 'w+')                        
+            #set pointer back to 1st character. therefore, fh has not to be closed (and opened again in validate_run ()
+            self.stdout.seek(0)
+            self.stderr.seek(0)                                
+        else:
+            self.stdout = None
+            self.stderr = None
                             
 class TemplateApplication(WorkflowApplication):     
     
