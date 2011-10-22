@@ -16,6 +16,7 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         self._result_filename = re.sub('%s$'% ext, '', inpath) + '_corrected.%s' % ext 
         fout = open(self._result_filename,'wb')
         config['PEPXML'] = self._result_filename
+        self._iniFile.write_ini(config)
         not_found = True
         for line in cStringIO.StringIO(open(inpath).read()):
             if not_found:
@@ -32,7 +33,10 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
 #                elem.set("search_id", "1")
 #                break
 #        xml.ElementTree.write(self._result_filename)
-        self._iniFile.write_ini(config)  
+        if not_found:
+            self.log.error('file [%s] did not contain the line pattern [<search_summary]' % inpath)
+            
+          
                
 if "__main__" == __name__:
     # init the application object (__init__)
