@@ -22,7 +22,7 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         not_found = True
         for line in cStringIO.StringIO(open(inpath).read()):
             if not_found:
-                if line.contains('<search_summary'):
+                if '<search_summary' in line:
                     line = '%s search_id="1">' % re.sub('>$', '', line)
                     not_found = False
             fout.write(line)
