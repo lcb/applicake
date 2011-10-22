@@ -15,7 +15,6 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         root,ext = os.path.splitext(inpath)
         basename = os.path.splitext(os.path.split(inpath)[1])[0]    
         self._result_filename  = os.path.join(self._wd,basename + '_corrected%s' % ext)
-#        self._result_filename = re.sub('%s$'% ext, '', inpath) + '_corrected.%s' % ext 
         fout = open(self._result_filename,'wb')
         config['PEPXML'] = self._result_filename
         self._iniFile.write_ini(config)
@@ -26,15 +25,6 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
                     line = '%s search_id="1">\n' % re.sub('>$', '', line)
                     not_found = False
             fout.write(line)
-        
-#        ns = '{http://regis-web.systemsbiology.net/protXML}'
-#        self.log.debug('output file [%s]' % self._result_filename)
-#        for event, elem in xml.iterparse(inpath):
-#            if elem.tag == "%ssearch_summary" % ns: 
-#                self.log.debug("found <search_summary>")
-#                elem.set("search_id", "1")
-#                break
-#        xml.ElementTree.write(self._result_filename)
         if not_found:
             self.log.error('file [%s] did not contain the line pattern [<search_summary]' % inpath)
             sys.exit(1)
