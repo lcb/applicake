@@ -290,6 +290,15 @@ class InternalWorkflowApplication(WorkflowApplication):
         else:
             self.stdout = None
             self.stderr = None
+            
+    def _validate_parsed_args(self,dict):   
+        self._input_filename = dict['input_filename']
+        self.log.debug("input file [%s]" % os.path.abspath(self._input_filename))
+        if not os.path.exists(self._input_filename):
+            self.log.fatal('file [%s] does not exist' % self._input_filename)
+            sys.exit(1)
+        self._output_filename = dict['output_filename']                                  
+        self.name = dict['name']            
                             
 class TemplateApplication(WorkflowApplication):     
     
