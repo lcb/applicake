@@ -13,15 +13,17 @@ class AddSearchIdAttr2Pepxml(InternalWorkflowApplication):
         config = self._iniFile.read_ini()
         inpath = config['PEPXML']
         root,ext = os.path.splitext(inpath)
-        outpath = re.sub('%s$'% ext, '', inpath) + '_corrected.%s' % ext 
+        self._result_filename = re.sub('%s$'% ext, '', inpath) + '_corrected.%s' % ext 
+        config['PEPXML'] = self._result_filename
         ns = '{http://regis-web.systemsbiology.net/protXML}'
-        self.log.debug('output file [%s]' % outpath)
+        self.log.debug('output file [%s]' % self._result_filename)
         for event, elem in xml.iterparse(file):
             if elem.tag == "%ssearch_summary" % ns: 
                 self.log.debug("found <search_summary>")
                 elem.set("search_id", "1")
                 break
-        xml.ElementTree.write(outpath)  
+        xml.ElementTree.write(self._result_filename)
+        self._iniFile.write_ini(config)  
                
 if "__main__" == __name__:
     # init the application object (__init__)
