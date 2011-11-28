@@ -44,20 +44,56 @@ class WorkflowInitiator(Application):
         self.log.debug("add key 'DIR' with value [%s] to ini" % self._wd)
         self.log.debug("add key 'JOBID' with value [%s] to ini" % jobid)
                 
+#    def _run(self,command=None):
+#        try:
+#            self.log.debug('Start [%s]' % self._iniFile.write_ini_value_product.__name__)  
+#            param_filenames = self._iniFile.write_ini_value_product(config=self._iniFile.read_ini(),use_subdir=False,sep='',index_key="PARAM_IDX")
+#            self.log.debug('generated [%s] parameter files' % len(param_filenames))
+#            self.log.debug('Finished [%s]' % self._iniFile.write_ini_value_product.__name__)
+#            self.log.debug('start generating output files (parameter x spectra files) and delete original parameter file')
+#            path_config = IniFile(input_filename=self._input_filename).read_ini()            
+#            self._output_filenames = []
+#            for param_filename in param_filenames:
+#                ini = IniFile(input_filename=param_filename,lock=False)
+#                config = ini.read_ini()
+#                config.update(path_config)
+#                out_filenames = ini.write_ini_value_product(config=config,use_subdir=False,sep = config['PGSEP'],index_key="SPECTRA_IDX")
+#                # add DATASET_CODE from path_config as PARENT-DATA-SET-CODES (has to be done after the product writing ;-)
+#                for out_filename in out_filenames:
+#                    ini = IniFile(input_filename=out_filename,lock=False)
+#                    parent_dataset_codes = ','.join(path_config['DATASET_CODE'])
+##                    ini.add_to_ini({'PARENT-DATA-SET-CODES':parent_dataset_codes}) 
+#                    ini.add_to_ini({'PARENT-DATA-SET-CODES':path_config['DATASET_CODE']})
+#                self._output_filenames.extend(out_filenames)
+#                os.remove(param_filename)
+#            self.log.debug('generated [%s] output files' % len(self._output_filenames))
+#            self.log.debug('finished adding paths to each output file') 
+#            return 0
+#        except Exception,e:
+#            self.log.exception(e)
+#            return 1        
+
+
     def _run(self,command=None):
         try:
             self.log.debug('Start [%s]' % self._iniFile.write_ini_value_product.__name__)  
-            param_filenames = self._iniFile.write_ini_value_product(config=self._iniFile.read_ini(),use_subdir=False,index_key="PARAM_IDX")
+            # the use of a fileidx is needed for guse as this workflowmanager requires a continous index    
+            config = self._iniFile.read_ini()
+            # the sep has to be some unusual separator
+            tmpsep = '...'
+            param_filenames,endidx = self._iniFile.write_ini_value_product(config=config,use_subdir=False,sep=tmpsep,index_key="PARAM_IDX")
             self.log.debug('generated [%s] parameter files' % len(param_filenames))
             self.log.debug('Finished [%s]' % self._iniFile.write_ini_value_product.__name__)
             self.log.debug('start generating output files (parameter x spectra files) and delete original parameter file')
             path_config = IniFile(input_filename=self._input_filename).read_ini()            
             self._output_filenames = []
-            for param_filename in param_filenames:
+            fileidx = 0
+            for idx,param_filename in enumerate(param_filenames):
                 ini = IniFile(input_filename=param_filename,lock=False)
                 config = ini.read_ini()
                 config.update(path_config)
-                out_filenames = ini.write_ini_value_product(config=config,use_subdir=False,index_key="SPECTRA_IDX")
+                fname = os.path.abspath(param_filename).rstrip('%s%s' % (tmpsep,idx)) 
+                out_filenames,fileidx = ini.write_ini_value_product(config=config,use_subdir=False,fname=fname, sep=config['PGSEP'],index_key="SPECTRA_IDX",fileidx=fileidx)
                 # add DATASET_CODE from path_config as PARENT-DATA-SET-CODES (has to be done after the product writing ;-)
                 for out_filename in out_filenames:
                     ini = IniFile(input_filename=out_filename,lock=False)
@@ -71,7 +107,8 @@ class WorkflowInitiator(Application):
             return 0
         except Exception,e:
             self.log.exception(e)
-            return 1        
+            return 1 
+
             
     def _validate_parsed_args(self,dict):
         self._input_filename = dict['input_filename']
