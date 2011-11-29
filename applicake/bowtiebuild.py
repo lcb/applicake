@@ -12,11 +12,11 @@ class BowtieBuild(WorkflowApplication):
 
     def _get_command(self, prefix, input_filename):
         config = self._iniFile.read_ini()
-        self._ref = config['BOWTIEREF']
+        ref = config['REFERENCE_GENOME']
         out_fname =  '%s%s' % (self.name,self._result_ext)  
         self._result_filename  = os.path.join(self._wd, out_fname)
         self._iniFile.add_to_ini({'BOWTIEBUILD': self._result_filename})
-        return "%s -f %s %s" % (prefix, self._ref, self._result_filename)
+        return "%s -f %s %s" % (prefix, ref, self._result_filename)
         
   
     
