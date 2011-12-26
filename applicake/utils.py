@@ -166,7 +166,6 @@ class IniFile():
             self.write_ini(dictionary)
             output_filenames.append(self.output_filename)  
         return output_filenames    
-    
 
 class Logger():
     def __init__(self,name='logger',level=logging.DEBUG,file=None,console=True):

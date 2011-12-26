@@ -66,15 +66,20 @@ class WorkflowInitiator(Application):
                 ini = IniFile(input_filename=param_filename,lock=False)
                 config = ini.read_ini()
                 config.update(path_config)
-                fname = os.path.join(self._wd, os.path.basename(param_filename).rstrip('%s%s' % (tmpsep,idx))) 
+                basename,ext = os.path.splitext(self._output_filename)
+                fname = basename + '%s%s%s' % (ext,tmpsep,idx)
+#                self.log.error(fname)
+#                fname = os.path.join(self._wd, os.path.basename(param_filename).rstrip('%s%s' % (tmpsep,idx))) 
                 out_filenames,fileidx = ini.write_ini_value_product(config=config,use_subdir=False,fname=fname, sep=config['PGSEP'],index_key="SPECTRA_IDX",fileidx=fileidx)
                 # add DATASET_CODE from path_config as PARENT-DATA-SET-CODES (has to be done after the product writing ;-)
                 for out_filename in out_filenames:
+                    out_filename = out_filename.split(ext)[0] + "_%s" % fileidx + ext
                     ini = IniFile(input_filename=out_filename,lock=False)
                     parent_dataset_codes = ','.join(path_config['DATASET_CODE'])
 #                    ini.add_to_ini({'PARENT-DATA-SET-CODES':parent_dataset_codes}) 
                     ini.add_to_ini({'PARENT-DATA-SET-CODES':path_config['DATASET_CODE']})
-                self._output_filenames.extend(out_filenames)
+                    self._output_filenames.append(out_filename)
+#                self._output_filenames.extend(out_filenames)
                 os.remove(param_filename)
             self.log.debug('generated [%s] output files' % len(self._output_filenames))
             self.log.debug('finished adding paths to each output file') 
@@ -94,6 +99,9 @@ class WorkflowInitiator(Application):
         self._dirname = dict['dirname']
         if not os.path.exists(self._dirname):
             self.log.fatal('file [%s] does not exist' % self._dirname)                  
+        self._output_filename = dict['output_filename']
+#        if not os.path.exists(self._output_filename):
+#            self.log.fatal('file [%s] does not exist' % self._input_filename) 
             
     def _validate_run(self,run_code=None):
         if 0 < run_code:
