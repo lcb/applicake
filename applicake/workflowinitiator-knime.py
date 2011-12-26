@@ -6,7 +6,7 @@ Created on Dec 20, 2011
 '''
 
 import sys,os,getopt,traceback,shutil,argparse
-from applicake.utils import Workflow,IniFile
+from applicake.utils import Workflow,IniFile,Utilities
 from applicake.app import Application
 
 class WorkflowInitiator(Application):     
@@ -66,15 +66,18 @@ class WorkflowInitiator(Application):
                 ini = IniFile(input_filename=param_filename,lock=False)
                 config = ini.read_ini()
                 config.update(path_config)
-                basename,ext = os.path.splitext(self._output_filename)
-                fname = basename + '%s%s%s' % (ext,tmpsep,idx)
+#                basename,ext = os.path.splitext(self._output_filename)
+#                fname = basename + '_%s%s' % (ext,tmpsep,idx)
+                fname = self._output_filename
 #                self.log.error(fname)
 #                fname = os.path.join(self._wd, os.path.basename(param_filename).rstrip('%s%s' % (tmpsep,idx))) 
-                out_filenames,fileidx = ini.write_ini_value_product(config=config,use_subdir=False,fname=fname, sep=config['PGSEP'],index_key="SPECTRA_IDX",fileidx=fileidx)
+                out_filenames,fileidx = self.write_ini_value_product(config=config,use_subdir=False,fname=fname, sep='_',index_key="SPECTRA_IDX",fileidx=fileidx)
                 # add DATASET_CODE from path_config as PARENT-DATA-SET-CODES (has to be done after the product writing ;-)
                 for out_filename in out_filenames:
-                    out_filename = out_filename.split(ext)[0] + "_%s" % fileidx + ext
+#                    out_filename = out_filename.split(ext)[0] + "_%s" % fileidx + ext
                     ini = IniFile(input_filename=out_filename,lock=False)
+                    self.log.error(ini.read_ini())
+                    
                     parent_dataset_codes = ','.join(path_config['DATASET_CODE'])
 #                    ini.add_to_ini({'PARENT-DATA-SET-CODES':parent_dataset_codes}) 
                     ini.add_to_ini({'PARENT-DATA-SET-CODES':path_config['DATASET_CODE']})
@@ -88,6 +91,41 @@ class WorkflowInitiator(Application):
             self.log.exception(e)
             return 1 
 
+    def write_ini_value_product(self,config=None, use_subdir=True, fname=None, sep='_', index_key=None,fileidx=0):
+        '''Takes an ini file as input and generates a new ini file for each value combination.
+        The startidx allows to set a start index. this number is incrementally increased.
+        The method returns a tuple with the names of the files created and the last index used.
+        '''
+        output_filenames = []
+        if config is None:
+            config = self.read_ini()
+        keys = config.keys()
+        values = config.values()
+        elements = Utilities().get_list_product(values)
+        if fname == None:
+            fname = self.output_filename
+        for idx,element in enumerate(elements): 
+            # idx = fileidx + idx
+            dictionary = None
+            if use_subdir:
+                dir = os.path.dirname(fname)               
+                sub_dir = os.path.join(dir,str(idx))
+                os.mkdir(sub_dir)
+                output_filename=os.path.join(sub_dir,os.path.basename(fname))
+                dictionary = dict(zip(keys, element))
+                dictionary['DIR'] = sub_dir
+            else:          
+                basename,ext = os.path.splitext(fname)                 
+                output_filename= ''.join((basename,sep,str(fileidx),ext))                
+                fileidx +=1    
+                dictionary = dict(zip(keys, element))
+                # if no sub dir is generated, the index key can be used to generate a unique path later on
+            if index_key is not None:
+                dictionary[index_key]=idx
+            IniFile(input_filename=output_filename,lock=False).write_ini(dictionary)            
+            output_filenames.append(output_filename)  
+            
+        return output_filenames,fileidx
             
     def _validate_parsed_args(self,dict):
         self._input_filename = dict['input_filename']
