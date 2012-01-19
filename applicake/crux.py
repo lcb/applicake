@@ -33,7 +33,7 @@ class Crux(TemplateApplication):
         config = self._iniFile.read_ini()
         search_filename = config['MZXML']
         db_filename = config['DBASE'] 
-        db_filename = db_filename.replace('.fasta','.idx')   
+        db_filename = db_filename.replace('.fasta','.fasta.idx')   
         self._result_filename  = os.path.join(self._wd,self.name + self.get_pepxml_suffix())
         self._iniFile.add_to_ini({'PEPXML':self._result_filename})
         # crux search-for-matches --parameter-file my.params --fileroot B08-02057 B08-02057.mzXML --output-dir . /cluster/scratch/malars/databases/AE004092_sp_9606.idx
