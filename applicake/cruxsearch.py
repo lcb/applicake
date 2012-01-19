@@ -17,16 +17,16 @@ class CruxSearch(Crux):
     def get_pepxml_suffix(self):
         return ".search.target.pep.xml"  
     
-    def _validate_run(self,run_code):               
-        exit_code = super(Crux, self)._validate_run(run_code)
-        if 0 != exit_code:
-            return exit_code
-        for line in self.stderr.readlines():
-            if line.startswith('INFO: Finished crux-search-for-matches'):
-                self.log.debug('crux finished %s' % self.get_crux_command())
-                return 0                
-        self.log.error("crux did not finish %s properly" % self.get_crux_command())
-        return 1          
+#    def _validate_run(self,run_code):               
+#        exit_code = super(Crux, self)._validate_run(run_code)
+#        if 0 != exit_code:
+#            return exit_code
+#        for line in self.stderr.readlines():
+#            if line.startswith('INFO: Return Code:0:'):
+#                self.log.debug('crux finished %s' % self.get_crux_command())
+#                return 0                
+#        self.log.error("crux did not finish %s properly" % self.get_crux_command())
+#        return 1          
     
 
 if "__main__" == __name__:
