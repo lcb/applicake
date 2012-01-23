@@ -311,7 +311,10 @@ class InternalWorkflowApplication(WorkflowApplication):
             self.log.fatal('file [%s] does not exist' % self._input_filename)
             sys.exit(1)
         self._output_filename = dict['output_filename']                                  
-        self.name = dict['name']            
+        self.name = dict['name']   
+        
+    def _validate_run(self,run_code):
+        return 0                 
                             
 class TemplateApplication(WorkflowApplication):     
     
