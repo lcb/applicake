@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Created on Jan 26, 2012
 
@@ -12,9 +13,9 @@ class IndexMzxml(WorkflowApplication):
     def _get_app_inputfilename(self,config):
         return config['SEARCH'] 
     
-    def _get_command(self,prefix,input_filename):               
-        basename,ext = os.path.splitext(os.path.split(input_filename)[1]) 
-        self._result_filename  = os.path.join(self._wd, basename,ext)
+    def _get_command(self,prefix,input_filename):
+        dir = os.path.dirname(input_filename)               
+        self._result_filename  = input_filename.replace(dir,self._wd)
         config = self._iniFile.read_ini() 
         config['SEARCH'] = self._result_filename
         self._iniFile.write_ini(config)
@@ -29,10 +30,12 @@ class IndexMzxml(WorkflowApplication):
             return exit_code
         stdout = self.stdout.read()
         if 'The index is corrupted' in stdout:
-            output_file = ''.join(self._result_filename,'.new')
+            output_file = ''.join([self._result_filename,'.new'])
             self.log.debug('index of [%s] was corrupt and [%s] was created' %(self._result_filename,output_file))            
             shutil.move(output_file,self._result_filename)
-            self.log.debug('moved [%s] to [%s]')            
+            self.log.debug('moved [%s] to [%s]' % (output_file, self._result_filename))   
+        else:
+            self.log.debug('index of [%s] was correct' % self._input_filename)         
         return 0       
 
 if "__main__" == __name__:
