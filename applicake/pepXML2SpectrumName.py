@@ -41,20 +41,23 @@ class PepXML2SpectrumName(InternalWorkflowApplication):
 #                    sys.exit(1)
 #        xml.ElementTree(elem).write(self._result_filename)
         fout = open(self._result_filename,'wb')
-        for line in open(self.fin,'r'):
-            if '<spectrum_query spectrum="' in line:
+        self.log.debug('start reading file [%s] line by line' % self.fin)
+        for line in open(self.fin,'r'):            
+            if '<spectrum_query spectrum="' in line:                
                 spectrum = line.split('spectrum="')[1].split('" ')[0]
                 (basename,start_scan,end_scan,assumed_charge) = spectrum.split('.')
                 digets = len(start_scan)
                 if digets <= 5:
                     num_zeros = 5 - digets
                     spectrum_mod = "%s.%s.%s.%s" %(basename,'0'*num_zeros + start_scan,'0'*num_zeros + end_scan,assumed_charge)
-                    line = line.replace(spectrum,spectrum_mod)                    
-                    ''.join([line,'\n'])                   
+                    line = line.replace(spectrum,spectrum_mod)                                        
+                    ''.join([line,'\n'])  
+                                     
                 else:
                     self.log.fatal('scan number larger that 5 digets: [%s]' % start_scan)
                     sys.exit(1)
             fout.write(line) 
+        self.log.debug('finished writing output file [%s]' % self._result_filename)
 
 
 
@@ -69,7 +72,7 @@ class PepXML2SpectrumName(InternalWorkflowApplication):
                
 if "__main__" == __name__:
     # init the application object (__init__)
-    a = PepXML2SpectrumName(use_filesystem=False,name=None)
+    a = PepXML2SpectrumName(use_filesystem=True,name=None)
     # call the application object as method (__call__)
     exit_code = a(sys.argv)
     #copy the log file to the working dir
