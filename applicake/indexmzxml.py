@@ -11,12 +11,13 @@ from applicake.utils import XmlValidator
 class IndexMzxml(WorkflowApplication):
     
     def _get_app_inputfilename(self,config):
-        return config['SEARCH'] 
+        return config['MZXML'] 
     
     def _get_command(self,prefix,input_filename):
         dir = os.path.dirname(input_filename)               
         self._result_filename  = input_filename.replace(dir,self._wd)
         config = self._iniFile.read_ini() 
+        config['MZXML'] = self._result_filename
         config['SEARCH'] = self._result_filename
         self._iniFile.write_ini(config)
         self.log.debug(" modified key 'SEARCH' to value [%s] and wrote ini" % self._result_filename)
