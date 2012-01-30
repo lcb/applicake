@@ -30,8 +30,11 @@ class Msconvert(TemplateApplication):
             self.log.debug('stdout did not contain an extension [%s]' % stdout)        
         self.log.debug('search file extension [%s]' % ext)
         mzxml_filename = self._iniFile.read_ini()['MZXML']
-        basename = os.path.basename(mzxml_filename)
-        root= os.path.splitext(basename)[0]        
+        basename = os.path.basename(mzxml_filename)        
+        root= os.path.splitext(basename)[0]
+        # because msconvert converts .c.mzXML to .mgf instead of .c.mgf
+        # following line has to be added
+        root = root.split('.')[0]        
         self._result_filename  = os.path.join(self._wd,root + ext)
         self._iniFile.add_to_ini({'SEARCH':self._result_filename})
         return run_code   
