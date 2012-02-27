@@ -42,21 +42,25 @@ class PepXmlCorrector(InternalWorkflowApplication):
 #                    sys.exit(1)
 #        xml.ElementTree(elem).write(self._result_filename)
         fout = open(self._result_filename,'wb')
-        self.log.debug('start reading file [%s] line by line' % self.fin)
+        self.log.debug('start reading file [%s] line by line' % self.fin)        
         for line in open(self.fin,'r'):   
             # needed for PTMProphetParser. the program accesses the spectra in the mzxml file
             if '<msms_run_summary base_name' in line:
                 line = '''<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n''' % os.path.splitext(mzxml)[0]
-            if '<spectrum_query spectrum="' in line:              
+                self.log.debug('changed msms_run_summary tag')
+            if '<spectrum_query spectrum="' in line:
+                #self.log.debug('change spectrum [%s]' % line)
                 spectrum = line.split('spectrum="')[1].split('" ')[0]
+                #self.log.debug(spectrum)
                 (basename,start_scan,end_scan,assumed_charge) = spectrum.split('.')                                
                 digets = len(start_scan)                
                 # creates tpp's zero-padded spectrum names
-                if digets <= 5:
+                if digets <= 5:                    
                     num_zeros = 5 - digets
                     spectrum_mod = "%s.%s.%s.%s" %(basename,'0'*num_zeros + start_scan,'0'*num_zeros + end_scan,assumed_charge)
                     line = line.replace(spectrum,spectrum_mod)                                        
-                    ''.join([line,'\n'])                                       
+                    ''.join([line,'\n'])                                 
+                    self.log.debug("mod spectrum name [%s]" % spectrum_mod)      
                 else:
                     self.log.fatal('scan number larger that 5 digets: [%s]' % start_scan)
                     sys.exit(1)                

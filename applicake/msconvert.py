@@ -12,31 +12,42 @@ from applicake.utils import Utilities
 class Msconvert(TemplateApplication):
     
     def _get_command(self,prefix,input_filename):
-        config = self._iniFile.read_ini()
-        mzxml_filename = self._iniFile.read_ini()['MZXML']        
-        return "%s %s -o %s -c %s" %(prefix,mzxml_filename,self._wd,input_filename)
-    
-    def _run(self,command=None):
-        run_code = super(Msconvert, self)._run(command)
-        if 0 != run_code:
-            return run_code
         ext = None
-        stdout = self.stdout.read()
-        self.stdout.seek(0)
-        for line in stdout.split('\n'):
-            if line.startswith('extension'):
-                ext = line.split(': ')[1]
-        if ext == None:
-            self.log.debug('stdout did not contain an extension [%s]' % stdout)        
-        self.log.debug('search file extension [%s]' % ext)
-        mzxml_filename = self._iniFile.read_ini()['MZXML']
+        for line in open(input_filename,'rw').readlines():
+            if line.lower().startswith('mgf=true'):
+                ext = '.mgf'
+        self.log.debug('output format [%s]' % ext)
+        config = self._iniFile.read_ini()        
+        mzxml_filename = self._iniFile.read_ini()['MZXML']               
         basename = os.path.basename(mzxml_filename)        
         root= os.path.splitext(basename)[0]
         # because msconvert converts .c.mzXML to .mgf instead of .c.mgf
         # following line has to be added
         root = root.split('.')[0]        
         self._result_filename  = os.path.join(self._wd,root + ext)
-        self._iniFile.add_to_ini({'SEARCH':self._result_filename})
+        self._iniFile.add_to_ini({'SEARCH':self._result_filename})        
+        return "%s %s --outfile %s -o %s -c %s" %(prefix,mzxml_filename,self._result_filename, self._wd,input_filename)
+    
+    def _run(self,command=None):
+        run_code = super(Msconvert, self)._run(command)
+        if 0 != run_code:
+            return run_code
+#        stdout = self.stdout.read()
+#        self.stdout.seek(0)
+#        for line in stdout.split('\n'):
+#            if line.startswith('extension'):
+#                ext = line.split(': ')[1]
+#        if ext == None:
+#            self.log.debug('stdout did not contain an extension [%s]' % stdout)        
+#        self.log.debug('search file extension [%s]' % ext)
+#        mzxml_filename = self._iniFile.read_ini()['MZXML']
+#        basename = os.path.basename(mzxml_filename)        
+#        root= os.path.splitext(basename)[0]
+#        # because msconvert converts .c.mzXML to .mgf instead of .c.mgf
+#        # following line has to be added
+#        root = root.split('.')[0]        
+#        self._result_filename  = os.path.join(self._wd,root + ext)
+#        self._iniFile.add_to_ini({'SEARCH':self._result_filename})
         return run_code   
    
     def _validate_run(self,run_code):
