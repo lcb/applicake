@@ -45,9 +45,15 @@ class PepXmlCorrector(InternalWorkflowApplication):
         self.log.debug('start reading file [%s] line by line' % self.fin)        
         for line in open(self.fin,'r'):   
             # needed for PTMProphetParser. the program accesses the spectra in the mzxml file
+            base_name = os.path.splitext(mzxml)[0]
             if '<msms_run_summary base_name' in line:
-                line = '''<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n''' % os.path.splitext(mzxml)[0]
+                line = '''<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n''' % base_name
                 self.log.debug('changed msms_run_summary tag')
+            if '<search_summary base_name' in line:
+                ss_base_name = line.split('"')[1]
+                self.log.debug('base_name of search_summary [%s]' % ss_base_name)
+                line = line.replace(ss_base_name,base_name)
+                self.log.debug('replaced base name [%s] with [%s] in search summary ' % (ss_base_name,base_name))
             if '<spectrum_query spectrum="' in line:
                 #self.log.debug('change spectrum [%s]' % line)
                 spectrum = line.split('spectrum="')[1].split('" ')[0]

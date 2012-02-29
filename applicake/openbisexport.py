@@ -92,6 +92,21 @@ class OpenbisExport(SequenceTemplateApplication):
         ini_file = IniFile(input_filename=props_filename,output_filename=props_filename)
         ini_file.write_ini(config)        
         self.log.debug('...successfully...')
+        
+        # needed for openbis export. otherwise openbis cannot delete dir's from dropbox
+        self.log.debug('start changing permissions of [%s]' % dir) 
+        os.chmod(dir, 0o777)
+        self.log.debug('changed permissions of [%s] to [%s]' % (dir,'0o777'))
+        for root, dirs, files in os.walk(dir):  
+          for subdir in dirs:  
+            self.log.debug('found subdir [%s]' % subdir)  
+            os.chmod(subdir,0o777)
+            self.log.debug('changed permissions of [%s] to [%s]' % (subdir,'0o777'))
+          for file in files:
+             fname = os.path.join(root, file)
+             self.log.debug('found file [%s]' % fname)
+             os.chmod(fname, 0o777)
+             self.log.debug('changed permissions of [%s] to [%s]' % (fname,'0o777'))        
         self.log.debug('...copying [%s] to [%s]' % (dir, dropbox))
         shutil.copytree(dir,os.path.join(dropbox,dropbox_dirname))
         self.log.debug('...successfully!')
