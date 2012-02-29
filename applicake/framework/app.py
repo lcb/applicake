@@ -107,7 +107,6 @@ class WorkflowNodeWrapper(WorkflowNodeApplication):
     Return: exit code (integer) 
     """
     
-    
     def main(self):
         """
         Prepare, run and validate the execution of an external program.
