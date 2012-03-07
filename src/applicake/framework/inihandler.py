@@ -14,12 +14,12 @@ class IniHandler(object):
             self.output_filename = output_filename
         self._lock = lock
         
-    def add_to_ini(self,dictionary):
-        config = self.read_ini()
+    def add(self,dictionary):
+        config = self.read()
         config.update(dictionary)
-        self.write_ini(config)               
+        self.write(config)               
         
-    def read_ini(self): 
+    def read(self): 
         'Read file in windows ini format and returns a dictionary like object (ConfigObj)'
         if not self._lock:
             return ConfigObj(self.input_filename)
@@ -31,20 +31,20 @@ class IniHandler(object):
             locker.unlock(file)       
             return config
                
-    def update_ini(self,dictionary):
+    def update(self,dictionary):
         'Updates file in windows ini format and returns the updated dictionary like object (ConfigObj)'
-        config = self.read_ini()
+        config = self.read()
         for k,v in dictionary.items():
             config[k]=v
-        self.write_ini(config)   
+        self.write(config)   
         return config 
             
     
-    def write_ini(self,dictionary):
+    def write(self,dictionary):
         'Write file in windows ini format'
         config = ConfigObj(dictionary)
         config.filename = self.output_filename
-        # need to set input pointer to output pointer that read_ini() always gets the latest config
+        # need to set input pointer to output pointer that read() always gets the latest config
         self.input_filename = self.output_filename
         if not self._lock:
             config.write()
@@ -55,14 +55,14 @@ class IniHandler(object):
             config.write()
             locker.unlock(file)
             
-    def write_ini_value_product(self,config=None, use_subdir=True, fname=None, sep='_', index_key=None,fileidx=0):
+    def write_value_product(self,config=None, use_subdir=True, fname=None, sep='_', index_key=None,fileidx=0):
         '''Takes an ini file as input and generates a new ini file for each value combination.
         The startidx allows to set a start index. this number is incrementally increased.
         The method returns a tuple with the names of the files created and the last index used.
         '''
         output_filenames = []
         if config is None:
-            config = self.read_ini()
+            config = self.read()
         keys = config.keys()
         values = config.values()
         elements = Utilities().get_list_product(values)
@@ -85,17 +85,17 @@ class IniHandler(object):
                 # if no sub dir is generated, the index key can be used to generate a unique path later on
             if index_key is not None:
                 dictionary[index_key]=idx
-            self.write_ini(dictionary)
+            self.write(dictionary)
             output_filenames.append(self.output_filename)  
             
         return output_filenames,fileidx
     
     
-    def write_ini_value_product_continuesidx(self,config=None, use_subdir=True, sep='_', index_key=None):
+    def write_value_product_continuesidx(self,config=None, use_subdir=True, sep='_', index_key=None):
         'Takes an ini file as input and generates a new ini file for each value combination'
         output_filenames = []
         if config is None:
-            config = self.read_ini()
+            config = self.read()
         keys = config.keys()
         values = config.values()
         elements = Utilities().get_list_product(values)
@@ -116,6 +116,6 @@ class IniHandler(object):
                 # if no sub dir is generated, the index key can be used to generate a unique path later on
             if index_key is not None:
                 dictionary[index_key]=idx
-            self.write_ini(dictionary)
+            self.write(dictionary)
             output_filenames.append(self.output_filename)  
         return output_filenames    

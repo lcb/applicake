@@ -123,5 +123,4 @@ if "__main__" == __name__:
     for filename in [a._log_filename,a._stderr_filename,a._stdout_filename]:
         shutil.move(filename, os.path.join(a._wd,filename))
     print(exit_code)
-    sys.exit(exit_code)   
-        
+    sys.exit(exit_code)  
