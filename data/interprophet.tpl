@@ -1,1 +1,0 @@
-MINPROB=0
