@@ -12,14 +12,20 @@ import unittest
 from applicake.framework.app import WorkflowNodeWrapper
 
 class TestNode(WorkflowNodeWrapper):
+
+    out_txt = 'my stdout txt'
+    err_txt = 'my stderr txt'
+    log_txt = 'LOG'
+
+    
     def prepare_run(self,prefix):
-        return '%s "hello world"' % prefix
+        return '%s "%s"' % (prefix,self.out_txt)
     
     def validate_run(self,run_code):
         if 0 != run_code:
             return run_code
-        out = self.stdout.read()
-        assert out == 'hello world\n'
+#        out = self.stdout.read()
+#        assert out == 'hello world\n'
         return 0
 
 
@@ -44,7 +50,7 @@ class Test(unittest.TestCase):
                     '-o','data/output.ini','-o','data/output.ini', '-n',self.random_name,
                     '-p','/bin/echo']
         # init the application object (__init__)
-        app = TestNode(use_filesystem=False)
+        app = TestNode()
         # call the application object as method (__call__)
         exit_code = app(sys.argv)
         inputs = app.info['inputs']
@@ -55,7 +61,11 @@ class Test(unittest.TestCase):
         assert isinstance(outputs, (list))
         assert len(outputs) == 2
         assert name == self.random_name.lower() 
-        assert exit_code == 0        
+        app.out_stream.seek(0)
+        assert app.out_stream.read() == app.out_txt
+        app.err_stream.seek(0)
+        assert app.err_stream.read() == app.err_txt         
+        assert exit_code == 0       
 
     def test_define_arguments__2(self):
         try: 
@@ -70,6 +80,7 @@ class Test(unittest.TestCase):
             return
         self.fail("""This test should fail because the following argument combination 
         [%s] is not allowed""" % sys.argv)  
+               
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
