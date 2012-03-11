@@ -39,24 +39,24 @@ class IniHandler(dict):
         """
         for k,v in config.iteritems():
             if k in self._config.keys():
-                if self._config[k] is list:
+                if isinstance(self._config[k],list):
                     self._config[k].append(v)
                 else:
-                    self._config[k]=self._config[k],v
+                    self._config[k]=[self._config[k],v]
             else:
                 self._config[k]=[v]
-
                         
     def read(self,filename): 
         'Read file in windows ini format and returns a dictionary like object (ConfigObj)'
         if not self._lock:
-            self._config = ConfigObj(self.input_filename)
+            self._config = ConfigObj(filename)
         else:
             locker = FileLocker()
             file = open(self.input_filename,'r')        
             locker.lock(file,locker.LOCK_EX)
             self._config = ConfigObj(self.input_filename)
-            locker.unlock(file)       
+            locker.unlock(file)  
+             
 
     def update(self,dict):
         'Updates file in windows ini format and returns the updated dictionary like object (ConfigObj)'        

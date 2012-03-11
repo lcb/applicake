@@ -183,8 +183,11 @@ class Application(object):
             sys.exit(1)
         inputs = self.info[key]
         self.check_files(inputs)
-        for f in inputs:            
-            self.config.merge(IniHandler(f))
+        for f in inputs:      
+            config = IniHandler()
+            config.read(f)     
+            self.config.merge(config.get())
+        self.log.debug(self.config.get())
             
     def reset_streams(self):
         """

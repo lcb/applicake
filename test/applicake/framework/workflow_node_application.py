@@ -200,14 +200,22 @@ class Test(unittest.TestCase):
         assert exit_code == 0  
         
     def test_read_inputs__1(self):
-        '''Test of reading input inis '''
+        '''Test reading of a single input file '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
                     '-n',self.random_name]                
         app = TestNode(storage='file') 
-        app.reset_streams()
-        print app.config
-                                    
+        exit_code = app(sys.argv)
+        assert app.config.get() == {'COMMENT': ['test message']}
+
+    def test_read_inputs__2(self):
+        '''Test of multiple input files and merging of them'''
+        sys.argv = ['test.py','-i',self.input_ini, '-i',self.input_ini2, 
+                    '-o',self.output_ini,
+                    '-n',self.random_name]                
+        app = TestNode(storage='file') 
+        exit_code = app(sys.argv)
+        assert app.config.get() == {'COMMENT': ['test message', 'another test message']}                                    
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
