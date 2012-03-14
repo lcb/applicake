@@ -206,7 +206,7 @@ class Test(unittest.TestCase):
                     '-n',self.random_name]                
         app = TestNode(storage='file') 
         exit_code = app(sys.argv)
-        assert app.config.get() == {'COMMENT': ['test message']}
+        assert app.config == {'COMMENT': ['test message']}
 
     def test_read_inputs__2(self):
         '''Test of multiple input files and merging of them'''
@@ -215,7 +215,7 @@ class Test(unittest.TestCase):
                     '-n',self.random_name]                
         app = TestNode(storage='file') 
         exit_code = app(sys.argv)
-        assert app.config.get() == {'COMMENT': ['test message', 'another test message']}                                    
+        assert app.config == {'COMMENT': ['test message', 'another test message']}                                    
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

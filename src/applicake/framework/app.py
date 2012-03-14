@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 from subprocess import Popen
 from subprocess import PIPE
 from applicake.framework.logger import Logger
-from applicake.framework.inihandler import IniHandler
+from applicake.framework.confighandler import IniFile
 from configobj import ConfigObj
                  
                  
@@ -47,7 +47,7 @@ class Application(object):
             args = self.get_parsed_arguments(parser=argparser)
             self.info.update(args)                                        
             self._init_streams() 
-            self.config = IniHandler() 
+            self.config = ConfigObj({})
             #    
             #TODO: _validate_parsed_args should contain possibility to change log level 
             #via commandline argument
@@ -184,10 +184,10 @@ class Application(object):
         inputs = self.info[key]
         self.check_files(inputs)
         for f in inputs:      
-            config = IniHandler()
-            config.read(f)     
-            self.config.merge(config.get())
-        self.log.debug(self.config.get())
+            config = IniFile().read_ini(f)  
+            self.log.debug('file [%s], content [\n%s\n]' % (f,config))   
+            self.config = IniFile().append(self.config, config)
+            self.log.debug('config after appending: [%s]' % self.config)
             
     def reset_streams(self):
         """
@@ -198,8 +198,9 @@ class Application(object):
     
     def write_output_files(self): 
         files = [self.info['output']]
-        for f in files:                   
-            self.config.write(f) 
+        for f in files: 
+            self.log.debug('output file [%s]' % f)                  
+            IniFile().write_ini(self.config, f) 
         self.check_files(files)    
 
 
