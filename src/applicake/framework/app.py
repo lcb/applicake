@@ -14,8 +14,7 @@ from argparse import ArgumentParser
 from subprocess import Popen
 from subprocess import PIPE
 from applicake.framework.logger import Logger
-from applicake.framework.confighandler import IniFile
-from configobj import ConfigObj
+from applicake.framework.confighandler import ConfigHandler
                  
                  
 class ApplicationInformation(dict):
@@ -30,7 +29,7 @@ class Application(object):
     that derives from it.      
     """      
     
-    def __init__(self, storage='memory',log_level=logging.DEBUG):
+    def __init__(self):
         """
         Basic setup of the Application class        
         such as argument parsing and initialization of streams        
@@ -38,8 +37,6 @@ class Application(object):
         try:                
             # create Application information object and add information        
             self.info = ApplicationInformation()
-            self.info['storage'] = storage
-            self.info['log_level'] = log_level
             # set name variable to concrete class name if no specific name is provided.
             # the name variable is used to for the logger and file names if the file system is used                      
             argparser = ArgumentParser(description='Applicake application')
@@ -47,11 +44,7 @@ class Application(object):
             args = self.get_parsed_arguments(parser=argparser)
             self.info.update(args)                                        
             self._init_streams() 
-            self.config = ConfigObj({})
-            #    
-            #TODO: _validate_parsed_args should contain possibility to change log level 
-            #via commandline argument
-            #
+            self.config = {}
         except Exception:
             raise
             sys.exit(1)
@@ -184,9 +177,9 @@ class Application(object):
         inputs = self.info[key]
         self.check_files(inputs)
         for f in inputs:      
-            config = IniFile().read_ini(f)  
+            config = ConfigHandler().read(f)  
             self.log.debug('file [%s], content [\n%s\n]' % (f,config))   
-            self.config = IniFile().append(self.config, config)
+            self.config = ConfigHandler().append(self.config, config)
             self.log.debug('config after appending: [%s]' % self.config)
             
     def reset_streams(self):
@@ -200,7 +193,7 @@ class Application(object):
         files = [self.info['output']]
         for f in files: 
             self.log.debug('output file [%s]' % f)                  
-            IniFile().write_ini(self.config, f) 
+            ConfigHandler().write(self.config, f) 
         self.check_files(files)    
 
 
@@ -224,11 +217,20 @@ class WorkflowNodeApplication(Application):
         parser.add_argument('-n','--name',required=False, nargs=1, dest="name", 
                             default=self.__class__.__name__,
                             help="Name of the workflow node")
+        parser.add_argument('-s','--storage',required=False, nargs=1, dest="storage", 
+                            default=None,choices=['memory','file'],
+                            help="Storage type for produced streams")  
+        parser.add_argument('-l','--loglevel',required=False, nargs=1, dest="log_level", 
+                            default=None,choices=['DEBUG','INFO','WARNING',
+                                                  'ERROR','CRITICAL'],
+                            help="Storage type for produced streams")        
 
     def get_parsed_arguments(self,parser):
         args = vars(parser.parse_args(sys.argv[1:]))
         args['name'] = str(args['name'][0]).lower()
         args['output'] = args['output'][0]
+        args['storage'] = args['storage'][0]
+        args['log_level'] = args['log_level'][0]
         return args
 
 

@@ -55,7 +55,8 @@ class Test(unittest.TestCase):
 
     def test__init__1(self):
         ''' Test required command line arguments'''
-        sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini]
+        sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
+                    '-s','memory','-l','DEBUG']
         # init the application object (__init__)
         app = TestNode()
         # call the application object as method (__call__)
@@ -72,7 +73,8 @@ class Test(unittest.TestCase):
 
     def test__init__2(self):
         ''' Test optional name argument'''
-        sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini, '-n', self.random_name]
+        sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
+                     '-n', self.random_name,'-s','memory','-l','DEBUG']
         # init the application object (__init__)
         app = TestNode()
         # call the application object as method (__call__)
@@ -85,9 +87,9 @@ class Test(unittest.TestCase):
         ''' Test required input arguments (not correctly defined)'''
         try: 
             sys.argv = ['test.py','-i','-i',self.input_ini, '-o',self.output_ini,
-                         '-n', self.random_name]
+                         '-n', self.random_name,'-s','memory','-l','DEBUG']
             # init the application object (__init__)
-            app = TestNode(storage='memory')
+            app = TestNode()
             # call the application object as method (__call__)
             app(sys.argv)            
         except:
@@ -100,7 +102,7 @@ class Test(unittest.TestCase):
         ''' Test required output arguments (not correctly defined)'''
         try: 
             sys.argv = ['test.py','-i',self.input_ini, '-o','-o',self.output_ini,
-                         '-n', self.random_name]
+                         '-n', self.random_name,'-s','memory','-l','DEBUG']
             # init the application object (__init__)
             app = TestNode()
             # call the application object as method (__call__)
@@ -115,9 +117,9 @@ class Test(unittest.TestCase):
         ''' Test optional name arguments (not correctly set)'''
         try: 
             sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
-                         '-n','-n', self.random_name]
+                         '-n','-n', self.random_name,'-s','memory','-l','DEBUG']
             # init the application object (__init__)
-            app = TestNode(storage='memory')
+            app = TestNode()
             # call the application object as method (__call__)
             app(sys.argv)            
         except:
@@ -130,7 +132,7 @@ class Test(unittest.TestCase):
         ''' Test all arguments (multiple times set)'''
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini,
-                    '-n',self.random_name]
+                    '-n',self.random_name,'-s','memory','-l','DEBUG']
         # init the application object (__init__)
         app = TestNode()
         # call the application object as method (__call__)
@@ -158,9 +160,9 @@ class Test(unittest.TestCase):
         '''Test of stream storage in memory '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
-                    '-n',self.random_name]
+                    '-n',self.random_name,'-s','file','-l','DEBUG']
         # init the application object (__init__)        
-        app = TestNode(storage='file')
+        app = TestNode()
         # call the application object as method (__call__)
         exit_code = app(sys.argv)
         app.out_stream.seek(0)
@@ -179,9 +181,9 @@ class Test(unittest.TestCase):
         '''Test of stream storage in files '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
-                    '-n',self.random_name]
+                    '-n',self.random_name,'-s','file','-l','DEBUG']
         # init the application object (__init__)        
-        app = TestNode(storage='file')
+        app = TestNode()
         # call the application object as method (__call__)
         exit_code = app(sys.argv)
         assert os.path.exists(app.info['out_file'])
@@ -203,8 +205,8 @@ class Test(unittest.TestCase):
         '''Test reading of a single input file '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
-                    '-n',self.random_name]                
-        app = TestNode(storage='file') 
+                    '-n',self.random_name,'-s','file','-l','DEBUG']                
+        app = TestNode() 
         exit_code = app(sys.argv)
         assert app.config == {'COMMENT': ['test message']}
 
@@ -212,8 +214,8 @@ class Test(unittest.TestCase):
         '''Test of multiple input files and merging of them'''
         sys.argv = ['test.py','-i',self.input_ini, '-i',self.input_ini2, 
                     '-o',self.output_ini,
-                    '-n',self.random_name]                
-        app = TestNode(storage='file') 
+                    '-n',self.random_name,'-s','file','-l','DEBUG']                
+        app = TestNode() 
         exit_code = app(sys.argv)
         assert app.config == {'COMMENT': ['test message', 'another test message']}                                    
 

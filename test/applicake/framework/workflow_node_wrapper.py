@@ -60,7 +60,7 @@ class Test(unittest.TestCase):
         '''Test of stream storage in memory '''
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini, '-n',self.random_name,
-                    '-p','/bin/echo']
+                    '-p','/bin/echo','-s','memory','-l','DEBUG']
         # init the application object (__init__)
         app = TestNode()
         # call the application object as method (__call__)
@@ -81,9 +81,9 @@ class Test(unittest.TestCase):
     def test__init__2(self):
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini, '-n',self.random_name,
-                    '-p','/bin/echo']
+                    '-p','/bin/echo','-s','file','-l','DEBUG']
         # init the application object (__init__)
-        app = TestNode(storage='file')
+        app = TestNode()
         # call the application object as method (__call__)
         exit_code = app(sys.argv)
         assert os.path.exists(app.info['out_file'])
