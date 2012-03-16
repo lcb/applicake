@@ -9,28 +9,30 @@ import shutil
 import string
 import sys
 import unittest
-from applicake.framework.app import WorkflowNodeWrapper
+from applicake.framework.interfaces import IWrapper
+from applicake.framework.runner import WrapperRunner
 
 
-class TestNode(WorkflowNodeWrapper):
+class Wrapper(IWrapper):
     
     out_txt = 'my stdout txt'
     err_txt = 'my stderr txt'
     log_txt = 'LOG'    
     
-    def prepare_run(self,prefix):
-        self.log.debug(self.log_txt)
+    def prepare_run(self,config,log):
+        log.debug(self.log_txt)
+        prefix = config['prefix']
         return '%s "%s";%s "%s" >&2' % (prefix,self.out_txt,
                                prefix,self.err_txt)
         
-    def validate_run(self,run_code):
+    def validate_run(self,run_code,log, out_stream, err_stream):
         if 0 != run_code:
             return run_code
         return 0
 
 class Test(unittest.TestCase):
     """
-    Test class for WorkflowNodeWrapper class
+    Test class for WrapperRunner class
     """
     
     def setUp(self):
@@ -61,49 +63,47 @@ class Test(unittest.TestCase):
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini, '-n',self.random_name,
                     '-p','/bin/echo','-s','memory','-l','DEBUG']
-        # init the application object (__init__)
-        app = TestNode()
-        # call the application object as method (__call__)
-        exit_code = app(sys.argv)             
-        app.out_stream.seek(0)
-        app.err_stream.seek(0)
-        app.log_stream.seek(0)  
-        out = app.out_stream.read()
-        err = app.err_stream.read()
-        log = app.log_stream.read()      
+
+        runner = WrapperRunner()
+        wrapper = Wrapper()
+        exit_code = runner(sys.argv,wrapper)          
+        runner.out_stream.seek(0)
+        runner.err_stream.seek(0)
+        runner.log_stream.seek(0)  
+        out = runner.out_stream.read()
+        err = runner.err_stream.read()
+        log = runner.log_stream.read()      
         # echo adds '\n' to the streams which has to be removed
-        assert  out.rstrip() == app.out_txt
-        assert  err.rstrip() == app.err_txt
+        assert  out.rstrip() == wrapper.out_txt
+        assert  err.rstrip() == wrapper.err_txt
         # log contains more that only the log_txt
-        assert app.log_txt in log        
+        assert wrapper.log_txt in log        
         assert exit_code == 0   
         
     def test__init__2(self):
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini, '-n',self.random_name,
                     '-p','/bin/echo','-s','file','-l','DEBUG']
-        # init the application object (__init__)
-        app = TestNode()
-        # call the application object as method (__call__)
-        exit_code = app(sys.argv)
-        assert os.path.exists(app.info['out_file'])
-        assert os.path.exists(app.info['err_file'])  
-        assert os.path.exists(app.info['log_file'])       
-        app.out_stream.seek(0)
-        app.err_stream.seek(0)
-        app.log_stream.seek(0)  
-        out = app.out_stream.read()
-        err = app.err_stream.read()
-        log = app.log_stream.read()      
+        runner = WrapperRunner()
+        wrapper = Wrapper()
+        exit_code = runner(sys.argv,wrapper)
+        assert os.path.exists(runner.info['out_file'])
+        assert os.path.exists(runner.info['err_file'])  
+        assert os.path.exists(runner.info['log_file'])       
+        runner.out_stream.seek(0)
+        runner.err_stream.seek(0)
+        runner.log_stream.seek(0)  
+        out = runner.out_stream.read()
+        err = runner.err_stream.read()
+        log = runner.log_stream.read()      
         # echo adds '\n' to the streams which has to be removed
-        assert  out.rstrip() == app.out_txt
-        assert  err.rstrip() == app.err_txt
+        assert  out.rstrip() == wrapper.out_txt
+        assert  err.rstrip() == wrapper.err_txt
         # log contains more that only the log_txt
-        assert app.log_txt in log      
+        assert wrapper.log_txt in log      
         assert exit_code == 0         
             
                
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

@@ -12,19 +12,20 @@ import shutil
 import string
 import sys
 import unittest
-from applicake.framework.app import WorkflowNodeApplication
+from applicake.framework.interfaces import IApplication
+from applicake.framework.runner import ApplicationRunner
 
-class TestNode(WorkflowNodeApplication):
+class Application(IApplication):
 
     out_txt = 'my stdout txt'
     err_txt = 'my stderr txt'
     log_txt = 'LOG' 
           
-    def main(self):
+    def main(self,log):
         #print self.out_txt
         sys.stdout.write(self.out_txt)
         sys.stderr.write(self.err_txt)
-        self.log.debug(self.log_txt)
+        log.debug(self.log_txt)
         return 0
 
 class Test(unittest.TestCase):
@@ -57,13 +58,12 @@ class Test(unittest.TestCase):
         ''' Test required command line arguments'''
         sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
                     '-s','memory','-l','DEBUG']
-        # init the application object (__init__)
-        app = TestNode()
-        # call the application object as method (__call__)
-        exit_code = app(sys.argv)
-        inputs = app.info['inputs']
-        outputs = app.info['output']
-        name = app.info['name']
+        runner = ApplicationRunner()
+        application = Application()
+        exit_code = runner(sys.argv,application)
+        inputs = runner.info['inputs']
+        outputs = runner.info['output']
+        name = runner.info['name']
         assert isinstance(inputs, (list))
         assert len(inputs) == 1
         assert not isinstance(outputs, (list))
@@ -75,11 +75,10 @@ class Test(unittest.TestCase):
         ''' Test optional name argument'''
         sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
                      '-n', self.random_name,'-s','memory','-l','DEBUG']
-        # init the application object (__init__)
-        app = TestNode()
-        # call the application object as method (__call__)
-        exit_code = app(sys.argv)
-        name = app.info['name']
+        runner = ApplicationRunner()
+        application = Application()
+        exit_code = runner(sys.argv,application)
+        name = runner.info['name']
         assert name == self.random_name.lower()      
         assert exit_code == 0 
         
@@ -87,11 +86,10 @@ class Test(unittest.TestCase):
         ''' Test required input arguments (not correctly defined)'''
         try: 
             sys.argv = ['test.py','-i','-i',self.input_ini, '-o',self.output_ini,
-                         '-n', self.random_name,'-s','memory','-l','DEBUG']
-            # init the application object (__init__)
-            app = TestNode()
-            # call the application object as method (__call__)
-            app(sys.argv)            
+                         '-n', self.random_name,'-s','memory','-l','DEBUG']    
+            runner = ApplicationRunner()
+            application = Application()
+            runner(sys.argv,application)          
         except:
             self.assertTrue(True, 'Test failed as expected')
             return
@@ -102,11 +100,10 @@ class Test(unittest.TestCase):
         ''' Test required output arguments (not correctly defined)'''
         try: 
             sys.argv = ['test.py','-i',self.input_ini, '-o','-o',self.output_ini,
-                         '-n', self.random_name,'-s','memory','-l','DEBUG']
-            # init the application object (__init__)
-            app = TestNode()
-            # call the application object as method (__call__)
-            app(sys.argv)            
+                         '-n', self.random_name,'-s','memory','-l','DEBUG']    
+            runner = ApplicationRunner()
+            application = Application()
+            runner(sys.argv,application)            
         except:
             self.assertTrue(True, 'Test failed as expected')
             return
@@ -117,11 +114,10 @@ class Test(unittest.TestCase):
         ''' Test optional name arguments (not correctly set)'''
         try: 
             sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
-                         '-n','-n', self.random_name,'-s','memory','-l','DEBUG']
-            # init the application object (__init__)
-            app = TestNode()
-            # call the application object as method (__call__)
-            app(sys.argv)            
+                         '-n','-n', self.random_name,'-s','memory','-l','DEBUG']     
+            runner = ApplicationRunner()
+            application = Application()    
+            runner(sys.argv,application)           
         except:
             self.assertTrue(True, 'Test failed as expected')
             return
@@ -133,27 +129,26 @@ class Test(unittest.TestCase):
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini,
                     '-n',self.random_name,'-s','memory','-l','DEBUG']
-        # init the application object (__init__)
-        app = TestNode()
-        # call the application object as method (__call__)
-        exit_code = app(sys.argv)
-        inputs = app.info['inputs']
-        outputs = app.info['output']
-        name = app.info['name']
+        runner = ApplicationRunner()
+        application = Application()
+        exit_code = runner(sys.argv,application)
+        inputs = runner.info['inputs']
+        outputs = runner.info['output']
+        name = runner.info['name']
         assert isinstance(inputs, (list))
         assert len(inputs) == 2
         assert not isinstance(outputs, (list))
         assert name == self.random_name.lower()  
-        app.out_stream.seek(0)
-        app.err_stream.seek(0)
-        app.log_stream.seek(0)  
-        out = app.out_stream.read()
-        err = app.err_stream.read()
-        log = app.log_stream.read()      
-        assert  out == app.out_txt
-        assert  err == app.err_txt
+        runner.out_stream.seek(0)
+        runner.err_stream.seek(0)
+        runner.log_stream.seek(0)  
+        out = runner.out_stream.read()
+        err = runner.err_stream.read()
+        log = runner.log_stream.read()      
+        assert  out == Application().out_txt
+        assert  err == Application().err_txt
         # log contains more that only the log_txt
-        assert app.log_txt in log        
+        assert Application().log_txt in log        
         assert exit_code == 0                             
 
     def test__init__7(self):
@@ -161,20 +156,19 @@ class Test(unittest.TestCase):
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
                     '-n',self.random_name,'-s','file','-l','DEBUG']
-        # init the application object (__init__)        
-        app = TestNode()
-        # call the application object as method (__call__)
-        exit_code = app(sys.argv)
-        app.out_stream.seek(0)
-        app.err_stream.seek(0)
-        app.log_stream.seek(0)  
-        out = app.out_stream.read()
-        err = app.err_stream.read()
-        log = app.log_stream.read()      
-        assert  out == app.out_txt
-        assert  err == app.err_txt
+        runner = ApplicationRunner()
+        application = Application()
+        exit_code = runner(sys.argv,application)
+        runner.out_stream.seek(0)
+        runner.err_stream.seek(0)
+        runner.log_stream.seek(0)  
+        out = runner.out_stream.read()
+        err = runner.err_stream.read()
+        log = runner.log_stream.read()      
+        assert  out == Application().out_txt
+        assert  err == Application().err_txt
         # log contains more that only the log_txt
-        assert app.log_txt in log       
+        assert Application().log_txt in log       
         assert exit_code == 0
 
     def test__init__8(self):
@@ -182,23 +176,22 @@ class Test(unittest.TestCase):
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
                     '-n',self.random_name,'-s','file','-l','DEBUG']
-        # init the application object (__init__)        
-        app = TestNode()
-        # call the application object as method (__call__)
-        exit_code = app(sys.argv)
-        assert os.path.exists(app.info['out_file'])
-        assert os.path.exists(app.info['err_file'])  
-        assert os.path.exists(app.info['log_file'])  
-        app.out_stream.seek(0)
-        app.err_stream.seek(0)
-        app.log_stream.seek(0)  
-        out = app.out_stream.read()
-        err = app.err_stream.read()
-        log = app.log_stream.read()      
-        assert  out == app.out_txt
-        assert  err == app.err_txt
+        runner = ApplicationRunner()
+        application = Application()
+        exit_code = runner(sys.argv,application)
+        assert os.path.exists(runner.info['out_file'])
+        assert os.path.exists(runner.info['err_file'])  
+        assert os.path.exists(runner.info['log_file'])  
+        runner.out_stream.seek(0)
+        runner.err_stream.seek(0)
+        runner.log_stream.seek(0)  
+        out = runner.out_stream.read()
+        err = runner.err_stream.read()
+        log = runner.log_stream.read()      
+        assert  out == Application().out_txt
+        assert  err == Application().err_txt
         # log contains more that only the log_txt
-        assert app.log_txt in log       
+        assert Application().log_txt in log       
         assert exit_code == 0  
         
     def test_read_inputs__1(self):
@@ -206,19 +199,20 @@ class Test(unittest.TestCase):
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
                     '-n',self.random_name,'-s','file','-l','DEBUG']                
-        app = TestNode() 
-        exit_code = app(sys.argv)
-        assert app.config == {'COMMENT': ['test message']}
+        runner = ApplicationRunner()
+        application = Application()
+        runner(sys.argv,application)
+        assert runner.config == {'COMMENT': ['test message']}
 
     def test_read_inputs__2(self):
         '''Test of multiple input files and merging of them'''
         sys.argv = ['test.py','-i',self.input_ini, '-i',self.input_ini2, 
                     '-o',self.output_ini,
                     '-n',self.random_name,'-s','file','-l','DEBUG']                
-        app = TestNode() 
-        exit_code = app(sys.argv)
-        assert app.config == {'COMMENT': ['test message', 'another test message']}                                    
+        runner = ApplicationRunner()
+        application = Application()
+        runner(sys.argv,application)
+        assert runner.config == {'COMMENT': ['test message', 'another test message']}                                    
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

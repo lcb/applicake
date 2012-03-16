@@ -7,7 +7,6 @@ Created on Nov 11, 2010
 '''
 
 import cStringIO
-import logging
 import os
 import sys
 from argparse import ArgumentParser
@@ -15,6 +14,8 @@ from subprocess import Popen
 from subprocess import PIPE
 from applicake.framework.logger import Logger
 from applicake.framework.confighandler import ConfigHandler
+from applicake.framework.interfaces import IApplication
+from applicake.framework.interfaces import IWrapper
                  
                  
 class ApplicationInformation(dict):
@@ -22,11 +23,9 @@ class ApplicationInformation(dict):
     Information about the application object.
     """                    
                  
-class Application(object):
+class Runner(object):
     """
-    Root class of the framework. 
-    Defines the initialization procedure and process logic of every application class 
-    that derives from it.      
+    Basic class to prepare and run one of the Interface classes of the framework as workflow node    
     """      
     
     def __init__(self):
@@ -49,7 +48,7 @@ class Application(object):
             raise
             sys.exit(1)
     
-    def __call__(self, args):
+    def __call__(self, args,app):
         """
         Program logic of the Application class.
         First, the command line arguments are parsed and validated. 
@@ -63,9 +62,9 @@ class Application(object):
         self.log.info('Start [%s]' % self.read_input_files.__name__)
         self.read_input_files()
         self.log.info('Finished [%s]' % self.read_input_files.__name__)                         
-        self.log.info('Start [%s]' % self.main.__name__)
-        exit_code = self.main()
-        self.log.info('Finished [%s]' % self.main.__name__)               
+        self.log.info('Start [%s]' % self.run.__name__)
+        exit_code = self.run(app)
+        self.log.info('Finished [%s]' % self.run.__name__)               
         self.log.info('Start [%s]' % self.write_output_files.__name__)
         self.write_output_files()
         self.log.info('Finished [%s]' % self.write_output_files.__name__)         
@@ -155,16 +154,17 @@ class Application(object):
         Return: Dictionary of parsed arguments        
         """
         raise NotImplementedError("get_parsed_arguments() is not implemented.") 
-    
-    def main(self):
+
+    def run(self,app):
         """
-        Contains the main logic of the application.
+        Runs one of the supported interface classes.
         
-        Return: exit code (integer)
-        """  
+        Arguments:
+        - app: Object that inherited one of the supported interfaces
         
-        raise NotImplementedError("main() has not been implemented.") 
-        return 0      
+        Return: Exit code (0 for successful check). 
+        """
+        raise NotImplementedError("run() is not implemented.") 
     
     def read_input_files(self):
         """
@@ -197,9 +197,9 @@ class Application(object):
         self.check_files(files)    
 
 
-class WorkflowNodeApplication(Application):
+class ApplicationRunner(Runner):
     """
-    The Application type is used to create workflow nodes.
+    Used to run a class that implements the Application interface
 
     Return: exit code (integer)    
     """
@@ -232,9 +232,19 @@ class WorkflowNodeApplication(Application):
         args['storage'] = args['storage'][0]
         args['log_level'] = args['log_level'][0]
         return args
+    
+    def run(self,app):
+        if isinstance(app,IApplication):
+            return app.main(self.log)
+        else:                                    
+            self.log.critical('the object [%s] is not an instance of one of the following %s'% 
+                              (app.__class__.__name__,
+                               [IApplication,__class__.__name__]))  
+            return 1
+    
 
 
-class WorkflowNodeWrapper(WorkflowNodeApplication):
+class WrapperRunner(ApplicationRunner):
     """
     The Application type is used to create workflow nodes that 
     prepare, run and validate the execution of an external application.
@@ -275,68 +285,45 @@ class WorkflowNodeWrapper(WorkflowNodeApplication):
         """
         See super class.
         """
-        super(WorkflowNodeWrapper, self).define_arguments(parser=parser)
+        super(WrapperRunner, self).define_arguments(parser=parser)
         parser.add_argument('-p','--prefix',required=True, dest="prefix",
                             help="Prefix of the command to execute")      
         parser.add_argument('-t','--template',required=False, dest="template", 
                             default=self.__class__.__name__,
                             help="Name of the workflow node")               
     
-    def main(self):
+    def run(self,app):
         """
         Prepare, run and validate the execution of an external program.
         
         Return: exit code (integer) 
         """
-        self.log.info('Start [%s]' % self.prepare_run.__name__)
-        command = self.prepare_run(prefix=self.info['prefix'])     
-        self.log.info('Finish [%s]' % self.prepare_run.__name__)
-        if command is not None:
+        if isinstance(app,IWrapper):
+            self.log.info('Start [%s]' % app.prepare_run.__name__)
+            command = app.prepare_run(self.info,self.log)     
+            self.log.info('Finish [%s]' % app.prepare_run.__name__)
+            if command is None:
+                self.log.critical('Command was [None]. Interface of [%s] is possibly not correctly implemented' %
+                                  app.__class__.__name__)
+                return 1                
             # necessary when e.g. the template file contains '\n' what will cause problems 
             # when using concatenated shell commands
             self.log.debug('remove all [\\n] from command string')
             command  = command.replace('\n','')   
             self.log.info('Command [%s]' % str(command))
-        self.log.info('Start [%s]' % self._run.__name__)
-        run_code = self._run(command)
-        self.log.info('Finish [%s]' % self._run.__name__)
-        self.log.info('run_code [%s]' % run_code)        
-        self.log.info('Start [%s]' % self.validate_run.__name__)
-        exit_code = self.validate_run(run_code=run_code)
-        self.log.debug('exit code [%s]' % exit_code)
-        self.log.info('Finish [%s]' % self.validate_run.__name__)        
-        return exit_code
-
-    def prepare_run(self,prefix):
-        """
-        Prepare the execution of an external application.
-        
-        Return: String containing the command to execute.
-        """
-        raise NotImplementedError("prepare_run() is not implemented") 
-        command = None
-        return command
-        
-    def read_input_files(self):
-        """
-        Read and verifies input files passed defines by command line argument(s) 
-        
-        Overwrites the super method by adding support for optional template files
-        """  
-        super(WorkflowNodeWrapper, self).read_input_files()
-               
-        
-    
-    def validate_run(self,run_code):
-        """
-        Validate the results of the _run() and return [0] if proper succeeded.
-        
-        Return: exit_code (integer). 
-        This is either the original return_code of external application or 
-        a developer-specific value.
-        """  
-        raise NotImplementedError("validate_run() is not implemented") 
-        exit_code = run_code
-        return exit_code
+            self.log.info('Start [%s]' % self._run.__name__)
+            run_code = self._run(command)
+            self.log.info('Finish [%s]' % self._run.__name__)
+            self.log.info('run_code [%s]' % run_code)        
+            self.log.info('Start [%s]' % app.validate_run.__name__)
+            exit_code = app.validate_run(run_code,self.log,self.out_stream,self.err_stream)
+            self.log.debug('exit code [%s]' % exit_code)
+            self.log.info('Finish [%s]' % app.validate_run.__name__)        
+            return exit_code
+        else:                                    
+            self.log.critical('the object [%s] is not an instance of one of the following %s'% 
+                              (app.__class__.__name__,
+                               [IApplication,__class__.__name__]))  
+            return 1        
     
     
