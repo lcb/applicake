@@ -11,7 +11,7 @@ from configobj import ConfigObj
 from string import Template 
 
 
-class ConfigHandler: 
+class InfoHandler: 
     
     def __init__(self,lock=False):
         self._lock = lock

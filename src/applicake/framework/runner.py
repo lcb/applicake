@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 from subprocess import Popen
 from subprocess import PIPE
 from applicake.framework.logger import Logger
-from applicake.framework.confighandler import ConfigHandler
+from applicake.framework.infohandler import InfoHandler
 from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IWrapper
                  
@@ -177,9 +177,9 @@ class Runner(object):
         inputs = self.info[key]
         self.check_files(inputs)
         for f in inputs:      
-            config = ConfigHandler().read(f)  
+            config = InfoHandler().read(f)  
             self.log.debug('file [%s], content [\n%s\n]' % (f,config))   
-            self.config = ConfigHandler().append(self.config, config)
+            self.config = InfoHandler().append(self.config, config)
             self.log.debug('config after appending: [%s]' % self.config)
             
     def reset_streams(self):
@@ -193,7 +193,7 @@ class Runner(object):
         files = [self.info['output']]
         for f in files: 
             self.log.debug('output file [%s]' % f)                  
-            ConfigHandler().write(self.config, f) 
+            InfoHandler().write(self.config, f) 
         self.check_files(files)    
 
 

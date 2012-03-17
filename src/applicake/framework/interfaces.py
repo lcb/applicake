@@ -29,7 +29,7 @@ class IWrapper(object):
         
         Arguments: 
         - config: Configuration object to access file and parameter information 
-        - log: log object to write log messages
+        - log: Logger to store log messages
         
         Return: The string that contains the command to execute. 
         """
@@ -41,9 +41,10 @@ class IWrapper(object):
         (e.g. output parsing)
         
         Arguments:
-        - log: log object to write log messages
-        - out_stream: stream object with the stdout of the executed process
-        - err_stream: stream object with the stderr of the executed process 
+        - run_code: Exit code of the process prepared with prepare_run()  
+        - log: Logger to store log messages
+        - out_stream: Stream object with the stdout of the executed process
+        - err_stream: Stream object with the stderr of the executed process 
         
         Return: Exit code (0 for successful check). 
         """
