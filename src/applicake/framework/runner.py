@@ -62,9 +62,9 @@ class Runner(object):
         self.log.info('Start [%s]' % self.read_input_files.__name__)
         self.read_input_files()
         self.log.info('Finished [%s]' % self.read_input_files.__name__)                         
-        self.log.info('Start [%s]' % self.run.__name__)
-        exit_code = self.run(app)
-        self.log.info('Finished [%s]' % self.run.__name__)               
+        self.log.info('Start [%s]' % self.run_app.__name__)
+        exit_code = self.run_app(app)
+        self.log.info('Finished [%s]' % self.run_app.__name__)               
         self.log.info('Start [%s]' % self.write_output_files.__name__)
         self.write_output_files()
         self.log.info('Finished [%s]' % self.write_output_files.__name__)         
@@ -155,7 +155,7 @@ class Runner(object):
         """
         raise NotImplementedError("get_parsed_arguments() is not implemented.") 
 
-    def run(self,app):
+    def run_app(self,app):
         """
         Runs one of the supported interface classes.
         
@@ -226,6 +226,9 @@ class ApplicationRunner(Runner):
                             help="Storage type for produced streams")        
 
     def get_parsed_arguments(self,parser):
+        """
+        See super class.
+        """        
         args = vars(parser.parse_args(sys.argv[1:]))
         args['name'] = str(args['name'][0]).lower()
         args['output'] = args['output'][0]
@@ -233,7 +236,15 @@ class ApplicationRunner(Runner):
         args['log_level'] = args['log_level'][0]
         return args
     
-    def run(self,app):
+    def run_app(self,app):
+        """
+        Run a Python program
+        
+        Arguments:
+        - app: Implementation of the IApplication interface
+        
+        Return: Exit code (integer) 
+        """        
         if isinstance(app,IApplication):
             return app.main(self.log)
         else:                                    
@@ -249,7 +260,7 @@ class WrapperRunner(ApplicationRunner):
     The Application type is used to create workflow nodes that 
     prepare, run and validate the execution of an external application.
     
-    Return: exit code (integer) 
+    Return: Exit code (integer) 
     """
     
     def _run(self,command):
@@ -292,11 +303,14 @@ class WrapperRunner(ApplicationRunner):
                             default=self.__class__.__name__,
                             help="Name of the workflow node")               
     
-    def run(self,app):
+    def run_app(self,app):
         """
         Prepare, run and validate the execution of an external program.
         
-        Return: exit code (integer) 
+        Arguments:
+        - app: Implementation of the IWrapper interface
+        
+        Return: Exit code (integer) 
         """
         if isinstance(app,IWrapper):
             self.log.info('Start [%s]' % app.prepare_run.__name__)
