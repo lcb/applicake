@@ -17,9 +17,9 @@ class InfoHandler:
         self._lock = lock
         
 #    def add_to_ini(self,dictionary):
-#        config = self.read_ini()
+#        config = self.read()
 #        config.update(dictionary)
-#        self.write_ini(config)      
+#        self.write(config)      
         
         
     def append(self,config_1,config_2):
@@ -55,10 +55,10 @@ class InfoHandler:
                
     def update(self,dictionary):
         'Updates file in windows ini format and returns the updated dictionary like object (ConfigObj)'
-        config = self.read_ini()
+        config = self.read()
         for k,v in dictionary.items():
             config[k]=v
-        self.write_ini(config)   
+        self.write(config)   
         return config 
             
     
@@ -84,7 +84,7 @@ class InfoHandler:
 #        '''
 #        output_filenames = []
 #        if config is None:
-#            config = self.read_ini()
+#            config = self.read()
 #        keys = config.keys()
 #        values = config.values()
 #        elements = Utilities().get_list_product(values)
@@ -107,7 +107,7 @@ class InfoHandler:
 #                # if no sub dir is generated, the index key can be used to generate a unique path later on
 #            if index_key is not None:
 #                dictionary[index_key]=idx
-#            self.write_ini(dictionary)
+#            self.write(dictionary)
 #            output_filenames.append(self.output_filename)  
 #            
 #        return output_filenames,fileidx
@@ -117,7 +117,7 @@ class InfoHandler:
 #        'Takes an ini file as input and generates a new ini file for each value combination'
 #        output_filenames = []
 #        if config is None:
-#            config = self.read_ini()
+#            config = self.read()
 #        keys = config.keys()
 #        values = config.values()
 #        elements = Utilities().get_list_product(values)
@@ -138,6 +138,6 @@ class InfoHandler:
 #                # if no sub dir is generated, the index key can be used to generate a unique path later on
 #            if index_key is not None:
 #                dictionary[index_key]=idx
-#            self.write_ini(dictionary)
+#            self.write(dictionary)
 #            output_filenames.append(self.output_filename)  
 #        return output_filenames 
