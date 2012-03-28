@@ -11,7 +11,13 @@ from configobj import ConfigObj
 from string import Template 
 
 
-class InfoHandler: 
+class ConfigHandler(object): 
+    
+    @staticmethod
+    def get_new_dict(self):
+        return {}
+        
+        
     
     def __init__(self,lock=False):
         self._lock = lock

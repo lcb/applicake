@@ -7,46 +7,27 @@ Created on Nov 11, 2010
 '''
 
 import cStringIO
-import os
 import sys
 from argparse import ArgumentParser
 from subprocess import Popen
 from subprocess import PIPE
 from applicake.framework.logger import Logger
-from applicake.framework.infohandler import InfoHandler
+from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IWrapper
+from applicake.framework.utils import FileUtils
+from applicake.framework.utils import DictUtils
                  
                  
 class ApplicationInformation(dict):
     """
     Information about the application object.
-    """                    
+    """     
                  
 class Runner(object):
     """
     Basic class to prepare and run one of the Interface classes of the framework as workflow node    
-    """      
-    
-    def __init__(self):
-        """
-        Basic setup of the Application class        
-        such as argument parsing and initialization of streams        
-        """
-        try:                
-            # create Application information object and add information        
-            self.info = ApplicationInformation()
-            # set name variable to concrete class name if no specific name is provided.
-            # the name variable is used to for the logger and file names if the file system is used                      
-            argparser = ArgumentParser(description='Applicake application')
-            self.define_arguments(parser=argparser) 
-            args = self.get_parsed_arguments(parser=argparser)
-            self.info.update(args)                                        
-            self._init_streams() 
-            self.config = {}
-        except Exception:
-            raise
-            sys.exit(1)
+    """    
     
     def __call__(self, args,app):
         """
@@ -56,20 +37,69 @@ class Runner(object):
         
         Return: exit code (integer)
         """      
-        self.log.debug('application class file [%s]' % args[0])
-        self.log.debug('arguments [%s]' % args[1:])
-        self.log.debug('Python class [%s]' % self.__class__.__name__) 
-        self.log.info('Start [%s]' % self.read_input_files.__name__)
-        self.read_input_files()
-        self.log.info('Finished [%s]' % self.read_input_files.__name__)                         
-        self.log.info('Start [%s]' % self.run_app.__name__)
-        exit_code = self.run_app(app)
-        self.log.info('Finished [%s]' % self.run_app.__name__)               
-        self.log.info('Start [%s]' % self.write_output_files.__name__)
-        self.write_output_files()
-        self.log.info('Finished [%s]' % self.write_output_files.__name__)         
-        self.log.info('exit_code [%s]' % exit_code)
-        return int(exit_code)   
+        try:
+            log_msg = []
+            # create Application information object and add information        
+            info = ApplicationInformation()            
+            # set name variable to concrete class name if no specific name is provided.
+            # the name variable is used to for the logger and file names if the file system is used                      
+            log_msg.append('Start [%s]' % self.get_parsed_arguments.__name__)
+            pargs = self.get_parsed_arguments()
+            log_msg.append('Finish [%s]' % self.get_parsed_arguments.__name__)
+            info.update(pargs)
+            log_msg.append('Update info object with arguments')
+            
+#            fin = pargs['inputs']          
+#            valid, msg = FileUtils.is_valid_file(self,fin)
+#            if not valid:
+#                log_msg.append(msg + '')
+#                sys.stderr.write(log_msg)
+#                sys.exit(1)
+#            else:
+#                log_msg.append('file [%s] is valid' % fin)
+#                config = ConfigHandler().read(fin)
+#            print config            
+            
+            config = {}
+            for fin in pargs['INPUTS']:          
+                valid, msg = FileUtils.is_valid_file(self,fin)
+                if not valid:
+                    log_msg.append(msg + '')
+                    sys.stderr.write(log_msg)
+                    sys.exit(1)
+                else:
+                    log_msg.append('file [%s] is valid' % fin)
+                    new_config = ConfigHandler().read(fin)
+                    log_msg.append('created dictionary from file content')
+                    config = DictUtils.append(self,config, new_config) 
+                    log_msg.append('merge content with content from previous files')
+            # merge the content of the input files with the already existing 
+            # priority is on the first dictionary
+            info = DictUtils.merge(self, info, config) 
+            # set default for name if non is given via the cmdline or the input file
+            info = DictUtils.merge(self, info, {'NAME': app.__class__.__name__})
+            self._init_streams(info['STORAGE'],info['NAME'],info['LOG_LEVEL'])        
+            log_msg.append('init streams')
+            for msg in log_msg:
+                self.log.debug(msg)
+            self.log.debug('application class file [%s]' % args[0])
+            self.log.debug('arguments [%s]' % args[1:])
+            self.log.debug('Python class [%s]' % self.__class__.__name__)                        
+            self.log.info('Start [%s]' % self.run_app.__name__)
+            exit_code = self.run_app(app,info)
+            self.log.info('Finished [%s]' % self.run_app.__name__)               
+            self.log.info('Start [%s]' % self.write_output_file.__name__)
+            self.write_output_file(info,info['OUTPUT'])
+            self.log.info('Finished [%s]' % self.write_output_file.__name__)
+            self.info = info         
+            self.log.info('exit_code [%s]' % exit_code)
+            return int(exit_code)
+        except:
+            self.reset_streams()
+            for msg in log_msg:
+                sys.stderr.write("%s\n" % msg)
+
+            raise   
     
     def __del__(self):
         """
@@ -79,7 +109,7 @@ class Runner(object):
         and log stream is printed to stderr        
         """
         self.reset_streams()   
-        if self.info['storage'] == 'memory':
+        if self.info['STORAGE'] == 'memory':
             print '=== stdout ==='
             self.out_stream.seek(0)
             for line in self.out_stream.readlines():
@@ -90,50 +120,34 @@ class Runner(object):
                 print line
             self.log_stream.seek(0)                
             for line in self.log_stream.readlines():
-                sys.stderr.write(line)                 
+                sys.stderr.write(line)   
 
-    def _init_streams(self):
+    def _init_streams(self,storage,name, log_level):
         """
         Initializes the streams for stdout/stderr/log
         """     
-        if self.info['storage'] == 'memory':
+        if storage == 'memory':
             self.out_stream = cStringIO.StringIO()            
             self.err_stream = cStringIO.StringIO() 
             self.log_stream = cStringIO.StringIO()                                       
-        elif self.info['storage'] == 'file':
-            self.info['out_file'] = ''.join([self.info['name'],".out"])
-            self.info['err_file'] = ''.join([self.info['name'],".err"]) 
-            self.info['log_file'] = ''.join([self.info['name'],".log"])
+        elif storage == 'file':
+            out_file = ''.join([name,".out"])
+            err_file = ''.join([name,".err"]) 
+            log_file = ''.join([name,".log"])
             # streams are initialized with 'w+' that files are pured first before
             # writing into them         
-            self.out_stream = open(self.info['out_file'], 'w+')            
-            self.err_stream = open(self.info['err_file'], 'w+')  
-            self.log_stream = open(self.info['log_file'],'w+')                         
+            self.out_stream = open(out_file, 'w+')            
+            self.err_stream = open(err_file, 'w+')  
+            self.log_stream = open(log_file,'w+')                         
         else:
-            self.log.critical('storage [%s] is not supported for redirecting streams' % self.info['storage'])
+            self.log.critical("storage [%s] is not supported for redirecting streams" % storage)
             sys.exit(1)
         # redirect/set streams    
         sys.stdout = self.out_stream
         sys.stderr = self.err_stream
-        self.log = Logger(level=self.info['log_level'],name=self.info['name'],stream=self.log_stream).logger                                          
+        self.log = Logger(level=log_level,name=name,stream=self.log_stream).logger                                          
+      
         
-    def check_files(self,files):
-        for fin in files:
-            fail1 = not os.path.exists(fin)
-            fail2 = not os.path.isfile(fin)
-            fail3 = not os.access(fin,os.R_OK)
-            fail4 = not (os.path.getsize(fin) > 0)
-            fails = [fail1,fail2,fail3,fail4]
-            if any(fails):
-                msg = '''file [%s] does not exist [%s], 
-                is not a file [%s], cannot be read [%s] or
-                has no file larger that > 0kb [%s]''' % (
-                                                                os.path.abspath(fin),
-                                                                fail1,fail2,fail3,fail4
-                                                                )
-                self.log.critical(msg)
-                sys.exit(1)
-            self.log.debug('file [%s] checked successfully' % fin)        
                 
     def define_arguments(self, parser):        
         """
@@ -144,18 +158,15 @@ class Runner(object):
         """        
         raise NotImplementedError("define_arguments() is not implemented.")   
     
-    def get_parsed_arguments(self,parser):
+    def get_parsed_arguments(self):
         """
         Parse command line arguments of the application.
-        
-        Arguments:
-        - parser: Object of type ArgumentParser
         
         Return: Dictionary of parsed arguments        
         """
         raise NotImplementedError("get_parsed_arguments() is not implemented.") 
 
-    def run_app(self,app):
+    def run_app(self,app,info):
         """
         Runs one of the supported interface classes.
         
@@ -165,22 +176,6 @@ class Runner(object):
         Return: Exit code (0 for successful check). 
         """
         raise NotImplementedError("run() is not implemented.") 
-    
-    def read_input_files(self):
-        """
-        Read and verifies input files passed defines by command line argument(s) 
-        """    
-        key = 'inputs'
-        if not self.info.has_key(key):
-            self.log.critical('could not find key [%s] in application info [%s]' % (key,self.info) )
-            sys.exit(1)
-        inputs = self.info[key]
-        self.check_files(inputs)
-        for f in inputs:      
-            config = InfoHandler().read(f)  
-            self.log.debug('file [%s], content [\n%s\n]' % (f,config))   
-            self.config = InfoHandler().append(self.config, config)
-            self.log.debug('config after appending: [%s]' % self.config)
             
     def reset_streams(self):
         """
@@ -189,12 +184,14 @@ class Runner(object):
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__                                                             
     
-    def write_output_files(self): 
-        files = [self.info['output']]
-        for f in files: 
-            self.log.debug('output file [%s]' % f)                  
-            InfoHandler().write(self.config, f) 
-        self.check_files(files)    
+    def write_output_file(self,info,filename): 
+        self.log.debug('output file [%s]' % filename)                  
+        ConfigHandler().write(info, filename) 
+        valid,msg = FileUtils.is_valid_file(self, filename)
+        if not valid:
+            self.log.fatal(msg)
+            sys.exit(1)
+            
 
 
 class ApplicationRunner(Runner):
@@ -209,34 +206,37 @@ class ApplicationRunner(Runner):
         See super class.
         """
         # argument input file: is requred and returns a list if defined multiple times
-        parser.add_argument('-i','--input',required=True,dest="inputs", 
+        parser.add_argument('-i','--input',required=True,dest="INPUTS", 
                             action='append',help="Input (configuration) file(s)")
         # argument output file: is requred and returns a list if defined multiple times
-        parser.add_argument('-o','--output',required=True, nargs=1, dest="output",
+        parser.add_argument('-o','--output',required=False, dest="OUTPUT",
                             action='store',help="Output (configuration) file")
-        parser.add_argument('-n','--name',required=False, nargs=1, dest="name", 
-                            default=self.__class__.__name__,
+        parser.add_argument('-n','--name',required=False, dest="NAME", 
+#                            default=self.__class__.__name__,
                             help="Name of the workflow node")
-        parser.add_argument('-s','--storage',required=False, nargs=1, dest="storage", 
-                            default=None,choices=['memory','file'],
+        parser.add_argument('-s','--storage',required=False, dest="STORAGE", 
+#                            default=None,
+                            choices=['memory','file'],
                             help="Storage type for produced streams")  
-        parser.add_argument('-l','--loglevel',required=False, nargs=1, dest="log_level", 
-                            default=None,choices=['DEBUG','INFO','WARNING',
+        parser.add_argument('-l','--loglevel',required=False, dest="LOG_LEVEL", 
+#                            default=None,
+                            choices=['DEBUG','INFO','WARNING',
                                                   'ERROR','CRITICAL'],
                             help="Storage type for produced streams")        
 
-    def get_parsed_arguments(self,parser):
+    def get_parsed_arguments(self):
         """
         See super class.
         """        
+        parser = ArgumentParser(description='Applicake application')
+        self.define_arguments(parser=parser) 
         args = vars(parser.parse_args(sys.argv[1:]))
-        args['name'] = str(args['name'][0]).lower()
-        args['output'] = args['output'][0]
-        args['storage'] = args['storage'][0]
-        args['log_level'] = args['log_level'][0]
+        # if optional args are not set, a key = None is created
+        # these have to be removed
+        args =DictUtils.remove_none_entries(args)
         return args
     
-    def run_app(self,app):
+    def run_app(self,app,info):
         """
         Run a Python program
         
@@ -246,7 +246,7 @@ class ApplicationRunner(Runner):
         Return: Exit code (integer) 
         """        
         if isinstance(app,IApplication):
-            return app.main(self.log)
+            return app.main(info,self.log)
         else:                                    
             self.log.critical('the object [%s] is not an instance of one of the following %s'% 
                               (app.__class__.__name__,
@@ -263,7 +263,7 @@ class WrapperRunner(ApplicationRunner):
     Return: Exit code (integer) 
     """
     
-    def _run(self,command):
+    def _run(self,command,storage):
         """
         Execute a command and collects it's output in self.out_stream and self.err_stream 
         The stdout and stderr are written to files if file system should be used.
@@ -275,12 +275,12 @@ class WrapperRunner(ApplicationRunner):
         """
         # when the command does not exist, process just dies.therefore a try/catch is needed          
         try:     
-            if self.info['storage'] == 'memory':
+            if storage == 'memory':
                 p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
                 output, error = p.communicate()                                                                                                                                                                            
                 self.out_stream = cStringIO.StringIO(output)
                 self.err_stream = cStringIO.StringIO(error)  
-            elif self.info['storage'] == 'file':
+            elif storage == 'file':
                 p = Popen(command, shell=True,stdout=sys.stdout, stderr=sys.stderr)
                 p.wait()
             else:
@@ -297,13 +297,12 @@ class WrapperRunner(ApplicationRunner):
         See super class.
         """
         super(WrapperRunner, self).define_arguments(parser=parser)
-        parser.add_argument('-p','--prefix',required=True, dest="prefix",
+        parser.add_argument('-p','--prefix',required=False, dest="prefix",
                             help="Prefix of the command to execute")      
         parser.add_argument('-t','--template',required=False, dest="template", 
-                            default=self.__class__.__name__,
                             help="Name of the workflow node")               
     
-    def run_app(self,app):
+    def run_app(self,app,info):
         """
         Prepare, run and validate the execution of an external program.
         
@@ -314,7 +313,7 @@ class WrapperRunner(ApplicationRunner):
         """
         if isinstance(app,IWrapper):
             self.log.info('Start [%s]' % app.prepare_run.__name__)
-            command = app.prepare_run(self.info,self.log)     
+            command = app.prepare_run(info,self.log)     
             self.log.info('Finish [%s]' % app.prepare_run.__name__)
             if command is None:
                 self.log.critical('Command was [None]. Interface of [%s] is possibly not correctly implemented' %
@@ -326,7 +325,7 @@ class WrapperRunner(ApplicationRunner):
             command  = command.replace('\n','')   
             self.log.info('Command [%s]' % str(command))
             self.log.info('Start [%s]' % self._run.__name__)
-            run_code = self._run(command)
+            run_code = self._run(command,info['STORAGE'])
             self.log.info('Finish [%s]' % self._run.__name__)
             self.log.info('run_code [%s]' % run_code)        
             self.log.info('Start [%s]' % app.validate_run.__name__)

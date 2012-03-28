@@ -9,10 +9,14 @@ class IApplication(object):
     """
     Interface for application that executes python code 
     """
-    def main(self,log):
+    def main(self,config,log):
         """
         Entry point used to execute the pyton code
         from the implemented interface
+        
+        Arguments:
+        - config: Configuration object to access file and parameter information 
+        - log: Logger to store log messages        
         
         Return: Exit code (0 for successful check).         
         """

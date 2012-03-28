@@ -21,8 +21,8 @@ class Application(IApplication):
     err_txt = 'my stderr txt'
     log_txt = 'LOG' 
           
-    def main(self,log):
-        #print self.out_txt
+    def main(self,config,log):
+
         sys.stdout.write(self.out_txt)
         sys.stderr.write(self.err_txt)
         log.debug(self.log_txt)
@@ -41,11 +41,17 @@ class Test(unittest.TestCase):
         os.chdir(self.tmp_dir)
         self.input_ini = '%s/input.ini' % self.tmp_dir
         f = open(self.input_ini, 'w+')
-        f.write('COMMENT=test message')
+        f.write("""COMMENT=test message
+        STORAGE = memory
+        LOG_LEVEL = DEBUG
+        OUTPUT = output.ini""")
         f.close()
         self.input_ini2 = '%s/second_input.ini' % self.tmp_dir
         f = open(self.input_ini2, 'w+')
-        f.write('COMMENT=another test message')
+        f.write("""COMMENT=another test message
+        STORAGE = memory
+        LOG_LEVEL = DEBUG
+        OUTPUT = output.ini""")
         f.close()        
         self.output_ini = '%s/output.ini' % self.tmp_dir 
 
@@ -53,32 +59,37 @@ class Test(unittest.TestCase):
         shutil.rmtree(self.tmp_dir)
         os.chdir(self.cwd)
         
-
     def test__init__1(self):
         ''' Test required command line arguments'''
-        sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
-                    '-s','memory','-l','DEBUG']
+#        sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
+#                    '-s','memory','-l','DEBUG']        
+        sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini]
         runner = ApplicationRunner()
         application = Application()
         exit_code = runner(sys.argv,application)
-        inputs = runner.info['inputs']
-        outputs = runner.info['output']
-        name = runner.info['name']
+        inputs = runner.info['INPUTS']
         assert isinstance(inputs, (list))
         assert len(inputs) == 1
-        assert not isinstance(outputs, (list))
-        assert len(name)>0       
+        assert inputs is not None
+        outputs = runner.info['OUTPUT']
+        assert outputs is not None
+        name = runner.info['NAME']
+        assert name is not None
+        assert len(name)>0        
+          
+
+        assert not isinstance(outputs, (list))     
         assert exit_code == 0 
 
 
     def test__init__2(self):
         ''' Test optional name argument'''
-        sys.argv = ['test.py','-i',self.input_ini, '-o',self.output_ini,
+        sys.argv = ['test.py','-i',self.input_ini, #'-o',self.output_ini,
                      '-n', self.random_name,'-s','memory','-l','DEBUG']
         runner = ApplicationRunner()
         application = Application()
         exit_code = runner(sys.argv,application)
-        name = runner.info['name']
+        name = runner.info['NAME']
         assert name == self.random_name.lower()      
         assert exit_code == 0 
         
@@ -134,7 +145,7 @@ class Test(unittest.TestCase):
         exit_code = runner(sys.argv,application)
         inputs = runner.info['inputs']
         outputs = runner.info['output']
-        name = runner.info['name']
+        name = runner.info['NAME']
         assert isinstance(inputs, (list))
         assert len(inputs) == 2
         assert not isinstance(outputs, (list))
@@ -179,9 +190,9 @@ class Test(unittest.TestCase):
         runner = ApplicationRunner()
         application = Application()
         exit_code = runner(sys.argv,application)
-        assert os.path.exists(runner.info['out_file'])
-        assert os.path.exists(runner.info['err_file'])  
-        assert os.path.exists(runner.info['log_file'])  
+#        assert os.path.exists(runner.info['out_file'])
+#        assert os.path.exists(runner.info['err_file'])  
+#        assert os.path.exists(runner.info['log_file'])  
         runner.out_stream.seek(0)
         runner.err_stream.seek(0)
         runner.log_stream.seek(0)  
@@ -202,7 +213,8 @@ class Test(unittest.TestCase):
         runner = ApplicationRunner()
         application = Application()
         runner(sys.argv,application)
-        assert runner.config == {'COMMENT': ['test message']}
+        info = runner.info
+        assert info['COMMENT'] == ['test message']
 
     def test_read_inputs__2(self):
         '''Test of multiple input files and merging of them'''
@@ -212,7 +224,9 @@ class Test(unittest.TestCase):
         runner = ApplicationRunner()
         application = Application()
         runner(sys.argv,application)
-        assert runner.config == {'COMMENT': ['test message', 'another test message']}                                    
+        runner.reset_streams()
+        print runner.info
+        assert runner.info['COMMENT'] == ['test message', 'another test message']                                    
 
 if __name__ == "__main__":
     unittest.main()

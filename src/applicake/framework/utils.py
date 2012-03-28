@@ -11,7 +11,7 @@ from string import Template
  
 class Workflow():
     
-    def get_jobid(self,dirname):
+    def get_jobidx(self,dirname):
         'Return a unique job id'
         jobid = 1
         filename = os.path.join(dirname, 'jobid.txt')
@@ -60,6 +60,85 @@ class FileLocker():
             fcntl.flock(file.fileno( ), fcntl.LOCK_UN)
     else:
         raise RuntimeError("PortaLocker only defined for nt and posix platforms")
+    
+class FileUtils(object):
+    
+    @staticmethod
+    def is_valid_file(self,fin):
+        valid = False
+        msg = ''
+        fail1 = not os.path.exists(fin)
+        fail2 = not os.path.isfile(fin)
+        fail3 = not os.access(fin,os.R_OK)
+        fail4 = not (os.path.getsize(fin) > 0)
+        fails = [fail1,fail2,fail3,fail4]
+        if any(fails):
+            msg = '''file [%s] does not exist [%s], 
+            is not a file [%s], cannot be read [%s] or
+            has no file larger that > 0kb [%s]''' % (
+                                                            os.path.abspath(fin),
+                                                            fail1,fail2,fail3,fail4
+                                                            )
+        else:
+            msg = 'file [%s] checked successfully' % fin  
+            valid = True
+        return (valid,msg)  
+    
+class DictUtils(object):
+    
+    @staticmethod  
+    def merge(self, dict_1, dict_2, priority='left'):
+        
+        if priority == 'left':
+            """
+            First dictionary overwrites existing keys in second dictionary
+            """       
+            return dict(dict_2,**dict_1)
+        elif priority == 'right':
+            """
+            Second dictionary overwrites existing keys in first dictionary
+            """       
+            return dict(dict_1,**dict_2)  
+    
+    @staticmethod    
+    def append(self, dict_1, dict_2):   
+        """
+        Append 
+        
+        Value lists are generated for keys that are shared between the config files. 
+        If a key value pair does not exist in the original config file, it is added.
+        
+        Input: Configuration object (dictionary) that should be merged with the existing one.  
+        """
+        for k,v in dict_2.iteritems():
+            if k in dict_1.keys():
+                if isinstance(dict_1[k],list):
+                    dict_1[k].append(v)
+                else:
+                    dict_1[k]=[dict_1[k],v]
+            else:
+                dict_1[k]=v
+        return dict_1 
+    
+    @staticmethod
+    def remove_none_entries(dictionary):
+        """
+        Removes key/value pairs where the value is None
+        
+        Input:
+        - dictionary 
+        
+        Return:
+        - Copy of the input dictionary where the None key/values are removed
+        """
+        copied_dict  = dictionary.copy()
+        keys = []
+        for k,v in copied_dict.iteritems():
+            if v is None:
+                keys.append(k)
+        for k in keys:
+            copied_dict.pop(k)
+        return copied_dict
                     
                 
 class Utilities():  
