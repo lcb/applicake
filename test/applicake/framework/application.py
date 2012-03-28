@@ -90,7 +90,9 @@ class Test(unittest.TestCase):
         application = Application()
         exit_code = runner(sys.argv,application)
         name = runner.info['NAME']
-        assert name == self.random_name.lower()      
+        print name
+        print self.random_name.lower()
+        assert name == self.random_name      
         assert exit_code == 0 
         
     def test__init__3(self):
@@ -143,13 +145,13 @@ class Test(unittest.TestCase):
         runner = ApplicationRunner()
         application = Application()
         exit_code = runner(sys.argv,application)
-        inputs = runner.info['inputs']
-        outputs = runner.info['output']
+        inputs = runner.info['INPUTS']
+        outputs = runner.info['OUTPUT']
         name = runner.info['NAME']
         assert isinstance(inputs, (list))
         assert len(inputs) == 2
         assert not isinstance(outputs, (list))
-        assert name == self.random_name.lower()  
+        assert name == self.random_name  
         runner.out_stream.seek(0)
         runner.err_stream.seek(0)
         runner.log_stream.seek(0)  
@@ -214,7 +216,7 @@ class Test(unittest.TestCase):
         application = Application()
         runner(sys.argv,application)
         info = runner.info
-        assert info['COMMENT'] == ['test message']
+        assert info['COMMENT'] == 'test message'
 
     def test_read_inputs__2(self):
         '''Test of multiple input files and merging of them'''
