@@ -47,19 +47,7 @@ class Runner(object):
             pargs = self.get_parsed_arguments()
             log_msg.append('Finish [%s]' % self.get_parsed_arguments.__name__)
             info.update(pargs)
-            log_msg.append('Update info object with arguments')
-            
-#            fin = pargs['inputs']          
-#            valid, msg = FileUtils.is_valid_file(self,fin)
-#            if not valid:
-#                log_msg.append(msg + '')
-#                sys.stderr.write(log_msg)
-#                sys.exit(1)
-#            else:
-#                log_msg.append('file [%s] is valid' % fin)
-#                config = ConfigHandler().read(fin)
-#            print config            
-            
+            log_msg.append('Update info object with arguments')                       
             config = {}
             for fin in pargs['INPUTS']:          
                 valid, msg = FileUtils.is_valid_file(self,fin)
