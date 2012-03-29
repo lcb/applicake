@@ -6,7 +6,7 @@ Created on Mar 28, 2012
 
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.os.echo import Echo
+from applicake.applications.os.echo import Echo
 
 
 runner = WrapperRunner()
