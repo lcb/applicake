@@ -7,6 +7,7 @@ Created on Nov 11, 2010
 '''
 
 import cStringIO
+import os
 import sys
 from argparse import ArgumentParser
 from subprocess import Popen
@@ -72,7 +73,10 @@ class Runner(object):
                 self.log.debug(msg)
             self.log.debug('application class file [%s]' % args[0])
             self.log.debug('arguments [%s]' % args[1:])
-            self.log.debug('Python class [%s]' % self.__class__.__name__)                        
+            self.log.debug('Python class [%s]' % self.__class__.__name__)  
+#            self.log.info('Start [%s]' % self._set_wd.__name__)
+#            self._set_wd(app,info)
+#            self.log.info('Finished [%s]' % self._set_wd.__name__)                                  
             self.log.info('Start [%s]' % self.run_app.__name__)
             exit_code = self.run_app(app,info)
             self.log.info('Finished [%s]' % self.run_app.__name__)               
@@ -135,6 +139,15 @@ class Runner(object):
         sys.stderr = self.err_stream
         self.log = Logger(level=log_level,name=name,stream=self.log_stream).logger                                          
       
+    def _set_wd(self,info,log):
+        path = ''.join([info['BASEDIR'],os.path.sep,
+                        info['JOB_IDX'],os.path.sep,
+                        info['PARAM_IDX'],os.path.sep,
+                        info['FILE_IDX'],os.path.sep,
+                        info['NAME']
+                        ])
+        FileUtils.makedirs_safe(path, log)
+        info['WORKDIR'] = path
         
                 
     def define_arguments(self, parser):        
@@ -317,7 +330,7 @@ class WrapperRunner(ApplicationRunner):
             self.log.info('Finish [%s]' % self._run.__name__)
             self.log.info('run_code [%s]' % run_code)        
             self.log.info('Start [%s]' % app.validate_run.__name__)
-            exit_code = app.validate_run(run_code,self.log,self.out_stream,self.err_stream)
+            exit_code = app.validate_run(info,self.log,run_code,self.out_stream,self.err_stream)
             self.log.debug('exit code [%s]' % exit_code)
             self.log.info('Finish [%s]' % app.validate_run.__name__)        
             return exit_code

@@ -11,14 +11,14 @@ class Echo(IWrapper):
     Performs echo of an comment that is defined in the input file
     via the key 'COMMENT'
     """
-    def prepare_run(self,config,log):
+    def prepare_run(self,info,log):
         """
         See interface
         """
-        comment = config['COMMENT']
+        comment = info['COMMENT']
         return 'echo "%s"' % comment
     
-    def validate_run(self,run_code,log, out_stream, err_stream):
+    def validate_run(self,info,log,run_code, out_stream, err_stream):
         """
         See interface
         """

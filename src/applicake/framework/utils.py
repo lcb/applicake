@@ -4,9 +4,14 @@ Created on Dec 14, 2010
 @author: quandtan
 '''
 
-import logging,itertools,os,fcntl,time,random,xml.parsers.expat,sys
+import errno
+import fcntl
+import itertools
+import os
+import sys
+import xml.parsers.expat
 #import win32con, win32file, pywintypes,fcntl
-from configobj import ConfigObj #easy_install configobj
+#from configobj import ConfigObj #easy_install configobj
 from string import Template 
  
 class Workflow():
@@ -83,6 +88,26 @@ class FileUtils(object):
             msg = 'file [%s] checked successfully' % fin  
             valid = True
         return (valid,msg)  
+    
+    @staticmethod
+    def makedirs_safe(self,path,log):
+        """
+        Recursively create directories in 'path' unless they already exist.
+            
+        Safe to use in a concurrent fashion.
+        """
+        try:
+            os.makedirs(path)
+            log.debug('dir [%s] was created' % path)
+        except OSError as error:
+            if error.errno == errno.EEXIST and os.path.isdir(path):
+                log.debug('dir [%s] already exists' % path)
+                pass # directories already exist
+            else:
+                log.critical('could not create dir [%s]' % path)
+                raise
+                sys.exit(1)
+                    
     
 class DictUtils(object):
     

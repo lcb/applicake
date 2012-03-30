@@ -25,7 +25,7 @@ class Wrapper(IWrapper):
         return '%s "%s";%s "%s" >&2' % (prefix,self.out_txt,
                                prefix,self.err_txt)
         
-    def validate_run(self,run_code,log, out_stream, err_stream):
+    def validate_run(self,info,log,run_code, out_stream, err_stream):
         if 0 != run_code:
             return run_code
         return 0
