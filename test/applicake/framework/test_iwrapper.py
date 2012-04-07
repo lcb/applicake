@@ -46,11 +46,19 @@ class Test(unittest.TestCase):
         self.input_ini = '%s/input.ini' % self.tmp_dir
         self.input_ini = '%s/input.ini' % self.tmp_dir
         f = open(self.input_ini, 'w+')
-        f.write('COMMENT=test message')
+        f.write("""COMMENT=test message
+        STORAGE = memory
+        LOG_LEVEL = DEBUG
+        OUTPUT = output.ini
+        BASEDIR = /tmp""")
         f.close()
         self.input_ini2 = '%s/second_input.ini' % self.tmp_dir
         f = open(self.input_ini2, 'w+')
-        f.write('COMMENT=another test message')
+        f.write("""COMMENT=another test message
+        STORAGE = memory
+        LOG_LEVEL = DEBUG
+        OUTPUT = output.ini
+        BASEDIR = /tmp""")
         f.close()        
         self.output_ini = '%s/output.ini' % self.tmp_dir 
 

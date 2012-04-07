@@ -26,26 +26,7 @@ class ConfigHandler(object):
 #        config = self.read()
 #        config.update(dictionary)
 #        self.write(config)      
-        
-        
-    def append(self,config_1,config_2):
-        """
-        Append 
-        
-        Value lists are generated for keys that are shared between the config files. 
-        If a key value pair does not exist in the original config file, it is added.
-        
-        Input: Configuration object (dictionary) that should be merged with the existing one.  
-        """
-        for k,v in config_2.iteritems():
-            if k in config_1.keys():
-                if isinstance(config_1[k],list):
-                    config_1[k].append(v)
-                else:
-                    config_1[k]=[config_1[k],v]
-            else:
-                config_1[k]=[v]
-        return config_1                 
+                        
         
     def read(self,filename): 
         'Read file in windows ini format and returns a dictionary like object (ConfigObj)'

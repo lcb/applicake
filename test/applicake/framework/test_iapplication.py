@@ -44,14 +44,16 @@ class Test(unittest.TestCase):
         f.write("""COMMENT=test message
         STORAGE = memory
         LOG_LEVEL = DEBUG
-        OUTPUT = output.ini""")
+        OUTPUT = output.ini
+        BASEDIR = /tmp""")
         f.close()
         self.input_ini2 = '%s/second_input.ini' % self.tmp_dir
         f = open(self.input_ini2, 'w+')
         f.write("""COMMENT=another test message
         STORAGE = memory
         LOG_LEVEL = DEBUG
-        OUTPUT = output.ini""")
+        OUTPUT = output.ini
+        BASEDIR = /tmp""")
         f.close()        
         self.output_ini = '%s/output.ini' % self.tmp_dir 
 
@@ -69,6 +71,7 @@ class Test(unittest.TestCase):
         exit_code = runner(sys.argv,application)
         inputs = runner.info['INPUTS']
         assert isinstance(inputs, (list))
+        print 'inputs:[%s]' %inputs
         assert len(inputs) == 1
         assert inputs is not None
         outputs = runner.info['OUTPUT']
@@ -157,7 +160,7 @@ class Test(unittest.TestCase):
         runner.log_stream.seek(0)  
         out = runner.out_stream.read()
         err = runner.err_stream.read()
-        log = runner.log_stream.read()      
+        log = runner.log_stream.read()   
         assert  out == Application().out_txt
         assert  err == Application().err_txt
         # log contains more that only the log_txt
@@ -226,8 +229,6 @@ class Test(unittest.TestCase):
         runner = ApplicationRunner()
         application = Application()
         runner(sys.argv,application)
-        runner.reset_streams()
-        print runner.info
         assert runner.info['COMMENT'] == ['test message', 'another test message']                                    
 
 if __name__ == "__main__":

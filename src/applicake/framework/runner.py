@@ -6,19 +6,19 @@ Created on Nov 11, 2010
 @author: quandtan
 '''
 
-import cStringIO
 import os
+import shutil
 import sys
 from argparse import ArgumentParser
+from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
 from applicake.framework.logger import Logger
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IWrapper
-from applicake.framework.utils import FileUtils
-from applicake.framework.utils import DictUtils
-                 
+from applicake.utils.fileutils import FileUtils
+from applicake.utils.dictutils import DictUtils                
                  
 class ApplicationInformation(dict):
     """
@@ -48,7 +48,10 @@ class Runner(object):
             pargs = self.get_parsed_arguments()
             log_msg.append('Finish [%s]' % self.get_parsed_arguments.__name__)
             info.update(pargs)
-            log_msg.append('Update info object with arguments')                       
+            log_msg.append('Update application information with settings from command line') 
+            created_files = {'CREATED_FILES':None}
+            info.update(created_files)
+            log_msg.append("Add/reset key [CREATED_FILES] to application information")                                   
             config = {}
             for fin in pargs['INPUTS']:          
                 valid, msg = FileUtils.is_valid_file(self,fin)
@@ -60,48 +63,88 @@ class Runner(object):
                     log_msg.append('file [%s] is valid' % fin)
                     new_config = ConfigHandler().read(fin)
                     log_msg.append('created dictionary from file content')
-                    config = DictUtils.append(self,config, new_config) 
+                    config = DictUtils.merge(self,config, new_config,priority='flatten_sequence') 
                     log_msg.append('merge content with content from previous files')
             # merge the content of the input files with the already existing 
             # priority is on the first dictionary
-            info = DictUtils.merge(self, info, config) 
+            info = DictUtils.merge(self, info, config,priority='left') 
             # set default for name if non is given via the cmdline or the input file
             info = DictUtils.merge(self, info, {'NAME': app.__class__.__name__})
-            self._init_streams(info['STORAGE'],info['NAME'],info['LOG_LEVEL'])        
+            (success,msg,
+             self.out_stream,
+             self.err_stream,
+             self.log_stream) = self._get_streams(info)
+            if not success:
+                log_msg.append(msg)
+                sys.exit(1)
+            else:
+                log_msg.append(msg)
+                # redirect default stdout/stderr to stream objects    
+                sys.stdout = self.out_stream
+                sys.stderr = self.err_stream
+                # create logger
+                self.log = Logger(level=info['LOG_LEVEL'],
+                                  name=info['NAME'],stream=self.log_stream).logger  
+        
+        
+#            self._init_streams(info['STORAGE'],info['NAME'],info['LOG_LEVEL'])        
             log_msg.append('init streams')
             for msg in log_msg:
                 self.log.debug(msg)
             self.log.debug('application class file [%s]' % args[0])
             self.log.debug('arguments [%s]' % args[1:])
             self.log.debug('Python class [%s]' % self.__class__.__name__)  
-#            self.log.info('Start [%s]' % self._set_wd.__name__)
-#            self._set_wd(app,info)
-#            self.log.info('Finished [%s]' % self._set_wd.__name__)                                  
+            self.log.info('Start [%s]' % self._set_wd.__name__)
+            self._set_wd(info,self.log)
+            self.log.info('Finished [%s]' % self._set_wd.__name__)                                  
             self.log.info('Start [%s]' % self.run_app.__name__)
             exit_code = self.run_app(app,info)
             self.log.info('Finished [%s]' % self.run_app.__name__)               
             self.log.info('Start [%s]' % self.write_output_file.__name__)
             self.write_output_file(info,info['OUTPUT'])
             self.log.info('Finished [%s]' % self.write_output_file.__name__)
-            self.info = info         
+            self.log.info('Start [%s]' % self._cleanup.__name__)
+            self._cleanup(info,self.log)
+            self.log.info('Finished [%s]' % self._cleanup.__name__)            
+            self.info = info       
             self.log.info('exit_code [%s]' % exit_code)
             return int(exit_code)
         except:
-            self.reset_streams()
+            self._reset_standard_streams()
             for msg in log_msg:
                 sys.stderr.write("%s\n" % msg)
 
             raise   
     
-    def __del__(self):
+    def _cleanup(self,info,log):
         """
-        Reset streams to their original
+        Does the final clean-up
         
-        If storage='memory' is used, out and err stream are printed to stdout
-        and log stream is printed to stderr        
-        """
-        self.reset_streams()   
-        if self.info['STORAGE'] == 'memory':
+        - copies input files and output file to working dir
+        - moves created files to working dir
+        - If storage='memory' is used, out and err stream are printed to stdout
+        and log stream is printed to stderr
+        
+        Arguments:
+        - info: Configuration object to access file and parameter information 
+        - log: Logger to store log messages               
+        """ 
+        wd = info['WORKDIR']
+        log.debug('start copying/moving files to work dir')
+        # copy input files to working directory
+        
+        files_to_copy = DictUtils.get_flatten_sequence([info['INPUTS'],info["OUTPUT"]])  
+        for path in files_to_copy:
+            # 'r' escapes special characters
+            src = r'%s' % os.path.abspath(path) 
+            try:
+                shutil.copy(src,wd) 
+                log.debug('Copied [%s] to [%s]' % (src,wd))
+            except:
+                log.critical('Counld not copy [%s] to [%s]' % (src,wd))
+                sys.exit(1)             
+        self._reset_standard_streams()  
+        if info['STORAGE'] == 'memory':
             print '=== stdout ==='
             self.out_stream.seek(0)
             for line in self.out_stream.readlines():
@@ -112,44 +155,88 @@ class Runner(object):
                 print line
             self.log_stream.seek(0)                
             for line in self.log_stream.readlines():
-                sys.stderr.write(line)   
-
-    def _init_streams(self,storage,name, log_level):
+                sys.stderr.write(line)                    
+        # move created files to working directory
+        # 'created_files might be none e.g. if memory-storage is used   
+        if info['CREATED_FILES'] is not None:  
+            for path in info['CREATED_FILES']:
+                src = r'%s' % os.path.abspath(path) 
+                dest = r'%s' % os.path.join(wd,os.path.basename(path))
+                try:
+                    shutil.move(src,wd)
+                    print('Move [%s] to [%s]' % (src,dest))
+                except:
+                    sys.stderr.write('Could not move [%s] to [%s]' % (src,dest))
+                    sys.exit(1) 
+                            
+                
+    def _get_streams(self,info):
         """
         Initializes the streams for stdout/stderr/log
-        """     
-        if storage == 'memory':
-            self.out_stream = cStringIO.StringIO()            
-            self.err_stream = cStringIO.StringIO() 
-            self.log_stream = cStringIO.StringIO()                                       
-        elif storage == 'file':
-            out_file = ''.join([name,".out"])
-            err_file = ''.join([name,".err"]) 
-            log_file = ''.join([name,".log"])
+        
+        Arguments:
+        - storage: defines where to store the streams
+        -- memory: in-memory
+        -- file: file-based
+        - name: name used for file-based storage
+        
+        Return: Tuple of boolean, message that explains boolean,
+        out_stream, err_stream, log_stream        
+        """   
+        success = True
+        msg = ''  
+        if info['STORAGE'] == 'memory':
+            out_stream = StringIO()            
+            err_stream = StringIO() 
+            log_stream = StringIO() 
+            msg = 'Created in-memory streams'                                      
+        elif info['STORAGE'] == 'file':
+            out_file = ''.join([info['NAME'],".out"])
+            err_file = ''.join([info['NAME'],".err"]) 
+            log_file = ''.join([info['NAME'],".log"])
+            # add files to info object to copy them later to the work directory            
+            info['CREATED_FILES'] = [out_file,err_file,log_file]
             # streams are initialized with 'w+' that files are pured first before
             # writing into them         
-            self.out_stream = open(out_file, 'w+')            
-            self.err_stream = open(err_file, 'w+')  
-            self.log_stream = open(log_file,'w+')                         
+            out_stream = open(out_file, 'w+')            
+            err_stream = open(err_file, 'w+')  
+            log_stream = open(log_file,'w+')
+            
+            msg = 'Created file-based streams'                                 
         else:
-            self.log.critical("storage [%s] is not supported for redirecting streams" % storage)
-            sys.exit(1)
-        # redirect/set streams    
-        sys.stdout = self.out_stream
-        sys.stderr = self.err_stream
-        self.log = Logger(level=log_level,name=name,stream=self.log_stream).logger                                          
-      
+            success = False
+            msg = 'No streams created because type [%s] is not supported' % info['STORAGE']
+        return (success,msg,out_stream,err_stream,log_stream)  
+    
+    def _reset_standard_streams(self):
+        """
+        Reset the stdout/stderr to their default
+        """
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__           
+         
     def _set_wd(self,info,log):
-        path = ''.join([info['BASEDIR'],os.path.sep,
-                        info['JOB_IDX'],os.path.sep,
-                        info['PARAM_IDX'],os.path.sep,
-                        info['FILE_IDX'],os.path.sep,
-                        info['NAME']
-                        ])
-        FileUtils.makedirs_safe(path, log)
-        info['WORKDIR'] = path
-        
-                
+        keys = ['BASEDIR','JOB_IDX','PARAM_IDX','FILE_IDX','NAME']
+        if not info.has_key(keys[0]):
+            log.critical('info object does not contain key [%s]' % keys[0])
+            log.critical('content of info [%s]' % info)
+            sys.exit(1)
+        path_items = []    
+        for k in keys:
+            if info.has_key(k):
+                path_items.append(info[k])
+        # join need a list of strings.
+        # the list has to be parsed explicitly because list might contain integers       
+        path = (os.path.sep).join(map( str, path_items ) )  
+        # creates the directory, if it exists, it's content is removed       
+        success, msg = FileUtils.makedirs_safe(path,clean=True)
+        if success:
+            log.debug(msg)
+        else:
+            log.critical(msg)
+            sys.exit(1)        
+        info['WORKDIR'] = path                 
+             
     def define_arguments(self, parser):        
         """
         Define command line arguments of the application.
@@ -177,13 +264,7 @@ class Runner(object):
         Return: Exit code (0 for successful check). 
         """
         raise NotImplementedError("run() is not implemented.") 
-            
-    def reset_streams(self):
-        """
-        Reset the stdout/stderr to their original
-        """
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__                                                             
+                                                                        
     
     def write_output_file(self,info,filename): 
         self.log.debug('output file [%s]' % filename)                  
@@ -279,8 +360,8 @@ class WrapperRunner(ApplicationRunner):
             if storage == 'memory':
                 p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
                 output, error = p.communicate()                                                                                                                                                                            
-                self.out_stream = cStringIO.StringIO(output)
-                self.err_stream = cStringIO.StringIO(error)  
+                self.out_stream = StringIO(output)
+                self.err_stream = StringIO(error)  
             elif storage == 'file':
                 p = Popen(command, shell=True,stdout=sys.stdout, stderr=sys.stderr)
                 p.wait()
@@ -330,6 +411,10 @@ class WrapperRunner(ApplicationRunner):
             self.log.info('Finish [%s]' % self._run.__name__)
             self.log.info('run_code [%s]' % run_code)        
             self.log.info('Start [%s]' % app.validate_run.__name__)
+            # set stream pointer the start that in validate can use 
+            # them immediately with .read() to get content
+            self.out_stream.seek(0)
+            self.err_stream.seek(0)
             exit_code = app.validate_run(info,self.log,run_code,self.out_stream,self.err_stream)
             self.log.debug('exit code [%s]' % exit_code)
             self.log.info('Finish [%s]' % app.validate_run.__name__)        

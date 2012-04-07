@@ -65,126 +65,10 @@ class FileLocker():
             fcntl.flock(file.fileno( ), fcntl.LOCK_UN)
     else:
         raise RuntimeError("PortaLocker only defined for nt and posix platforms")
-    
-class FileUtils(object):
-    
-    @staticmethod
-    def is_valid_file(self,fin):
-        valid = False
-        msg = ''
-        fail1 = not os.path.exists(fin)
-        fail2 = not os.path.isfile(fin)
-        fail3 = not os.access(fin,os.R_OK)
-        fail4 = not (os.path.getsize(fin) > 0)
-        fails = [fail1,fail2,fail3,fail4]
-        if any(fails):
-            msg = '''file [%s] does not exist [%s], 
-            is not a file [%s], cannot be read [%s] or
-            has no file larger that > 0kb [%s]''' % (
-                                                            os.path.abspath(fin),
-                                                            fail1,fail2,fail3,fail4
-                                                            )
-        else:
-            msg = 'file [%s] checked successfully' % fin  
-            valid = True
-        return (valid,msg)  
-    
-    @staticmethod
-    def makedirs_safe(self,path,log):
-        """
-        Recursively create directories in 'path' unless they already exist.
-            
-        Safe to use in a concurrent fashion.
-        """
-        try:
-            os.makedirs(path)
-            log.debug('dir [%s] was created' % path)
-        except OSError as error:
-            if error.errno == errno.EEXIST and os.path.isdir(path):
-                log.debug('dir [%s] already exists' % path)
-                pass # directories already exist
-            else:
-                log.critical('could not create dir [%s]' % path)
-                raise
-                sys.exit(1)
-                    
-    
-class DictUtils(object):
-    
-    @staticmethod  
-    def merge(self, dict_1, dict_2, priority='left'):
-        
-        if priority == 'left':
-            """
-            First dictionary overwrites existing keys in second dictionary
-            """       
-            return dict(dict_2,**dict_1)
-        elif priority == 'right':
-            """
-            Second dictionary overwrites existing keys in first dictionary
-            """       
-            return dict(dict_1,**dict_2)  
-    
-    @staticmethod    
-    def append(self, dict_1, dict_2):   
-        """
-        Append 
-        
-        Value lists are generated for keys that are shared between the config files. 
-        If a key value pair does not exist in the original config file, it is added.
-        
-        Input: Configuration object (dictionary) that should be merged with the existing one.  
-        """
-        for k,v in dict_2.iteritems():
-            if k in dict_1.keys():
-                if isinstance(dict_1[k],list):
-                    dict_1[k].append(v)
-                else:
-                    dict_1[k]=[dict_1[k],v]
-            else:
-                dict_1[k]=v
-        return dict_1 
-    
-    @staticmethod
-    def remove_none_entries(dictionary):
-        """
-        Removes key/value pairs where the value is None
-        
-        Input:
-        - dictionary 
-        
-        Return:
-        - Copy of the input dictionary where the None key/values are removed
-        """
-        copied_dict  = dictionary.copy()
-        keys = []
-        for k,v in copied_dict.iteritems():
-            if v is None:
-                keys.append(k)
-        for k in keys:
-            copied_dict.pop(k)
-        return copied_dict
-                    
-                
+                                    
 class Utilities():  
     
-    def get_flatten_sequence(self,sequence):
-        """get_flatten_sequence(sequence) -> list    
-        Returns a single, flat list which contains all elements retrieved
-        from the sequence and all recursively contained sub-sequences
-        (iterables).
-        Examples:
-        >>> [1, 2, [3,4], (5,6)]
-        [1, 2, [3, 4], (5, 6)]
-        >>> get_flatten_sequence([[[1,2,3], (42,None)], [4,5], [6], 7, MyVector(8,9,10)])
-        [1, 2, 3, 42, None, 4, 5, 6, 7, 8, 9, 10]"""    
-        result = []
-        for e in sequence:
-            if hasattr(e, "__iter__") and not isinstance(e, basestring):
-                result.extend(self.get_flatten_sequence(e))
-            else:
-                result.append(e)
-        return result                
+               
     
     def get_list_product(self,list_of_lists):
         # itertools.product() fails, when not all elements of the list are also lists.
@@ -225,39 +109,7 @@ class Utilities():
         fh.write(mod_content)
         fh.close()
         
-        
-
-    def get_cksum(self,filename, md5=True,exclude_line="", include_line=""):        
-        """compute md5 for a file. allows to get md5 before including a line in the file or when excluding a specific line"""
-        import hashlib
-        cksum = None
-        if md5:
-            cksum = hashlib.md5()
-        else:
-            cksum = hashlib.sha224()
-        for line in open(filename,"rb"):
-            if exclude_line and line.startswith(exclude_line):
-                continue
-            cksum.update(line)
-        cksum.update(include_line)
-        return cksum.hexdigest()
-              
-class XmlValidator():    
-    
-    def __init__(self,xml_filename):
-        self._filename = xml_filename
-
-    def parsefile(self):
-        parser = xml.parsers.expat.ParserCreate()
-        parser.ParseFile(open(self._filename, "r"))
-
-    def is_wellformatted(self): 
-        try:
-            self.parsefile()
-            return True
-        except Exception, e:
-            print str(e)
-            return False       
+                    
 
 from Queue import Queue
 from threading import Thread

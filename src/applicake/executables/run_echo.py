@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Created on Mar 28, 2012
 
@@ -11,7 +12,8 @@ from applicake.applications.os.echo import Echo
 
 runner = WrapperRunner()
 wrapper = Echo()
-exit_code = runner(sys.argv,wrapper) 
+exit_code = runner(sys.argv,wrapper)
 print exit_code
+sys.exit(exit_code)
 
  
