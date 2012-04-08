@@ -21,15 +21,11 @@ from applicake.utils.fileutils import FileUtils
 from applicake.utils.fileutils import FileLocker
 from applicake.utils.dictutils import DictUtils                
                  
-class ApplicationInformation(dict):
-    """
-    Information about the application object.
-    """     
                  
 class Runner(object):
     """
     Basic class to prepare and run one of the Interface classes of the framework as workflow node    
-    """    
+    """                       
     
     def __call__(self, args,app):
         """
@@ -41,10 +37,8 @@ class Runner(object):
         """      
         try:
             log_msg = []
-            # create Application information object and add information        
-            info = ApplicationInformation()            
-            # set name variable to concrete class name if no specific name is provided.
-            # the name variable is used to for the logger and file names if the file system is used                      
+            # create a dictionary to store all information of the class       
+            info = {}                                
             log_msg.append('Start [%s]' % self.get_parsed_arguments.__name__)
             pargs = self.get_parsed_arguments()
             log_msg.append('Finish [%s]' % self.get_parsed_arguments.__name__)
@@ -70,11 +64,19 @@ class Runner(object):
             # priority is on the first dictionary
             info = DictUtils.merge(self, info, config,priority='left') 
             # set default for name if non is given via the cmdline or the input file
+            # set name variable to concrete class name if no specific name is provided.
+            # the name variable is used to for the logger and file names if the file system is used              
             info = DictUtils.merge(self, info, {'NAME': app.__class__.__name__})
+            success,msg = self.set_wd(info)
+            if success:
+                log_msg.append(msg)
+            else:
+                log_msg.append(msg)
+                sys.exit(1)            
             (success,msg,
              self.out_stream,
              self.err_stream,
-             self.log_stream) = self._get_streams(info)
+             self.log_stream) = self.get_streams(info)
             if not success:
                 log_msg.append(msg)
                 sys.exit(1)
@@ -85,19 +87,12 @@ class Runner(object):
                 sys.stderr = self.err_stream
                 # create logger
                 self.log = Logger(level=info['LOG_LEVEL'],
-                                  name=info['NAME'],stream=self.log_stream).logger  
-        
-        
-#            self._init_streams(info['STORAGE'],info['NAME'],info['LOG_LEVEL'])        
-            log_msg.append('init streams')
+                                  name=info['NAME'],stream=self.log_stream).logger     
             for msg in log_msg:
                 self.log.debug(msg)
             self.log.debug('application class file [%s]' % args[0])
             self.log.debug('arguments [%s]' % args[1:])
-            self.log.debug('Python class [%s]' % self.__class__.__name__)  
-            self.log.info('Start [%s]' % self._set_wd.__name__)
-            self._set_wd(info,self.log)
-            self.log.info('Finished [%s]' % self._set_wd.__name__)                                  
+            self.log.debug('Python class [%s]' % self.__class__.__name__)                                   
             self.log.info('Start [%s]' % self.run_app.__name__)
             exit_code = self.run_app(app,info)
             self.log.info('Finished [%s]' % self.run_app.__name__)               
@@ -111,10 +106,9 @@ class Runner(object):
             self.log.info('exit_code [%s]' % exit_code)
             return int(exit_code)
         except:
-            self._reset_standard_streams()
+            self.reset_standard_streams()
             for msg in log_msg:
                 sys.stderr.write("%s\n" % msg)
-
             raise   
     
     def _cleanup(self,info,log):
@@ -144,7 +138,7 @@ class Runner(object):
             except:
                 log.critical('Counld not copy [%s] to [%s]' % (src,wd))
                 sys.exit(1)             
-        self._reset_standard_streams()  
+        self.reset_standard_streams()  
         if info['STORAGE'] == 'memory':
             print '=== stdout ==='
             self.out_stream.seek(0)
@@ -168,9 +162,9 @@ class Runner(object):
                     print('Move [%s] to [%s]' % (src,dest))
                 except:
                     sys.stderr.write('Could not move [%s] to [%s]' % (src,dest))
-                    sys.exit(1) 
+                    sys.exit(1)  
                     
-    def _get_jobid(self,dirname):
+    def _set_jobid(self,info):
         """
         Uses a file-based system to retrieve a job id.
         
@@ -178,11 +172,12 @@ class Runner(object):
         If the 'jobid.txt' does not exists, it is initiated with the job id '1'.
         
         Arguments:
-        - dirname: Path of the base directory.
+        - info: Dictionary object that has to contain the key 'BASEDIR' 
         
         Return: the job id 
         """
         jobid = 1
+        dirname = info['BASEDIR']
         filename = os.path.join(dirname, 'jobid.txt')
         locker = FileLocker()
         if (os.path.exists(filename)):            
@@ -193,9 +188,26 @@ class Runner(object):
         fh = open(filename,'w')    
         fh.write(str(jobid))
         locker.unlock(fh)            
-        return jobid                                                 
-                
-    def _get_streams(self,info):
+        info['JOB_IDX']=jobid    
+        
+    def define_arguments(self, parser):        
+        """
+        Define command line arguments of the application.
+        
+        Arguments:
+        - parser: Object of type ArgumentParser
+        """        
+        raise NotImplementedError("define_arguments() is not implemented.")   
+    
+    def get_parsed_arguments(self):
+        """
+        Parse command line arguments of the application.
+        
+        Return: Dictionary of parsed arguments        
+        """
+        raise NotImplementedError("get_parsed_arguments() is not implemented.")                           
+                    
+    def get_streams(self,info):
         """
         Initializes the streams for stdout/stderr/log
         
@@ -234,21 +246,43 @@ class Runner(object):
         return (success,msg,out_stream,err_stream,log_stream)  
     
     
-    def _reset_standard_streams(self):
+    def reset_standard_streams(self):
         """
         Reset the stdout/stderr to their default
         """
         sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__           
-         
-    def _set_wd(self,info,log):
+        sys.stderr = sys.__stderr__                  
+    
+    def run_app(self,app,info):
+        """
+        Runs one of the supported interface classes.
+        
+        Arguments:
+        - app: Object that inherited one of the supported interfaces
+        
+        Return: Exit code (0 for successful check). 
+        """
+        raise NotImplementedError("run() is not implemented.")     
+    
+    def set_wd(self,info):
+        """
+        Create a working directory and stores it in the info dictionary.
+        
+        Arguments:
+        - info: Dictionary object that has to contain the key 'BASEDIR' 
+        
+        Return: Dictionary with the new key 'WORKDIR'
+        """
+        success = None
+        msg = []
         keys = ['BASEDIR','JOB_IDX','PARAM_IDX','FILE_IDX','NAME']
         if not info.has_key(keys[0]):
-            log.critical('info object does not contain key [%s]' % keys[0])
-            log.critical('content of info [%s]' % info)
-            sys.exit(1)
+            success = False
+            msg.append('info object does not contain key [%s]' % keys[0])
+            msg.append('content of info [%s]' % info)
+            return (success,'\n'.join(msg))
         if not info.has_key(keys[1]):
-            info['JOB_IDX'] = self._get_jobid(info['BASEDIR'])                
+            self._set_jobid(info)                
         path_items = []    
         for k in keys:
             if info.has_key(k):
@@ -259,40 +293,8 @@ class Runner(object):
         # creates the directory, if it exists, it's content is removed       
         success, msg = FileUtils.makedirs_safe(path,clean=True)
         if success:
-            log.debug(msg)
-        else:
-            log.critical(msg)
-            sys.exit(1)        
-        info['WORKDIR'] = path                 
-             
-    def define_arguments(self, parser):        
-        """
-        Define command line arguments of the application.
-        
-        Arguments:
-        - parser: Object of type ArgumentParser
-        """        
-        raise NotImplementedError("define_arguments() is not implemented.")   
-    
-    def get_parsed_arguments(self):
-        """
-        Parse command line arguments of the application.
-        
-        Return: Dictionary of parsed arguments        
-        """
-        raise NotImplementedError("get_parsed_arguments() is not implemented.") 
-
-    def run_app(self,app,info):
-        """
-        Runs one of the supported interface classes.
-        
-        Arguments:
-        - app: Object that inherited one of the supported interfaces
-        
-        Return: Exit code (0 for successful check). 
-        """
-        raise NotImplementedError("run() is not implemented.") 
-                                                                        
+            info['WORKDIR'] = path 
+        return (success,msg)      
     
     def write_output_file(self,info,filename): 
         self.log.debug('output file [%s]' % filename)                  
@@ -300,9 +302,8 @@ class Runner(object):
         valid,msg = FileUtils.is_valid_file(self, filename)
         if not valid:
             self.log.fatal(msg)
-            sys.exit(1)
-            
-
+            sys.exit(1)                                                                                                                                      
+                                                                        
 
 class ApplicationRunner(Runner):
     """

@@ -13,9 +13,9 @@ from string import Template
 
 class ConfigHandler(object): 
     
-    @staticmethod
-    def get_new_dict(self):
-        return {}
+#    @staticmethod
+#    def get_new_dict(self):
+#        return {}
         
         
     
