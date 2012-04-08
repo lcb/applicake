@@ -4,9 +4,38 @@ Created on Mar 31, 2012
 @author: quandtan
 '''
 
+import fcntl
 import errno
 import os
 import shutil
+
+class FileLocker(object):
+    """
+    File locking that works across platforms.
+    """
+    # Python cookbook receipe 2.28 "File Locking Using a Cross-Platform API"
+    # needs win32all to work on Windows (NT, 2K, XP, _not_ /95 or /98)
+    if os.name == 'nt':
+        import win32con, win32file, pywintypes
+        LOCK_EX = win32con.LOCKFILE_EXCLUSIVE_LOCK
+        LOCK_SH = 0 # the default
+        LOCK_NB = win32con.LOCKFILE_FAIL_IMMEDIATELY
+        _overlapped = pywintypes.OVERLAPPED( )
+        def lock(self,fh, flags):
+            hfile = win32file._get_osfhandle(fh.fileno( ))
+            win32file.LockFileEx(hfile, flags, 0, 0xffff0000,self._overlapped)
+        def unlock(self,fh):
+            hfile = win32file._get_osfhandle(fh.fileno( ))
+            win32file.UnlockFileEx(hfile, 0, 0xffff0000,self._overlapped)
+    elif os.name == 'posix':        
+        from fcntl import LOCK_EX, LOCK_SH, LOCK_NB
+        def lock(self,fh, flags):
+            fcntl.flock(fh.fileno(), flags)
+        def unlock(self,fh):
+            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+    else:
+        raise RuntimeError("PortaLocker only defined for nt and posix platforms")
+    
 
 class FileUtils(object):
     """

@@ -18,6 +18,7 @@ from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
+from applicake.utils.fileutils import FileLocker
 from applicake.utils.dictutils import DictUtils                
                  
 class ApplicationInformation(dict):
@@ -168,7 +169,31 @@ class Runner(object):
                 except:
                     sys.stderr.write('Could not move [%s] to [%s]' % (src,dest))
                     sys.exit(1) 
-                            
+                    
+    def _get_jobid(self,dirname):
+        """
+        Uses a file-based system to retrieve a job id.
+        
+        Creates a file in a base dir that holds the last job id and increases it incrementally.
+        If the 'jobid.txt' does not exists, it is initiated with the job id '1'.
+        
+        Arguments:
+        - dirname: Path of the base directory.
+        
+        Return: the job id 
+        """
+        jobid = 1
+        filename = os.path.join(dirname, 'jobid.txt')
+        locker = FileLocker()
+        if (os.path.exists(filename)):            
+            fh = open(filename,'r') 
+            locker.lock(fh,locker.LOCK_EX) 
+            jobid= int(fh.read())   
+            jobid += 1         
+        fh = open(filename,'w')    
+        fh.write(str(jobid))
+        locker.unlock(fh)            
+        return jobid                                                 
                 
     def _get_streams(self,info):
         """
@@ -208,6 +233,7 @@ class Runner(object):
             msg = 'No streams created because type [%s] is not supported' % info['STORAGE']
         return (success,msg,out_stream,err_stream,log_stream)  
     
+    
     def _reset_standard_streams(self):
         """
         Reset the stdout/stderr to their default
@@ -221,6 +247,8 @@ class Runner(object):
             log.critical('info object does not contain key [%s]' % keys[0])
             log.critical('content of info [%s]' % info)
             sys.exit(1)
+        if not info.has_key(keys[1]):
+            info['JOB_IDX'] = self._get_jobid(info['BASEDIR'])                
         path_items = []    
         for k in keys:
             if info.has_key(k):
