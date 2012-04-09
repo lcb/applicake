@@ -19,7 +19,7 @@ from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.fileutils import FileLocker
-from applicake.utils.dictutils import DictUtils                
+from applicake.utils.dictutils import DictUtils                          
                  
                  
 class Runner(object):
@@ -58,15 +58,15 @@ class Runner(object):
                     log_msg.append('file [%s] is valid' % fin)
                     new_config = ConfigHandler().read(fin)
                     log_msg.append('created dictionary from file content')
-                    config = DictUtils.merge(self,config, new_config,priority='flatten_sequence') 
+                    config = DictUtils.merge(config, new_config,priority='flatten_sequence') 
                     log_msg.append('merge content with content from previous files')
             # merge the content of the input files with the already existing 
             # priority is on the first dictionary
-            info = DictUtils.merge(self, info, config,priority='left') 
+            info = DictUtils.merge(info, config,priority='left')
             # set default for name if non is given via the cmdline or the input file
             # set name variable to concrete class name if no specific name is provided.
-            # the name variable is used to for the logger and file names if the file system is used              
-            info = DictUtils.merge(self, info, {'NAME': app.__class__.__name__})
+            # the name variable is used to for the logger and file names if the file system is used
+            info = DictUtils.merge(info, {'NAME': app.__class__.__name__})
             success,msg = self.set_wd(info)
             if success:
                 log_msg.append(msg)
@@ -282,7 +282,7 @@ class Runner(object):
             msg.append('content of info [%s]' % info)
             return (success,'\n'.join(msg))
         if not info.has_key(keys[1]):
-            self._set_jobid(info)                
+            self._set_jobid(info)               
         path_items = []    
         for k in keys:
             if info.has_key(k):

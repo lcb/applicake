@@ -41,7 +41,7 @@ class Test(unittest.TestCase):
 
 
     def test_merge(self):
-        res = DictUtils.merge(self, self.d1, self.d2, priority='left')
+        res = DictUtils.merge(self.d1, self.d2, priority='left')
         assert res == {                                       
                        'BASEDIR': '/tmp',                   
                        'COMMENT': 'hello world',
@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
                        'STORAGE': 'memory',
                        'SECTION': {}
                    }
-        res = DictUtils.merge(self, self.d1, self.d2, priority='right')
+        res = DictUtils.merge(self.d1, self.d2, priority='right')
         assert res == {                                       
                        'BASEDIR': '/tmp',                   
                        'COMMENT': 'hello world',
@@ -65,7 +65,7 @@ class Test(unittest.TestCase):
                        'STORAGE': 'memory',
                        'SECTION': {'SUBSECTION':11}
                    }  
-        res = DictUtils.merge(self, self.d1, self.d2, priority='flatten_sequence')
+        res = DictUtils.merge(self.d1, self.d2, priority='flatten_sequence')
         print res
         assert res == {                                       
                        'BASEDIR': '/tmp',                   

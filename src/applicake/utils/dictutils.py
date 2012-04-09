@@ -12,8 +12,21 @@ class DictUtils(SequenceUtils):
     Utilities for handling dictionaries
     """
     
+    @staticmethod
+    def extract(dictionary,keys):
+        """
+        Extract subset of a dictionary based on a list of keys
+        
+        Arguments:
+        - dictionary: The original dictionary
+        - keys: Keys used to create the subset
+        
+        Return: Dictionary containing the subset
+        """
+        return dict((key, dictionary[key]) for key in keys if key in dictionary)
+    
     @staticmethod  
-    def merge(self, dict_1, dict_2, priority='left'):
+    def merge(dict_1, dict_2, priority='left'):
         """
         Merging of 2 dictionaries
         
@@ -30,20 +43,21 @@ class DictUtils(SequenceUtils):
         
         Return: merged dictionary
         """
+        d1 = dict_1.copy()
+        d2 = dict_2.copy()
         if priority == 'left':     
-            return dict(dict_2,**dict_1)
+            return dict(d2,**d1)
         elif priority == 'right':     
-            return dict(dict_1,**dict_2)  
+            return dict(d1,**d2)  
         elif priority == 'flatten_sequence':
-            dictionary = dict_1.copy()
-            for k,v in dict_2.iteritems():
-                if k in dictionary.keys():
-                    if dictionary[k] != dict_2[k]:                        
-                        sequence = [dictionary[k],dict_2[k]]
-                        dictionary[k] = DictUtils.get_flatten_sequence(sequence)
+            for k,v in d2.iteritems():
+                if k in d1.keys():
+                    if d1[k] != d2[k]:                        
+                        sequence = [d1[k],d2[k]]
+                        d1[k] = DictUtils.get_flatten_sequence(sequence)
                 else:
-                    dictionary[k]=v
-            return dictionary
+                    d1[k]=v
+            return d1
         
     @staticmethod
     def remove_none_entries(dictionary):
