@@ -36,7 +36,7 @@ class Test(unittest.TestCase):
         self.random_name = ''.join(random.sample(string.ascii_uppercase + string.digits,20))  
         #create temporary files
         self.cwd = os.getcwd()
-        self.tmp_dir = '%s/data' % os.path.abspath(os.getcwd())
+        self.tmp_dir = '%s/tmp' % os.path.abspath(os.getcwd())
         os.mkdir(self.tmp_dir)
         os.chdir(self.tmp_dir)
         self.input_ini = '%s/input.ini' % self.tmp_dir
