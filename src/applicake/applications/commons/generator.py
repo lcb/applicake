@@ -9,19 +9,16 @@ from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
 
 class Generator(IApplication):
-    '''
-    classdocs
-    '''
-
+    """
+    Generates all possible value combinations from the input file if it contains keys with multiple values.
+    The results are stored in files which are named in dependency input file name and the pattern accepted 
+    by the applied worklfow manager.
+    """
+    
+    
     def main(self,info,log):
         """
-        Gernerates all possible combinations from a dictionary with multiple values and writes them as ini files
-        
-        Arguments:
-        - see super class
-        
-        Return:
-        - see super class
+        see super class
         """
         # prepare a basedic to produced input files for inner workflow
         basedic = info.copy()
@@ -131,14 +128,17 @@ class Generator(IApplication):
         
         
 class GuseGenerator(Generator):
+    """
+    Generator for the GUSE workflow manager.
+    It creates output files of the format [INPUTFILENAME].[INDEX]
+    """
     
     def write_ini_files(self,info,log,dicts): 
         """
         see super class
         """       
         for idx,dic in enumerate(dicts):
-            outfile = "%s.%s" % (info["OUTPUT"],idx)
-#            outfile = os.path.join(info[])  
+            outfile = "%s.%s" % (info["OUTPUT"],idx) 
             log.debug(outfile)          
             ConfigHandler().write(dic, outfile)
             log.debug('create file [%s]' % outfile)

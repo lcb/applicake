@@ -60,6 +60,8 @@ class Runner(object):
                     log_msg.append('created dictionary from file content')
                     config = DictUtils.merge(config, new_config,priority='flatten_sequence') 
                     log_msg.append('merge content with content from previous files')
+                    
+                    
             # merge the content of the input files with the already existing 
             # priority is on the first dictionary
             info = DictUtils.merge(info, config,priority='left')
