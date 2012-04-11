@@ -26,7 +26,7 @@ class Runner(object):
     """
     Basic class to prepare and run one of the Interface classes of the framework as workflow node    
     """                       
-    
+
     def __call__(self, args,app):
         """
         Program logic of the Application class.
@@ -46,22 +46,12 @@ class Runner(object):
             log_msg.append('Update application information with settings from command line') 
             created_files = {'CREATED_FILES':None}
             info.update(created_files)
-            log_msg.append("Add/reset key [CREATED_FILES] to application information")                                   
-            config = {}
-            for fin in pargs['INPUTS']:          
-                valid, msg = FileUtils.is_valid_file(self,fin)
-                if not valid:
-                    log_msg.append(msg + '')
-                    sys.stderr.write(log_msg)
-                    sys.exit(1)
-                else:
-                    log_msg.append('file [%s] is valid' % fin)
-                    new_config = ConfigHandler().read(fin)
-                    log_msg.append('created dictionary from file content')
-                    config = DictUtils.merge(config, new_config,priority='flatten_sequence') 
-                    log_msg.append('merge content with content from previous files')
-                    
-                    
+            log_msg.append("Add/reset key [CREATED_FILES] to application information")   
+            # create a merged config object from all inputs                                
+            success,msg,config = self.get_config(pargs['INPUTS'])
+            if not success:
+                log_msg.append(msg)
+                sys.exit(1)    
             # merge the content of the input files with the already existing 
             # priority is on the first dictionary
             info = DictUtils.merge(info, config,priority='left')
@@ -200,6 +190,26 @@ class Runner(object):
         - parser: Object of type ArgumentParser
         """        
         raise NotImplementedError("define_arguments() is not implemented.")   
+
+    def get_config(self, input_files):
+        success = False
+        msg = []
+        config = {}
+        for fin in input_files:
+            valid, msg_valid = FileUtils.is_valid_file(self, fin)
+            if not valid:
+                msg.append(msg_valid)
+                msg = '\n'.join(msg)
+                return (success,msg,config)
+            else:
+                msg.append('file [%s] is valid' % fin)
+                new_config = ConfigHandler().read(fin)
+                msg.append('created dictionary from file content')
+                config = DictUtils.merge(config, new_config, priority='flatten_sequence')
+                msg.append('merge content with content from previous files')     
+        success = True 
+        msg = '\n'.join(msg) 
+        return success,msg,config
     
     def get_parsed_arguments(self):
         """
@@ -310,8 +320,6 @@ class Runner(object):
 class ApplicationRunner(Runner):
     """
     Used to run a class that implements the Application interface
-
-    Return: exit code (integer)    
     """
     
     def define_arguments(self, parser):
@@ -372,8 +380,6 @@ class WrapperRunner(ApplicationRunner):
     """
     The Application type is used to create workflow nodes that 
     prepare, run and validate the execution of an external application.
-    
-    Return: Exit code (integer) 
     """
     
     def _run(self,command,storage):

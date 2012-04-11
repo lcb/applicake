@@ -13,17 +13,18 @@ class DictUtils(SequenceUtils):
     """
     
     @staticmethod
-    def extract(dictionary,keys):
+    def extract(dic,keys):
         """
         Extract subset of a dictionary based on a list of keys
         
-        Arguments:
-        - dictionary: The original dictionary
-        - keys: Keys used to create the subset
+        @type dic: dict
+        @param dic: The original dictionary
+        @type keys:list 
+        @param keys: : Keys used to create the subset
         
-        Return: Dictionary containing the subset
+        @return: Dictionary containing the subset
         """
-        return dict((key, dictionary[key]) for key in keys if key in dictionary)
+        return dict((key, dic[key]) for key in keys if key in dic)
     
     @staticmethod  
     def merge(dict_1, dict_2, priority='left'):
@@ -41,7 +42,7 @@ class DictUtils(SequenceUtils):
             dict_1 is first in the list.
             Keys that only exist in one dictionary are added
         
-        Return: merged dictionary
+        @return: merged dictionary
         """
         d1 = dict_1.copy()
         d2 = dict_2.copy()
@@ -60,16 +61,16 @@ class DictUtils(SequenceUtils):
             return d1
         
     @staticmethod
-    def remove_none_entries(dictionary):
+    def remove_none_entries(dic):
         """
         Removes key/value pairs where the value is None
         
-        Input:
-        - dictionary 
+        @type dic: dict
+        @param dic: Dictionary from which the none values should be removed 
         
-        Return: Copy of the input dictionary where the None key/values are removed
+        @return: Copy of the input dictionary where the None key/values are removed
         """
-        copied_dict  = dictionary.copy()
+        copied_dict  = dic.copy()
         keys = []
         for k,v in copied_dict.iteritems():
             if v is None:
