@@ -4,8 +4,6 @@ Created on Mar 6, 2012
 @author: quandtan
 '''
 
-import cStringIO
-import logging
 import os
 import random
 import shutil
