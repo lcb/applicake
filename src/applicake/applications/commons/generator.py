@@ -4,7 +4,6 @@ Created on Mar 20, 2012
 @author: quandtan
 '''
 
-import os
 import itertools
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
@@ -15,15 +14,30 @@ class Generator(IApplication):
     '''
 
     def main(self,info,log):
-        escape_keys = ['CREATED_FILES','DATASET_CODE'] #'CREATED_FILES' 'DATASET_CODE'
-        param_dicts = self.get_product_dicts(info, log, escape_keys,idx_key='PARAM_IDX')
+        """
+        Gernerates all possible combinations from a dictionary with multiple values and writes them as ini files
+        
+        Arguments:
+        - see super class
+        
+        Return:
+        - see super class
+        """
+        # prepare a basedic to produced input files for inner workflow
+        basedic = info.copy()
+        del basedic['CREATED_FILES']
+        # prepare first the product of a parameter combinations
+        escape_keys = ['DATASET_CODE']
+        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key='PARAM_IDX')
         log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
+        # prepare combinations based on files
         param_file_dicts = []
-        escape_keys = ['CREATED_FILES']
+        escape_keys = []
         for dic in  param_dicts:            
             file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key='FILE_IDX')
             param_file_dicts.extend(file_dicts)
         log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
+        # write ini files
         self.write_ini_files(info,log,param_file_dicts)
         return 0
 
@@ -45,15 +59,23 @@ class Generator(IApplication):
             l.append(element)
         return l
     
-    def get_product_dicts(self, info, log, escape_keys,idx_key):
+    def get_product_dicts(self, dic, log, escape_keys,idx_key):
         """
+        Creates the value combinations of a dictionary with multiple values for its keys
+        
+        Arguments:
+        - dic: The dictionary
+        - log: Logger object
+        - escape_keys: List of keys that should be excluded from the combination generation
+        - idx_key: Key to store the combination index
+        
+        Return: List of dictionaries
         """
         escape_str = ';'
-        basedict = info.copy()
         # escape (list-) value of selected keys
-        self.list2string(basedict, escape_keys, escape_str)
-        keys = basedict.keys()
-        values = basedict.values()
+        self.list2string(dic, escape_keys, escape_str)
+        keys = dic.keys()
+        values = dic.values()
         elements = self.get_list_product(values)
         idx = 0
         product_dicts = []
@@ -63,8 +85,6 @@ class Generator(IApplication):
             self.string2list(dic, escape_keys, escape_str)
             # add to each product dictionary a new key: the index key
             dic[idx_key] = idx
-#            log.debug('index [%s]' % idx)
-#            log.debug(dic)
             idx += 1
             product_dicts.append(dic)    
         return product_dicts
@@ -114,7 +134,7 @@ class GuseGenerator(Generator):
     
     def write_ini_files(self,info,log,dicts): 
         """
-        see super method
+        see super class
         """       
         for idx,dic in enumerate(dicts):
             outfile = "%s.%s" % (info["OUTPUT"],idx)
