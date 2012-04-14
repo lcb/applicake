@@ -58,13 +58,7 @@ class Runner(object):
             # set default for name if non is given via the cmdline or the input file
             # set name variable to concrete class name if no specific name is provided.
             # the name variable is used to for the logger and file names if the file system is used
-            info = DictUtils.merge(info, {'NAME': app.__class__.__name__})
-            success,msg = self.set_wd(info)
-            if success:
-                log_msg.append(msg)
-            else:
-                log_msg.append(msg)
-                sys.exit(1)            
+            info = DictUtils.merge(info, {'NAME': app.__class__.__name__})          
             (success,msg,
              self.out_stream,
              self.err_stream,
@@ -78,24 +72,28 @@ class Runner(object):
                 sys.stdout = self.out_stream
                 sys.stderr = self.err_stream
                 # create logger
-                self.log = Logger(level=info['LOG_LEVEL'],
+                log = Logger(level=info['LOG_LEVEL'],
                                   name=info['NAME'],stream=self.log_stream).logger     
             for msg in log_msg:
-                self.log.debug(msg)
-            self.log.debug('application class file [%s]' % args[0])
-            self.log.debug('arguments [%s]' % args[1:])
-            self.log.debug('Python class [%s]' % self.__class__.__name__)                                   
-            self.log.info('Start [%s]' % self.run_app.__name__)
-            exit_code = self.run_app(app,info)
-            self.log.info('Finished [%s]' % self.run_app.__name__)               
-            self.log.info('Start [%s]' % self.write_output_file.__name__)
-            self.write_output_file(info,info['OUTPUT'])
-            self.log.info('Finished [%s]' % self.write_output_file.__name__)
-            self.log.info('Start [%s]' % self._cleanup.__name__)
-            self._cleanup(info,self.log)
-            self.log.info('Finished [%s]' % self._cleanup.__name__)            
-            self.info = info       
-            self.log.info('exit_code [%s]' % exit_code)
+                log.debug(msg)
+            log.debug('application class file [%s]' % args[0])
+            log.debug('arguments [%s]' % args[1:])
+            log.debug('Python class [%s]' % self.__class__.__name__)   
+            log.info('Start [%s]' % self.create_workdir.__name__)
+            self.create_workdir(info,log) 
+            log.info('Finished [%s]' % self.create_workdir.__name__)
+            log.info('Start [%s]' % self.run_app.__name__)
+            exit_code = self.run_app(app,info,log)
+            log.info('Finished [%s]' % self.run_app.__name__)               
+            log.info('Start [%s]' % self.write_output_file.__name__)
+            self.write_output_file(info,log)
+            log.info('Finished [%s]' % self.write_output_file.__name__)
+            log.info('Start [%s]' % self._cleanup.__name__)
+            self._cleanup(info,log)
+            log.info('Finished [%s]' % self._cleanup.__name__)                               
+            log.info('exit_code [%s]' % exit_code)
+            self.info = info
+            self.log = log
             return int(exit_code)
         except:
             self.reset_standard_streams()
@@ -242,7 +240,7 @@ class Runner(object):
         elif info['STORAGE'] == 'file':
             out_file = ''.join([info['NAME'],".out"])
             err_file = ''.join([info['NAME'],".err"]) 
-            log_file = ''.join([info['NAME'],".log"])
+            log_file = ''.join([info['NAME'],".log"])                      
             # add files to info object to copy them later to the work directory            
             info['CREATED_FILES'] = [out_file,err_file,log_file]
             # streams are initialized with 'w+' that files are pured first before
@@ -265,25 +263,33 @@ class Runner(object):
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__                  
     
-    def run_app(self,app,info):
+    def run_app(self,info,log,app):
         """
-        Runs one of the supported interface classes.
+        Executes an object that implements the supported Application interface.        
         
-        Arguments:
-        - app: Object that inherited one of the supported interfaces
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger
+        @param log: Logger of the class  
+        @type app: 
+        @param app: Object that implements a supported interface from the interface module  
         
-        Return: Exit code (0 for successful check). 
+        @rtype: int
+        @return: Exit code (0 for successful check). 
         """
         raise NotImplementedError("run() is not implemented.")     
     
-    def set_wd(self,info):
+    def create_workdir(self,info,log):
         """
-        Create a working directory and stores it in the info dictionary.
+        Create a working directory.
         
-        Arguments:
-        - info: Dictionary object that has to contain the key 'BASEDIR' 
+        The location is stored in the info object with the key 'WORKDIR'.
         
-        Return: Dictionary with the new key 'WORKDIR'
+        @precondition: 'info' object that has to contain the key 'BASEDIR'
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger
+        @param log: Logger of the class  
         """
         success = None
         msg = []
@@ -301,25 +307,39 @@ class Runner(object):
                 path_items.append(info[k])
         # join need a list of strings.
         # the list has to be parsed explicitly because list might contain integers       
-        path = (os.path.sep).join(map( str, path_items ) )  
+        path = (os.path.sep).join(map( str, path_items ) ) 
+        info['WORKDIR'] = path  
         # creates the directory, if it exists, it's content is removed       
         success, msg = FileUtils.makedirs_safe(path,clean=True)
         if success:
-            info['WORKDIR'] = path 
-        return (success,msg)      
+            log.debug(msg) 
+        else:
+            log.fatal(msg)
+            sys.exit(1)      
     
-    def write_output_file(self,info,filename): 
-        self.log.debug('output file [%s]' % filename)                  
-        ConfigHandler().write(info, filename) 
-        valid,msg = FileUtils.is_valid_file(self, filename)
+    def write_output_file(self,info,log):
+        """
+        Write info object to a file 
+        
+        The file is following the Windows INI format. 
+        
+        @precondition: 'info' object has to contain the key 'OUTPUT'
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger
+        @param log: Logger of the class  
+        """ 
+        log.debug('output file [%s]' % info['OUTPUT'])                  
+        ConfigHandler().write(info, info['OUTPUT']) 
+        valid,msg = FileUtils.is_valid_file(self, info['OUTPUT'])
         if not valid:
-            self.log.fatal(msg)
+            log.fatal(msg)
             sys.exit(1)                                                                                                                                      
                                                                         
 
 class ApplicationRunner(Runner):
-    """
-    Used to run a class that implements the Application interface
+    """    
+    Runner class that supports application that implement the IApplication interface.
     """
     
     def define_arguments(self, parser):
@@ -357,17 +377,14 @@ class ApplicationRunner(Runner):
         args =DictUtils.remove_none_entries(args)
         return args
     
-    def run_app(self,app,info):
+    def run_app(self,app,info,log):
         """
-        Run a Python program
+        Run a python application
         
-        Arguments:
-        - app: Implementation of the IApplication interface
-        
-        Return: Exit code (integer) 
+        See super class.
         """        
         if isinstance(app,IApplication):
-            return app.main(info,self.log)
+            return app.main(info,log)
         else:                                    
             self.log.critical('the object [%s] is not an instance of one of the following %s'% 
                               (app.__class__.__name__,
@@ -378,19 +395,27 @@ class ApplicationRunner(Runner):
 
 class WrapperRunner(ApplicationRunner):
     """
+    Runner class that supports application that implement the IWrapper interface      
+        
     The Application type is used to create workflow nodes that 
     prepare, run and validate the execution of an external application.
     """
     
     def _run(self,command,storage):
         """
-        Execute a command and collects it's output in self.out_stream and self.err_stream 
+        Execute a command and collects it's output in self.out_stream and self.err_stream.
+         
         The stdout and stderr are written to files if file system should be used.
         Otherwise stdout and stderr of the application are separately printed to 
         stdout because the logger uses by default the stderr.
         
-        Return: return code (integer).
-        This is eigher 1 or the original return code of the executed command.
+        @type command: string
+        @param command: Command that will be executed
+        @type storage: string
+        @param storage: Storage type for the out/err streams produced by the command line execution  
+        
+        @rtype: int
+        @return: Return code. It is either 1 or the original return code of the executed command.        
         """
         # when the command does not exist, process just dies.therefore a try/catch is needed          
         try:     
@@ -421,40 +446,37 @@ class WrapperRunner(ApplicationRunner):
         parser.add_argument('-t','--template',required=False, dest="template", 
                             help="Name of the workflow node")               
     
-    def run_app(self,app,info):
+    def run_app(self,app,info,log):
         """
-        Prepare, run and validate the execution of an external program.
+        Prepare, run and validate the execution of an external program. 
         
-        Arguments:
-        - app: Implementation of the IWrapper interface
-        
-        Return: Exit code (integer) 
+        See super class.
         """
         if isinstance(app,IWrapper):
-            self.log.info('Start [%s]' % app.prepare_run.__name__)
-            command = app.prepare_run(info,self.log)     
-            self.log.info('Finish [%s]' % app.prepare_run.__name__)
+            log.info('Start [%s]' % app.prepare_run.__name__)
+            command = app.prepare_run(info,log)     
+            log.info('Finish [%s]' % app.prepare_run.__name__)
             if command is None:
-                self.log.critical('Command was [None]. Interface of [%s] is possibly not correctly implemented' %
+                log.critical('Command was [None]. Interface of [%s] is possibly not correctly implemented' %
                                   app.__class__.__name__)
                 return 1                
             # necessary when e.g. the template file contains '\n' what will cause problems 
             # when using concatenated shell commands
-            self.log.debug('remove all [\\n] from command string')
+            log.debug('remove all [\\n] from command string')
             command  = command.replace('\n','')   
-            self.log.info('Command [%s]' % str(command))
-            self.log.info('Start [%s]' % self._run.__name__)
+            log.info('Command [%s]' % str(command))
+            log.info('Start [%s]' % self._run.__name__)
             run_code = self._run(command,info['STORAGE'])
-            self.log.info('Finish [%s]' % self._run.__name__)
-            self.log.info('run_code [%s]' % run_code)        
-            self.log.info('Start [%s]' % app.validate_run.__name__)
+            log.info('Finish [%s]' % self._run.__name__)
+            log.info('run_code [%s]' % run_code)        
+            log.info('Start [%s]' % app.validate_run.__name__)
             # set stream pointer the start that in validate can use 
             # them immediately with .read() to get content
             self.out_stream.seek(0)
             self.err_stream.seek(0)
-            exit_code = app.validate_run(info,self.log,run_code,self.out_stream,self.err_stream)
-            self.log.debug('exit code [%s]' % exit_code)
-            self.log.info('Finish [%s]' % app.validate_run.__name__)        
+            exit_code = app.validate_run(info,log,run_code,self.out_stream,self.err_stream)
+            log.debug('exit code [%s]' % exit_code)
+            log.info('Finish [%s]' % app.validate_run.__name__)        
             return exit_code
         else:                                    
             self.log.critical('the object [%s] is not an instance of one of the following %s'% 

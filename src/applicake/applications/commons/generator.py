@@ -18,7 +18,12 @@ class Generator(IApplication):
     
     def main(self,info,log):
         """
-        see super class
+        Generate the cartesian product of all values from info and writes them to files.  
+        
+        @type info: see super class
+        @param info: see super class
+        @type log: see super class
+        @param log: see super class 
         """
         # prepare a basedic to produced input files for inner workflow
         basedic = info.copy()
@@ -40,12 +45,12 @@ class Generator(IApplication):
 
     def get_list_product(self,list_of_lists):
         """
-        Generate a list of product combinations from a list of lists
+        Generate a list of product combinations from a list of lists.
         
-        Arguments:
-        - list_of_lists: List of lists from which the product combinations should be created
+        @type list_of_lists: list of lists
+        @param list_of_lists: List of lists from which the product combinations should be created
         
-        Return: List with all product combinations
+        @return: List with all product combinations
         """
         # itertools.product() fails, if not all elements of the list are also lists.
         for idx, val in enumerate(list_of_lists):  
@@ -60,13 +65,16 @@ class Generator(IApplication):
         """
         Creates the value combinations of a dictionary with multiple values for its keys
         
-        Arguments:
-        - dic: The dictionary
-        - log: Logger object
-        - escape_keys: List of keys that should be excluded from the combination generation
-        - idx_key: Key to store the combination index
+        @type dic: dict
+        @param dic: Dictionary used to generate cartesian products from 
+        @type log: Logger
+        @param log: Logger object to write log messages 
+        @type escape_keys: list 
+        @param escape_keys: List of keys that should be excluded from the combination generation
+        @type idx_key: string 
+        @param idx_key: Key to store the combination index
         
-        Return: List of dictionaries
+        @return: List of dictionaries
         """
         escape_str = ';'
         # escape (list-) value of selected keys
@@ -92,10 +100,12 @@ class Generator(IApplication):
         Takes a dictionary and transforms values of keys that are lists into a string.
         This might needed to 'escape' lists that should not be part of a list-product generation
         
-        Arguments:
-        - dic: Dictionary that contains key-holding lists that should be escaped.
-        - keys: List of keys for which their values have to be transformed.
-        - escape_str: String used to transform a list to a string. The string should not be ',' as this is used
+        @type dic: dict 
+        @param dic: Dictionary that contains key-holding lists that should be escaped.
+        @type keys: list
+        @param keys: List of keys for which their values have to be transformed.
+        @type escape_str: string
+        @param escape_str: String used to transform a list to a string. The string should not be ',' as this is used
         to generate list products
         """
         for key in keys:
@@ -107,10 +117,12 @@ class Generator(IApplication):
         Takes a dictionary and transforms values of keys that are lists into a string.
         This might needed to 'escape' lists that should not be part of a list-product generation
         
-        Arguments:
-        - dic: Dictionary that contains key-holding lists that should be escaped.
-        - keys: List of keys for which their values have to be transformed.
-        - escape_str: String used to split a string and generate a list.
+        @type dic: dict 
+        @param dic: Dictionary that contains key-holding lists that should be escaped.
+        @type keys: list
+        @param keys: List of keys for which their values have to be transformed.
+        @type escape_str: string
+        @param escape_str: String used to split a string and generate a list.    
         """
         for key in keys:
             val = dic[key]
@@ -120,9 +132,10 @@ class Generator(IApplication):
         """
         Generates ini files from a list of dictionaries
         
-        Arguments:
-        - info: Dictionary with informaiton about the application. The created output files are added to the key 'CREATED_FILES'
-        - dicts: List of dictionaries used to create ini files
+        @type info: dict 
+        @param info: Dictionary with information about the application. The created output files are added to the key 'CREATED_FILES'
+        @type dicts: list
+        @type dicts: List of dictionaries used to create ini files
         """
         raise NotImplementedError("write_ini_files() is not implemented.") 
         
@@ -130,6 +143,7 @@ class Generator(IApplication):
 class GuseGenerator(Generator):
     """
     Generator for the GUSE workflow manager.
+    
     It creates output files of the format [INPUTFILENAME].[INDEX]
     """
     

@@ -7,19 +7,17 @@ Created on Mar 31, 2012
 import xml.parsers.expat
 from itertools import groupby
 from lxml import etree
-from xmldict import xml_to_dict, dict_to_xml
 
 
 
-class XmlUtils():
-    
-    def xml2dic(self,str):
-        return xml_to_dict(str,strict=True)
-        
+class XmlUtils():        
     
     @staticmethod
     def xml2d(e):
-        """Convert an etree into a dict structure
+        """
+        originated from: http://code.activestate.com/recipes/577722-xml-to-python-dictionary-and-back/
+        
+        Convert an etree into a dict structure
     
         @type  e: etree.Element
         @param e: the root of the tree
@@ -35,7 +33,10 @@ class XmlUtils():
     
     @staticmethod
     def d2xml(d):
-        """convert dict to xml
+        """
+        originated from: http://code.activestate.com/recipes/577722-xml-to-python-dictionary-and-back/
+        
+        convert dict to xml
     
            1. The top level d must contain a single entry i.e. the root element
            2.  Keys of the dictionary become sublements or attributes

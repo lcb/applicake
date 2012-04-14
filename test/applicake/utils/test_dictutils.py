@@ -19,7 +19,8 @@ class Test(unittest.TestCase):
                    'OUTPUT': '../../../data/output.ini',
                    'PARAM_IDX': 0,
                    'STORAGE': 'memory',
-                   'SECTION': {}
+                   'SECTION': {'SUB_1':11},
+                   'LIST': [11]
                    }
         self.d2 = {
                    'BASEDIR': '/tmp',                   
@@ -30,7 +31,8 @@ class Test(unittest.TestCase):
                    'OUTPUT': '../../../data/output.ini',
                    'PARAM_IDX': 0,
                    'STORAGE': 'memory',
-                   'SECTION': {'SUBSECTION':11}
+                   'SECTION': {'SUB_2':22},
+                   'LIST': [22,222]
                    } 
  
 
@@ -51,7 +53,8 @@ class Test(unittest.TestCase):
                        'OUTPUT': '../../../data/output.ini',
                        'PARAM_IDX': 0,
                        'STORAGE': 'memory',
-                       'SECTION': {}
+                       'SECTION': {'SUB_1':11},
+                       'LIST': [11]
                    }
         res = DictUtils.merge(self.d1, self.d2, priority='right')
         assert res == {                                       
@@ -63,10 +66,10 @@ class Test(unittest.TestCase):
                        'OUTPUT': '../../../data/output.ini',
                        'PARAM_IDX': 0,
                        'STORAGE': 'memory',
-                       'SECTION': {'SUBSECTION':11}
+                       'SECTION': {'SUB_2':22},
+                       'LIST': [22,222]
                    }  
         res = DictUtils.merge(self.d1, self.d2, priority='flatten_sequence')
-        print res
         assert res == {                                       
                        'BASEDIR': '/tmp',                   
                        'COMMENT': 'hello world',
@@ -76,7 +79,8 @@ class Test(unittest.TestCase):
                        'OUTPUT': '../../../data/output.ini',
                        'PARAM_IDX': 0,
                        'STORAGE': 'memory',
-                       'SECTION': [{},{'SUBSECTION':11}]
+                       'SECTION': ['SUB_1','SUB_2'],
+                       'LIST': [11,22,222]
                    }                
         
 
