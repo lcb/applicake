@@ -42,19 +42,20 @@ class Runner(object):
             log_msg.append('Start [%s]' % self.get_parsed_arguments.__name__)
             pargs = self.get_parsed_arguments()
             log_msg.append('Finish [%s]' % self.get_parsed_arguments.__name__)
-            info.update(pargs)
+            info = DictUtils.merge(info, pargs,priority='right')
             log_msg.append('Update application information with settings from command line') 
             created_files = {'CREATED_FILES':None}
-            info.update(created_files)
+            info = DictUtils.merge(info, created_files,priority='right')
             log_msg.append("Add/reset key [CREATED_FILES] to application information")   
             # create a merged config object from all inputs                                
-            success,msg,config = self.get_config(pargs['INPUTS'])
+            success,msg,config = self.get_config(info)
             if not success:
                 log_msg.append(msg)
                 sys.exit(1)    
-            # merge the content of the input files with the already existing 
-            # priority is on the first dictionary
-            info = DictUtils.merge(info, config,priority='left')
+            else:
+                # merge the content of the input files with the already existing 
+                # priority is on the first dictionary
+                info = DictUtils.merge(info, config,priority='left')
             # set default for name if non is given via the cmdline or the input file
             # set name variable to concrete class name if no specific name is provided.
             # the name variable is used to for the logger and file names if the file system is used
@@ -392,6 +393,27 @@ class ApplicationRunner(Runner):
             return 1
     
 
+class CollectorRunner(ApplicationRunner):
+    
+    def get_config(self, input_files):
+        success = False
+        msg = []
+        config = {}
+        for fin in input_files:
+            valid, msg_valid = FileUtils.is_valid_file(self, fin)
+            if not valid:
+                msg.append(msg_valid)
+                msg = '\n'.join(msg)
+                return (success,msg,config)
+            else:
+                msg.append('file [%s] is valid' % fin)
+                new_config = ConfigHandler().read(fin)
+                msg.append('created dictionary from file content')
+                config = DictUtils.merge(config, new_config, priority='flatten_sequence')
+                msg.append('merge content with content from previous files')     
+        success = True 
+        msg = '\n'.join(msg) 
+        return success,msg,config    
 
 class WrapperRunner(ApplicationRunner):
     """

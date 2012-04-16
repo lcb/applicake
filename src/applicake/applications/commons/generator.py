@@ -142,7 +142,7 @@ class Generator(IApplication):
         
 class GuseGenerator(Generator):
     """
-    Generator for the GUSE workflow manager.
+    Generator for the gUSE workflow manager.
     
     It creates output files of the format [INPUTFILENAME].[INDEX]
     """
