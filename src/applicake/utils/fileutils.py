@@ -8,6 +8,7 @@ import fcntl
 import errno
 import os
 import shutil
+import sys
 
 class FileLocker(object):
     """
@@ -41,38 +42,41 @@ class FileUtils(object):
     """
     Utilites for handling files and directories
     """
+    
     @staticmethod
-    def is_valid_file(self,path):
+    def is_valid_file(log,path):
         """
-        Check if a file is valid
+        Check if a file is valid.
         
         Checks if file exists, if it is a file, if it can be read and 
-        if file size i larger 0 KB 
+        if file size i larger 0 KB.
         
-        Arguments:
-        - path:  path of a file
+        @type log: Logger
+        @param log: Logger to store log messages 
+        @type path: string
+        @param path: Path of a file
         
-        Return: Tuple of 2 values. The first is a boolean and the second a string
-        containing a message that explains the boolean
+        @rtype: Boolean
+        @return: True if the file is valid, otherwise False 
         """
-        valid = False
-        msg = ''
+        
         fail1 = not os.path.exists(path)
         fail2 = not os.path.isfile(path)
         fail3 = not os.access(path,os.R_OK)
         fail4 = not (os.path.getsize(path) > 0)
         fails = [fail1,fail2,fail3,fail4]
         if any(fails):
-            msg = '''file [%s] does not exist [%s], 
+            log.error('''file [%s] does not exist [%s], 
             is not a file [%s], cannot be read [%s] or
             has no file larger that > 0kb [%s]''' % (
                                                             os.path.abspath(path),
                                                             fail1,fail2,fail3,fail4
                                                             )
+                      )
+            return False
         else:
-            msg = 'file [%s] checked successfully' % path  
-            valid = True
-        return (valid,msg)  
+            log.debug('file [%s] checked successfully' % path)  
+            return True  
     
     @staticmethod
     def get_cksum(self,path, md5=True,exclude_line="", include_line=""):        
@@ -103,39 +107,31 @@ class FileUtils(object):
         return cksum.hexdigest()    
     
     @staticmethod
-    def makedirs_safe(path,clean=False):
+    def makedirs_safe(log,path,clean=False):
         """
         Recursively create directories in 'path' unless they already exist.
         Safe to use in a concurrent fashion.
         
         Arguments:
+        -log: Logger
         - path: the directory path
         - clean: if True, the content of the directory is deleted if it exists
-          (default: False) 
-        
-        Return: Tuple of 2 values. The first is a boolean and the second a string
-        containing a message that explains the boolean        
+          (default: False)    
         """
-        success = None
-        msg = ''
         try:
             os.makedirs(path)
-            msg = 'dir [%s] was created' % path
-            success = True
+            log.debug('dir [%s] was created' % path)
         except OSError as error:
             if error.errno == errno.EEXIST and os.path.isdir(path):
-                msg = 'dir [%s] already exists' % path
+                log.debug('dir [%s] already exists' % path)
                 #TODO: should remove the existing directory and create it newly
                 # content of the old directory should be put into the log  
                 if clean:
-                    
                     FileUtils.rm_dir_content(path)
-                success = True
-                pass
+                    FileUtils.makedirs_save(path,clean=False)
             else:
-                msg = 'could not create dir [%s]' % path
-                success = False
-        return(success,msg)
+                log.fatal('could not create dir [%s]' % path)
+                sys.exit(1)
     
     @staticmethod
     def rm_dir_content(path):

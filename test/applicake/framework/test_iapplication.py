@@ -19,12 +19,12 @@ class Application(IApplication):
     err_txt = 'my stderr txt'
     log_txt = 'LOG' 
           
-    def main(self,config,log):
+    def main(self,info,log):
 
         sys.stdout.write(self.out_txt)
         sys.stderr.write(self.err_txt)
         log.debug(self.log_txt)
-        return 0
+        return (0,info)
 
 class Test(unittest.TestCase):
 
@@ -58,6 +58,14 @@ class Test(unittest.TestCase):
     def tearDown(self):      
         shutil.rmtree(self.tmp_dir)
         os.chdir(self.cwd)
+        
+    def test__init__0(self):
+        '''Test without command line arguments'''
+        sys.argv = ['test.py']
+        runner = ApplicationRunner()
+        application = Application()
+        exit_code = runner(sys.argv,application)
+        assert exit_code == 0            
         
     def test__init__1(self):
         ''' Test required command line arguments'''

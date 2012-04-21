@@ -19,16 +19,20 @@ class Wrapper(IWrapper):
     err_txt = 'my stderr txt'
     log_txt = 'LOG'    
     
-    def prepare_run(self,config,log):
+    def prepare_run(self,info,log):
         log.debug(self.log_txt)
-        prefix = config['prefix']
-        return '%s "%s";%s "%s" >&2' % (prefix,self.out_txt,
+        prefix = info['prefix']
+        command = '%s "%s";%s "%s" >&2' % (prefix,self.out_txt,
                                prefix,self.err_txt)
+        return (command,info)
         
     def validate_run(self,info,log,run_code, out_stream, err_stream):
+        exit_code = None
         if 0 != run_code:
-            return run_code
-        return 0
+            exit_code = run_code
+        else:
+            exit_code = 0
+        return (exit_code,info)
 
 class Test(unittest.TestCase):
     """

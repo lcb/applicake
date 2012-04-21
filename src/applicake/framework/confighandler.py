@@ -4,8 +4,10 @@ Created on Feb 29, 2012
 @author: quandtan
 '''
 
-import os
+
+from applicake.utils.dictutils import DictUtils
 from applicake.utils.fileutils import FileLocker
+from applicake.utils.fileutils import FileUtils
 from configobj import ConfigObj
 from string import Template 
 
@@ -16,16 +18,39 @@ class ConfigHandler(object):
     """
 
     def __init__(self,lock=False):
-        self._lock = lock    
+        self._lock = lock 
         
-    def read(self,path): 
+    def get_config(self, input_files):
+        success = False
+        msg = []
+        config = {}
+        for fin in input_files:
+            valid, msg_valid = FileUtils.is_valid_file(self, fin)
+            if not valid:
+                msg.append(msg_valid)
+                msg = '\n'.join(msg)
+                return (success,msg,config)
+            else:
+                msg.append('file [%s] is valid' % fin)
+                new_config = ConfigHandler().read(fin)
+                msg.append('created dictionary from file content')
+                config = DictUtils.merge(config, new_config, priority='flatten_sequence')
+                msg.append('merge content with content from previous files')     
+        success = True 
+        msg = '\n'.join(msg) 
+        return success,msg,config           
+        
+    def read(self,log,path): 
         """
         Read file in windows ini format and returns a dictionary like object (ConfigObj)
         
-        Arguments:
-        - path: Path to the ini file
+        @type log: Logger
+        @param log: Logger object to write log messages 
+        @type path: string
+        @param path: Path to the ini file
         
-        Return: The dictionary created from the config file
+        @rtype: dict
+        @return: The dictionary created from the config file
         """
         if not self._lock:
             return ConfigObj(path)

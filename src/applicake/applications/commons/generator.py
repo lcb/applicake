@@ -7,8 +7,9 @@ Created on Mar 20, 2012
 import itertools
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
+from applicake.framework.interfaces import IInformationHandler
 
-class Generator(IApplication):
+class BasicGenerator(IApplication):
     """
     Generates all possible value combinations from the input file if it contains keys with multiple values.
     The results are stored in files which are named in dependency input file name and the pattern accepted 
@@ -27,21 +28,21 @@ class Generator(IApplication):
         """
         # prepare a basedic to produced input files for inner workflow
         basedic = info.copy()
-        del basedic['CREATED_FILES']
+        del basedic[IInformationHandler().created_files_key]
         # prepare first the product of a parameter combinations
-        escape_keys = ['DATASET_CODE']
-        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key='PARAM_IDX')
+        escape_keys = [IInformationHandler().dataset_code_key]
+        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key=IInformationHandler().param_idx_key)
         log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
         # prepare combinations based on files
         param_file_dicts = []
         escape_keys = []
         for dic in  param_dicts:            
-            file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key='FILE_IDX')
+            file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key=IInformationHandler().file_idx_key)
             param_file_dicts.extend(file_dicts)
         log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
         # write ini files
-        self.write_ini_files(info,log,param_file_dicts)
-        return 0
+        self.write_generator_files(info,log,param_file_dicts)
+        return (0,info)
 
     def get_list_product(self,list_of_lists):
         """
@@ -128,32 +129,32 @@ class Generator(IApplication):
             val = dic[key]
             dic[key] = val.split(split_str)
             
-    def write_ini_files(self,info,log,dicts):
+    def write_generator_files(self,info,log,dicts):
         """
         Generates ini files from a list of dictionaries
         
         @type info: dict 
-        @param info: Dictionary with information about the application. The created output files are added to the key 'CREATED_FILES'
+        @param info: Dictionary with information about the application. The created output files are added to the key [%s]
         @type dicts: list
         @type dicts: List of dictionaries used to create ini files
-        """
-        raise NotImplementedError("write_ini_files() is not implemented.") 
+        """ % info.created_files_key
+        raise NotImplementedError("write_generator_files() is not implemented.") 
         
         
-class GuseGenerator(Generator):
+class GuseGenerator(BasicGenerator):
     """
-    Generator for the gUSE workflow manager.
+    BasicGenerator for the gUSE workflow manager.
     
     It creates output files of the format [INPUTFILENAME].[INDEX]
     """
     
-    def write_ini_files(self,info,log,dicts): 
+    def write_generator_files(self,info,log,dicts): 
         """
         see super class
         """       
         for idx,dic in enumerate(dicts):
-            outfile = "%s.%s" % (info["OUTPUT"],idx) 
+            outfile = "%s.%s" % (IInformationHandler().output_key,idx) 
             log.debug(outfile)          
             ConfigHandler().write(dic, outfile)
             log.debug('create file [%s]' % outfile)
-            info['CREATED_FILES'].append(outfile)
+            info[IInformationHandler().created_files_key].append(outfile)

@@ -77,4 +77,23 @@ class DictUtils(SequenceUtils):
                 keys.append(k)
         for k in keys:
             copied_dict.pop(k)
-        return copied_dict           
+        return copied_dict   
+    
+    @staticmethod
+    def sort(dic,by='key'):
+        """
+        Sort a dictionary.
+        
+        @type dic: dict
+        @param dic: Dictionary to sort
+        @type by: string
+        @param by: How to sort dictionary (key|value)
+        
+        @rtype: dict
+        @return: The sorted dictionary.  
+        """
+        d = dic.copy()
+        if type == 'key':
+            return sorted(d.items(), key=lambda t: t[1])    
+        elif type == 'value':
+            return sorted(d.items(), key=lambda t: t[0])    

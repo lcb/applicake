@@ -16,7 +16,7 @@ class Echo(IWrapper):
         See interface
         """
         comment = info['COMMENT']
-        return 'echo "%s"' % comment
+        return ('echo "%s"' % comment,info)
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):
         """
@@ -33,6 +33,6 @@ class Echo(IWrapper):
                           check if the input file contained a value for the key [COMMENT]
                           ''')
                 exit_code = 1
-        return exit_code
+        return (exit_code,info)
                 
         

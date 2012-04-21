@@ -7,15 +7,18 @@ import unittest
 import os
 import shutil
 import sys
-from applicake.framework.runner import WrapperRunner
 from applicake.framework.confighandler import ConfigHandler
+from applicake.framework.logger import Logger
+from applicake.framework.runner import WrapperRunner
 from applicake.applications.os.echo import Echo  
-
+from StringIO import StringIO
 
 class Test(unittest.TestCase):
 
 
     def setUp(self):
+        log_stream = StringIO()
+        self.log = Logger(level='DEBUG',name='memory_logger',stream=log_stream).logger
         self.input = 'echo_test.ini'
         self.tmp_dir = '%s/tmp' % os.path.abspath(os.getcwd())
         self.cwd = os.getcwd()
@@ -29,7 +32,7 @@ LOG_LEVEL = INFO
 BASEDIR = /tmp
 """)
         fh.close()
-        self.output = 'input.ini'
+        self.output = 'output.ini'
 
     def tearDown(self):
         os.remove(self.input)
@@ -44,7 +47,7 @@ BASEDIR = /tmp
         sys.argv = ['run_echo.py', '-i', self.input, '-o',self.output]
         exit_code = runner(sys.argv,wrapper)  
         assert 0 == exit_code      
-        config = ConfigHandler().read(self.output)
+        config = ConfigHandler().read(self.log,self.output)
         print config
         outfile = os.path.join(config['WORKDIR'],config['CREATED_FILES'][0])        
         assert 'hello world\n' == open(outfile,'r').read()
