@@ -22,9 +22,13 @@ class IArgsHandler(object):
         """        
         raise NotImplementedError("define_arguments() is not implemented.")  
     
-    def get_parsed_arguments(self):
+    def get_parsed_arguments(self, log):
         """
         Parse command line arguments of the application.
+        
+        @precondition: sys.argv has to be defined as the method uses sys.argv[1:].
+        @type log: Logger 
+        @param log: Logger to store log messages       
         
         @rtype: dict
         @return: Dictionary of parsed arguments.        

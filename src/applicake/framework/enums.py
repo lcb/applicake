@@ -13,3 +13,5 @@ class KeyEnum(object):
     dataset_code_key = 'DATASET_CODE'  
     param_idx_key = 'PARAM_IDX'
     file_idx_key = 'FILE_IDX'
+    prefix_key = 'PREFIX'
+    template_key = 'TEMPLATE'

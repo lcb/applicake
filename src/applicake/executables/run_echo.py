@@ -5,11 +5,11 @@ Created on Mar 28, 2012
 '''
 
 import sys
-from applicake.framework.runner import WrapperRunner
+from applicake.framework.runner import BasicWrapperRunner
 from applicake.applications.os.echo import Echo
 
 
-runner = WrapperRunner()
+runner = BasicWrapperRunner()
 wrapper = Echo()
 exit_code = runner(sys.argv,wrapper)
 print exit_code

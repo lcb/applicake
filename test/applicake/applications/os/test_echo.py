@@ -9,7 +9,7 @@ import shutil
 import sys
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.logger import Logger
-from applicake.framework.runner import WrapperRunner
+from applicake.framework.runner import BasicWrapperRunner
 from applicake.applications.os.echo import Echo  
 from StringIO import StringIO
 
@@ -42,7 +42,7 @@ BASEDIR = /tmp
 
 
     def test_echo(self):
-        runner = WrapperRunner()
+        runner = BasicWrapperRunner()
         wrapper = Echo()
         sys.argv = ['run_echo.py', '-i', self.input, '-o',self.output]
         exit_code = runner(sys.argv,wrapper)  

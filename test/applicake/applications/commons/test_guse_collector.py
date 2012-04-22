@@ -8,7 +8,7 @@ import os
 import shutil
 import sys
 from applicake.framework.confighandler import ConfigHandler
-from applicake.framework.runner import ApplicationRunner
+from applicake.framework.runner import BasicApplicationRunner
 from applicake.applications.commons.collector import GuseCollector
 
 
@@ -45,7 +45,7 @@ class Test(unittest.TestCase):
 
     def test_guse_collector_1(self):
         ''' Test with only collector and output flag'''
-        runner = ApplicationRunner()
+        runner = BasicApplicationRunner()
         wrapper = GuseCollector()
         sys.argv = ['run_echo.py', '-c', self.collector_file, '-o',self.output]
         exit_code = runner(sys.argv,wrapper)        
@@ -75,9 +75,10 @@ class Test(unittest.TestCase):
 
     def test_guse_collector_2(self):
         ''' Test with collector, output flag and other cmdline flags to set defaults'''
-        runner = ApplicationRunner()
+        runner = BasicApplicationRunner()
         wrapper = GuseCollector()
-        sys.argv = ['run_echo.py', '-c', self.collector_file, '-o',self.output,'-l','INFO','-s','file']
+#        sys.argv = ['run_echo.py', '-c', self.collector_file, '-o',self.output,'-l','INFO','-s','file'] #for ApplicationArgsHandler()
+        sys.argv = ['run_echo.py', '-c', self.collector_file, '-o',self.output,'--LOG_LEVEL','INFO','--STORAGE','file'] # for BasicArgsHandler()
         exit_code = runner(sys.argv,wrapper)        
         assert 0 == exit_code
         runner.info['COLLECTOR_IDX'] = self.range

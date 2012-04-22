@@ -9,8 +9,9 @@ import shutil
 import string
 import sys
 import unittest
+from applicake.framework.enums import KeyEnum
 from applicake.framework.interfaces import IWrapper
-from applicake.framework.runner import WrapperRunner
+from applicake.framework.runner import BasicWrapperRunner
 
 
 class Wrapper(IWrapper):
@@ -21,7 +22,7 @@ class Wrapper(IWrapper):
     
     def prepare_run(self,info,log):
         log.debug(self.log_txt)
-        prefix = info['prefix']
+        prefix = info[KeyEnum.prefix_key]
         command = '%s "%s";%s "%s" >&2' % (prefix,self.out_txt,
                                prefix,self.err_txt)
         return (command,info)
@@ -36,7 +37,7 @@ class Wrapper(IWrapper):
 
 class Test(unittest.TestCase):
     """
-    Test class for WrapperRunner class
+    Test class for BasicWrapperRunner class
     """
     
     def setUp(self):
@@ -70,13 +71,13 @@ class Test(unittest.TestCase):
         shutil.rmtree(self.tmp_dir)
         os.chdir(self.cwd)   
         
-    def test__init__1(self):
+    def test__call__1(self):
         '''Test of stream storage in memory '''
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini, '-n',self.random_name,
-                    '-p','/bin/echo','-s','memory','-l','DEBUG']
+                    '--PREFIX','/bin/echo','--STORAGE','memory','--LOG_LEVEL','DEBUG']
 
-        runner = WrapperRunner()
+        runner = BasicWrapperRunner()
         wrapper = Wrapper()
         exit_code = runner(sys.argv,wrapper)          
         runner.out_stream.seek(0)
@@ -92,11 +93,12 @@ class Test(unittest.TestCase):
         assert wrapper.log_txt in log        
         assert exit_code == 0   
         
-    def test__init__2(self):
+    def test__call__2(self):
+        '''Test stream storage in files '''
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini, '-n',self.random_name,
-                    '-p','/bin/echo','-s','file','-l','DEBUG']
-        runner = WrapperRunner()
+                    '--PREFIX','/bin/echo','--STORAGE','memory','--LOG_LEVEL','DEBUG']
+        runner = BasicWrapperRunner()
         wrapper = Wrapper()
         exit_code = runner(sys.argv,wrapper)
 #        assert os.path.exists(runner.info['out_file'])

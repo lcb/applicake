@@ -13,6 +13,7 @@ from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
 from applicake.framework.argshandler import ApplicationArgsHandler
+from applicake.framework.argshandler import BasicArgsHandler
 from applicake.framework.argshandler import WrapperArgsHandler
 from applicake.framework.logger import Logger
 from applicake.framework.interfaces import IApplication
@@ -57,7 +58,7 @@ class Runner(object):
             args_handler = self.get_args_handler()
             log.debug('Finished [%s]' % self.get_args_handler.__name__)            
             log.debug('Start [%s]' % args_handler.get_parsed_arguments.__name__)
-            pargs = args_handler.get_parsed_arguments()
+            pargs = args_handler.get_parsed_arguments(log)
             log.debug('Finish [%s]' % args_handler.get_parsed_arguments.__name__) 
             log.debug('Start [%s]' % self.get_info_handler.__name__)
             info_handler = self.get_info_handler()
@@ -308,7 +309,7 @@ class Runner(object):
         raise NotImplementedError("run() is not implemented.")                                                                                                                                           
                                                                         
 
-class ApplicationRunner(Runner):
+class BasicApplicationRunner(Runner):
     """    
     Runner class that supports application that implement the IApplication interface.
     """
@@ -317,16 +318,14 @@ class ApplicationRunner(Runner):
         """
         See super class
         """
-
-        return ApplicationArgsHandler() 
+        return BasicArgsHandler() 
 
     def get_info_handler(self):  
         """
         Information from the command line and the input file(s) are merged with priority to the
         command line information.
         Output is only written to a single file
-        """
-        
+        """       
         return BasicInformationHandler()                  
     
     def run_app(self,app,info,log):
@@ -345,7 +344,7 @@ class ApplicationRunner(Runner):
         
         
 
-class WrapperRunner(ApplicationRunner):
+class BasicWrapperRunner(BasicApplicationRunner):
     """
     Runner class that supports application that implement the IWrapper interface      
         
@@ -393,7 +392,7 @@ class WrapperRunner(ApplicationRunner):
         See super class
         """
 
-        return WrapperArgsHandler()                     
+        return BasicArgsHandler()                     
     
     def run_app(self,app,info,log):
         """
@@ -431,4 +430,27 @@ class WrapperRunner(ApplicationRunner):
             self.log.critical('the object [%s] is not an instance of one of the following %s'% 
                               (app.__class__.__name__,
                                [IApplication,__class__.__name__]))  
-            return (1,info)             
+            return (1,info)  
+        
+class StrictApplicationRunner(BasicApplicationRunner):
+    """
+    Same as BasicApplicationRunner only with the more specific argument handler ApplicationArgsHandler().
+    """
+    
+    def get_args_handler(self):
+        """
+        See super class
+        """
+        return ApplicationArgsHandler()
+    
+class StrictWrapperHandler(BasicWrapperRunner):
+    """
+    Same as BasicWrapperRunner only with the more specific argument handler WrapperArgsHandler().
+    """
+    
+    def get_args_handler(self):
+        """
+        See super class
+        """
+        return WrapperArgsHandler()    
+    

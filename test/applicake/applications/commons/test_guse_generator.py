@@ -7,7 +7,7 @@ import unittest
 import os
 import shutil
 import sys
-from applicake.framework.runner import ApplicationRunner
+from applicake.framework.runner import BasicApplicationRunner
 from applicake.applications.commons.generator import GuseGenerator
 
 
@@ -40,7 +40,7 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
 
 
     def test_guse_generator(self):
-        runner = ApplicationRunner()
+        runner = BasicApplicationRunner()
         wrapper = GuseGenerator()
         sys.argv = ['run_echo.py', '-i', self.input, '-o',self.output]
         exit_code = runner(sys.argv,wrapper)        

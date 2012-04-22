@@ -5,11 +5,11 @@ Created on Apr 10, 2012
 '''
 
 import sys
-from applicake.framework.runner import ApplicationRunner
+from applicake.framework.runner import BasicApplicationRunner
 from applicake.applications.commons.generator import GuseGenerator
 
 
-runner = ApplicationRunner()
+runner = BasicApplicationRunner()
 wrapper = GuseGenerator()
 exit_code = runner(sys.argv,wrapper)
 print sys.argv

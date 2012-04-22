@@ -9,19 +9,21 @@ from applicake.framework.interfaces import IArgsHandler
 from applicake.utils.dictutils import DictUtils
 from argparse import ArgumentParser
 
-class ApplicationArgsHandler(IArgsHandler):
+class BasicArgsHandler(IArgsHandler):
     """    
-    Argument handler for the application class.
+    Basic implementation of the IInformationHandler interface.
     
     Provides control for the following command line arguments:
     -- input,
     -- output,
     -- generator,
-    -- collector,
-    -- name,
-    -- storage,
-    -- loglevel
-    """ 
+    -- collector  
+    
+    Undefined arguments following the scheme ['--key value'] are accepted. (if a key is defined multiple times,
+    only the last values is used).
+    If the number of undefined keys and values is odd, none of undefined arguments is parsed.
+    If one of the undefined keys does not start with '--', the according key/pair value is excluded.   
+    """  
     
     def define_arguments(self, parser):
         """
@@ -34,7 +36,52 @@ class ApplicationArgsHandler(IArgsHandler):
         parser.add_argument('-g','--generator',required=False,dest="GENERATORS", 
                             action='append',help="Base name for generating output files (such as for a parameter sweep)")
         parser.add_argument('-c','--collector',required=False, dest="COLLECTORS",
-                            action='append',help="Base name for collecting output files (e.g. from a parameter sweep")               
+                            action='append',help="Base name for collecting output files (e.g. from a parameter sweep")  
+        
+    def get_parsed_arguments(self,log):
+        """
+        See super class.
+        """        
+        parser = ArgumentParser(description='Basic argument parser for applicake applications')
+        self.define_arguments(parser=parser) 
+        pargs = parser.parse_known_args(sys.argv[1:])
+        defined_args = vars(pargs[0])
+        # if optional args are not set, a key = None is created
+        # these have to be removed
+        defined_args =DictUtils.remove_none_entries(defined_args)
+        log.debug('removed arguments that were not set at command line level')        
+        undefined_args = pargs[1]
+        undefined_keys = undefined_args[::2]
+        undefined_vals = undefined_args[1::2]
+        if len(undefined_keys) != len(undefined_vals):
+            log.error('Only defined args are considered because number of unknown keys [%s] and values [%s] is not even' % (len(undefined_keys),len(undefined_vals)) )
+            return defined_args
+        for idx,k in enumerate(undefined_keys):
+            if k.startswith('--'):
+                key_name = k[2:]
+                defined_args[key_name] = undefined_vals[idx]
+            else:
+                log.error('argument [%s] is not considered because it does not start with "--"') 
+        return defined_args 
+
+
+class ApplicationArgsHandler(BasicArgsHandler):
+    """    
+    Argument handler for the application class.
+    
+    Extends the BasicArgsHandler by controlling the following command line arguments:
+    -- name,
+    -- storage,
+    -- loglevel
+    
+    Undefined arguments are not any longer accepted.
+    """ 
+    
+    def define_arguments(self, parser):
+        """
+        See super class.
+        """
+        super(ApplicationArgsHandler, self).define_arguments(parser=parser)      
         parser.add_argument('-n','--name',required=False, dest="NAME", 
 #                            default=self.__class__.__name__,
                             help="Name of the workflow node")
@@ -48,28 +95,25 @@ class ApplicationArgsHandler(IArgsHandler):
                                                   'ERROR','CRITICAL'],
                             help="Storage type for produced streams") 
 
-    def get_parsed_arguments(self):
+    def get_parsed_arguments(self,log):
         """
         See super class.
         """        
         parser = ArgumentParser(description='Applicake application')
         self.define_arguments(parser=parser) 
-        args = vars(parser.parse_args(sys.argv[1:]))
+        pargs = vars(parser.parse_args(sys.argv[1:]))
         # if optional args are not set, a key = None is created
         # these have to be removed
-        args =DictUtils.remove_none_entries(args)
-        return args                
-
-#class BasicArgsHandler(IArgsHandler):
-#    """    
-#    Basic implementation of the IInformationHandler interface. 
-#    """  
+        pargs =DictUtils.remove_none_entries(pargs)
+        log.debug('removed arguments that were not set at command line level')
+        return pargs                    
+            
 
 class WrapperArgsHandler(ApplicationArgsHandler):
     """
     Argument handler for the wrapper class.
     
-    Extends the ApplicationArgsHandler by the following command line arguments:
+    Extends the ApplicationArgsHandler by controlling the following command line arguments:
     -- prefix,
     -- template
     """
@@ -79,7 +123,7 @@ class WrapperArgsHandler(ApplicationArgsHandler):
         See super class.
         """
         super(WrapperArgsHandler, self).define_arguments(parser=parser)
-        parser.add_argument('-p','--prefix',required=False, dest="prefix",
+        parser.add_argument('-p','--prefix',required=False, dest="PREFIX",
                             help="Prefix of the command to execute")      
-        parser.add_argument('-t','--template',required=False, dest="template", 
+        parser.add_argument('-t','--template',required=False, dest="TEMPLATE", 
                             help="Name of the workflow node")     
