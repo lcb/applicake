@@ -9,10 +9,11 @@ Created on Nov 11, 2010
 import os
 import shutil
 import sys
-from argparse import ArgumentParser
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
+from applicake.framework.argshandler import ApplicationArgsHandler
+from applicake.framework.argshandler import WrapperArgsHandler
 from applicake.framework.logger import Logger
 from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IWrapper
@@ -52,9 +53,12 @@ class Runner(object):
             log.debug('arguments [%s]' % args[1:])
             log.debug('Runner class [%s]' % self.__class__.__name__)
             log.debug('Application class [%s]' % app.__class__.__name__)
-            log.debug('Start [%s]' % self.get_parsed_arguments.__name__)
-            pargs = self.get_parsed_arguments()
-            log.debug('Finish [%s]' % self.get_parsed_arguments.__name__) 
+            log.debug('Start [%s]' % self.get_args_handler.__name__)
+            args_handler = self.get_args_handler()
+            log.debug('Finished [%s]' % self.get_args_handler.__name__)            
+            log.debug('Start [%s]' % args_handler.get_parsed_arguments.__name__)
+            pargs = args_handler.get_parsed_arguments()
+            log.debug('Finish [%s]' % args_handler.get_parsed_arguments.__name__) 
             log.debug('Start [%s]' % self.get_info_handler.__name__)
             info_handler = self.get_info_handler()
             log.debug('Finished [%s]' % self.get_info_handler.__name__)
@@ -64,13 +68,11 @@ class Runner(object):
             log.debug('content of info [%s]' % info)
             info = DictUtils.merge(info, default_info,priority='left')
             log.debug('Added default values to info they were not set before')            
-            log.debug('content of final info [%s]' % info)       
-            
+            log.debug('content of final info [%s]' % info)                   
             self.out_stream,self.err_stream,self.log_stream = self.get_streams(info,log)               
             sys.stdout = self.out_stream
             sys.stderr = self.err_stream
-            log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')  
-                     
+            log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')                       
             log = Logger(level=info['LOG_LEVEL'],
                          name=info['NAME'],stream=self.log_stream).logger       
             log.debug('created new logger dependent of the storage')
@@ -223,32 +225,7 @@ class Runner(object):
         # creates the directory, if it exists, it's content is removed       
         FileUtils.makedirs_safe(log,path,clean=True)
         info['WORKDIR'] = path  
-        log.debug("added key ['WORKDIR] to info object.")
-        
-    def define_arguments(self, parser):        
-        """
-        Define command line arguments of the application.
-        
-        Arguments:
-        - parser: Object of type ArgumentParser
-        """        
-        raise NotImplementedError("define_arguments() is not implemented.")   
-    
-    def get_info_handler(self):
-        """
-        Define which information handler to use
-        
-        @rtype: IInformation
-        @return: An implementation of the IInformation interface. 
-        """
-    
-    def get_parsed_arguments(self):
-        """
-        Parse command line arguments of the application.
-        
-        Return: Dictionary of parsed arguments        
-        """
-        raise NotImplementedError("get_parsed_arguments() is not implemented.")                           
+        log.debug("added key ['WORKDIR] to info object.")                         
                     
     def get_streams(self,info,log):
         """
@@ -298,6 +275,22 @@ class Runner(object):
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__                  
     
+    def get_args_handler(self):
+        """
+        Define which command line argument handler to use
+        
+        @rtype: IArgsHandler
+        @return: An implementation of the IArgsHandler interface. 
+        """ 
+    
+    def get_info_handler(self):
+        """
+        Define which information handler to use
+        
+        @rtype: IInformation
+        @return: An implementation of the IInformation interface. 
+        """     
+    
     def run_app(self,info,log,app):
         """
         Executes an object that implements the supported Application interface.        
@@ -320,30 +313,12 @@ class ApplicationRunner(Runner):
     Runner class that supports application that implement the IApplication interface.
     """
     
-    def define_arguments(self, parser):
+    def get_args_handler(self):
         """
-        See super class.
+        See super class
         """
-        parser.add_argument('-i','--input',required=False,dest="INPUTS", 
-                            action='append',help="Input (configuration) file(s)")
-        parser.add_argument('-o','--output',required=False, dest="OUTPUT",
-                            action='store',help="Output (configuration) file")
-        parser.add_argument('-g','--generator',required=False,dest="GENERATORS", 
-                            action='append',help="Base name for generating output files (such as for a parameter sweep)")
-        parser.add_argument('-c','--collector',required=False, dest="COLLECTORS",
-                            action='append',help="Base name for collecting output files (e.g. from a parameter sweep")               
-        parser.add_argument('-n','--name',required=False, dest="NAME", 
-#                            default=self.__class__.__name__,
-                            help="Name of the workflow node")
-        parser.add_argument('-s','--storage',required=False, dest="STORAGE", 
-#                            default=None,
-                            choices=['memory','file'],
-                            help="Storage type for produced streams")  
-        parser.add_argument('-l','--loglevel',required=False, dest="LOG_LEVEL", 
-#                            default=None,
-                            choices=['DEBUG','INFO','WARNING',
-                                                  'ERROR','CRITICAL'],
-                            help="Storage type for produced streams") 
+
+        return ApplicationArgsHandler() 
 
     def get_info_handler(self):  
         """
@@ -351,19 +326,8 @@ class ApplicationRunner(Runner):
         command line information.
         Output is only written to a single file
         """
+        
         return BasicInformationHandler()                  
-
-    def get_parsed_arguments(self):
-        """
-        See super class.
-        """        
-        parser = ArgumentParser(description='Applicake application')
-        self.define_arguments(parser=parser) 
-        args = vars(parser.parse_args(sys.argv[1:]))
-        # if optional args are not set, a key = None is created
-        # these have to be removed
-        args =DictUtils.remove_none_entries(args)
-        return args
     
     def run_app(self,app,info,log):
         """
@@ -422,17 +386,14 @@ class WrapperRunner(ApplicationRunner):
             return p.returncode                       
         except Exception,e:
             self.log.exception(e)
-            return 1     
-    
-    def define_arguments(self,parser):
+            return 1       
+        
+    def get_args_handler(self):
         """
-        See super class.
+        See super class
         """
-        super(WrapperRunner, self).define_arguments(parser=parser)
-        parser.add_argument('-p','--prefix',required=False, dest="prefix",
-                            help="Prefix of the command to execute")      
-        parser.add_argument('-t','--template',required=False, dest="template", 
-                            help="Name of the workflow node")               
+
+        return WrapperArgsHandler()                     
     
     def run_app(self,app,info,log):
         """

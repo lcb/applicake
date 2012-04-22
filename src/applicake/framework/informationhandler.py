@@ -11,9 +11,7 @@ from applicake.utils.fileutils import FileUtils
 import sys
 
 class BasicInformationHandler(IInformationHandler):
-    """
-    See super class.
-    
+    """    
     Basic implementation of the IInformationHandler interface. 
     """      
     

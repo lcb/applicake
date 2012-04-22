@@ -10,7 +10,6 @@ import sys
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.runner import ApplicationRunner
 from applicake.applications.commons.collector import GuseCollector
-from applicake.utils.dictutils import DictUtils
 
 
 class Test(unittest.TestCase):
@@ -53,9 +52,10 @@ class Test(unittest.TestCase):
         assert 0 == exit_code
         runner.info['COLLECTOR_IDX'] = self.range
         config = ConfigHandler().read(runner.log, self.output)
+        # converts ConfigObj to dict -> needed for comparison
+        dic = dict(config)
         # for assert 'BASEDIR has to be removed because it contains full path
-        config.pop('BASEDIR')
-        print config      
+        dic.pop('BASEDIR')      
         expected = {
                     'COMMENT': ['hello', 'world'], 
                     'DATASET_CODE': ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
@@ -63,13 +63,15 @@ class Test(unittest.TestCase):
                     'LOG_LEVEL': 'DEBUG', # the default set in the runner
                     'NAME': 'GuseCollector', 
                     'COLLECTORS': ['echo_test.ini'], 
-                    'COLLECTOR_IDX': ['6', '2', '7', '1', '4', '5', '0', '8', '9', '3'],
+                    'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     'STORAGE': 'memory', # the default set in the runner
                     'JOB_IDX': '1', 
                     'OUTPUT': 'output.ini', 
                     'CREATED_FILES': 'None'
                     }
-        self.assertTrue(config == expected, 'config [%s]\nexpected [%s]' % (DictUtils.sort(config),DictUtils.sort(expected)))
+        # needed to print the diff 
+        self.maxDiff = None
+        self.assertDictEqual(dic, expected)
 
     def test_guse_collector_2(self):
         ''' Test with collector, output flag and other cmdline flags to set defaults'''
@@ -80,9 +82,10 @@ class Test(unittest.TestCase):
         assert 0 == exit_code
         runner.info['COLLECTOR_IDX'] = self.range
         config = ConfigHandler().read(runner.log, self.output)
+        # converts ConfigObj to dict -> needed for comparison
+        dic = dict(config)
         # for assert 'BASEDIR has to be removed because it contains full path
-        config.pop('BASEDIR')
-        print config      
+        dic.pop('BASEDIR')      
         expected = {
                     'COMMENT': ['hello', 'world'], 
                     'DATASET_CODE': ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
@@ -90,13 +93,15 @@ class Test(unittest.TestCase):
                     'LOG_LEVEL': 'INFO',
                     'NAME': 'GuseCollector', 
                     'COLLECTORS': ['echo_test.ini'], 
-                    'COLLECTOR_IDX': ['6', '2', '7', '1', '4', '5', '0', '8', '9', '3'],
+                    'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     'STORAGE': 'file',
                     'JOB_IDX': '1', 
                     'OUTPUT': 'output.ini', 
                     'CREATED_FILES': ['GuseCollector.out', 'GuseCollector.err', 'GuseCollector.log']
                     }
-        self.assertTrue(config == expected, 'config [%s]\nexpected [%s]' % (DictUtils.sort(config),DictUtils.sort(expected)))
+        # needed to print the diff 
+        self.maxDiff = None
+        self.assertDictEqual(dic, expected)
                                    
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_guse_collector']

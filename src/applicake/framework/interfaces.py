@@ -5,6 +5,32 @@ Created on Mar 16, 2012
 '''
 from applicake.framework.enums import KeyEnum
 
+class IArgsHandler(object):
+    """
+    Interface for handlers of command line arguments
+    """
+    
+    def define_arguments(self, parser):        
+        """
+        Define command line arguments of the application.
+        
+        Helper method for get_parsed_arguments() to assure better inheritance
+        from ArgsHandler.
+        
+        @type parser: argparse.ArgumentParser 
+        @param parser: Parser object to which the arguments are added.
+        """        
+        raise NotImplementedError("define_arguments() is not implemented.")  
+    
+    def get_parsed_arguments(self):
+        """
+        Parse command line arguments of the application.
+        
+        @rtype: dict
+        @return: Dictionary of parsed arguments.        
+        """
+        raise NotImplementedError("get_parsed_arguments() is not implemented.")         
+
 class IInformationHandler(KeyEnum):
     """
     Interface for applications that use a dictionary to provide all necessary information about the application.

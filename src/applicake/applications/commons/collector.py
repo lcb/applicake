@@ -5,7 +5,6 @@ Created on Apr 14, 2012
 '''
 
 import glob
-import os
 from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IInformationHandler
 from applicake.framework.confighandler import ConfigHandler
@@ -69,7 +68,8 @@ class GuseCollector(BasicCollector):
         """
         See super class.
         
-        @return: See super class. In addition gets the list of paths sorted. 
+        @return: See super class. In addition gets the list of paths 
+        sorted alphabetically. 
         
         @precondition: 'info' object has to contain the '%s' key.
         """ % IInformationHandler().collector_key
@@ -81,5 +81,5 @@ class GuseCollector(BasicCollector):
             log.debug('pattern used to search for collector files [%s]' % pattern)
             # merges found collector files for each collector into a single list
             collector_files.extend(glob.glob(pattern))
-#        collector_files = collector_files.sort()
+        collector_files.sort()    
         return collector_files
