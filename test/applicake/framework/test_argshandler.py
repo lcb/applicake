@@ -15,7 +15,8 @@ class Test(unittest.TestCase):
 
 
     def setUp(self):
-        self.log = Logger(level='DEBUG',name='memory_logger',stream=StringIO()).logger
+        self.log_stream = StringIO()
+        self.log = Logger(level='DEBUG',name='memory_logger',stream=self.log_stream).logger
 
     def tearDown(self):
         pass
@@ -67,7 +68,7 @@ class Test(unittest.TestCase):
         self.assertDictEqual(pargs, expected)        
 
     def test_basic_args_handler_4(self):
-        '''Test odd number of keys to values'''
+        '''Test odd number of keys to values and if log contains ERROR entry'''
         handler = BasicArgsHandler()
         sys.argv = ['test.py','-i','in1.ini','-i','in2.ini','-o','out1.ini','-o','out2.ini',
                     '-g','gen1.ini','-g','gen2.ini','-c','col1.ini','-c','col2.ini',
@@ -81,7 +82,10 @@ class Test(unittest.TestCase):
                   }
         # needed to print the diff 
         self.maxDiff = None
-        self.assertDictEqual(pargs, expected)        
+        self.assertDictEqual(pargs, expected)
+        self.log_stream.seek(0)
+        log_content = self.log_stream.read()
+        assert 'ERROR' in log_content        
 
     def test_basic_args_handler_5(self):
         '''Test wrong definition of a undefined key'''
