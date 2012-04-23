@@ -23,7 +23,7 @@ class Test(unittest.TestCase):
         os.chdir(self.tmp_dir)       
         self.range = range(0,10)
         for idx in range(0,10):
-            path = '.'.join([self.collector_file,"%s" % idx])
+            path = '_'.join([self.collector_file,"%s" % idx])
             fh = open(path,'w+')            
             fh.write("""COMMENT = 'hello','world'
     STORAGE = file

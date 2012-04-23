@@ -77,9 +77,10 @@ class GuseCollector(BasicCollector):
         collectors = info[IInformationHandler().collector_key]
         collector_files = [] 
         for collector in collectors: 
-            pattern = "%s.[0-9]*" % (collector)
+            pattern = "%s_[0-9]*" % (collector)
             log.debug('pattern used to search for collector files [%s]' % pattern)
             # merges found collector files for each collector into a single list
             collector_files.extend(glob.glob(pattern))
         collector_files.sort()    
         return collector_files
+   

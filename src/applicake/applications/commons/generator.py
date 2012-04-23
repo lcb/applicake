@@ -153,7 +153,7 @@ class GuseGenerator(BasicGenerator):
         see super class
         """       
         for idx,dic in enumerate(dicts):
-            outfile = "%s.%s" % (IInformationHandler().output_key,idx) 
+            outfile = "%s_%s" % (IInformationHandler().output_key,idx) 
             log.debug(outfile)          
             ConfigHandler().write(dic, outfile)
             log.debug('create file [%s]' % outfile)
