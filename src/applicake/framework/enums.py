@@ -15,3 +15,4 @@ class KeyEnum(object):
     file_idx_key = 'FILE_IDX'
     prefix_key = 'PREFIX'
     template_key = 'TEMPLATE'
+    comment_key = 'COMMENT'

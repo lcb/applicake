@@ -5,6 +5,7 @@ Created on Mar 28, 2012
 '''
 
 from applicake.framework.interfaces import IWrapper
+from applicake.framework.enums import KeyEnum
 
 class Echo(IWrapper):
     """
@@ -15,7 +16,7 @@ class Echo(IWrapper):
         """
         See interface
         """
-        comment = info['COMMENT']
+        comment = info[KeyEnum.comment_key]
         return ('echo "%s"' % comment,info)
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):
