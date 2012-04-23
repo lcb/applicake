@@ -113,7 +113,7 @@ class Runner(object):
         Does the final clean-up
         
         - copies input files and output file to working dir
-        - moves created files to working dir
+        - copies created files to working dir
         - If storage='memory' is used, out and err stream are printed to stdout
         and log stream is printed to stderr
         
@@ -160,8 +160,8 @@ class Runner(object):
                 src = r'%s' % os.path.abspath(path) 
                 dest = r'%s' % os.path.join(wd,os.path.basename(path))
                 try:
-                    shutil.move(src,wd)
-                    print('Move [%s] to [%s]' % (src,dest))
+                    shutil.copy(src,wd)
+                    print('Copy [%s] to [%s]' % (src,dest))
                 except:
                     sys.stderr.write('Could not move [%s] to [%s]' % (src,dest))
                     sys.exit(1)  
