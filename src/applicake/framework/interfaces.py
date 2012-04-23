@@ -5,6 +5,28 @@ Created on Mar 16, 2012
 '''
 from applicake.framework.enums import KeyEnum
 
+
+class IApplication(KeyEnum):
+    """
+    Interface for application that executes python code 
+    """ 
+    
+    def main(self,info,log):
+        """
+        Entry point used to execute the pyton code
+        from the implemented interface.
+        
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages       
+        
+        @rtype: (int,dict)
+        @return: Tuple of 2 objects; the exit code and the (updated) info object.
+        """
+        raise NotImplementedError("main() is not implemented")    
+     
+
 class IArgsHandler(object):
     """
     Interface for handlers of command line arguments
@@ -63,29 +85,59 @@ class IInformationHandler(KeyEnum):
         @param log: Logger to store log messages  
         """
         raise NotImplementedError("write_info() is not implemented")
-         
-    
 
-class IApplication(KeyEnum):
+
+class ITemplateHandler(KeyEnum):
     """
-    Interface for application that executes python code 
-    """ 
+    Interface for handling template files in applications.
+    """         
     
-    def main(self,info,log):
+    def read_template(self,info,log):
         """
-        Entry point used to execute the pyton code
-        from the implemented interface.
+        Read a template from a source.
         
         @type info: dict         
         @param info: Dictionary object with information needed by the class
         @type log: Logger 
-        @param log: Logger to store log messages       
+        @param log: Logger to store log messages 
         
-        @rtype: (int,dict)
-        @return: Tuple of 2 objects; the exit code and the (updated) info object.
+        @rtype: string
+        @return: The template as string.
+        """    
+        raise NotImplementedError("read_template() is not implemented")    
+    
+    def replace_vars(self,info,log,template):    
         """
-        raise NotImplementedError("main() is not implemented")    
-     
+        Replace possible variables in the template string with values from the info object.
+        
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages 
+        @type template: string
+        @param template: The template as string.  
+        
+        @rtype: string
+        @return: The modified template string.
+        """        
+        
+        raise NotImplementedError("replace_vars() is not implemented")  
+        
+    def write_template(self,info,log,template):
+        """
+        Write a template string to a destination defined in the info object
+        
+        @precondition: info object need the key [%s]
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages
+        @type template: string
+        @param template: Write template string to a destination
+        """ % self.template_key
+        
+        raise NotImplementedError("write_template() is not implemented") 
+        
     
 class IWrapper(KeyEnum):   
     """
