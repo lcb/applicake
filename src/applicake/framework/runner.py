@@ -96,6 +96,10 @@ class Runner(object):
             log.info('exit_code [%s]' % exit_code)
             self.info = info
             self.log = log
+            # prints log to stderr as needed for guse/pgrade
+            self.log_stream.seek(0)                
+            for line in self.log_stream.readlines():
+                sys.stderr.write(line)            
             return int(exit_code)
         except:
             self.reset_streams()
@@ -115,7 +119,7 @@ class Runner(object):
         - copies input files and output file to working dir
         - copies created files to working dir
         - If storage='memory' is used, out and err stream are printed to stdout
-        and log stream is printed to stderr
+        - log stream is printed to stderr
         
         Arguments:
         - info: Configuration object to access file and parameter information 
@@ -160,12 +164,8 @@ class Runner(object):
                     shutil.copy(src,wd)
                     log.debug('Copy [%s] to [%s]' % (src,dest))
                 except:
-                    sys.stderr.write('Could not move [%s] to [%s]' % (src,dest))
-                    sys.exit(1) 
-        # prints log to stderr as needed for guse/pgrade
-        self.log_stream.seek(0)                
-        for line in self.log_stream.readlines():
-            sys.stderr.write(line)                      
+                    log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
+                    sys.exit(1)                       
                     
     def _set_jobid(self,info,log):
         """
