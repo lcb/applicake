@@ -20,11 +20,16 @@ class BasicGenerator(IApplication):
         """
         Generate the cartesian product of all values from info and writes them to files.  
         
+
         @type info: see super class
         @param info: see super class
         @type log: see super class
         @param log: see super class 
         """
+        
+        
+        '!!! todo: REMOVE DEPENDECY OF self.dataset_code_key !!!'
+        
         # prepare a basedic to produced input files for inner workflow
         basedic = info.copy()
         del basedic[self.created_files_key]
@@ -152,7 +157,7 @@ class GuseGenerator(BasicGenerator):
         see super class
         """       
         for idx,dic in enumerate(dicts):
-            path = "%s_%s" % (dic[self.output_key],idx) 
+            path = "%s_%s" % (dic[self.generator_key],idx) 
             log.debug(path)          
             ConfigHandler().write(dic, path)
             log.debug('create file [%s]' % path)
@@ -170,7 +175,7 @@ class PgradeGenerator(BasicGenerator):
         see super class
         """       
         for idx,dic in enumerate(dicts):
-            path = "%s.%s" % (dic[self.output_key],idx) 
+            path = "%s.%s" % (dic[self.generator_key],idx) 
             log.debug(path)          
             ConfigHandler().write(dic, path)
             log.debug('create file [%s]' % path)

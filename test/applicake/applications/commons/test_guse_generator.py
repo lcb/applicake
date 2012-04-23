@@ -23,7 +23,6 @@ class Test(unittest.TestCase):
         fh = open(self.input,'w+')
         fh.write("""COMMENT = 'hello','world'
 STORAGE = file
-OUTPUT = /fake/output.ini 
 LOG_LEVEL = INFO
 BASEDIR = %s
 DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,20120320164249179-361887
@@ -33,8 +32,6 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
 
 
     def tearDown(self):
-        os.remove(self.input)
-        os.remove(self.output)
         shutil.rmtree(self.tmp_dir)
         os.chdir(self.cwd)
 
@@ -42,7 +39,7 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
     def test_guse_generator(self):
         runner = BasicApplicationRunner()
         wrapper = GuseGenerator()
-        sys.argv = ['run_echo.py', '-i', self.input, '-o',self.output]
+        sys.argv = ['run_echo.py', '-i', self.input, '-g',self.output]
         exit_code = runner(sys.argv,wrapper)        
         assert 0 == exit_code
         assert 9 == len(runner.info['CREATED_FILES']) # 6 output.ini.[IDX] + out/err/log

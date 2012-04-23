@@ -6,7 +6,6 @@ Created on Apr 14, 2012
 
 import glob
 from applicake.framework.interfaces import IApplication
-from applicake.framework.interfaces import IInformationHandler
 from applicake.framework.confighandler import ConfigHandler
 from applicake.utils.dictutils import DictUtils
 
@@ -58,9 +57,9 @@ class BasicCollector(IApplication):
          
         @rtype: list
         @return:List of file paths that match the input file pattern
-        """ % IInformationHandler().collector_key
+        """ % self.collector_key
         
-        collectors = info[IInformationHandler().collector_key]
+        collectors = info[self.collector_key]
         collector_files = [] 
         for collector in collectors: 
             pattern = self.get_collector_pattern(collector)
