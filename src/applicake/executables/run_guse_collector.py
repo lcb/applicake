@@ -1,16 +1,16 @@
 '''
-Created on Apr 10, 2012
+Created on Apr 23, 2012
 
 @author: quandtan
 '''
 
 import sys
 from applicake.framework.runner import BasicApplicationRunner
-from applicake.applications.commons.generator import GuseGenerator
+from applicake.applications.commons.collector import GuseCollector
 
 
 runner = BasicApplicationRunner()
-wrapper = GuseGenerator()
+wrapper = GuseCollector()
 exit_code = runner(sys.argv,wrapper)
 print exit_code
 sys.exit(exit_code)

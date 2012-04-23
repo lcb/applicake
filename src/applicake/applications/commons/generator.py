@@ -7,7 +7,6 @@ Created on Mar 20, 2012
 import itertools
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
-from applicake.framework.interfaces import IInformationHandler
 
 class BasicGenerator(IApplication):
     """
@@ -28,16 +27,16 @@ class BasicGenerator(IApplication):
         """
         # prepare a basedic to produced input files for inner workflow
         basedic = info.copy()
-        del basedic[IInformationHandler().created_files_key]
+        del basedic[self.created_files_key]
         # prepare first the product of a parameter combinations
-        escape_keys = [IInformationHandler().dataset_code_key]
-        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key=IInformationHandler().param_idx_key)
+        escape_keys = [self.dataset_code_key]
+        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key=self.param_idx_key)
         log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
         # prepare combinations based on files
         param_file_dicts = []
         escape_keys = []
         for dic in  param_dicts:            
-            file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key=IInformationHandler().file_idx_key)
+            file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key=self.file_idx_key)
             param_file_dicts.extend(file_dicts)
         log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
         # write ini files
@@ -143,7 +142,25 @@ class BasicGenerator(IApplication):
         
 class GuseGenerator(BasicGenerator):
     """
-    BasicGenerator for the gUSE workflow manager.
+    Basic generator for the gUSE workflow manager.
+    
+    It creates output files of the format [INPUTFILENAME]_[INDEX]
+    """
+    
+    def write_generator_files(self,info,log,dicts): 
+        """
+        see super class
+        """       
+        for idx,dic in enumerate(dicts):
+            path = "%s_%s" % (dic[self.output_key],idx) 
+            log.debug(path)          
+            ConfigHandler().write(dic, path)
+            log.debug('create file [%s]' % path)
+            info[self.created_files_key].append(path)
+            
+class PgradeGenerator(BasicGenerator):
+    """
+    Basic generator for the P-Grade workflow manager.
     
     It creates output files of the format [INPUTFILENAME].[INDEX]
     """
@@ -153,8 +170,8 @@ class GuseGenerator(BasicGenerator):
         see super class
         """       
         for idx,dic in enumerate(dicts):
-            outfile = "%s_%s" % (IInformationHandler().output_key,idx) 
-            log.debug(outfile)          
-            ConfigHandler().write(dic, outfile)
-            log.debug('create file [%s]' % outfile)
-            info[IInformationHandler().created_files_key].append(outfile)
+            path = "%s.%s" % (dic[self.output_key],idx) 
+            log.debug(path)          
+            ConfigHandler().write(dic, path)
+            log.debug('create file [%s]' % path)
+            info[self.created_files_key].append(path)

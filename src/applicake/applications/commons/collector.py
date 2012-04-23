@@ -28,7 +28,7 @@ class BasicCollector(IApplication):
         @type log: see super class
         @param log: see super class 
         """ 
-        paths = self.get_collector_files(info, log)
+        paths = self._get_collector_files(info, log)
         if len(paths) == 0:
             log.critical('no collector files found [%s]' % paths)
             return 1            
@@ -42,11 +42,14 @@ class BasicCollector(IApplication):
         log.debug('info content [%s]' % info)       
         return (0,info)
     
-    def get_collector_files(self,info,log):
+    def _get_collector_files(self,info,log):
         """
         Return all input files following a certain file pattern.
         
         The file pattern depends on the workflow manager and follows usually the same as the generator.
+        the list of paths is sorted alphabetically. 
+        
+        @precondition: 'info' object has to contain the '%s' key.        
         
         @type info: see super class
         @param info: see super class
@@ -55,32 +58,54 @@ class BasicCollector(IApplication):
          
         @rtype: list
         @return:List of file paths that match the input file pattern
-        """
-        raise NotImplementedError("get_collector_files() is not implemented.")
-    
-
-class GuseCollector(BasicCollector):
-    """
-    BasicCollector for the gUSE workflow manager
-    """
-    
-    def get_collector_files(self,info,log):
-        """
-        See super class.
-        
-        @return: See super class. In addition gets the list of paths 
-        sorted alphabetically. 
-        
-        @precondition: 'info' object has to contain the '%s' key.
         """ % IInformationHandler().collector_key
         
         collectors = info[IInformationHandler().collector_key]
         collector_files = [] 
         for collector in collectors: 
-            pattern = "%s_[0-9]*" % (collector)
+            pattern = self.get_collector_pattern(collector)
             log.debug('pattern used to search for collector files [%s]' % pattern)
             # merges found collector files for each collector into a single list
             collector_files.extend(glob.glob(pattern))
         collector_files.sort()    
         return collector_files
-   
+    
+    def get_collector_pattern(self,filename):
+        """
+        Return a search pattern based on a filename.
+        
+        The pattern is specific to the applied workflow manager
+        
+        @type basename: string
+        @param basename: Base name of a collector file which is used to generate the pattern.
+        
+        @rtype: string
+        @return: A pattern used to search for specific files.    
+        """
+        
+        raise NotImplementedError("get_collector_pattern() is not implemented.")  
+    
+
+class GuseCollector(BasicCollector):
+    """
+    Basic collector for the gUSE workflow manager
+    """
+    
+    def get_collector_pattern (self,filename):
+        """
+        See super class.
+        """
+        return  "%s_[0-9]*" % (filename)
+    
+    
+class PgradeCollector(BasicCollector):
+    """
+    Basic collector for the P-Grade workflow manager.
+    """   
+     
+    def get_collector_pattern (self,filename):
+        """
+        See super class.
+        """
+        return  "%s.[0-9]*" % (filename)    
+    
