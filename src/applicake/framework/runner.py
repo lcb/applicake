@@ -149,10 +149,7 @@ class Runner(object):
             print '=== stderr ==='
             self.err_stream.seek(0)
             for line in self.err_stream.readlines():
-                print line
-            self.log_stream.seek(0)                
-            for line in self.log_stream.readlines():
-                sys.stderr.write(line)                    
+                print line                   
         # move created files to working directory
         # 'created_files might be none e.g. if memory-storage is used   
         if info['CREATED_FILES'] is not None:  
@@ -161,10 +158,14 @@ class Runner(object):
                 dest = r'%s' % os.path.join(wd,os.path.basename(path))
                 try:
                     shutil.copy(src,wd)
-                    print('Copy [%s] to [%s]' % (src,dest))
+                    log.debug('Copy [%s] to [%s]' % (src,dest))
                 except:
                     sys.stderr.write('Could not move [%s] to [%s]' % (src,dest))
-                    sys.exit(1)  
+                    sys.exit(1) 
+        # prints log to stderr as needed for guse/pgrade
+        self.log_stream.seek(0)                
+        for line in self.log_stream.readlines():
+            sys.stderr.write(line)                      
                     
     def _set_jobid(self,info,log):
         """
