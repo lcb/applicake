@@ -50,7 +50,7 @@ class Test(unittest.TestCase):
         except:
             self.log_stream.seek(0)
             last_entry = self.log_stream.readlines()[-1]
-            contain = "CRITICAL - info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
+            contain = "CRITICAL - Stop application because info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
             self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))    
     
     def test_basic_replace_vars(self):
@@ -80,7 +80,7 @@ class Test(unittest.TestCase):
         except:
             self.log_stream.seek(0)
             last_entry = self.log_stream.readlines()[-1]
-            contain = "CRITICAL - info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
+            contain = "CRITICAL - Stop application because info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
             self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))
             
             

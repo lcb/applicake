@@ -15,8 +15,13 @@ class BasicTemplateHandler(ITemplateHandler):
     """
     
     def _check_template_key(self,info,log):
+        """
+        Check if info object has key [%s].
+        
+        If info does not contain key, a log message is written and the execution is stopped.
+        """
         if not info.has_key(self.template_key):
-            log.fatal('info does not contain key [%s]: [%s]' % (self.template_key,info))
+            log.fatal('Stop application because info does not contain key [%s]: [%s]' % (self.template_key,info))
             sys.exit(1) 
 
     def read_template(self, info, log):
