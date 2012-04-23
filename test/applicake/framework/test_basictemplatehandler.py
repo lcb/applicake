@@ -82,7 +82,28 @@ class Test(unittest.TestCase):
             last_entry = self.log_stream.readlines()[-1]
             contain = "CRITICAL - Stop application because info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
             self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))
-            
+    
+    def test_basic_modify_template_1(self):
+        '''Test 'all-inclusive' modification of a template.'''
+        BasicTemplateHandler().modify_template(self.info,self.log)
+        expected = 'my template contains a var [value of var]' 
+        path = self.info[BasicTemplateHandler().template_key]
+        fh = open(path,'r+')
+        content = fh.read()
+        self.assertTrue(content == expected, 'content [%s]\nexpected [%s]' % (content,expected))  
+
+    def test_basic_modify_template_2(self):
+        '''Test if 'all-inclusive' modification of a template fails in case info does not contain the 'TEMPLATE' key.'''
+        self.info.pop('TEMPLATE')
+        try:
+            BasicTemplateHandler().modify_template(self.info, self.log)
+            self.assertTrue(False, 'Test should fail.')
+        except:
+            self.log_stream.seek(0)
+            last_entry = self.log_stream.readlines()[-1]
+            contain = "CRITICAL - Stop application because info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
+            self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))        
+           
             
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

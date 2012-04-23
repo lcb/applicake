@@ -62,7 +62,17 @@ class BasicTemplateHandler(ITemplateHandler):
         FileUtils.is_valid_file(log, path)        
         fh = open(path,'w+')
         fh.write(template)
-        fh.close()   
+        fh.close() 
+        
+    def modify_template(self, info, log):
+        """
+        Convenience method that calls all interface methods. 
+        
+        Read template, replaces variables possible variables and writes modifications back to the source.  
+        """  
+        template = self.read_template(info, log)
+        mod_template = self.replace_vars(info, log, template)
+        self.write_template(info, log, mod_template)
         
              
 
