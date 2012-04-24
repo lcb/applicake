@@ -11,7 +11,7 @@ from applicake.applications.commons.collector import PgradeCollector
 
 
 runner = BasicApplicationRunner()
-wrapper = PgradeCollector()
-exit_code = runner(sys.argv,wrapper)
+application = PgradeCollector()
+exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

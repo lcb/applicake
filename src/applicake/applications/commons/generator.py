@@ -102,15 +102,22 @@ class OpenBisGenerator(IApplication):
         
         # prepare a basedic to produced input files for inner workflow
         basedic = info.copy()
-        #del basedic[self.created_files_key]
-        
+        log.debug('created work copy of "info"')
+        log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
+        remove_keys = [self.created_files_key,self.name_key]        
+        for key in remove_keys:
+            try:
+                del basedic[key]
+                log.debug('removed key [%s] from work copy' % key)
+            except:
+                log.debug('work copy did not have key [%s]' % key)            
         # prepare first the product of a parameter combinations
-        escape_keys = [self.dataset_code_key,self.created_files_key]
+        escape_keys = [self.dataset_code_key]
         param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key=self.param_idx_key)
         log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
         # prepare combinations based on files
         param_file_dicts = []
-        escape_keys = [self.created_files_key]
+        escape_keys = []
         for dic in  param_dicts:            
             file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key=self.file_idx_key)
             param_file_dicts.extend(file_dicts)
