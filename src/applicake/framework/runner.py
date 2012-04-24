@@ -117,8 +117,7 @@ class Runner(KeyEnum):
                 sys.stderr.write('%s' % line)
 #            sys.stderr.write(content)  
             sys.stderr.write('\n\n\n\n\n')            
-            self.info = info
-            self.log = log                
+            self.info = info    
             return exit_code
         
     def _cleanup(self,info,log):

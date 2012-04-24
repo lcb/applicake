@@ -8,14 +8,17 @@ import os
 import shutil
 import sys
 from applicake.framework.confighandler import ConfigHandler
+from applicake.framework.logger import Logger
 from applicake.framework.runner import BasicApplicationRunner
 from applicake.applications.commons.collector import GuseCollector
-
+from StringIO import StringIO
 
 class Test(unittest.TestCase):
 
 
     def setUp(self):
+        log_stream = StringIO()
+        self.log = Logger(level='DEBUG',name='memory_logger',stream=log_stream).logger
         self.collector_file = 'echo_test.ini'
         self.tmp_dir = '%s/tmp' % os.path.abspath(os.getcwd())
         self.cwd = os.getcwd()
@@ -50,7 +53,7 @@ class Test(unittest.TestCase):
         exit_code = runner(sys.argv,app)        
         self.assertTrue(exit_code ==0,'found [%s]\nexpected [%s]' % (exit_code,0)) 
         runner.info['COLLECTOR_IDX'] = self.range
-        config = ConfigHandler().read(runner.log, self.output)
+        config = ConfigHandler().read(self.log, self.output)
         # converts ConfigObj to dict -> needed for comparison
         dic = dict(config)
         # for assert 'BASEDIR has to be removed because it contains full path
@@ -81,7 +84,7 @@ class Test(unittest.TestCase):
         exit_code = runner(sys.argv,wrapper)        
         assert 0 == exit_code
         runner.info['COLLECTOR_IDX'] = self.range
-        config = ConfigHandler().read(runner.log, self.output)
+        config = ConfigHandler().read(self.log, self.output)
         # converts ConfigObj to dict -> needed for comparison
         dic = dict(config)
         # for assert 'BASEDIR has to be removed because it contains full path
