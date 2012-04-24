@@ -106,6 +106,7 @@ class Runner(KeyEnum):
             exit_code,info = self._cleanup(info,log)  
             # needed for guse/pgrade
             if hasattr(self, 'log_stream'):
+                
                 stream = self.log_stream
             else:
                 stream = tmp_log_stream    
@@ -271,9 +272,9 @@ class Runner(KeyEnum):
             info[self.created_files_key] = created_files
             log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory")            
             # streams are initialized with 'w+' that files newly created and therefore previous versions are deleted.
-            out_stream = open(out_file, 'w+',buffering=0)            
-            err_stream = open(err_file, 'w+',buffering=0)  
-            log_stream = open(log_file,'w+',buffering=0)
+            out_stream = open(out_file, 'w+b',buffering=0)            
+            err_stream = open(err_file, 'w+b',buffering=0)  
+            log_stream = open(log_file,'w+b',buffering=0)
             log.debug('Created file-based streams')                                 
         else:                        
             log.fatal('Exit program because storage type is not supported.')
