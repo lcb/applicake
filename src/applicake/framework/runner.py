@@ -91,15 +91,17 @@ class Runner(KeyEnum):
             log.info('Finished [%s]' % self.run_app.__name__)               
             log.info('Start [%s]' % info_handler.write_info.__name__)
             info_handler.write_info(info,log)
-            log.info('Finished [%s]' % info_handler.write_info.__name__)
-            log.info('Start [%s]' % self._cleanup.__name__)
-            exit_code,info = self._cleanup(info,log)        
-            self.info = info
-            self.log = log
+            log.info('Finished [%s]' % info_handler.write_info.__name__)     
+
         except:
             raise 
         finally:
             self.reset_streams()
+            log.info('Start [%s]' % self._cleanup.__name__)
+            exit_code,info = self._cleanup(info,log)   
+            self.info = info
+            self.log = log
+            # needed for guse/pgrade
             if hasattr(self, 'log_stream'):
                 stream = self.log_stream
             else:
@@ -143,7 +145,6 @@ class Runner(KeyEnum):
             except:
                 log.critical('Counld not copy [%s] to [%s]' % (src,wd))
                 sys.exit(1)             
-        self.reset_streams()
         if info[self.storage_key] == 'memory':
             print '=== stdout ==='
             self.out_stream.seek(0)
@@ -165,10 +166,6 @@ class Runner(KeyEnum):
                 except:
                     log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
                     return(1,info)
-        # prints log to stderr as needed for guse/pgrade
-        self.log_stream.seek(0)                
-        for line in self.log_stream.readlines():
-            sys.stderr.write(line) 
         return (0,info)     
                                                 
                     
