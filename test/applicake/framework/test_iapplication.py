@@ -64,7 +64,7 @@ class Test(unittest.TestCase):
         '''Test stream storage in memory '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
-                    '-n',self.random_name,'-s','file','-l','DEBUG']
+                    '--NAME',self.random_name,'--STORAGE','memory','--LOG_LEVEL','DEBUG']
         runner = BasicApplicationRunner()
         application = Application()
         exit_code = runner(sys.argv,application)
@@ -74,33 +74,38 @@ class Test(unittest.TestCase):
         out = runner.out_stream.read()
         err = runner.err_stream.read()
         log = runner.log_stream.read()      
-        assert  out == Application().out_txt
-        assert  err == Application().err_txt
+        self.assertTrue(out == Application().out_txt,'found [%s]\nexpected [%s]' % (out,Application().out_txt))
+        self.assertTrue(err == Application().err_txt,'found [%s]\nexpected [%s]' % (err,Application().err_txt))
         # log contains more that only the log_txt
-        assert Application().log_txt in log       
+        self.assertTrue(Application().log_txt in log,'found [%s]\ncontains [%s]' % (log,Application().log_txt))             
         assert exit_code == 0
 
     def test__call__2(self):
         '''Test stream storage in files '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
-                    '-n',self.random_name,'-s','file','-l','DEBUG']
+                    '--NAME',self.random_name,'--STORAGE','file','--LOG_LEVEL','DEBUG']
         runner = BasicApplicationRunner()
         application = Application()
         exit_code = runner(sys.argv,application)
-#        assert os.path.exists(runner.info['out_file'])
-#        assert os.path.exists(runner.info['err_file'])  
-#        assert os.path.exists(runner.info['log_file'])  
+        out = open('%s.out' % os.path.join(os.getcwd(),self.random_name),'r+').read()
+        err = open('%s.err' % self.random_name,'r+').read()
+        log = open('%s.log' % self.random_name,'r+').read()  
+        # problem is the unclosed stream   
+        self.assertTrue(out == Application().out_txt,'found [%s]\nexpected [%s]' % (out,Application().out_txt))
+        self.assertTrue(err == Application().err_txt,'found [%s]\nexpected [%s]' % (err,Application().err_txt))
+        # log contains more that only the log_txt
+        self.assertTrue(Application().log_txt in log,'found [%s]\ncontains [%s]' % (log,Application().log_txt))
         runner.out_stream.seek(0)
         runner.err_stream.seek(0)
         runner.log_stream.seek(0)  
-        out = runner.out_stream.read()
-        err = runner.err_stream.read()
-        log = runner.log_stream.read()      
-        assert  out == Application().out_txt
-        assert  err == Application().err_txt
-        # log contains more that only the log_txt
-        assert Application().log_txt in log       
+        out_stream = runner.out_stream.read()
+        err_stream = runner.err_stream.read()
+        log_stream = runner.log_stream.read()          
+        self.assertTrue(out == out_stream,'[%s]\n[%s]' % (out,out_stream))
+        self.assertTrue(err == err_stream,'[%s]\n[%s]' % (err,err_stream))    
+        self.assertTrue(log_stream == log,'[%s]\n[%s]' % (log,log_stream))    
+               
         assert exit_code == 0  
         
     def test_read_inputs__1(self):

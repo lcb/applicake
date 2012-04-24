@@ -91,15 +91,10 @@ class Runner(object):
             info_handler.write_info(info,log)
             log.info('Finished [%s]' % info_handler.write_info.__name__)
             log.info('Start [%s]' % self._cleanup.__name__)
-            self._cleanup(info,log)
-            log.info('Finished [%s]' % self._cleanup.__name__)                               
-            log.info('exit_code [%s]' % exit_code)
+            self._cleanup(info,log)        
             self.info = info
             self.log = log
-            # prints log to stderr as needed for guse/pgrade
-            self.log_stream.seek(0)                
-            for line in self.log_stream.readlines():
-                sys.stderr.write(line)            
+            print ('Finished executing [%s]' % args[0])
             return int(exit_code)
         except:
             self.reset_streams()
@@ -124,7 +119,7 @@ class Runner(object):
         Arguments:
         - info: Configuration object to access file and parameter information 
         - log: Logger to Logger to store log messages               
-        """ 
+        """                               
         wd = info['WORKDIR']
         log.debug('start copying/moving files to work dir')
         # copy input files to working directory
@@ -144,7 +139,7 @@ class Runner(object):
             except:
                 log.critical('Counld not copy [%s] to [%s]' % (src,wd))
                 sys.exit(1)             
-        self.reset_streams()  
+        self.reset_streams()
         if info['STORAGE'] == 'memory':
             print '=== stdout ==='
             self.out_stream.seek(0)
@@ -153,7 +148,7 @@ class Runner(object):
             print '=== stderr ==='
             self.err_stream.seek(0)
             for line in self.err_stream.readlines():
-                print line                   
+                print line                              
         # move created files to working directory
         # 'created_files might be none e.g. if memory-storage is used   
         if info['CREATED_FILES'] is not None:  
@@ -165,7 +160,13 @@ class Runner(object):
                     log.debug('Copy [%s] to [%s]' % (src,dest))
                 except:
                     log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
-                    sys.exit(1)                       
+                    sys.exit(1)  
+        # prints log to stderr as needed for guse/pgrade
+        self.log_stream.seek(0)                
+        for line in self.log_stream.readlines():
+            sys.stderr.write(line) 
+             
+                                                
                     
     def _set_jobid(self,info,log):
         """
@@ -260,9 +261,9 @@ class Runner(object):
             info['CREATED_FILES'] = created_files
             log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory")            
             # streams are initialized with 'w+' that files newly created and therefore previous versions are deleted.
-            out_stream = open(out_file, 'w+')            
-            err_stream = open(err_file, 'w+')  
-            log_stream = open(log_file,'w+')
+            out_stream = open(out_file, 'w+',buffering=0)            
+            err_stream = open(err_file, 'w+',buffering=0)  
+            log_stream = open(log_file,'w+',buffering=0)
             log.debug('Created file-based streams')                                 
         else:                        
             log.fatal('Exit program because storage type is not supported.')
