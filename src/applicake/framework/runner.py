@@ -45,6 +45,7 @@ class Runner(KeyEnum):
                         self.created_files_key: None
                         } 
         tmp_log_stream = StringIO()
+        exit_code = 1
         try:
             # create memory logger            
             log = Logger(level='DEBUG',name='memory_logger',stream=tmp_log_stream).logger
@@ -92,11 +93,9 @@ class Runner(KeyEnum):
             info_handler.write_info(info,log)
             log.info('Finished [%s]' % info_handler.write_info.__name__)
             log.info('Start [%s]' % self._cleanup.__name__)
-            self._cleanup(info,log)        
+            exit_code,info = self._cleanup(info,log)        
             self.info = info
             self.log = log
-            print ('Finished executing [%s]' % args[0])
-            return int(exit_code)
         except:
             raise 
         finally:
@@ -108,7 +107,8 @@ class Runner(KeyEnum):
             stream.seek(0)
             for line in stream.readlines():
                 sys.stderr.write(line)              
-
+            return exit_code
+        
     def _cleanup(self,info,log):
         """
         Does the final clean-up
@@ -120,7 +120,9 @@ class Runner(KeyEnum):
         
         Arguments:
         - info: Configuration object to access file and parameter information 
-        - log: Logger to Logger to store log messages               
+        - log: Logger to Logger to store log messages    
+        
+        return exit code           
         """                               
         wd = info[self.workdir_key]
         log.debug('start copying/moving files to work dir')
@@ -162,12 +164,12 @@ class Runner(KeyEnum):
                     log.debug('Copy [%s] to [%s]' % (src,dest))
                 except:
                     log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
-                    sys.exit(1)  
+                    return(1,info)
         # prints log to stderr as needed for guse/pgrade
         self.log_stream.seek(0)                
         for line in self.log_stream.readlines():
             sys.stderr.write(line) 
-             
+        return (0,info)     
                                                 
                     
     def _set_jobid(self,info,log):
@@ -257,9 +259,9 @@ class Runner(KeyEnum):
             log_stream = StringIO() 
             log.debug('Created in-memory streams')                                      
         elif storage == 'file':
-            out_file = ''.join([info['NAME'],".out"])
-            err_file = ''.join([info['NAME'],".err"]) 
-            log_file = ''.join([info['NAME'],".log"])                      
+            out_file = ''.join([info[self.name_key],".out"])
+            err_file = ''.join([info[self.name_key],".err"]) 
+            log_file = ''.join([info[self.name_key],".log"])                      
             created_files = [out_file,err_file,log_file]
             info[self.created_files_key] = created_files
             log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory")            
