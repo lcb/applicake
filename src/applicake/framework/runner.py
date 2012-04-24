@@ -56,25 +56,29 @@ class Runner(KeyEnum):
             log.debug('arguments [%s]' % args[1:])
             log.debug('Runner class [%s]' % self.__class__.__name__)
             log.debug('Application class [%s]' % app.__class__.__name__)
-            log.debug('Start [%s]' % self.get_args_handler.__name__)
+            log.info('Start [%s]' % self.get_args_handler.__name__)
             args_handler = self.get_args_handler()
-            log.debug('Finished [%s]' % self.get_args_handler.__name__)            
-            log.debug('Start [%s]' % args_handler.get_parsed_arguments.__name__)
+            log.info('Finished [%s]' % self.get_args_handler.__name__)            
+            log.info('Start [%s]' % args_handler.get_parsed_arguments.__name__)
             pargs = args_handler.get_parsed_arguments(log)
-            log.debug('Finish [%s]' % args_handler.get_parsed_arguments.__name__) 
-            log.debug('Start [%s]' % self.get_info_handler.__name__)
+            log.info('Finish [%s]' % args_handler.get_parsed_arguments.__name__) 
+            log.info('Start [%s]' % self.get_info_handler.__name__)
             info_handler = self.get_info_handler()
-            log.debug('Finished [%s]' % self.get_info_handler.__name__)
-            log.debug('Start [%s]' % info_handler.get_info.__name__)
+            log.info('Finished [%s]' % self.get_info_handler.__name__)
+            log.info('Start [%s]' % info_handler.get_info.__name__)
             info = info_handler.get_info(log, pargs)
-            log.debug('Finished [%s]' % info_handler.get_info.__name__)
+            log.info('Finished [%s]' % info_handler.get_info.__name__)
             log.debug('content of info [%s]' % info)
             info = DictUtils.merge(info, default_info,priority='left')
             log.debug('Added default values to info they were not set before')            
-            log.debug('content of final info [%s]' % info)                   
-            self.out_stream,self.err_stream,self.log_stream = self.get_streams(info,log)               
+            log.debug('content of final info [%s]' % info)    
+            log.info('Start [%s]' % self.get_streams.__name__)               
+            (self.out_stream,self.err_stream,self.log_stream) = self.get_streams(info,log)               
+            log.info('Finished [%s]' % self.get_streams.__name__)   
             sys.stdout = self.out_stream
+            log.debug('set sys.out to new out stream')
             sys.stderr = self.err_stream
+            log.debug('set sys.err to new err stream')
             log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')                       
             log = Logger(level=info[self.log_level_key],
                          name=info[self.name_key],stream=self.log_stream).logger       
@@ -91,16 +95,15 @@ class Runner(KeyEnum):
             log.info('Finished [%s]' % self.run_app.__name__)               
             log.info('Start [%s]' % info_handler.write_info.__name__)
             info_handler.write_info(info,log)
-            log.info('Finished [%s]' % info_handler.write_info.__name__)     
-
+            log.info('Finished [%s]' % info_handler.write_info.__name__)              
         except:
+            log.fatal('error in __call__')
             raise 
         finally:
+            log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams()
-            log.info('Start [%s]' % self._cleanup.__name__)
-            exit_code,info = self._cleanup(info,log)   
-            self.info = info
-            self.log = log
+            log.info('Finished [%s]' % self.reset_streams.__name__)
+            exit_code,info = self._cleanup(info,log)  
             # needed for guse/pgrade
             if hasattr(self, 'log_stream'):
                 stream = self.log_stream
@@ -109,6 +112,8 @@ class Runner(KeyEnum):
             stream.seek(0)
             for line in stream.readlines():
                 sys.stderr.write(line)              
+            self.info = info
+            self.log = log                
             return exit_code
         
     def _cleanup(self,info,log):
@@ -238,7 +243,7 @@ class Runner(KeyEnum):
         
         The type of the streams depends on the 'info' object.
         
-        @precondition: 'info' object that has to contain the key 'STORAGE'
+        @precondition: 'info' object that has to contain the keys [%s,%s]
         @type info: dict         
         @param info: Dictionary object with information needed by the class
         @type log: Logger 
@@ -246,8 +251,11 @@ class Runner(KeyEnum):
         
         Return: Tuple of boolean, message that explains boolean,
         out_stream, err_stream, log_stream        
-        """   
+        """ % (self.storage_key,self.workdir_key)
         
+        required_keys = [self.storage_key,self.name_key]
+        for key in required_keys:
+            log.debug('found key [%s]: [%s]' % (key, info.has_key(key)))
         storage = info[self.storage_key]
         log.debug('STORAGE type: [%s]' % storage)
         if storage == 'memory':

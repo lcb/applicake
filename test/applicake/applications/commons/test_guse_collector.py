@@ -38,7 +38,6 @@ class Test(unittest.TestCase):
 
 
     def tearDown(self):
-        os.remove(self.output)
         shutil.rmtree(self.tmp_dir)
         os.chdir(self.cwd)
 
@@ -46,16 +45,16 @@ class Test(unittest.TestCase):
     def test_guse_collector_1(self):
         ''' Test with only collector and output flag'''
         runner = BasicApplicationRunner()
-        wrapper = GuseCollector()
+        app = GuseCollector()
         sys.argv = ['run_echo.py', '-c', self.collector_file, '-o',self.output]
-        exit_code = runner(sys.argv,wrapper)        
-        assert 0 == exit_code
+        exit_code = runner(sys.argv,app)        
+        self.assertTrue(exit_code ==0,'found [%s]\nexpected [%s]' % (exit_code,0)) 
         runner.info['COLLECTOR_IDX'] = self.range
         config = ConfigHandler().read(runner.log, self.output)
         # converts ConfigObj to dict -> needed for comparison
         dic = dict(config)
         # for assert 'BASEDIR has to be removed because it contains full path
-        dic.pop('BASEDIR')      
+        dic.pop(runner.basedir_key)      
         expected = {
                     'COMMENT': ['hello', 'world'], 
                     'DATASET_CODE': ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
