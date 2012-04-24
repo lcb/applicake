@@ -8,45 +8,14 @@ import itertools
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
 
-class BasicGenerator(IApplication):
+class OpenBisGenerator(IApplication):
     """
+    Generator for usage with openBIS
+    
     Generates all possible value combinations from the input file if it contains keys with multiple values.
     The results are stored in files which are named in dependency input file name and the pattern accepted 
     by the applied worklfow manager.
-    """
-    
-    
-    def main(self,info,log):
-        """
-        Generate the cartesian product of all values from info and writes them to files.  
-        
-
-        @type info: see super class
-        @param info: see super class
-        @type log: see super class
-        @param log: see super class 
-        """
-        
-        
-        '!!! todo: REMOVE DEPENDECY OF self.dataset_code_key !!!'
-        
-        # prepare a basedic to produced input files for inner workflow
-        basedic = info.copy()
-        del basedic[self.created_files_key]
-        # prepare first the product of a parameter combinations
-        escape_keys = [self.dataset_code_key]
-        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key=self.param_idx_key)
-        log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
-        # prepare combinations based on files
-        param_file_dicts = []
-        escape_keys = []
-        for dic in  param_dicts:            
-            file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key=self.file_idx_key)
-            param_file_dicts.extend(file_dicts)
-        log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
-        # write ini files
-        self.write_generator_files(info,log,param_file_dicts)
-        return (0,info)
+    """    
 
     def get_list_product(self,list_of_lists):
         """
@@ -117,6 +86,38 @@ class BasicGenerator(IApplication):
             val = dic[key]
             dic[key] = escape_str.join(val)
             
+    def main(self,info,log):
+        """
+        Generate the cartesian product of all values from info and writes them to files. 
+        
+        There is a distinction between dataset codes and parameters. For every parameter combination
+        a new key [%s] is added. Dataset combinations are indexed using another key [%s]. 
+        
+        @precondition: 'info' object has to contain key [%s]
+        @type info: see super class
+        @param info: see super class
+        @type log: see super class
+        @param log: see super class 
+        """ % (self.param_idx_key,self.dataset_code_key,self.dataset_code_key)
+        
+        # prepare a basedic to produced input files for inner workflow
+        basedic = info.copy()
+        del basedic[self.created_files_key]
+        # prepare first the product of a parameter combinations
+        escape_keys = [self.dataset_code_key]
+        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key=self.param_idx_key)
+        log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
+        # prepare combinations based on files
+        param_file_dicts = []
+        escape_keys = []
+        for dic in  param_dicts:            
+            file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key=self.file_idx_key)
+            param_file_dicts.extend(file_dicts)
+        log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
+        # write ini files
+        self.write_generator_files(info,log,param_file_dicts)
+        return (0,info)            
+            
     def string2list(self,dic,keys,split_str):
         """
         Takes a dictionary and transforms values of keys that are lists into a string.
@@ -131,7 +132,7 @@ class BasicGenerator(IApplication):
         """
         for key in keys:
             val = dic[key]
-            dic[key] = val.split(split_str)
+            dic[key] = val.split(split_str)          
             
     def write_generator_files(self,info,log,dicts):
         """
@@ -145,12 +146,12 @@ class BasicGenerator(IApplication):
         raise NotImplementedError("write_generator_files() is not implemented.") 
         
         
-class GuseGenerator(BasicGenerator):
+class GuseGenerator(OpenBisGenerator):
     """
     Basic generator for the gUSE workflow manager.
     
     It creates output files of the format [INPUTFILENAME]_[INDEX]
-    """
+    """    
     
     def write_generator_files(self,info,log,dicts): 
         """
@@ -163,7 +164,7 @@ class GuseGenerator(BasicGenerator):
             log.debug('create file [%s]' % path)
             info[self.created_files_key].append(path)
             
-class PgradeGenerator(BasicGenerator):
+class PgradeGenerator(GuseGenerator):
     """
     Basic generator for the P-Grade workflow manager.
     
