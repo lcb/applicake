@@ -15,6 +15,7 @@ from subprocess import PIPE
 from applicake.framework.argshandler import ApplicationArgsHandler
 from applicake.framework.argshandler import BasicArgsHandler
 from applicake.framework.argshandler import WrapperArgsHandler
+from applicake.framework.enums import KeyEnum
 from applicake.framework.logger import Logger
 from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IWrapper
@@ -24,7 +25,7 @@ from applicake.utils.fileutils import FileLocker
 from applicake.utils.dictutils import DictUtils                          
                  
                  
-class Runner(object):
+class Runner(KeyEnum):
     """
     Basic class to prepare and run one of the Interface classes of the framework as workflow node    
     """                      
@@ -38,10 +39,10 @@ class Runner(object):
         Return: exit code (integer)
         """      
         default_info = {
-                        'STORAGE':'memory',
-                        'LOG_LEVEL':'DEBUG',
-                        'NAME': app.__class__.__name__,
-                        'CREATED_FILES': None
+                        self.storage_key:'memory',
+                        self.log_level_key:'DEBUG',
+                        self.name_key: app.__class__.__name__,
+                        self.created_files_key: None
                         } 
         tmp_log_stream = StringIO()
         try:
@@ -74,8 +75,8 @@ class Runner(object):
             sys.stdout = self.out_stream
             sys.stderr = self.err_stream
             log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')                       
-            log = Logger(level=info['LOG_LEVEL'],
-                         name=info['NAME'],stream=self.log_stream).logger       
+            log = Logger(level=info[self.log_level_key],
+                         name=info[self.name_key],stream=self.log_stream).logger       
             log.debug('created new logger dependent of the storage')
             tmp_log_stream.seek(0)
             self.log_stream.write(tmp_log_stream.read())
@@ -120,16 +121,16 @@ class Runner(object):
         - info: Configuration object to access file and parameter information 
         - log: Logger to Logger to store log messages               
         """                               
-        wd = info['WORKDIR']
+        wd = info[self.workdir_key]
         log.debug('start copying/moving files to work dir')
         # copy input files to working directory
         files_to_copy = []
-        if info.has_key('INPUTS'):
-            DictUtils.get_flatten_sequence([files_to_copy,info["INPUTS"]])
-            log.debug('found following input files to copy [%s]' % info["INPUTS"])
-        if info.has_key('OUTPUT'):
-            DictUtils.get_flatten_sequence([files_to_copy,info["OUTPUT"]])
-            log.debug('found following output files to copy [%s]' % info["OUTPUT"])            
+        if info.has_key(self.input_key):
+            DictUtils.get_flatten_sequence([files_to_copy,info[self.input_key]])
+            log.debug('found following input files to copy [%s]' % info[self.input_key])
+        if info.has_key(self.output_key):
+            DictUtils.get_flatten_sequence([files_to_copy,info[self.output_key]])
+            log.debug('found following output files to copy [%s]' % info[self.output_key])            
         for path in files_to_copy:
             # 'r' escapes special characters
             src = r'%s' % os.path.abspath(path) 
@@ -140,7 +141,7 @@ class Runner(object):
                 log.critical('Counld not copy [%s] to [%s]' % (src,wd))
                 sys.exit(1)             
         self.reset_streams()
-        if info['STORAGE'] == 'memory':
+        if info[self.storage_key] == 'memory':
             print '=== stdout ==='
             self.out_stream.seek(0)
             for line in self.out_stream.readlines():
@@ -151,8 +152,8 @@ class Runner(object):
                 print line                              
         # move created files to working directory
         # 'created_files might be none e.g. if memory-storage is used   
-        if info['CREATED_FILES'] is not None:  
-            for path in info['CREATED_FILES']:
+        if info[self.created_files_key] is not None:  
+            for path in info[self.created_files_key]:
                 src = r'%s' % os.path.abspath(path) 
                 dest = r'%s' % os.path.join(wd,os.path.basename(path))
                 try:
@@ -181,10 +182,10 @@ class Runner(object):
         @param log: Logger to store log messages  
         """
         jobid = 1
-        if not info.has_key('BASEDIR'):
-            log.error("info has not key ['BASEDIR']. Therefore jobid is set to default=1")
+        if not info.has_key(self.basedir_key):
+            log.error("info has not key [%s]. Therefore jobid is set to default=1" % self.basedir_key)
         else:    
-            dirname = info['BASEDIR']
+            dirname = info[self.basedir_key]
             log.debug('found base dir [%s]' % dirname)
             filename = os.path.join(dirname, 'jobid.txt')
             locker = FileLocker()
@@ -198,21 +199,22 @@ class Runner(object):
             fh = open(filename,'w')    
             fh.write(str(jobid))
             locker.unlock(fh)            
-        info['JOB_IDX']=jobid    
-        log.debug("added key ['JOBID'] to info object")
+        info[self.job_idx_key]=jobid    
+        log.debug("added key [%s] to info object" % self.job_idx_key)
         
     def create_workdir(self,info,log):
         """
         Create a working directory.
         
-        The location is stored in the info object with the key 'WORKDIR'.
+        The location is stored in the info object with the key [%s].
         
         @type info: dict         
         @param info: Dictionary object with information needed by the class
         @type log: Logger 
         @param log: Logger to store log messages  
-        """
-        keys = ['BASEDIR','JOB_IDX','PARAM_IDX','FILE_IDX','NAME']
+        """ % self.workdir_key
+        
+        keys = [self.basedir_key,self.job_idx_key,self.param_idx_key,self.file_idx_key,self.name_key]
         if not info.has_key(keys[0]):
             log.error('info object does not contain key [%s]' % keys[0])
             log.error('no work dir has been created')            
@@ -227,8 +229,8 @@ class Runner(object):
         path = (os.path.sep).join(map( str, path_items ) ) 
         # creates the directory, if it exists, it's content is removed       
         FileUtils.makedirs_safe(log,path,clean=True)
-        info['WORKDIR'] = path  
-        log.debug("added key ['WORKDIR] to info object.")                         
+        info[self.workdir_key] = path  
+        log.debug("added key [%s] to info object." % self.workdir_key)                         
                     
     def get_streams(self,info,log):
         """
@@ -246,7 +248,7 @@ class Runner(object):
         out_stream, err_stream, log_stream        
         """   
         
-        storage = info['STORAGE']
+        storage = info[self.storage_key]
         log.debug('STORAGE type: [%s]' % storage)
         if storage == 'memory':
             out_stream = StringIO()            
@@ -258,7 +260,7 @@ class Runner(object):
             err_file = ''.join([info['NAME'],".err"]) 
             log_file = ''.join([info['NAME'],".log"])                      
             created_files = [out_file,err_file,log_file]
-            info['CREATED_FILES'] = created_files
+            info[self.created_files_key] = created_files
             log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory")            
             # streams are initialized with 'w+' that files newly created and therefore previous versions are deleted.
             out_stream = open(out_file, 'w+',buffering=0)            
@@ -382,7 +384,7 @@ class BasicWrapperRunner(BasicApplicationRunner):
                 p.wait()
             else:
                 self.log.critical('storage type [%s] is not supported' % 
-                                  self.info['storage'])
+                                  self.info[self.storage_key])
                 return 1                       
             return p.returncode                       
         except Exception,e:
@@ -416,7 +418,7 @@ class BasicWrapperRunner(BasicApplicationRunner):
             command  = command.replace('\n','')   
             log.info('Command [%s]' % str(command))
             log.info('Start [%s]' % self._run.__name__)
-            run_code = self._run(command,info['STORAGE'])
+            run_code = self._run(command,info[self.storage_key])
             log.info('Finish [%s]' % self._run.__name__)
             log.info('run_code [%s]' % run_code)        
             log.info('Start [%s]' % app.validate_run.__name__)
