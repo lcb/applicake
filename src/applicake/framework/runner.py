@@ -98,6 +98,8 @@ class Runner(KeyEnum):
             print ('Finished executing [%s]' % args[0])
             return int(exit_code)
         except:
+            raise 
+        finally:
             self.reset_streams()
             if hasattr(self, 'log_stream'):
                 stream = self.log_stream
@@ -105,9 +107,8 @@ class Runner(KeyEnum):
                 stream = tmp_log_stream    
             stream.seek(0)
             for line in stream.readlines():
-                sys.stderr.write(line)
-            raise   
-    
+                sys.stderr.write(line)              
+
     def _cleanup(self,info,log):
         """
         Does the final clean-up
@@ -287,6 +288,7 @@ class Runner(KeyEnum):
         @rtype: IArgsHandler
         @return: An implementation of the IArgsHandler interface. 
         """ 
+        raise NotImplementedError("get_args_handler() is not implemented.")
     
     def get_info_handler(self):
         """
@@ -295,6 +297,7 @@ class Runner(KeyEnum):
         @rtype: IInformation
         @return: An implementation of the IInformation interface. 
         """     
+        raise NotImplementedError("get_info_handler() is not implemented.")
     
     def run_app(self,info,log,app):
         """

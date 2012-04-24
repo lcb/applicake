@@ -11,7 +11,7 @@ from applicake.applications.commons.collector import GuseCollector
 
 
 runner = BasicApplicationRunner()
-wrapper = GuseCollector()
-exit_code = runner(sys.argv,wrapper)
+application = GuseCollector()
+exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)
