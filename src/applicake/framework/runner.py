@@ -107,16 +107,12 @@ class Runner(KeyEnum):
             log.debug('exit code [%s]' %exit_code)
             log.debug('info [%s]' % info)
             # needed for guse/pgrade
-            if hasattr(self, 'log_stream'):                
+            if hasattr(self, 'log_stream'): 
                 stream = self.log_stream
             else:
-                stream = tmp_log_stream    
+                stream = tmp_log_stream               
             stream.seek(0)
-            sys.stderr.write('hello')
-            for line in stream.readlines():
-                sys.stderr.write('%s' % line)
-#            sys.stderr.write(content)  
-            sys.stderr.write('\n\n\n\n\n')            
+            sys.stderr.write(stream.read())            
             self.info = info    
             return exit_code
         

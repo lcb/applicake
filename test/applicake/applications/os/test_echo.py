@@ -26,6 +26,7 @@ class Test(unittest.TestCase):
         os.chdir(self.tmp_dir)        
         fh = open(self.input,'w+')
         fh.write("""COMMENT = hello world
+PREFIX = /bin/echo        
 STORAGE = file
 OUTPUT = /fake/output.ini 
 LOG_LEVEL = INFO
@@ -49,7 +50,7 @@ BASEDIR = /tmp
         assert 0 == exit_code      
         config = ConfigHandler().read(self.log,self.output)
         print config
-        outfile = os.path.join(config['WORKDIR'],config['CREATED_FILES'][0])        
+        outfile = config['CREATED_FILES'][0]       
         assert 'hello world\n' == open(outfile,'r').read()
 
 

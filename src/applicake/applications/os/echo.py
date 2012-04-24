@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Created on Mar 28, 2012
 
@@ -15,24 +16,26 @@ class Echo(IWrapper):
         """
         See interface
         """
-        comment = info[self.comment_key]
-        return ('echo "%s"' % comment,info)
+        try:
+            comment = info[self.comment_key]
+            prefix = info[self.prefix_key]
+        except:
+            log.fatal('did not find one of the keys [%s]' % (self.comment_key,self.prefix_key))
+            return ''   
+        return ('%s "%s"' % (prefix,comment),info)
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):
         """
         See interface
         """
-        exit_code = 0
         if run_code != 0:
             exit_code = run_code
         else:
+            out_stream.seek(0)
             out = out_stream.read()
             if len(out) == 0:
-                log.error(
-                          '''The output stream did not contain any value.
-                          check if the input file contained a value for the key [COMMENT]
-                          ''')
+                log.error('The output stream did not contain any value. check if key [COMMENT] was set')
                 exit_code = 1
-        return (exit_code,info)
-                
-        
+            else:
+                exit_code = 0
+        return (exit_code,info)       
