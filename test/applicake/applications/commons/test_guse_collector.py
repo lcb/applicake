@@ -85,7 +85,7 @@ class Test(unittest.TestCase):
         # converts ConfigObj to dict -> needed for comparison
         dic = dict(config)
         # for assert 'BASEDIR has to be removed because it contains full path
-        dic.pop('BASEDIR')      
+        dic.pop(runner.basedir_key)      
         expected = {
                     'COMMENT': ['hello', 'world'], 
                     'DATASET_CODE': ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 

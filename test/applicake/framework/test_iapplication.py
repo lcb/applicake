@@ -104,8 +104,7 @@ class Test(unittest.TestCase):
         log_stream = runner.log_stream.read()          
         self.assertTrue(out == out_stream,'[%s]\n[%s]' % (out,out_stream))
         self.assertTrue(err == err_stream,'[%s]\n[%s]' % (err,err_stream))    
-        self.assertTrue(log_stream == log,'[%s]\n[%s]' % (log,log_stream))    
-               
+        self.assertTrue(log_stream == log,'[%s]\n[%s]' % (log,log_stream))          
         assert exit_code == 0  
         
     def test_read_inputs__1(self):
