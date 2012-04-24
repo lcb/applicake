@@ -30,7 +30,7 @@ class BasicCollector(IApplication):
         paths = self._get_collector_files(info, log)
         if len(paths) == 0:
             log.critical('no collector files found [%s]' % paths)
-            return 1            
+            return (1,info)            
         collector_config  = {}
         for path in paths:
             log.debug('path [%s]' % path)
