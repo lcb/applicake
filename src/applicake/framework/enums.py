@@ -23,3 +23,5 @@ class KeyEnum(object):
     template_key = 'TEMPLATE'
     storage_key = 'STORAGE'
     workdir_key = 'WORKDIR'
+    src_key = 'SOURCE'
+    dest_key = 'DESTINATION'
