@@ -48,7 +48,7 @@ class Runner(KeyEnum):
         exit_code = 1
         try:
             # create memory logger            
-            log = Logger(level='DEBUG',name='memory_logger',stream=tmp_log_stream).logger
+            log = Logger.create(level='DEBUG',name='memory_logger',stream=tmp_log_stream)
             log.debug('created temporary in-memory logger')
             # get command line arguments
             args = sys.argv
@@ -79,9 +79,9 @@ class Runner(KeyEnum):
             log.debug('set sys.out to new out stream')
             sys.stderr = self.err_stream
             log.debug('set sys.err to new err stream')
-            log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')                       
-            log = Logger(level=info[self.log_level_key],
-                         name=info[self.name_key],stream=self.log_stream).logger       
+            log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')                      
+            log = Logger.create(level=info[self.log_level_key],
+                         name=info[self.name_key],stream=self.log_stream)      
             log.debug('created new logger dependent of the storage')
             tmp_log_stream.seek(0)
             self.log_stream.write(tmp_log_stream.read())
@@ -95,17 +95,18 @@ class Runner(KeyEnum):
             log.info('Finished [%s]' % self.run_app.__name__)               
             log.info('Start [%s]' % info_handler.write_info.__name__)
             info_handler.write_info(info,log)
-            log.info('Finished [%s]' % info_handler.write_info.__name__)              
-        except:
+            log.info('Finished [%s]' % info_handler.write_info.__name__)    
+            exit_code,info,log = self._cleanup(info,log)           
+        except Exception, e:
             log.fatal('error in __call__')
-            raise 
+            log.exception(e)
         finally:
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams()
-            log.info('Finished [%s]' % self.reset_streams.__name__)
-            exit_code,info = self._cleanup(info,log)  
-            log.debug('exit code [%s]' %exit_code)
+            log.info('Finished [%s]' % self.reset_streams.__name__) 
             log.debug('info [%s]' % info)
+            log.debug('exit code [%s]' %exit_code)
+
             # needed for guse/pgrade
             if hasattr(self, 'log_stream'): 
                 stream = self.log_stream
@@ -125,31 +126,37 @@ class Runner(KeyEnum):
         - If storage='memory' is used, out and err stream are printed to stdout
         - log stream is printed to stderr
         
-        Arguments:
-        - info: Configuration object to access file and parameter information 
-        - log: Logger to Logger to store log messages    
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages   
         
-        return exit code           
-        """                               
-        wd = info[self.workdir_key]
-        log.debug('start copying/moving files to work dir')
-        # copy input files to working directory
-        files_to_copy = []
-        if info.has_key(self.input_key):
-            DictUtils.get_flatten_sequence([files_to_copy,info[self.input_key]])
-            log.debug('found following input files to copy [%s]' % info[self.input_key])
-        if info.has_key(self.output_key):
-            DictUtils.get_flatten_sequence([files_to_copy,info[self.output_key]])
-            log.debug('found following output files to copy [%s]' % info[self.output_key])            
-        for path in files_to_copy:
-            # 'r' escapes special characters
-            src = r'%s' % os.path.abspath(path) 
-            try:
-                shutil.copy(src,wd) 
-                log.debug('Copied [%s] to [%s]' % (src,wd))
-            except:
-                log.critical('Counld not copy [%s] to [%s]' % (src,wd))
-                sys.exit(1)             
+        @rtype: (int,dict,logger)
+        @return: Tuple of 3 objects; the exit code,the (updated) info object and the updated logger.          
+        """       
+        log.debug('Start [%s]' % self.reset_streams.__name__)
+        self.reset_streams()
+        log.debug('Finished [%s]' % self.reset_streams.__name__) 
+        if info.has_key(self.workdir_key):
+            wd = info[self.workdir_key]
+            log.debug('start copying/moving files to work dir')
+            # copy input files to working directory
+            files_to_copy = []
+            if info.has_key(self.input_key):
+                DictUtils.get_flatten_sequence([files_to_copy,info[self.input_key]])
+                log.debug('found following input files to copy [%s]' % info[self.input_key])
+            if info.has_key(self.output_key):
+                DictUtils.get_flatten_sequence([files_to_copy,info[self.output_key]])
+                log.debug('found following output files to copy [%s]' % info[self.output_key])            
+            for path in files_to_copy:
+                # 'r' escapes special characters
+                src = r'%s' % os.path.abspath(path) 
+                try:
+                    shutil.copy(src,wd) 
+                    log.debug('Copied [%s] to [%s]' % (src,wd))
+                except:
+                    log.critical('Counld not copy [%s] to [%s]' % (src,wd))
+                    return (1,info,log)            
         if info[self.storage_key] == 'memory':
             print '=== stdout ==='
             self.out_stream.seek(0)
@@ -170,8 +177,8 @@ class Runner(KeyEnum):
                     log.debug('Copy [%s] to [%s]' % (src,dest))
                 except:
                     log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
-                    return(1,info)
-        return (0,info)     
+                    return(1,info,log)
+        return (0,info,log)     
                                                 
                     
     def _set_jobid(self,info,log):
@@ -222,7 +229,7 @@ class Runner(KeyEnum):
         keys = [self.basedir_key,self.job_idx_key,self.param_idx_key,self.file_idx_key,self.name_key]
         if not info.has_key(keys[0]):
             log.error('info object does not contain key [%s]' % keys[0])
-            log.error('no work dir has been created')            
+            log.error('no work dir has been created')          
         if not info.has_key(keys[1]):
             self._set_jobid(info,log)               
         path_items = []    

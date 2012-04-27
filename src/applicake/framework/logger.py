@@ -14,10 +14,12 @@ class Logger(object):
     Default settings : logging level = DEBUG, logs are written to the console
     """
 
-    def __init__(self,name='logger',level=logging.DEBUG,stream=sys.stderr):
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(level)                
+    @staticmethod
+    def create(name='logger',level=logging.DEBUG,stream=sys.stderr):
+        logger = logging.getLogger(name)
+        logger.setLevel(level)                
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         ch = logging.StreamHandler(stream)
         ch.setFormatter(formatter)
-        self.logger.addHandler(ch)                
+        logger.addHandler(ch)   
+        return logger             

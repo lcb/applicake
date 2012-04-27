@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.log_stream = StringIO()
-        self.log = Logger(level='DEBUG',name='memory_logger',stream=self.log_stream).logger
+        self.log = Logger.create(level='DEBUG',name='memory_logger',stream=self.log_stream)
 
     def tearDown(self):
         pass

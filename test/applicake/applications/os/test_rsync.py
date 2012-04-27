@@ -13,7 +13,7 @@ class Test(unittest.TestCase):
 
     #setUp and tearDown are pre-defined test functions
     def setUp(self):
-        self.log = Logger(level='DEBUG',name='memory_logger',stream=StringIO()).logger
+        self.log = Logger.create(level='DEBUG',name='memory_logger',stream=StringIO())
         self.info = {KeyEnum.src_key: '/from/dir /to/dir'}
         self.out_stream = StringIO()
         self.out_stream.write("""building file list ... done

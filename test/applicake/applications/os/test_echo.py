@@ -18,7 +18,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         log_stream = StringIO()
-        self.log = Logger(level='DEBUG',name='memory_logger',stream=log_stream).logger
+        self.log = Logger.create(level='DEBUG',name='memory_logger',stream=log_stream)
         self.input = 'echo_test.ini'
         self.tmp_dir = '%s/tmp' % os.path.abspath(os.getcwd())
         self.cwd = os.getcwd()
@@ -57,7 +57,7 @@ BASEDIR = /tmp
         runner = BasicWrapperRunner()
         wrapper = Echo()
         expected = 'hello world'
-        sys.argv = ['run_echo.py', '--LOG_LEVEL', 'ERROR', '--COMMENT',expected, '--STORAGE', 'memory','--BASEDIR','/tmp', '--PREFIX','/bin/echo']
+        sys.argv = ['run_echo.py', '--COMMENT',expected, '--PREFIX','/bin/echo']
         exit_code = runner(sys.argv,wrapper)  
         assert 0 == exit_code      
         runner.out_stream.seek(0)

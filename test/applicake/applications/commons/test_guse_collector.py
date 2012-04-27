@@ -18,7 +18,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         log_stream = StringIO()
-        self.log = Logger(level='DEBUG',name='memory_logger',stream=log_stream).logger
+        self.log = Logger.create(level='DEBUG',name='memory_logger',stream=log_stream)
         self.collector_file = 'echo_test.ini'
         self.tmp_dir = '%s/tmp' % os.path.abspath(os.getcwd())
         self.cwd = os.getcwd()

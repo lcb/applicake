@@ -128,7 +128,7 @@ class FileUtils(object):
                 # content of the old directory should be put into the log  
                 if clean:
                     FileUtils.rm_dir_content(path)
-                    FileUtils.makedirs_save(path,clean=False)
+                    FileUtils.makedirs_safe(log,path,clean=False)
             else:
                 log.fatal('could not create dir [%s]' % path)
                 sys.exit(1)
