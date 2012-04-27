@@ -36,13 +36,12 @@ BASEDIR = /tmp
         self.output = 'output.ini'
 
     def tearDown(self):
-        os.remove(self.input)
-        os.remove(self.output)
         shutil.rmtree(self.tmp_dir)
         os.chdir(self.cwd)
 
 
-    def test_echo(self):
+    def test_echo_1(self):
+        """Test with input.ini"""
         runner = BasicWrapperRunner()
         wrapper = Echo()
         sys.argv = ['run_echo.py', '-i', self.input, '-o',self.output]
@@ -53,6 +52,18 @@ BASEDIR = /tmp
         outfile = config['CREATED_FILES'][0]       
         assert 'hello world\n' == open(outfile,'r').read()
 
+    def test_echo_2(self):
+        '''Test without input.ini '''
+        runner = BasicWrapperRunner()
+        wrapper = Echo()
+        expected = 'hello world'
+        sys.argv = ['run_echo.py', '--LOG_LEVEL', 'ERROR', '--COMMENT',expected, '--STORAGE', 'memory','--BASEDIR','/tmp', '--PREFIX','/bin/echo']
+        exit_code = runner(sys.argv,wrapper)  
+        assert 0 == exit_code      
+        runner.out_stream.seek(0)
+        found = runner.out_stream.read()
+        print runner.info
+        self.assertTrue(expected == found.rstrip(),'expected [%s]\nfound [%s]' % (expected,found))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_echo']

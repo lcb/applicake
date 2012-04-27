@@ -29,7 +29,7 @@ class BasicInformationHandler(IInformationHandler):
         pargs = pargs.copy()
         if not pargs.has_key(self.input_key):
             log.debug('content of pargs [%s]' % pargs)
-            log.error('pargs did not contain the following key [%s]. Therefore pargs is returned' % self.input_key)
+            log.info('pargs did not contain the following key [%s]. Therefore pargs is returned' % self.input_key)
             return pargs
         else:
             inputs = {}
