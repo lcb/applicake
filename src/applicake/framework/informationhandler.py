@@ -33,16 +33,19 @@ class BasicInformationHandler(IInformationHandler):
             return pargs
         else:
             inputs = {}
-            for path in pargs['INPUTS']:
+            for path in pargs[self.input_key]:
                 if not FileUtils.is_valid_file(log, path):
                     log.fatal('Exit program because path [%s] is not valid' % path)
                     sys.exit(1)
                 else:
                     config = ConfigHandler().read(log, path)
                     inputs = DictUtils.merge(dict_1=inputs, dict_2=config, priority='flatten_sequence')       
-            created_files = {'CREATED_FILES':None}
+            created_files = {self.created_files_key:[]}
             inputs = DictUtils.merge(inputs, created_files,priority='right')
-            log.debug("Add/reset key [CREATED_FILES] in info object")        
+            log.debug("Add/reset key [%s] in info object" % self.created_files_key)
+#            prefix = {self.prefix_key: None}
+#            inputs = DictUtils.merge(inputs, prefix,priority='right')
+#            log.debug("Add/reset key [%s] in info object" % self.prefix_key)                    
             return DictUtils.merge(dict_1=pargs, dict_2=inputs, priority='left') 
         
     def write_info(self,info,log):

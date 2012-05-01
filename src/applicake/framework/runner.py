@@ -43,6 +43,7 @@ class Runner(KeyEnum):
                         self.log_level_key:'DEBUG',
                         self.name_key: app.__class__.__name__,
                         self.created_files_key: [],
+                        self.prefix_key: ''
                         } 
         tmp_log_stream = StringIO()
         exit_code = 1

@@ -17,11 +17,17 @@ class FileConverter(BasicOpenmsWrapper):
         """
         return BasicTemplateHandler()
 
-    def get_tool(self):
+    def get_prefix(self,info,log):
         """
         See super class.
+        
+        Return as prefix the name tool name 'FileConverter' if key [%s] 
+        is not set.
         """
-        return 'FileConverter'
+        if info[self.prefix_key] == '':
+            info[self.prefix_key] = 'FileConverter'
+            log.debug('set [%s] to [%s] because it was not set before.' % (self.prefix_key,info[self.prefix_key]))
+        return info[self.prefix_key],info
 
 
 class Mzxml2Mzml(FileConverter):

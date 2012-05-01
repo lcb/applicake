@@ -59,17 +59,18 @@ class Test(unittest.TestCase):
         # for assert 'BASEDIR has to be removed because it contains full path
         dic.pop(runner.basedir_key)      
         expected = {
-                    'COMMENT': ['hello', 'world'], 
-                    'DATASET_CODE': ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
-                    'WORKDIR': '1/GuseCollector', 
-                    'LOG_LEVEL': 'DEBUG', # the default set in the runner
-                    'NAME': 'GuseCollector', 
-                    'COLLECTORS': ['echo_test.ini'], 
+                    runner.comment_key: ['hello', 'world'], 
+                    runner.dataset_code_key: ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
+                    runner.workdir_key: '1/GuseCollector', 
+                    runner.log_level_key: 'DEBUG', # the default set in the runner
+                    runner.name_key: 'GuseCollector', 
+                    runner.collector_key: ['echo_test.ini'], 
                     'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-                    'STORAGE': 'memory', # the default set in the runner
-                    'JOB_IDX': '1', 
-                    'OUTPUT': self.output, 
-                    'CREATED_FILES': []
+                    runner.storage_key: 'memory', # the default set in the runner
+                    runner.job_idx_key: '1', 
+                    runner.output_key: self.output, 
+                    runner.created_files_key: [],
+                    runner.prefix_key:''
                     }
         # needed to print the diff 
         self.maxDiff = None
@@ -90,17 +91,18 @@ class Test(unittest.TestCase):
         # for assert 'BASEDIR has to be removed because it contains full path
         dic.pop(runner.basedir_key)      
         expected = {
-                    'COMMENT': ['hello', 'world'], 
-                    'DATASET_CODE': ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
-                    'WORKDIR': '1/GuseCollector', 
-                    'LOG_LEVEL': 'INFO',
-                    'NAME': 'GuseCollector', 
-                    'COLLECTORS': ['echo_test.ini'], 
+                    runner.comment_key: ['hello', 'world'], 
+                    runner.dataset_code_key: ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
+                    runner.workdir_key: '1/GuseCollector', 
+                    runner.log_level_key: 'INFO',
+                    runner.name_key: 'GuseCollector', 
+                    runner.collector_key: ['echo_test.ini'], 
                     'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-                    'STORAGE': 'file',
-                    'JOB_IDX': '1', 
-                    'OUTPUT': self.output, 
-                    'CREATED_FILES': ['GuseCollector.out', 'GuseCollector.err', 'GuseCollector.log']
+                    runner.storage_key: 'file',
+                    runner.job_idx_key: '1', 
+                    runner.output_key: self.output, 
+                    runner.created_files_key: ['GuseCollector.out', 'GuseCollector.err', 'GuseCollector.log'],
+                    runner.prefix_key:''
                     }
         # needed to print the diff 
         self.maxDiff = None

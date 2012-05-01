@@ -23,8 +23,8 @@ class BasicOpenmsWrapper(IWrapper):
         log.debug('got template handler')
         info = th.modify_template(info, log)
         log.debug('modified template')
-        tool = self.get_tool()
-        command = '%s -ini %s' % (tool,info[self.template_key])
+        prefix,info = self.get_prefix(info,log)
+        command = '%s -ini %s' % (prefix,info[self.template_key])
         return command,info
   
         
@@ -45,11 +45,23 @@ class BasicOpenmsWrapper(IWrapper):
         """
         raise NotImplementedError("get_template_handler() is not implemented")
     
-    def get_tool(self):
+    def get_prefix(self,info,log):
         """
-        Interface method to define the specific tool.
+        Return the prefix of the command to execute.
         
-        @rtype: string
-        @return: Name of the OpenMS tool that is going to be executed.
-        """
-        raise NotImplementedError("get_template_handler() is not implemented")
+        Usually this is the path to the tool which can be stored 
+        as value of the info object.
+        
+        @precondition: info object need the key [%s]
+        
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages         
+        
+        @rtype: (string,dict)
+        @return: Tuple of 2 objects: The path of the OpenMS tool that is going to be executed
+        and the (modified) info object.
+        """ % self.prefix_key
+        
+        return info[self.prefix_key],info

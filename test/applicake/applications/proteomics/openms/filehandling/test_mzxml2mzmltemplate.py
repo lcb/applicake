@@ -5,6 +5,7 @@ Created on May 1, 2012
 '''
 import unittest
 from applicake.framework.logger import Logger
+from applicake.applications.proteomics.openms.filehandling.fileconverter import FileConverter
 from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2MzmlTemplate 
 from StringIO import StringIO
 
@@ -18,6 +19,20 @@ class Test(unittest.TestCase):
         self.mzxml = 'my.mzXML'
         self.mzml = 'my.mzML'        
 
+    def test_file_converter(self):
+        app = FileConverter()
+        info = {
+                app.prefix_key:''
+                }
+        prefix,info = FileConverter().get_prefix(info, self.log)
+        assert prefix == 'FileConverter'
+        info = {
+                app.prefix_key:'/path/FileConverter'
+                } 
+        prefix,info = FileConverter().get_prefix(info, self.log)
+        assert prefix == '/path/FileConverter'               
+        
+    
     def test_mzxml2mzml_template(self):
         tpl = Mzxml2MzmlTemplate()
         info = {tpl.mzml_key: self.mzml,
