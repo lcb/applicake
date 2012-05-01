@@ -37,7 +37,7 @@ class Test(unittest.TestCase):
     COLLECTOR_IDX = %s
 """ % (self.tmp_dir,idx))
             fh.close()
-            self.output = 'output.ini'
+            self.output = 'test_output.ini'
 
 
     def tearDown(self):
@@ -68,8 +68,8 @@ class Test(unittest.TestCase):
                     'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     'STORAGE': 'memory', # the default set in the runner
                     'JOB_IDX': '1', 
-                    'OUTPUT': 'output.ini', 
-                    'CREATED_FILES': 'None'
+                    'OUTPUT': self.output, 
+                    'CREATED_FILES': []
                     }
         # needed to print the diff 
         self.maxDiff = None
@@ -99,7 +99,7 @@ class Test(unittest.TestCase):
                     'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     'STORAGE': 'file',
                     'JOB_IDX': '1', 
-                    'OUTPUT': 'output.ini', 
+                    'OUTPUT': self.output, 
                     'CREATED_FILES': ['GuseCollector.out', 'GuseCollector.err', 'GuseCollector.log']
                     }
         # needed to print the diff 

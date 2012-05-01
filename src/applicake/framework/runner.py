@@ -42,7 +42,7 @@ class Runner(KeyEnum):
                         self.storage_key:'memory',
                         self.log_level_key:'DEBUG',
                         self.name_key: app.__class__.__name__,
-                        self.created_files_key: None
+                        self.created_files_key: [],
                         } 
         tmp_log_stream = StringIO()
         exit_code = 1
@@ -91,6 +91,9 @@ class Runner(KeyEnum):
             log.info('Finished [%s]' % self.create_workdir.__name__)
             log.info('Start [%s]' % self.run_app.__name__)
             exit_code,info = self.run_app(app,info,log)
+            if exit_code != 0:
+                log.fatal('exit code of run_app() != 0')
+                sys.exit(1)    
             log.debug('runner: content of info [%s]' % info)
             log.info('Finished [%s]' % self.run_app.__name__)               
             log.info('Start [%s]' % info_handler.write_info.__name__)
@@ -168,7 +171,7 @@ class Runner(KeyEnum):
                 print line                              
         # move created files to working directory
         # 'created_files might be none e.g. if memory-storage is used   
-        if info[self.created_files_key] is not None:  
+        if info[self.created_files_key] != []:  
             for path in info[self.created_files_key]:
                 src = r'%s' % os.path.abspath(path) 
                 dest = r'%s' % os.path.join(wd,os.path.basename(path))
@@ -447,10 +450,9 @@ class BasicWrapperRunner(BasicApplicationRunner):
             log.debug('exit code [%s]' % exit_code)
             log.info('Finish [%s]' % app.validate_run.__name__)        
             return (exit_code,info)
-        else:                                    
-            self.log.critical('the object [%s] is not an instance of one of the following %s'% 
-                              (app.__class__.__name__,
-                               [IApplication,__class__.__name__]))  
+        else:                                   
+            log.critical("the object [%s] is not an instance of one of the following [%s]" % (app.__class__.__name__ ,
+                                                                                                 IWrapper.__class__.__name__))  
             return (1,info)  
         
 class StrictApplicationRunner(BasicApplicationRunner):

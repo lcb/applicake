@@ -16,6 +16,8 @@ class KeyEnum(object):
     input_key = 'INPUTS'
     job_idx_key = 'JOB_IDX' 
     log_level_key = 'LOG_LEVEL'
+    mzml_key = 'MZML'
+    mzxml_key = 'MZXML'
     name_key = 'NAME'
     output_key = 'OUTPUT'      
     param_idx_key = 'PARAM_IDX'

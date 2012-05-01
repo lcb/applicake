@@ -33,7 +33,7 @@ LOG_LEVEL = INFO
 BASEDIR = /tmp
 """)
         fh.close()
-        self.output = 'output.ini'
+        self.output = 'myoutput.ini'
 
     def tearDown(self):
         shutil.rmtree(self.tmp_dir)

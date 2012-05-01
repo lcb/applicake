@@ -8,6 +8,7 @@ import shutil
 import unittest
 from applicake.framework.logger import Logger
 from applicake.framework.templatehandler import BasicTemplateHandler
+from applicake.framework.enums import KeyEnum
 from StringIO import StringIO
 
 class Test(unittest.TestCase):
@@ -25,8 +26,10 @@ class Test(unittest.TestCase):
         self.var = '$MYVAR'
         fh.write('my template contains a var [%s]' % self.var)
         self.info = {
-                     'TEMPLATE':path,
+                     KeyEnum.template_key:path,
+                     KeyEnum.created_files_key:[],
                      'MYVAR': 'value of var'
+                     
                      }
 
 
@@ -37,7 +40,7 @@ class Test(unittest.TestCase):
 
     def test_basic_read_template_1(self):
         '''Test to read template.'''
-        template = BasicTemplateHandler().read_template(self.info, self.log)
+        template,info = BasicTemplateHandler().read_template(self.info, self.log)
         expected = 'my template contains a var [%s]' % self.var
         self.assertTrue(template == expected, 'template [%s]\nexpected[%s]' % (template,expected))
     
@@ -50,13 +53,13 @@ class Test(unittest.TestCase):
         except:
             self.log_stream.seek(0)
             last_entry = self.log_stream.readlines()[-1]
-            contain = "CRITICAL - Stop application because info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
+            contain = "CRITICAL - Stop application because info does not contain key [%s]" % BasicTemplateHandler().template_key
             self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))    
     
     def test_basic_replace_vars(self):
         '''Test if template is modified correctly with vars from dictionary.'''
         template = 'my template contains a var [%s]' % self.var
-        mod_template = BasicTemplateHandler().replace_vars(self.info, self.log, template)
+        mod_template,info = BasicTemplateHandler().replace_vars(self.info, self.log, template)
         expected = 'my template contains a var [value of var]'
         self.assertTrue(mod_template == expected, 'mod_template [%s]\nexpected [%s]' % (mod_template,expected))
         
@@ -80,7 +83,7 @@ class Test(unittest.TestCase):
         except:
             self.log_stream.seek(0)
             last_entry = self.log_stream.readlines()[-1]
-            contain = "CRITICAL - Stop application because info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
+            contain = "CRITICAL - Stop application because info does not contain key [%s]" % BasicTemplateHandler().template_key
             self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))
     
     def test_basic_modify_template_1(self):
@@ -101,7 +104,7 @@ class Test(unittest.TestCase):
         except:
             self.log_stream.seek(0)
             last_entry = self.log_stream.readlines()[-1]
-            contain = "CRITICAL - Stop application because info does not contain key [%s]: [{'MYVAR': 'value of var'}]" % BasicTemplateHandler().template_key
+            contain = "CRITICAL - Stop application because info does not contain key [TEMPLATE]"
             self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))        
            
             

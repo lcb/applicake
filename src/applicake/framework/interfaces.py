@@ -101,8 +101,8 @@ class ITemplateHandler(KeyEnum):
         @type log: Logger 
         @param log: Logger to store log messages 
         
-        @rtype: string
-        @return: The template as string.
+        @rtype: (string,dict)
+        @return: Tuple of 2 objects: The template as string and the (modified) info object.
         """    
         raise NotImplementedError("read_template() is not implemented")    
     
@@ -117,15 +117,15 @@ class ITemplateHandler(KeyEnum):
         @type template: string
         @param template: The template as string.  
         
-        @rtype: string
-        @return: The modified template string.
+        @rtype: (string,dict)
+        @return: Tuple of 2 objects: The modified template string and the (modified) info object.
         """        
         
         raise NotImplementedError("replace_vars() is not implemented")  
         
     def write_template(self,info,log,template):
         """
-        Write a template string to a destination defined in the info object
+        Write a template string to a destination defined in the info object.
         
         @precondition: info object need the key [%s]
         @type info: dict         
@@ -134,6 +134,9 @@ class ITemplateHandler(KeyEnum):
         @param log: Logger to store log messages
         @type template: string
         @param template: Write template string to a destination
+        
+        @rtype: dict
+        @return: The (modified) info object.       
         """ % self.template_key
         
         raise NotImplementedError("write_template() is not implemented") 

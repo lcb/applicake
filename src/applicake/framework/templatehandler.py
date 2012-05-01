@@ -14,7 +14,7 @@ class BasicTemplateHandler(ITemplateHandler):
     Basic implementation of the ITemplateHandler interface.
     """
     
-    def _check_template_key(self,info,log):
+    def check_template_key(self,info,log):
         """
         Check if info object has key [%s].
         
@@ -33,46 +33,63 @@ class BasicTemplateHandler(ITemplateHandler):
         @precondition: info object need the key [%s]
         """ % self.template_key
         
-        self._check_template_key(info, log)
+        self.check_template_key(info, log)
         path = info[self.template_key]
         FileUtils.is_valid_file(log, path)
         fh = open(path,'r+')
         template = fh.read()         
-        return template
+        return (template,info)
     
     def replace_vars(self, info, log, template):
         """
         See super class.
         """ 
         mod_template = Template(template).safe_substitute(info)
-        return mod_template
+        return (mod_template,info)
     
     def write_template(self, info, log, template):
         """
         Write template string to a file location that is defined in\
-        the info object
+        the info object.
+        
+        Add the file location as value to the key [%s] in the info object.
         
         See super class.
         
-        @precondition: info object need the key [%s]
-        """ % self.template_key
+        @precondition: info object need the keys [%s,%s]
+        """ % (self.created_files_key,self.created_files_key,self.template_key)
         
-        self._check_template_key(info, log)
-        path = info[self.template_key]
-        FileUtils.is_valid_file(log, path)        
+        self.check_template_key(info, log)
+        path = info[self.template_key]      
         fh = open(path,'w+')
         fh.write(template)
-        fh.close() 
+        fh.close()
+        FileUtils.is_valid_file(log, path) 
+        info[self.created_files_key].append(path)
+        log.debug('added [%s] to key [%s]' % (path,self.created_files_key))
+        return info         
         
     def modify_template(self, info, log):
         """
         Convenience method that calls all interface methods. 
         
-        Read template, replaces variables possible variables and writes modifications back to the source.  
-        """  
-        template = self.read_template(info, log)
-        mod_template = self.replace_vars(info, log, template)
-        self.write_template(info, log, mod_template)
+        Read template, replaces variables possible variables and writes modifications back to the source.
+        
+        @precondition: info object need the keys [%s,%s]
+
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages
+        
+        @rtype: dict
+        @return: The modified info object.
+        """ % (self.created_files_key,self.template_key)
+        
+        template,info = self.read_template(info, log)
+        mod_template,info = self.replace_vars(info, log, template)
+        info = self.write_template(info, log, mod_template)
+        return info
         
              
 
