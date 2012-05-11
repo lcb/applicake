@@ -6,41 +6,65 @@ Modified on Feb 20, 2012 by schmide
 Modified on Mar 6, 2012 by schmide, CHANGE_NAME enabled -> 0.1.2
 Modified on Mar 26, 2012 by quandtan, key naming -> 0.1.3
 Modified on Apr 3, 2012 by schmide, default: change name, stop on failure; key naming parameterized + defaults -> 0.1.4
+Modified on May 10, 2012 by schmide, new applicake version -> 0.2.0
 @author: quandtan, behullar, schmide
-@version: 0.1.4
+@version: 0.2.0
 '''
 
 import os,sys,shutil
-from applicake.app import WorkflowApplication
-from applicake.utils import XmlValidator
+from applicake.framework.interfaces import IWrapper
+from applicake.framework.enums import KeyEnum
 
 TRUES = ['TRUE', 'T', 'YES', 'Y', '1']
 class NoDataSetFound(Exception):
     pass
 
-class Dss(WorkflowApplication):
-    STDOUT_DMP = '.std.out'
-    STDERR_DMP = '.std.err'
+class Dss(IWrapper):
     DEFAULT_KEYS = {'getmsdata':'MZXML', 'getexperiment':'SEARCH'}
     MANDATORY_KEYS = ['DATASET_CODE', 'DATASET_DIR']
     ALLOWED_PREFIXES = ['getdataset', 'gettransitions', 'getmsdata', 'getexperiment']
     
-    def _get_command(self,prefix,input_filename):
+    '''
+    this is a workaround for the seemingly disfunctional log
+    '''
+    def _log(self, cmet, level, msg):
+        cmet(msg)
+        print "%s: %s" % (level,msg)
+
+    """
+    Interface for application that wraps an external application
+    """
+    def prepare_run(self, info, log):
+        """
+        Prepare the execution of an external program.
+        
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages 
+        
+        @rtype: (string,dict)
+        @return: Tuple of 2 objects; the command to execute and the (updated) info object.
+        """
+        self._log(log.info, 'INFO', info)
+        prefix = info[KeyEnum.prefix_key]
+        info['DSSCLIENT'] = prefix
         if not prefix in Dss.ALLOWED_PREFIXES:
-            self.log.error("prefix ('%s') must be one of %s" % (prefix, Dss.ALLOWED_PREFIXES))
+            self._log(log.error, 'ERROR', "prefix ('%s') must be one of %s" % (prefix, Dss.ALLOWED_PREFIXES))
             sys.exit(1)
         self._result_filename = prefix+".out"
-        config = self._iniFile.read_ini()
+        try: os.remove(self._result_filename)
+        except: pass
         for key in Dss.MANDATORY_KEYS:
-            try: config[key]
+            try: info[key]
             except KeyError:
-                self.log.error("Missing mandatory property in inifile: %s" % key)
+                self._log(log.error, 'ERROR', "Missing mandatory property in inifile: %s" % key)
                 sys.exit(2)
         # output is written to all ini-properties who's keys are listed in in Dss.outkeys.
         # if the keys are not given as ini property 'DSSKEYS', 
         # the default is 'DSSOUTPUT' plus an optional, prefix specific key.
         try: 
-            dss_keys = config['DSSKEYS']
+            dss_keys = info['DSSKEYS']
             if type(dss_keys) is str: self.outkeys = [dss_keys]
             elif type(dss_keys) is list: self.outkeys = dss_keys
             else: raise Exception('goto except')
@@ -48,46 +72,63 @@ class Dss(WorkflowApplication):
             self.outkeys = ['DSSOUTPUT']
             try: self.outkeys.append(Dss.DEFAULT_KEYS[prefix])
             except: pass
-        dataset_codes = config['DATASET_CODE']
+        dataset_codes = info['DATASET_CODE']
         if type(dataset_codes) is str:
             self._codes = [code.strip() for code in dataset_codes.split(',')]
         elif type(dataset_codes) is list:
             self._codes = dataset_codes
         else:
-            self.log.error("DATASET_CODE must be either str or list")
+            self._log(log.error, 'ERROR', "DATASET_CODE must be either str or list")
             sys.exit(3)
-        outdir = config['DATASET_DIR']
+        outdir = info['DATASET_DIR']
         if not os.path.isdir(outdir):
             if os.system("test -d %s" % outdir):
-                self.log.error("%s (DATASET_DIR) is not a directory" % outdir)
+                self._log(log.error, 'ERROR', "%s (DATASET_DIR) is not a directory" % outdir)
                 sys.exit(4)
-        if config.get('QUIET', '').upper() in TRUES:
+        if info.get('QUIET', '').upper() in TRUES:
             voption = ''
         else:
             voption = '-v '
-        if prefix == 'getmsdata' and not config.get('KEEP_NAME', '').upper() in TRUES:
+        if prefix == 'getmsdata' and not info.get('KEEP_NAME', '').upper() in TRUES:
             print 'change name on'
             koption = '-c '
         else:
             koption = ''
-        self._failure_tolerant = config.get('FAILURE_TOLERANT', '').upper() in TRUES
-        self._iniFile.add_to_ini({'DSSCLIENT':prefix})
+        self._failure_tolerant = info.get('FAILURE_TOLERANT', '').upper() in TRUES
         print prefix
         print outdir
         print self._codes
-        return "%s --out=%s --result=%s %s%s%s >%s 2>%s" % (
+        command = "%s --out=%s --result=%s %s%s%s" % (
                 prefix, outdir, self._result_filename, 
-                voption, koption,  " ".join(self._codes),
-                Dss.STDOUT_DMP, Dss.STDERR_DMP)
-      
-    def _validate_run(self,run_code):
+                voption, koption,  " ".join(self._codes))
+        return command, info
+        raise NotImplementedError("prepare_run() is not implemented")  
+       
+    def validate_run(self, info, log, run_code, out_stream, err_stream):
+        """
+        Validate the execution of the external application. 
+        (e.g. output parsing)
+        
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages 
+        @type run_code: int
+        @param run_code: Exit code of the process prepared with prepare_run() 
+        @type out_stream: Stream
+        @param out_stream: Stream object with the stdout of the executed process
+        @type err_stream: Stream 
+        @param err_stream: Stream object with the stderr of the executed process 
+        
+        @rtype: (int,dict)
+        @return: Tuple of 2 objects; the exit code and the (updated) info object. 
+        """
         exit_code = 0
-        for (dmp, info, type_) in [[Dss.STDOUT_DMP, self.log.debug, 'OUTPUT'], [Dss.STDERR_DMP, self.log.error, 'ERROR']]:
+        for (stream, logf, logt) in [[out_stream, log.debug, 'OUTPUT'], [err_stream, log.error, 'ERROR']]:
             try:
-                if os.path.getsize(dmp) > 0:
-                    dmpfile = open(dmp)
-                    info("%s from dss-client:\n%s" % (type_, dmpfile.read()))
-                    dmpfile.close()
+                strd = stream.read()
+                if len(strd)>0:
+                    logf("%s from dss-client:\n%s" % (logt, strd))
             except:
                 pass
         try:
@@ -97,12 +138,12 @@ class Dss(WorkflowApplication):
                     try:
                         ds, fl = downloaded.split("\t")
                         dsfls.setdefault(ds, []).append(fl)
-                        self.log.debug("add file '%s' for dataset %s to output" % (fl, ds))
+                        self._log(log.debug, 'DEBUG', "add file '%s' for dataset %s to output" % (fl, ds))
                     except ValueError:
                         if not self._failure_tolerant:
                             raise NoDataSetFound(downloaded)
                         else:
-                            self.log.error("No data set found for %s" % downloaded)
+                            self._log(log.error, 'ERROR', "No data set found for %s" % downloaded)
             # for single code requests: either add single file or array
             if len(self._codes) == 1:
                 fstdsfls = dsfls.get(self._codes[0])
@@ -114,14 +155,13 @@ class Dss(WorkflowApplication):
             else:
                 dssoutput = dsfls
             for outkey in self.outkeys:
-                self.log.debug("add '%s' %s to ini" % (outkey, dssoutput))                                
-                self._iniFile.add_to_ini({outkey.upper():dssoutput})
+                self._log(log.debug, 'DEBUG', "add '%s' %s to ini" % (outkey, dssoutput))                                
+                info[outkey.upper()] = dssoutput
         except Exception, e:
-            self.log.error("Validation of result file failed: %s %s" % (e.__class__.__name__, e))
+            self._log(log.error, 'ERROR', "Validation of result file failed: %s %s" % (e.__class__.__name__, e))
             exit_code = 1
-        self.stdout.seek(0) # to reset the pointer so that super method works properly
-        return super(Dss, self)._validate_run(run_code) or exit_code
-      
+        return exit_code, info
+
 if "__main__" == __name__:
     # init the application object (__init__)
     a = Dss(use_filesystem=True,name=None)
