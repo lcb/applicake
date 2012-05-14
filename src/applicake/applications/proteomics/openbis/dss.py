@@ -24,12 +24,12 @@ class Dss(IWrapper):
     MANDATORY_KEYS = ['DATASET_CODE', 'DATASET_DIR']
     ALLOWED_PREFIXES = ['getdataset', 'gettransitions', 'getmsdata', 'getexperiment']
     
-    '''
-    this is a workaround for the seemingly disfunctional log
-    '''
-    def _log(self, cmet, level, msg):
-        cmet(msg)
-        print "%s: %s" % (level,msg)
+#    '''
+#    this is a workaround for the seemingly disfunctional log
+#    '''
+#    def _log(self, cmet, level, msg):
+#        cmet(msg)
+#        print "%s: %s" % (level,msg)
 
     """
     Interface for application that wraps an external application
@@ -46,7 +46,7 @@ class Dss(IWrapper):
         @rtype: (string,dict)
         @return: Tuple of 2 objects; the command to execute and the (updated) info object.
         """
-        self._log(log.info, 'INFO', info)
+        log.debug(info)
         prefix = info[KeyEnum.PREFIX]
         info['DSSCLIENT'] = prefix
         if not prefix in Dss.ALLOWED_PREFIXES:
@@ -58,7 +58,7 @@ class Dss(IWrapper):
         for key in Dss.MANDATORY_KEYS:
             try: info[key]
             except KeyError:
-                self._log(log.error, 'ERROR', "Missing mandatory property in inifile: %s" % key)
+                log.error("Missing mandatory property in inifile: %s" % key)
                 sys.exit(2)
         # output is written to all ini-properties who's keys are listed in in Dss.outkeys.
         # if the keys are not given as ini property 'DSSKEYS', 
@@ -78,7 +78,7 @@ class Dss(IWrapper):
         elif type(dataset_codes) is list:
             self._codes = dataset_codes
         else:
-            self._log(log.error, 'ERROR', "DATASET_CODE must be either str or list")
+            log.error("DATASET_CODE must be either str or list")
             sys.exit(3)
         outdir = info['DATASET_DIR']
         if not os.path.isdir(outdir):
@@ -155,20 +155,20 @@ class Dss(IWrapper):
             else:
                 dssoutput = dsfls
             for outkey in self.outkeys:
-                self._log(log.debug, 'DEBUG', "add '%s' %s to ini" % (outkey, dssoutput))                                
+                log.debug("add '%s' %s to ini" % (outkey, dssoutput))                                
                 info[outkey.upper()] = dssoutput
         except Exception, e:
-            self._log(log.error, 'ERROR', "Validation of result file failed: %s %s" % (e.__class__.__name__, e))
+            log.critical("Validation of result file failed: %s %s" % (e.__class__.__name__, e))
             exit_code = 1
         return exit_code, info
 
-if "__main__" == __name__:
-    # init the application object (__init__)
-    a = Dss(use_filesystem=True,name=None)
-    # call the application object as method (__call__)
-    exit_code = a(sys.argv)
-    #copy the log file to the working dir
-    for filename in [a._log_filename,a._stderr_filename,a._stdout_filename]:
-        shutil.move(filename, os.path.join(a._wd,filename))
-    print(exit_code)
-    sys.exit(exit_code)        
+#if "__main__" == __name__:
+#    # init the application object (__init__)
+#    a = Dss(use_filesystem=True,name=None)
+#    # call the application object as method (__call__)
+#    exit_code = a(sys.argv)
+#    #copy the log file to the working dir
+#    for filename in [a._log_filename,a._stderr_filename,a._stdout_filename]:
+#        shutil.move(filename, os.path.join(a._wd,filename))
+#    print(exit_code)
+#    sys.exit(exit_code)        

@@ -4,16 +4,19 @@ Created on Apr 10, 2012
 @author: quandtan
 '''
 import unittest
+import sys
 from applicake.framework.logger import Logger
 from applicake.framework.enums import KeyEnum
 from applicake.framework.runner import BasicWrapperRunner
 from applicake.applications.proteomics.openbis.dss import Dss
+from StringIO import StringIO
 
 class Test(unittest.TestCase):
 
     #setUp and tearDown are pre-defined test functions
     def setUp(self):
-        self.log = Logger.create()
+        log_stream = StringIO()
+        self.log = Logger.create(level='DEBUG',name='memory_logger',stream=log_stream)        
         self.info = {KeyEnum.PREFIX : 'getmsdata',
                      KeyEnum.DATASET_CODE : '20120510111600123-123456',
                      'DATASET_DIR' : '/IMSB/users/schmide/applicake/test/outdir'}
@@ -26,10 +29,9 @@ class Test(unittest.TestCase):
 
     def test_run(self):
         runner = BasicWrapperRunner()
-        print runner
         wrapper = Dss()
-        print wrapper
-        exit_code = runner(['','-i', 'ini.txt', '-o', 'outi.txt', '-p', 'getmsdata'], wrapper)
+        sys.argv = ['','-i', 'ini.txt', '-o', 'outi.txt', '--PREFIX', 'getmsdata']
+        exit_code = runner(sys.argv, wrapper)
         print exit_code
         
     def notyet_test_validate_run(self):

@@ -88,7 +88,7 @@ class Runner(KeyEnum):
             self.log_stream.write(tmp_log_stream.read())
             log.debug('wrote content of temporary logger to new logger')                
             log.info('Start [%s]' % self.create_workdir.__name__)
-            self.create_workdir(info,log) 
+            info = self.create_workdir(info,log) 
             log.info('Finished [%s]' % self.create_workdir.__name__)
             log.info('Start [%s]' % self.run_app.__name__)
             exit_code,info = self.run_app(app,info,log)
@@ -99,8 +99,12 @@ class Runner(KeyEnum):
             log.info('Finished [%s]' % self.run_app.__name__)               
             log.info('Start [%s]' % info_handler.write_info.__name__)
             info_handler.write_info(info,log)
-            log.info('Finished [%s]' % info_handler.write_info.__name__)    
-            exit_code,info,log = self._cleanup(info,log)           
+            log.info('Finished [%s]' % info_handler.write_info.__name__)   
+            log.info('Start [%s]' % self._cleanup.__name__)
+            exit_code,info,log = self._cleanup(info,log)
+            log.info('Finished [%s]' % self._cleanup.__name__)      
+            log.debug('info [%s]' % info)
+            log.debug('exit code [%s]' %exit_code)                 
         except Exception, e:
             log.fatal('error in __call__')
             log.exception(e)
@@ -108,9 +112,6 @@ class Runner(KeyEnum):
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams()
             log.info('Finished [%s]' % self.reset_streams.__name__) 
-            log.debug('info [%s]' % info)
-            log.debug('exit code [%s]' %exit_code)
-
             # needed for guse/pgrade
             if hasattr(self, 'log_stream'): 
                 stream = self.log_stream
@@ -137,10 +138,11 @@ class Runner(KeyEnum):
         
         @rtype: (int,dict,logger)
         @return: Tuple of 3 objects; the exit code,the (updated) info object and the updated logger.          
-        """       
-        log.debug('Start [%s]' % self.reset_streams.__name__)
+        """         
+        log.info('Start [%s]' % self.reset_streams.__name__)
         self.reset_streams()
-        log.debug('Finished [%s]' % self.reset_streams.__name__) 
+        log.info('Finished [%s]' % self.reset_streams.__name__)
+        log.debug('found key [%s] [%s]' % (self.WORKDIR, info.has_key(self.WORKDIR)))        
         if info.has_key(self.WORKDIR):
             wd = info[self.WORKDIR]
             log.debug('start copying/moving files to work dir')
@@ -182,7 +184,7 @@ class Runner(KeyEnum):
                 except:
                     log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
                     return(1,info,log)
-        return (0,info,log)     
+        return (0,info,log)   
                                                 
                     
     def _set_jobid(self,info,log):
@@ -228,6 +230,9 @@ class Runner(KeyEnum):
         @param info: Dictionary object with information needed by the class
         @type log: Logger 
         @param log: Logger to store log messages  
+        
+        @rtype info: dict         
+        @return info: Dictionary object with the (updated) information needed by the class        
         """ % self.WORKDIR
         
         keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX,self.NAME]
@@ -246,7 +251,8 @@ class Runner(KeyEnum):
         # creates the directory, if it exists, it's content is removed       
         FileUtils.makedirs_safe(log,path,clean=True)
         info[self.WORKDIR] = path  
-        log.debug("added key [%s] to info object." % self.WORKDIR)                         
+        log.debug("added key [%s] to info object." % self.WORKDIR)    
+        return info                     
                     
     def get_streams(self,info,log):
         """
@@ -279,7 +285,7 @@ class Runner(KeyEnum):
             log_file = ''.join([info[self.NAME],".log"])                      
             created_files = [out_file,err_file,log_file]
             info[self.CREATED_FILES] = created_files
-            log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory")            
+            log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory" % created_files)            
             # streams are initialized with 'w+' that files newly created and therefore previous versions are deleted.
             out_stream = open(out_file, 'w+',buffering=0)            
             err_stream = open(err_file, 'w+',buffering=0)  
