@@ -20,8 +20,8 @@ class BasicTemplateHandler(ITemplateHandler):
         
         If info does not contain key, a log message is written and the execution is stopped.
         """
-        if not info.has_key(self.template_key):
-            log.fatal('Stop application because info does not contain key [%s]: [%s]' % (self.template_key,info))
+        if not info.has_key(self.TEMPLATE):
+            log.fatal('Stop application because info does not contain key [%s]: [%s]' % (self.TEMPLATE,info))
             sys.exit(1) 
 
     def read_template(self, info, log):
@@ -31,10 +31,10 @@ class BasicTemplateHandler(ITemplateHandler):
         See super class.
 
         @precondition: info object need the key [%s]
-        """ % self.template_key
+        """ % self.TEMPLATE
         
         self.check_template_key(info, log)
-        path = info[self.template_key]
+        path = info[self.TEMPLATE]
         FileUtils.is_valid_file(log, path)
         fh = open(path,'r+')
         template = fh.read()         
@@ -57,16 +57,16 @@ class BasicTemplateHandler(ITemplateHandler):
         See super class.
         
         @precondition: info object need the keys [%s,%s]
-        """ % (self.created_files_key,self.created_files_key,self.template_key)
+        """ % (self.CREATED_FILES,self.CREATED_FILES,self.TEMPLATE)
         
         self.check_template_key(info, log)
-        path = info[self.template_key]      
+        path = info[self.TEMPLATE]      
         fh = open(path,'w+')
         fh.write(template)
         fh.close()
         FileUtils.is_valid_file(log, path) 
-        info[self.created_files_key].append(path)
-        log.debug('added [%s] to key [%s]' % (path,self.created_files_key))
+        info[self.CREATED_FILES].append(path)
+        log.debug('added [%s] to key [%s]' % (path,self.CREATED_FILES))
         return info         
         
     def modify_template(self, info, log):
@@ -84,7 +84,7 @@ class BasicTemplateHandler(ITemplateHandler):
         
         @rtype: dict
         @return: The modified info object.
-        """ % (self.created_files_key,self.template_key)
+        """ % (self.CREATED_FILES,self.TEMPLATE)
         
         template,info = self.read_template(info, log)
         mod_template,info = self.replace_vars(info, log, template)

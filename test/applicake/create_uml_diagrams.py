@@ -14,7 +14,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.cwd = os.getcwd()
-        os.chdir('../../misc/uml') 
+        os.chdir('../misc/uml') 
 
 
     def tearDown(self):

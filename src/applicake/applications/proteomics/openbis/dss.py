@@ -47,7 +47,7 @@ class Dss(IWrapper):
         @return: Tuple of 2 objects; the command to execute and the (updated) info object.
         """
         self._log(log.info, 'INFO', info)
-        prefix = info[KeyEnum.prefix_key]
+        prefix = info[KeyEnum.PREFIX]
         info['DSSCLIENT'] = prefix
         if not prefix in Dss.ALLOWED_PREFIXES:
             self._log(log.error, 'ERROR', "prefix ('%s') must be one of %s" % (prefix, Dss.ALLOWED_PREFIXES))

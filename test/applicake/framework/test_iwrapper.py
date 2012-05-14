@@ -23,7 +23,7 @@ class Wrapper(IWrapper):
     
     def prepare_run(self,info,log):
         log.debug(self.log_txt)
-        prefix = info[KeyEnum.prefix_key]
+        prefix = info[KeyEnum.PREFIX]
         command = '%s "%s";%s "%s" >&2' % (prefix,self.out_txt,
                                prefix,self.err_txt)
         return (command,info)

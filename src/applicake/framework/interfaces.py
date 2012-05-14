@@ -137,7 +137,7 @@ class ITemplateHandler(KeyEnum):
         
         @rtype: dict
         @return: The (modified) info object.       
-        """ % self.template_key
+        """ % self.TEMPLATE
         
         raise NotImplementedError("write_template() is not implemented") 
         

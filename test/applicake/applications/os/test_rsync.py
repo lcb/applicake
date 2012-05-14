@@ -14,7 +14,7 @@ class Test(unittest.TestCase):
     #setUp and tearDown are pre-defined test functions
     def setUp(self):
         self.log = Logger.create(level='DEBUG',name='memory_logger',stream=StringIO())
-        self.info = {KeyEnum.src_key: '/from/dir /to/dir'}
+        self.info = {KeyEnum.SOURCE: '/from/dir /to/dir'}
         self.out_stream = StringIO()
         self.out_stream.write("""building file list ... done
 file1
@@ -34,7 +34,7 @@ total size is 0  speedup is 0.00
     def test_validate_run(self):
         run_code, info = Rsync().validate_run(self.info, self.log, 0, self.out_stream, err_stream=None)
         assert run_code == 0
-        assert info[KeyEnum.dest_key] == ['/to/dir/file1', '/to/dir/file2', '/to/dir/file3']
+        assert info[KeyEnum.DESTINATION] == ['/to/dir/file1', '/to/dir/file2', '/to/dir/file3']
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_echo']

@@ -98,13 +98,13 @@ class OpenBisGenerator(IApplication):
         @param info: see super class
         @type log: see super class
         @param log: see super class 
-        """ % (self.param_idx_key,self.dataset_code_key,self.dataset_code_key)
+        """ % (self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE)
         
         # prepare a basedic to produced input files for inner workflow
         basedic = info.copy()
         log.debug('created work copy of "info"')
         log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
-        remove_keys = [self.created_files_key,self.name_key]        
+        remove_keys = [self.CREATED_FILES,self.NAME]        
         for key in remove_keys:
             try:
                 del basedic[key]
@@ -112,14 +112,14 @@ class OpenBisGenerator(IApplication):
             except:
                 log.debug('work copy did not have key [%s]' % key)            
         # prepare first the product of a parameter combinations
-        escape_keys = [self.dataset_code_key]
-        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key=self.param_idx_key)
+        escape_keys = [self.DATASET_CODE]
+        param_dicts = self.get_product_dicts(basedic, log, escape_keys,idx_key=self.PARAM_IDX)
         log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
         # prepare combinations based on files
         param_file_dicts = []
         escape_keys = []
         for dic in  param_dicts:            
-            file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key=self.file_idx_key)
+            file_dicts = self.get_product_dicts(dic, log, escape_keys,idx_key=self.FILE_IDX)
             param_file_dicts.extend(file_dicts)
         log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
         # write ini files
@@ -150,7 +150,7 @@ class OpenBisGenerator(IApplication):
         @param info: Dictionary with information about the application. The created output files are added to the key [%s]
         @type dicts: list
         @type dicts: List of dictionaries used to create ini files
-        """ % info.created_files_key
+        """ % info.CREATED_FILES
         raise NotImplementedError("write_generator_files() is not implemented.") 
         
         
@@ -166,11 +166,11 @@ class GuseGenerator(OpenBisGenerator):
         see super class
         """       
         for idx,dic in enumerate(dicts):
-            path = "%s_%s" % (dic[self.generator_key],idx) 
+            path = "%s_%s" % (dic[self.GENERATOR],idx) 
             log.debug(path)          
             ConfigHandler().write(dic, path)
             log.debug('create file [%s]' % path)
-            info[self.created_files_key].append(path)
+            info[self.CREATED_FILES].append(path)
             
 class PgradeGenerator(GuseGenerator):
     """
@@ -184,8 +184,8 @@ class PgradeGenerator(GuseGenerator):
         see super class
         """       
         for idx,dic in enumerate(dicts):
-            path = "%s.%s" % (dic[self.generator_key],idx) 
+            path = "%s.%s" % (dic[self.GENERATOR],idx) 
             log.debug(path)          
             ConfigHandler().write(dic, path)
             log.debug('create file [%s]' % path)
-            info[self.created_files_key].append(path)
+            info[self.CREATED_FILES].append(path)

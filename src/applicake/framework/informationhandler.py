@@ -24,25 +24,25 @@ class BasicInformationHandler(IInformationHandler):
         Input files are identified by the key %s
         If there are multiple input files, they are merged first by creating value lists.
         If there are no input files pargs is returned.  
-        """ % self.input_key
+        """ % self.INPUT
         
         pargs = pargs.copy()
-        if not pargs.has_key(self.input_key):
+        if not pargs.has_key(self.INPUT):
             log.debug('content of pargs [%s]' % pargs)
-            log.info('pargs did not contain the following key [%s]. Therefore pargs is returned' % self.input_key)
+            log.info('pargs did not contain the following key [%s]. Therefore pargs is returned' % self.INPUT)
             return pargs
         else:
             inputs = {}
-            for path in pargs[self.input_key]:
+            for path in pargs[self.INPUT]:
                 if not FileUtils.is_valid_file(log, path):
                     log.fatal('Exit program because path [%s] is not valid' % path)
                     sys.exit(1)
                 else:
                     config = ConfigHandler().read(log, path)
                     inputs = DictUtils.merge(dict_1=inputs, dict_2=config, priority='flatten_sequence')       
-            created_files = {self.created_files_key:[]}
+            created_files = {self.CREATED_FILES:[]}
             inputs = DictUtils.merge(inputs, created_files,priority='right')
-            log.debug("Add/reset key [%s] in info object" % self.created_files_key)
+            log.debug("Add/reset key [%s] in info object" % self.CREATED_FILES)
 #            prefix = {self.prefix_key: None}
 #            inputs = DictUtils.merge(inputs, prefix,priority='right')
 #            log.debug("Add/reset key [%s] in info object" % self.prefix_key)                    
@@ -54,8 +54,8 @@ class BasicInformationHandler(IInformationHandler):
         
         Info is written to a single file that is following the Windows INI format. 
         """ 
-        if info.has_key(self.output_key):
-            path = info[self.output_key]
+        if info.has_key(self.OUTPUT):
+            path = info[self.OUTPUT]
             log.debug('output files [%s]' % path)                  
             ConfigHandler().write(info, path) 
             valid = FileUtils.is_valid_file(log, path )
@@ -63,5 +63,5 @@ class BasicInformationHandler(IInformationHandler):
                 log.fatal('Exit program because output file [%s] was not valid' % path)
                 sys.exit(1)  
         else:
-            log.error('info object did not countain key [%s]. Therefore no output is written' % self.output_key)                                                                                                                                    
+            log.error('info object did not countain key [%s]. Therefore no output is written' % self.OUTPUT)                                                                                                                                    
                                         

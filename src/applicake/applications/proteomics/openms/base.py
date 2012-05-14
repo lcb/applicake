@@ -18,13 +18,13 @@ class BasicOpenmsWrapper(IWrapper):
         Tool is executed using the pattern: tools -ini [inifile]
         
         @precondition: info object need the key [%s]
-        """ % self.template_key        
+        """ % self.TEMPLATE        
         th = self.get_template_handler()
         log.debug('got template handler')
         info = th.modify_template(info, log)
         log.debug('modified template')
         prefix,info = self.get_prefix(info,log)
-        command = '%s -ini %s' % (prefix,info[self.template_key])
+        command = '%s -ini %s' % (prefix,info[self.TEMPLATE])
         return command,info
   
         
@@ -62,6 +62,6 @@ class BasicOpenmsWrapper(IWrapper):
         @rtype: (string,dict)
         @return: Tuple of 2 objects: The path of the OpenMS tool that is going to be executed
         and the (modified) info object.
-        """ % self.prefix_key
+        """ % self.PREFIX
         
-        return info[self.prefix_key],info
+        return info[self.PREFIX],info

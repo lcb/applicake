@@ -57,9 +57,9 @@ class BasicCollector(IApplication):
          
         @rtype: list
         @return:List of file paths that match the input file pattern
-        """ % self.collector_key
+        """ % self.COLLECTOR
         
-        collectors = info[self.collector_key]
+        collectors = info[self.COLLECTOR]
         collector_files = [] 
         for collector in collectors: 
             pattern = self.get_collector_pattern(collector)

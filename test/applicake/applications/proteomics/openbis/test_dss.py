@@ -14,8 +14,8 @@ class Test(unittest.TestCase):
     #setUp and tearDown are pre-defined test functions
     def setUp(self):
         self.log = Logger.create()
-        self.info = {KeyEnum.prefix_key : 'getmsdata',
-                     KeyEnum.dataset_code_key : '20120510111600123-123456',
+        self.info = {KeyEnum.PREFIX : 'getmsdata',
+                     KeyEnum.DATASET_CODE : '20120510111600123-123456',
                      'DATASET_DIR' : '/IMSB/users/schmide/applicake/test/outdir'}
         
     #all methods starting with 'test' tested with unittest
@@ -35,7 +35,7 @@ class Test(unittest.TestCase):
     def notyet_test_validate_run(self):
         run_code, info = Dss().validate_run(self.info, self.log, 0)
         assert run_code == 0
-        assert info[KeyEnum.dest_key] == ['/to/dir/file1', '/to/dir/file2', '/to/dir/file3']
+        assert info[KeyEnum.DESTINATION] == ['/to/dir/file1', '/to/dir/file2', '/to/dir/file3']
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_echo']

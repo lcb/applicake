@@ -18,10 +18,10 @@ class Rsync(IWrapper):
         See super class.
         
         @precondition: 'info' object has to contain the following key [%s,%s]
-        """% (self.src_key,self.dest_key)
+        """% (self.SOURCE,self.DESTINATION)
         
         #get path to copy
-        path = info[self.src_key]
+        path = info[self.SOURCE]
         #if it is a local copy add special local options
         localparams = ''
         if path.find(":") == -1:
@@ -40,7 +40,7 @@ class Rsync(IWrapper):
         if run_code == 0:
             out_stream.readline() #skip header "building file list"
             copyoutput = []
-            outdir = info[self.src_key].split()[1]+'/'
+            outdir = info[self.SOURCE].split()[1]+'/'
             for line in out_stream.readlines():
                 line = line.strip()
                 if line == '': #skip tail
@@ -48,7 +48,7 @@ class Rsync(IWrapper):
                 else:
                     copyoutput.append(outdir+line)
             log.debug("Adding key COPYOUTPUT to ini: " + str(copyoutput)) 
-            info[self.dest_key] = copyoutput
+            info[self.DESTINATION] = copyoutput
         else:
             if run_code == 12:
                 log.fatal("No access to destination (check permissions & existence)")    

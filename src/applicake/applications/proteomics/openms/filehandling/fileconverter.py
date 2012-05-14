@@ -24,10 +24,10 @@ class FileConverter(BasicOpenmsWrapper):
         Return as prefix the name tool name 'FileConverter' if key [%s] 
         is not set.
         """
-        if info[self.prefix_key] == '':
-            info[self.prefix_key] = 'FileConverter'
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.prefix_key,info[self.prefix_key]))
-        return info[self.prefix_key],info
+        if info[self.PREFIX] == '':
+            info[self.PREFIX] = 'FileConverter'
+            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
+        return info[self.PREFIX],info
 
 
 class Mzxml2Mzml(FileConverter):

@@ -22,12 +22,12 @@ class Test(unittest.TestCase):
     def test_file_converter(self):
         app = FileConverter()
         info = {
-                app.prefix_key:''
+                app.PREFIX:''
                 }
         prefix,info = FileConverter().get_prefix(info, self.log)
         assert prefix == 'FileConverter'
         info = {
-                app.prefix_key:'/path/FileConverter'
+                app.PREFIX:'/path/FileConverter'
                 } 
         prefix,info = FileConverter().get_prefix(info, self.log)
         assert prefix == '/path/FileConverter'               
@@ -35,8 +35,8 @@ class Test(unittest.TestCase):
     
     def test_mzxml2mzml_template(self):
         tpl = Mzxml2MzmlTemplate()
-        info = {tpl.mzml_key: self.mzml,
-                tpl.mzxml_key: self.mzxml}
+        info = {tpl.MZML: self.mzml,
+                tpl.MZXML: self.mzxml}
         template, info = tpl.read_template(info, self.log)
         assert '$MZXML' in template
         assert '$MZML' in template

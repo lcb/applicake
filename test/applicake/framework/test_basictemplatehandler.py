@@ -26,8 +26,8 @@ class Test(unittest.TestCase):
         self.var = '$MYVAR'
         fh.write('my template contains a var [%s]' % self.var)
         self.info = {
-                     KeyEnum.template_key:path,
-                     KeyEnum.created_files_key:[],
+                     KeyEnum.TEMPLATE:path,
+                     KeyEnum.CREATED_FILES:[],
                      'MYVAR': 'value of var'
                      
                      }
@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         except:
             self.log_stream.seek(0)
             last_entry = self.log_stream.readlines()[-1]
-            contain = "CRITICAL - Stop application because info does not contain key [%s]" % BasicTemplateHandler().template_key
+            contain = "CRITICAL - Stop application because info does not contain key [%s]" % BasicTemplateHandler().TEMPLATE
             self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))    
     
     def test_basic_replace_vars(self):
@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
         '''Test if template is correctly written. '''
         expected = 'my template contains a var [value of var]'
         BasicTemplateHandler().write_template(self.info, self.log, expected)
-        path = self.info[BasicTemplateHandler().template_key]
+        path = self.info[BasicTemplateHandler().TEMPLATE]
         fh = open(path,'r+')
         content = fh.read()
         self.assertTrue(content == expected, 'content [%s]\nexpected [%s]' % (content,expected))
@@ -83,14 +83,14 @@ class Test(unittest.TestCase):
         except:
             self.log_stream.seek(0)
             last_entry = self.log_stream.readlines()[-1]
-            contain = "CRITICAL - Stop application because info does not contain key [%s]" % BasicTemplateHandler().template_key
+            contain = "CRITICAL - Stop application because info does not contain key [%s]" % BasicTemplateHandler().TEMPLATE
             self.assertTrue(contain in last_entry, 'last_entry [%s]\ncontain[%s]' % (last_entry,contain))
     
     def test_basic_modify_template_1(self):
         '''Test 'all-inclusive' modification of a template.'''
         BasicTemplateHandler().modify_template(self.info,self.log)
         expected = 'my template contains a var [value of var]' 
-        path = self.info[BasicTemplateHandler().template_key]
+        path = self.info[BasicTemplateHandler().TEMPLATE]
         fh = open(path,'r+')
         content = fh.read()
         self.assertTrue(content == expected, 'content [%s]\nexpected [%s]' % (content,expected))  

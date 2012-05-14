@@ -39,11 +39,11 @@ class Runner(KeyEnum):
         Return: exit code (integer)
         """      
         default_info = {
-                        self.storage_key:'memory',
-                        self.log_level_key:'DEBUG',
-                        self.name_key: app.__class__.__name__,
-                        self.created_files_key: [],
-                        self.prefix_key: ''
+                        self.STORAGE:'memory',
+                        self.LOG_LEVEL:'DEBUG',
+                        self.NAME: app.__class__.__name__,
+                        self.CREATED_FILES: [],
+                        self.PREFIX: ''
                         } 
         tmp_log_stream = StringIO()
         exit_code = 1
@@ -81,8 +81,8 @@ class Runner(KeyEnum):
             sys.stderr = self.err_stream
             log.debug('set sys.err to new err stream')
             log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')                      
-            log = Logger.create(level=info[self.log_level_key],
-                         name=info[self.name_key],stream=self.log_stream)      
+            log = Logger.create(level=info[self.LOG_LEVEL],
+                         name=info[self.NAME],stream=self.log_stream)      
             log.debug('created new logger dependent of the storage')
             tmp_log_stream.seek(0)
             self.log_stream.write(tmp_log_stream.read())
@@ -141,17 +141,17 @@ class Runner(KeyEnum):
         log.debug('Start [%s]' % self.reset_streams.__name__)
         self.reset_streams()
         log.debug('Finished [%s]' % self.reset_streams.__name__) 
-        if info.has_key(self.workdir_key):
-            wd = info[self.workdir_key]
+        if info.has_key(self.WORKDIR):
+            wd = info[self.WORKDIR]
             log.debug('start copying/moving files to work dir')
             # copy input files to working directory
             files_to_copy = []
-            if info.has_key(self.input_key):
-                DictUtils.get_flatten_sequence([files_to_copy,info[self.input_key]])
-                log.debug('found following input files to copy [%s]' % info[self.input_key])
-            if info.has_key(self.output_key):
-                DictUtils.get_flatten_sequence([files_to_copy,info[self.output_key]])
-                log.debug('found following output files to copy [%s]' % info[self.output_key])            
+            if info.has_key(self.INPUT):
+                DictUtils.get_flatten_sequence([files_to_copy,info[self.INPUT]])
+                log.debug('found following input files to copy [%s]' % info[self.INPUT])
+            if info.has_key(self.OUTPUT):
+                DictUtils.get_flatten_sequence([files_to_copy,info[self.OUTPUT]])
+                log.debug('found following output files to copy [%s]' % info[self.OUTPUT])            
             for path in files_to_copy:
                 # 'r' escapes special characters
                 src = r'%s' % os.path.abspath(path) 
@@ -161,7 +161,7 @@ class Runner(KeyEnum):
                 except:
                     log.critical('Counld not copy [%s] to [%s]' % (src,wd))
                     return (1,info,log)            
-        if info[self.storage_key] == 'memory':
+        if info[self.STORAGE] == 'memory':
             print '=== stdout ==='
             self.out_stream.seek(0)
             for line in self.out_stream.readlines():
@@ -172,8 +172,8 @@ class Runner(KeyEnum):
                 print line                              
         # move created files to working directory
         # 'created_files might be none e.g. if memory-storage is used   
-        if info[self.created_files_key] != []:  
-            for path in info[self.created_files_key]:
+        if info[self.CREATED_FILES] != []:  
+            for path in info[self.CREATED_FILES]:
                 src = r'%s' % os.path.abspath(path) 
                 dest = r'%s' % os.path.join(wd,os.path.basename(path))
                 try:
@@ -198,10 +198,10 @@ class Runner(KeyEnum):
         @param log: Logger to store log messages  
         """
         jobid = 1
-        if not info.has_key(self.basedir_key):
-            log.error("info has not key [%s]. Therefore jobid is set to default=1" % self.basedir_key)
+        if not info.has_key(self.BASEDIR):
+            log.error("info has not key [%s]. Therefore jobid is set to default=1" % self.BASEDIR)
         else:    
-            dirname = info[self.basedir_key]
+            dirname = info[self.BASEDIR]
             log.debug('found base dir [%s]' % dirname)
             filename = os.path.join(dirname, 'jobid.txt')
             locker = FileLocker()
@@ -215,8 +215,8 @@ class Runner(KeyEnum):
             fh = open(filename,'w')    
             fh.write(str(jobid))
             locker.unlock(fh)            
-        info[self.job_idx_key]=jobid    
-        log.debug("added key [%s] to info object" % self.job_idx_key)
+        info[self.JOB_IDX]=jobid    
+        log.debug("added key [%s] to info object" % self.JOB_IDX)
         
     def create_workdir(self,info,log):
         """
@@ -228,9 +228,9 @@ class Runner(KeyEnum):
         @param info: Dictionary object with information needed by the class
         @type log: Logger 
         @param log: Logger to store log messages  
-        """ % self.workdir_key
+        """ % self.WORKDIR
         
-        keys = [self.basedir_key,self.job_idx_key,self.param_idx_key,self.file_idx_key,self.name_key]
+        keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX,self.NAME]
         if not info.has_key(keys[0]):
             log.error('info object does not contain key [%s]' % keys[0])
             log.error('no work dir has been created')          
@@ -245,8 +245,8 @@ class Runner(KeyEnum):
         path = (os.path.sep).join(map( str, path_items ) ) 
         # creates the directory, if it exists, it's content is removed       
         FileUtils.makedirs_safe(log,path,clean=True)
-        info[self.workdir_key] = path  
-        log.debug("added key [%s] to info object." % self.workdir_key)                         
+        info[self.WORKDIR] = path  
+        log.debug("added key [%s] to info object." % self.WORKDIR)                         
                     
     def get_streams(self,info,log):
         """
@@ -262,12 +262,11 @@ class Runner(KeyEnum):
         
         Return: Tuple of boolean, message that explains boolean,
         out_stream, err_stream, log_stream        
-        """ % (self.storage_key,self.workdir_key)
-        
-        required_keys = [self.storage_key,self.name_key]
+        """ % (self.STORAGE,self.NAME)      
+        required_keys = [self.STORAGE,self.NAME]
         for key in required_keys:
             log.debug('found key [%s]: [%s]' % (key, info.has_key(key)))
-        storage = info[self.storage_key]
+        storage = info[self.STORAGE]
         log.debug('STORAGE type: [%s]' % storage)
         if storage == 'memory':
             out_stream = StringIO()            
@@ -275,11 +274,11 @@ class Runner(KeyEnum):
             log_stream = StringIO() 
             log.debug('Created in-memory streams')                                      
         elif storage == 'file':
-            out_file = ''.join([info[self.name_key],".out"])
-            err_file = ''.join([info[self.name_key],".err"]) 
-            log_file = ''.join([info[self.name_key],".log"])                      
+            out_file = ''.join([info[self.NAME],".out"])
+            err_file = ''.join([info[self.NAME],".err"]) 
+            log_file = ''.join([info[self.NAME],".log"])                      
             created_files = [out_file,err_file,log_file]
-            info[self.created_files_key] = created_files
+            info[self.CREATED_FILES] = created_files
             log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory")            
             # streams are initialized with 'w+' that files newly created and therefore previous versions are deleted.
             out_stream = open(out_file, 'w+',buffering=0)            
@@ -405,7 +404,7 @@ class BasicWrapperRunner(BasicApplicationRunner):
                 p.wait()
             else:
                 self.log.critical('storage type [%s] is not supported' % 
-                                  self.info[self.storage_key])
+                                  self.info[self.STORAGE])
                 return 1                       
             return p.returncode                       
         except Exception,e:
@@ -439,7 +438,7 @@ class BasicWrapperRunner(BasicApplicationRunner):
             command  = command.replace('\n','')   
             log.info('Command [%s]' % str(command))
             log.info('Start [%s]' % self._run.__name__)
-            run_code = self._run(command,info[self.storage_key])
+            run_code = self._run(command,info[self.STORAGE])
             log.info('Finish [%s]' % self._run.__name__)
             log.info('run_code [%s]' % run_code)        
             log.info('Start [%s]' % app.validate_run.__name__)

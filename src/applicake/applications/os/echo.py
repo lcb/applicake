@@ -17,10 +17,10 @@ class Echo(IWrapper):
         See interface
         """
         try:
-            comment = info[self.comment_key]
-            prefix = info[self.prefix_key]
+            comment = info[self.COMMENT]
+            prefix = info[self.PREFIX]
         except:
-            log.fatal('did not find one of the keys [%s]' % (self.comment_key,self.prefix_key))
+            log.fatal('did not find one of the keys [%s]' % (self.COMMENT,self.PREFIX))
             return ''   
         return ('%s "%s"' % (prefix,comment),info)
     
