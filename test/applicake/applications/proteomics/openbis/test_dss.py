@@ -28,13 +28,6 @@ class Test(unittest.TestCase):
         mod_info = self.info.copy()        
         mod_info.update({Dss().DSSCLIENT:'getmsdata'})
         self.assertDictEqual(info, mod_info, '')
-
-    def test_run(self):
-        runner = BasicWrapperRunner()
-        wrapper = Dss()
-        sys.argv = ['','-i', 'ini.txt', '-o', 'outi.txt', '--PREFIX', 'getmsdata']
-        exit_code = runner(sys.argv, wrapper)
-        print exit_code
         
     def notyet_test_validate_run(self):
         run_code, info = Dss().validate_run(self.info, self.log, 0)
