@@ -8,6 +8,7 @@ import sys
 from applicake.framework.argshandler import ApplicationArgsHandler
 from applicake.framework.argshandler import BasicArgsHandler
 from applicake.framework.argshandler import WrapperArgsHandler
+from applicake.framework.argshandler import *
 from applicake.framework.logger import Logger
 from StringIO import StringIO
 
@@ -158,7 +159,39 @@ class Test(unittest.TestCase):
                   }
         # needed to print the diff 
         self.maxDiff = None
-        self.assertDictEqual(pargs, expected)           
+        self.assertDictEqual(pargs, expected)   
+        
+        
+    def test_BasicArgs(self):
+        ''' '''
+        handler = BasicArgs()         
+        sys.argv = ['test.py','-i','in1.ini','-o','out.ini',
+                    '-g','gen.ini','-c','col.ini',
+                    '-n','my name','-s','file','-l','DEBUG']      
+        pargs = handler.get_parsed_arguments(self.log)
+        expected = {'INPUTS': ['in1.ini'], 
+                    'LOG_LEVEL': 'DEBUG', 
+                    'NAME': 'my name', 
+                    'COLLECTORS': ['col.ini'], 
+                    'STORAGE': 'file', 
+                    'GENERATORS': ['gen.ini'], 
+                    'OUTPUT': 'out.ini'}
+        self.assertDictEqual(pargs, expected)
+        app_args = {'TEMPLATE':{'description':'test template','action':'store'}}
+        handler.define_app_args(self.log, app_args)
+        sys.argv.extend(['--TEMPLATE','my.tpl'])
+        pargs = handler.get_parsed_arguments(self.log)
+        expected['TEMPLATE'] = 'my.tpl'
+        self.assertDictEqual(pargs, expected)
+        try:
+            sys.argv = sys.argv[:-2]
+            sys.argv.extend(['--template','my.tpl'])            
+            pargs = handler.get_parsed_arguments(self.log)
+            self.assertTrue(False, 'Method call should fail')
+        except:
+            assert True
+            
+                      
             
 
 if __name__ == "__main__":
