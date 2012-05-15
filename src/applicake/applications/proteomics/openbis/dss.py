@@ -48,7 +48,7 @@ class Dss(IWrapper):
         """
         log.debug(info)
         prefix = info[KeyEnum.PREFIX]
-        info['DSSCLIENT'] = prefix
+        info[self.DSSCLIENT] = prefix
         if not prefix in Dss.ALLOWED_PREFIXES:
             self._log(log.error, 'ERROR', "prefix ('%s') must be one of %s" % (prefix, Dss.ALLOWED_PREFIXES))
             sys.exit(1)
@@ -64,26 +64,26 @@ class Dss(IWrapper):
         # if the keys are not given as ini property 'DSSKEYS', 
         # the default is 'DSSOUTPUT' plus an optional, prefix specific key.
         try: 
-            dss_keys = info['DSSKEYS']
+            dss_keys = info[self.DSSKEYS]
             if type(dss_keys) is str: self.outkeys = [dss_keys]
             elif type(dss_keys) is list: self.outkeys = dss_keys
             else: raise Exception('goto except')
         except:
-            self.outkeys = ['DSSOUTPUT']
+            self.outkeys = [self.DSSOUTPUT]
             try: self.outkeys.append(Dss.DEFAULT_KEYS[prefix])
             except: pass
-        dataset_codes = info['DATASET_CODE']
+        dataset_codes = info[self.DATASET_CODE]
         if type(dataset_codes) is str:
             self._codes = [code.strip() for code in dataset_codes.split(',')]
         elif type(dataset_codes) is list:
             self._codes = dataset_codes
         else:
-            log.error("DATASET_CODE must be either str or list")
+            log.error("%s must be either str or list" % self.DATASET_CODE)
             sys.exit(3)
-        outdir = info['DATASET_DIR']
+        outdir = info[self.DATASET_DIR]
         if not os.path.isdir(outdir):
             if os.system("test -d %s" % outdir):
-                self._log(log.error, 'ERROR', "%s (DATASET_DIR) is not a directory" % outdir)
+                log.error("value [%s] of key [%s] is not a directory" % (outdir,self.DATASET_DIR))
                 sys.exit(4)
         if info.get('QUIET', '').upper() in TRUES:
             voption = ''
@@ -102,7 +102,6 @@ class Dss(IWrapper):
                 prefix, outdir, self._result_filename, 
                 voption, koption,  " ".join(self._codes))
         return command, info
-        raise NotImplementedError("prepare_run() is not implemented")  
        
     def validate_run(self, info, log, run_code, out_stream, err_stream):
         """

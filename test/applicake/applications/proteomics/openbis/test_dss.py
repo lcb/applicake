@@ -24,8 +24,10 @@ class Test(unittest.TestCase):
     #all methods starting with 'test' tested with unittest
     def test_prepare_run(self):
         command, info = Dss().prepare_run(self.info, self.log)
-        print command
-        print info
+        assert command == 'getmsdata --out=/IMSB/users/schmide/applicake/test/outdir --result=getmsdata.out -v -c 20120510111600123-123456'
+        mod_info = self.info.copy()        
+        mod_info.update({Dss().DSSCLIENT:'getmsdata'})
+        self.assertDictEqual(info, mod_info, '')
 
     def test_run(self):
         runner = BasicWrapperRunner()
