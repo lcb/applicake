@@ -63,5 +63,9 @@ class BasicOpenmsWrapper(IWrapper):
         @return: Tuple of 2 objects: The path of the OpenMS tool that is going to be executed
         and the (modified) info object.
         """ % self.PREFIX
-        
-        return info[self.PREFIX],info
+        try:
+            prefix = info[self.prefix_key]
+        except:
+            log.fatal('did not find one of the keys [%s]' % (self.comment_key,self.prefix_key))
+            prefix = '' 
+        return prefix,info
