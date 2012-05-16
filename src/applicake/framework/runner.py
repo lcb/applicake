@@ -12,9 +12,7 @@ import sys
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
-from applicake.framework.argshandler import ApplicationArgsHandler
-from applicake.framework.argshandler import BasicArgsHandler
-from applicake.framework.argshandler import WrapperArgsHandler
+from applicake.framework.argshandler import ArgsHandler
 from applicake.framework.enums import KeyEnum
 from applicake.framework.logger import Logger
 from applicake.framework.interfaces import IApplication
@@ -43,7 +41,6 @@ class Runner(KeyEnum):
                         self.LOG_LEVEL:'DEBUG',
                         self.NAME: app.__class__.__name__,
                         self.CREATED_FILES: [],
-                        self.PREFIX: ''
                         } 
         tmp_log_stream = StringIO()
         exit_code = 1
@@ -59,7 +56,10 @@ class Runner(KeyEnum):
             log.debug('Application class [%s]' % app.__class__.__name__)
             log.info('Start [%s]' % self.get_args_handler.__name__)
             args_handler = self.get_args_handler()
-            log.info('Finished [%s]' % self.get_args_handler.__name__)            
+            log.info('Finished [%s]' % self.get_args_handler.__name__)
+            log.info('Start [%s]' % app.set_args.__name__)   
+            args_handler = app.set_args(log,args_handler)
+            log.info('Finished [%s]' % app.set_args.__name__)
             log.info('Start [%s]' % args_handler.get_parsed_arguments.__name__)
             pargs = args_handler.get_parsed_arguments(log)
             log.info('Finish [%s]' % args_handler.get_parsed_arguments.__name__) 
@@ -91,11 +91,10 @@ class Runner(KeyEnum):
             info = self.create_workdir(info,log) 
             log.info('Finished [%s]' % self.create_workdir.__name__)
             log.info('Start [%s]' % self.run_app.__name__)
-            exit_code,info = self.run_app(app,info,log)
+            exit_code,info = self.run_app(app,info,log,args_handler)
             if exit_code != 0:
                 log.fatal('exit code of run_app() != 0')
                 sys.exit(1)    
-            log.debug('runner: content of info [%s]' % info)
             log.info('Finished [%s]' % self.run_app.__name__)               
             log.info('Start [%s]' % info_handler.write_info.__name__)
             info_handler.write_info(info,log)
@@ -107,7 +106,11 @@ class Runner(KeyEnum):
             log.debug('exit code [%s]' %exit_code)                 
         except Exception, e:
             log.fatal('error in __call__')
-            log.exception(e)
+            log.exception(e) 
+            self.reset_streams() 
+            log.info('Start [%s]' % self.reset_streams.__name__)          
+            args_handler.print_help()
+            log.info('Finished [%s]' % self.reset_streams.__name__)
         finally:
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams()
@@ -151,9 +154,11 @@ class Runner(KeyEnum):
             if info.has_key(self.INPUT):
                 DictUtils.get_flatten_sequence([files_to_copy,info[self.INPUT]])
                 log.debug('found following input files to copy [%s]' % info[self.INPUT])
+                files_to_copy.extend(info[self.INPUT])
             if info.has_key(self.OUTPUT):
                 DictUtils.get_flatten_sequence([files_to_copy,info[self.OUTPUT]])
-                log.debug('found following output files to copy [%s]' % info[self.OUTPUT])            
+                log.debug('found following output file to copy [%s]' % info[self.OUTPUT])
+                files_to_copy.append(info[self.OUTPUT])            
             for path in files_to_copy:
                 # 'r' escapes special characters
                 src = r'%s' % os.path.abspath(path) 
@@ -185,6 +190,13 @@ class Runner(KeyEnum):
                     log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
                     return(1,info,log)
         return (0,info,log)   
+    
+    def _get_app_specific_info(self,info,args_handler):
+        """
+        Return a subset of info that depends on the application-specific arguments
+        """ 
+        return {k: info[k] for k in args_handler.get_app_argnames()}
+
                                                 
                     
     def _set_jobid(self,info,log):
@@ -339,7 +351,7 @@ class Runner(KeyEnum):
         raise NotImplementedError("run() is not implemented.")                                                                                                                                           
                                                                         
 
-class BasicApplicationRunner(Runner):
+class ApplicationRunner(Runner):
     """    
     Runner class that supports application that implement the IApplication interface.
     """
@@ -348,7 +360,7 @@ class BasicApplicationRunner(Runner):
         """
         See super class
         """
-        return BasicArgsHandler() 
+        return ArgsHandler()
 
     def get_info_handler(self):  
         """
@@ -358,23 +370,54 @@ class BasicApplicationRunner(Runner):
         """       
         return BasicInformationHandler()                  
     
-    def run_app(self,app,info,log):
+    def run_app(self,app,info,log,args_handler):
         """
         Run a python application
         
         See super class.
-        """        
+        """  
+        exit_code = None     
         if isinstance(app,IApplication):
-            return app.main(info,log)
+            log.info('Start [%s]' % self._get_app_specific_info.__name__)
+            app_info = self._get_app_specific_info(info, args_handler)
+            log.debug('app_info [%s]' % app_info)
+            log.info('Finished [%s]' % self._get_app_specific_info.__name__)
+            exit_code,app_info = app.main(app_info,log)   
+            log.debug('content of app_info after running app [%s]' % app_info)    
+            info = DictUtils.merge(info, app_info,priority='left')    
+            log.debug('content of info after merge with app_info [%s]' % info)
         else:                                    
             self.log.critical('the object [%s] is not an instance of one of the following %s'% 
                               (app.__class__.__name__,
                                [IApplication,__class__.__name__]))  
-            return (1,info)
+            exit_code = 1
+        return exit_code,info
+    
+
+class GeneratorRunner(ApplicationRunner):
+    """
+    Specific runner for generator applications.
+    """
+
+    def run_app(self,app,info,log,args_handler):
+        """
+        Specific runner for the generators.
         
+        Generators require access to the complete info object, not only to specific informations.
+        See super class.
+        """  
+        exit_code = None     
+        if isinstance(app,IApplication):
+            exit_code,info = app.main(info,log)   
+        else:                                    
+            self.log.critical('the object [%s] is not an instance of one of the following %s'% 
+                              (app.__class__.__name__,
+                               [IApplication,__class__.__name__]))  
+            exit_code = 1
+        return exit_code,info           
         
 
-class BasicWrapperRunner(BasicApplicationRunner):
+class WrapperRunner(ApplicationRunner):
     """
     Runner class that supports application that implement the IWrapper interface      
         
@@ -415,71 +458,58 @@ class BasicWrapperRunner(BasicApplicationRunner):
             return p.returncode                       
         except Exception,e:
             self.log.exception(e)
-            return 1       
-        
-    def get_args_handler(self):
-        """
-        See super class
-        """
-
-        return BasicArgsHandler()                     
+            return 1                          
     
-    def run_app(self,app,info,log):
+    def run_app(self,app,info,log,args_handler):
         """
         Prepare, run and validate the execution of an external program. 
         
         See super class.
         """
+        exit_code = None
         if isinstance(app,IWrapper):
+            
+            log.info('Start [%s]' % self._get_app_specific_info.__name__)
+            app_info = self._get_app_specific_info(info, args_handler)
+            log.debug('app_info [%s]' % app_info)
+            log.info('Finished [%s]' % self._get_app_specific_info.__name__)
             log.info('Start [%s]' % app.prepare_run.__name__)
-            command,info = app.prepare_run(info,log)     
+            command,app_info = app.prepare_run(app_info,log)                 
             log.info('Finish [%s]' % app.prepare_run.__name__)
+            log.debug('content of app_info [%s]' % app_info)    
+            info = DictUtils.merge(info, app_info,priority='left')    
+            log.debug('content of info after merge with app_info [%s]' % info)             
             if command is None:
                 log.critical('Command was [None]. Interface of [%s] is possibly not correctly implemented' %
                                   app.__class__.__name__)
-                return (1,info)                
-            # necessary when e.g. the template file contains '\n' what will cause problems 
-            # when using concatenated shell commands
-            log.debug('remove all [\\n] from command string')
-            command  = command.replace('\n','')   
-            log.info('Command [%s]' % str(command))
-            log.info('Start [%s]' % self._run.__name__)
-            run_code = self._run(command,info[self.STORAGE])
-            log.info('Finish [%s]' % self._run.__name__)
-            log.info('run_code [%s]' % run_code)        
-            log.info('Start [%s]' % app.validate_run.__name__)
-            # set stream pointer the start that in validate can use 
-            # them immediately with .read() to get content
-            self.out_stream.seek(0)
-            self.err_stream.seek(0)
-            exit_code,info = app.validate_run(info,log,run_code,self.out_stream,self.err_stream)
-            log.debug('exit code [%s]' % exit_code)
-            log.info('Finish [%s]' % app.validate_run.__name__)        
-            return (exit_code,info)
+                exit_code = 1
+            else:    
+                # necessary when e.g. the template file contains '\n' what will cause problems 
+                # when using concatenated shell commands
+                log.debug('remove all [\\n] from command string')
+                command  = command.replace('\n','')   
+                log.info('Command [%s]' % str(command))             
+                log.info('Start [%s]' % self._run.__name__)
+                run_code = self._run(command,info[self.STORAGE])
+                log.info('Finish [%s]' % self._run.__name__)
+                log.info('run_code [%s]' % run_code)        
+                log.info('Start [%s]' % app.validate_run.__name__)
+                # set stream pointer the start that in validate can use 
+                # them immediately with .read() to get content
+                self.out_stream.seek(0)
+                self.err_stream.seek(0)
+                log.info('Start [%s]' % self._get_app_specific_info.__name__)
+                app_info = self._get_app_specific_info(info, args_handler)
+                log.debug('app_info [%s]' % app_info)
+                log.info('Finished [%s]' % self._get_app_specific_info.__name__)                
+                exit_code,app_info = app.validate_run(app_info,log,run_code,self.out_stream,self.err_stream)
+                log.debug('exit code [%s]' % exit_code)
+                log.debug('content of app_info [%s]' % app_info)                        
+                log.info('Finish [%s]' % app.validate_run.__name__) 
+                info = DictUtils.merge(info, app_info,priority='left')    
+                log.debug('content of info after merge with app_info [%s]' % info) 
         else:                                   
             log.critical("the object [%s] is not an instance of one of the following [%s]" % (app.__class__.__name__ ,
                                                                                                  IWrapper.__class__.__name__))  
-            return (1,info)  
-        
-class StrictApplicationRunner(BasicApplicationRunner):
-    """
-    Same as BasicApplicationRunner only with the more specific argument handler ApplicationArgsHandler().
-    """
-    
-    def get_args_handler(self):
-        """
-        See super class
-        """
-        return ApplicationArgsHandler()
-    
-class StrictWrapperHandler(BasicWrapperRunner):
-    """
-    Same as BasicWrapperRunner only with the more specific argument handler WrapperArgsHandler().
-    """
-    
-    def get_args_handler(self):
-        """
-        See super class
-        """
-        return WrapperArgsHandler()    
-    
+            exit_code = 1
+        return exit_code,info

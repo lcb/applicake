@@ -7,7 +7,7 @@ import unittest
 import sys
 from applicake.framework.logger import Logger
 from applicake.framework.enums import KeyEnum
-from applicake.framework.runner import BasicWrapperRunner
+from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.openbis.dss import Dss
 from StringIO import StringIO
 

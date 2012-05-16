@@ -9,7 +9,7 @@ import shutil
 import sys
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.logger import Logger
-from applicake.framework.runner import BasicApplicationRunner
+from applicake.framework.runner import ApplicationRunner
 from applicake.applications.commons.collector import GuseCollector
 from StringIO import StringIO
 
@@ -47,12 +47,12 @@ class Test(unittest.TestCase):
 
     def test_guse_collector_1(self):
         ''' Test with only collector and output flag'''
-        runner = BasicApplicationRunner()
+        runner = ApplicationRunner()
         app = GuseCollector()
-        sys.argv = ['run_echo.py', '-c', self.collector_file, '-o',self.output]
+        sys.argv = ['', '--%s' % app.COLLECTOR, self.collector_file, '-o',self.output]
         exit_code = runner(sys.argv,app)        
         self.assertTrue(exit_code ==0,'found [%s]\nexpected [%s]' % (exit_code,0)) 
-        runner.info['COLLECTOR_IDX'] = self.range
+        runner.info[runner.COLLECTOR_IDX] = self.range
         config = ConfigHandler().read(self.log, self.output)
         # converts ConfigObj to dict -> needed for comparison
         dic = dict(config)
@@ -65,12 +65,11 @@ class Test(unittest.TestCase):
                     runner.LOG_LEVEL: 'DEBUG', # the default set in the runner
                     runner.NAME: 'GuseCollector', 
                     runner.COLLECTOR: ['echo_test.ini'], 
-                    'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+                    runner.COLLECTOR_IDX: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     runner.STORAGE: 'memory', # the default set in the runner
                     runner.JOB_IDX: '1', 
                     runner.OUTPUT: self.output, 
                     runner.CREATED_FILES: [],
-                    runner.PREFIX:''
                     }
         # needed to print the diff 
         self.maxDiff = None
@@ -78,10 +77,10 @@ class Test(unittest.TestCase):
 
     def test_guse_collector_2(self):
         ''' Test with collector, output flag and other cmdline flags to set defaults'''
-        runner = BasicApplicationRunner()
+        runner = ApplicationRunner()
         wrapper = GuseCollector()
 #        sys.argv = ['run_echo.py', '-c', self.collector_file, '-o',self.output,'-l','INFO','-s','file'] #for ApplicationArgsHandler()
-        sys.argv = ['run_echo.py', '-c', self.collector_file, '-o',self.output,'--LOG_LEVEL','INFO','--STORAGE','file'] # for BasicArgsHandler()
+        sys.argv = ['', '--%s' % runner.COLLECTOR, self.collector_file, '-o',self.output,'-l','INFO','-s','file'] # for BasicArgsHandler()
         exit_code = runner(sys.argv,wrapper)        
         assert 0 == exit_code
         runner.info['COLLECTOR_IDX'] = self.range
@@ -102,7 +101,6 @@ class Test(unittest.TestCase):
                     runner.JOB_IDX: '1', 
                     runner.OUTPUT: self.output, 
                     runner.CREATED_FILES: ['GuseCollector.out', 'GuseCollector.err', 'GuseCollector.log'],
-                    runner.PREFIX:''
                     }
         # needed to print the diff 
         self.maxDiff = None

@@ -6,11 +6,11 @@ Created on Mar 28, 2012
 '''
 
 from applicake.framework.interfaces import IWrapper
+from applicake.framework.argshandler import ArgsHandler
 
 class Echo(IWrapper):
     """
-    Performs echo of an comment that is defined in the input file
-    via the key 'COMMENT'
+    Performs echo of an of the argument comment
     """
     def prepare_run(self,info,log):
         """
@@ -23,6 +23,14 @@ class Echo(IWrapper):
             log.fatal('did not find one of the keys [%s]' % (self.COMMENT,self.PREFIX))
             return ''   
         return ('%s "%s"' % (prefix,comment),info)
+    
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler.add_app_args(log, self.COMMENT, 'Descriptive sentence')
+        args_handler.add_app_args(log, self.PREFIX, 'Path to the Echo executable')
+        return args_handler
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):
         """

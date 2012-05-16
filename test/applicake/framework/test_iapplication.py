@@ -11,7 +11,7 @@ import string
 import sys
 import unittest
 from applicake.framework.interfaces import IApplication
-from applicake.framework.runner import BasicApplicationRunner
+from applicake.framework.runner import ApplicationRunner
 
 class Application(IApplication):
 
@@ -25,6 +25,9 @@ class Application(IApplication):
         sys.stderr.write(self.err_txt)
         log.debug(self.log_txt)
         return (0,info)
+    
+    def set_args(self,log,args_handler):
+        return args_handler
 
 class Test(unittest.TestCase):
 
@@ -60,12 +63,12 @@ class Test(unittest.TestCase):
         os.chdir(self.cwd)
         
         
-    def test__call__1(self):
+    def test__iapplication__1(self):
         '''Test stream storage in memory '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
                     '--NAME',self.random_name,'--STORAGE','memory','--LOG_LEVEL','DEBUG']
-        runner = BasicApplicationRunner()
+        runner = ApplicationRunner()
         application = Application()
         exit_code = runner(sys.argv,application)
         runner.out_stream.seek(0)
@@ -80,12 +83,12 @@ class Test(unittest.TestCase):
         self.assertTrue(Application().log_txt in log,'found [%s]\ncontains [%s]' % (log,Application().log_txt))             
         assert exit_code == 0
 
-    def test__call__2(self):
+    def test__iapplication__2(self):
         '''Test stream storage in files '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
                     '--NAME',self.random_name,'--STORAGE','file','--LOG_LEVEL','DEBUG']
-        runner = BasicApplicationRunner()
+        runner = ApplicationRunner()
         application = Application()
         exit_code = runner(sys.argv,application)
         out = open('%s.out' % os.path.join(os.getcwd(),self.random_name),'r+').read()
@@ -107,26 +110,37 @@ class Test(unittest.TestCase):
         self.assertTrue(log_stream == log,'[%s]\n[%s]' % (log,log_stream))          
         assert exit_code == 0  
         
-    def test_read_inputs__1(self):
+    def test_iapplication__3(self):
         '''Test reading of a single input file '''
         sys.argv = ['test.py','-i',self.input_ini, 
                     '-o',self.output_ini,
                     '-n',self.random_name,'-s','file','-l','DEBUG']                
-        runner = BasicApplicationRunner()
+        runner = ApplicationRunner()
         application = Application()
         runner(sys.argv,application)
         info = runner.info
         assert info['COMMENT'] == 'test message'
 
-    def test_read_inputs__2(self):
+    def test_iapplication__4(self):
         '''Test of multiple input files and merging of them'''
         sys.argv = ['test.py','-i',self.input_ini, '-i',self.input_ini2, 
                     '-o',self.output_ini,
                     '-n',self.random_name,'-s','file','-l','DEBUG']                
-        runner = BasicApplicationRunner()
+        runner = ApplicationRunner()
         application = Application()
         runner(sys.argv,application)
-        assert runner.info['COMMENT'] == ['test message', 'another test message']                                    
-
+        assert runner.info['COMMENT'] == ['test message', 'another test message']    
+        
+                                        
+    def test_iapplication__5(self):
+        '''Test if output.ini is created'''
+        sys.argv = ['','-i',self.input_ini, '-i',self.input_ini2, 
+                    '-o',self.output_ini,
+                    '-n',self.random_name,'-s','file','-l','DEBUG']                
+        runner = ApplicationRunner()
+        application = Application()
+        runner(sys.argv,application)
+        assert os.path.exists(self.output_ini)
+        assert os.path.getsize(self.output_ini)
 if __name__ == "__main__":
     unittest.main()

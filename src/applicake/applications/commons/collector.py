@@ -14,33 +14,6 @@ class BasicCollector(IApplication):
     Basic Collector which merges collector files by flatten the value sequence.
     """
 
-    def main(self,info,log):
-        """
-        Merge collector files into a single dictionary.
-        
-        The values of the collector files are flattened. That means if a key value is equal across all
-        collector files, the value is kept as single value. If values for the same key differ, a list of
-        these values is created.      
-        
-        @type info: see super class
-        @param info: see super class
-        @type log: see super class
-        @param log: see super class 
-        """ 
-        paths = self._get_collector_files(info, log)
-        if len(paths) == 0:
-            log.critical('no collector files found [%s]' % paths)
-            return (1,info)            
-        collector_config  = {}
-        for path in paths:
-            log.debug('path [%s]' % path)
-            config = ConfigHandler().read(log,path)
-            log.debug('config [%s]' % config)
-            collector_config = DictUtils.merge(collector_config, config,priority='flatten_sequence') 
-        info = DictUtils.merge(info, collector_config, priority='left')
-        log.debug('info content [%s]' % info)       
-        return (0,info)
-    
     def _get_collector_files(self,info,log):
         """
         Return all input files following a certain file pattern.
@@ -68,6 +41,41 @@ class BasicCollector(IApplication):
             collector_files.extend(glob.glob(pattern))
         collector_files.sort()    
         return collector_files
+
+    def main(self,info,log):
+        """
+        Merge collector files into a single dictionary.
+        
+        The values of the collector files are flattened. That means if a key value is equal across all
+        collector files, the value is kept as single value. If values for the same key differ, a list of
+        these values is created.      
+        
+        @type info: see super class
+        @param info: see super class
+        @type log: see super class
+        @param log: see super class 
+        """ 
+        paths = self._get_collector_files(info, log)
+        if len(paths) == 0:
+            log.critical('no collector files found [%s]' % paths)
+            return (1,info)            
+        collector_config  = {}
+        for path in paths:
+            log.debug('path [%s]' % path)
+            config = ConfigHandler().read(log,path)
+            log.debug('config [%s]' % config)
+            collector_config = DictUtils.merge(collector_config, config,priority='flatten_sequence') 
+        info = DictUtils.merge(info, collector_config, priority='left')
+        log.debug('info content [%s]' % info)       
+        return (0,info)
+    
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler.add_app_args(log, 'collectors', 'Base name for collecting output files (e.g. from a parameter sweep)',action='append')
+        return args_handler
+        
     
     def get_collector_pattern(self,filename):
         """

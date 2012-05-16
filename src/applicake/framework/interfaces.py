@@ -11,10 +11,13 @@ class IApplication(KeyEnum):
     Interface for application that executes python code 
     """ 
     
+    
     def main(self,info,log):
         """
         Entry point used to execute the pyton code
         from the implemented interface.
+        
+        @precondition: set_args() has to be called before executing the main()
         
         @type info: dict         
         @param info: Dictionary object with information needed by the class
@@ -27,35 +30,22 @@ class IApplication(KeyEnum):
         raise NotImplementedError("main() is not implemented")    
      
 
-class IArgsHandler(object):
-    """
-    Interface for handlers of command line arguments
-    """
-    
-    def define_arguments(self, parser):        
+    def set_args(self,log,args_handler):
         """
-        Define command line arguments of the application.
+        Method that allows to add application specific arguments to the argument handler.
         
-        Helper method for get_parsed_arguments() to assure better inheritance
-        from ArgsHandler.
-        
-        @type parser: argparse.ArgumentParser 
-        @param parser: Parser object to which the arguments are added.
-        """        
-        raise NotImplementedError("define_arguments() is not implemented.")  
-    
-    def get_parsed_arguments(self, log):
-        """
-        Parse command line arguments of the application.
-        
-        @precondition: sys.argv has to be defined as the method uses sys.argv[1:].
+        These arguments are used to build the information object used in the main().
+
         @type log: Logger 
-        @param log: Logger to store log messages       
+        @param log: Logger to store log messages   
+        @type args_handler: applicake.framework.argshandler.Argshandler
+        @param args_handler: Handler for command line arguments
         
-        @rtype: dict
-        @return: Dictionary of parsed arguments.        
+        @rtype: applicake.framework.argshandler.Argshandler
+        @return: Modified Argshandler()
         """
-        raise NotImplementedError("get_parsed_arguments() is not implemented.")         
+        raise NotImplementedError("set_args() is not implemented")   
+        
 
 class IInformationHandler(KeyEnum):
     """
@@ -160,6 +150,22 @@ class IWrapper(KeyEnum):
         @return: Tuple of 2 objects; the command to execute and the (updated) info object.
         """
         raise NotImplementedError("prepare_run() is not implemented")  
+    
+    def set_args(self,log,args_handler):
+        """
+        Method that allows to add application specific arguments to the argument handler.
+        
+        These arguments are used to build the information object used in the main().
+
+        @type log: Logger 
+        @param log: Logger to store log messages   
+        @type args_handler: applicake.framework.argshandler.Argshandler
+        @param args_handler: Handler for command line arguments
+        
+        @rtype: applicake.framework.argshandler.Argshandler
+        @return: Modified Argshandler()
+        """
+        raise NotImplementedError("set_args() is not implemented")       
        
     def validate_run(self,info,log, run_code,out_stream, err_stream):
         """

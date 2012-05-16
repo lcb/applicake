@@ -9,7 +9,7 @@ import shutil
 import sys
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.logger import Logger
-from applicake.framework.runner import BasicWrapperRunner
+from applicake.framework.runner import WrapperRunner
 from applicake.applications.os.echo import Echo  
 from StringIO import StringIO
 
@@ -40,10 +40,18 @@ class Test(unittest.TestCase):
         os.chdir(self.cwd)
     
 
+    def test_prepare_run(self):
+        app = Echo()
+        org_info = {app.PREFIX:'/bin/echo',app.COMMENT:'hello world'}
+        comment, info = Echo().prepare_run(org_info, self.log)
+        assert comment == '/bin/echo "hello world"'
+        assert org_info == info
+        
+        
 
     def test_echo_1(self):
         """Test with input.ini"""
-        runner = BasicWrapperRunner()
+        runner = WrapperRunner()
         wrapper = Echo()
         sys.argv = ['run_echo.py', '-i', self.input, '-o',self.output, '--%s' % Echo.LOG_LEVEL, 'DEBUG']
         exit_code = runner(sys.argv,wrapper)  
@@ -60,7 +68,7 @@ class Test(unittest.TestCase):
 
     def test_echo_2(self):
         '''Test without input.ini '''
-        runner = BasicWrapperRunner()
+        runner = WrapperRunner()
         wrapper = Echo()
         expected = 'hello world'
         sys.argv = ['run_echo.py', '--%s' % wrapper.COMMENT,expected, '--%s' % wrapper.PREFIX,'/bin/echo']
@@ -69,7 +77,7 @@ class Test(unittest.TestCase):
         runner.out_stream.seek(0)
         found = runner.out_stream.read()
         print runner.info
-        self.assertTrue(expected == found.rstrip(),'expected [%s]\nfound [%s]' % (expected,found))
+        self.assertTrue(expected == found.rstrip(),'expected [%s]\nfound [%s]' % (expected,found))       
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_echo']

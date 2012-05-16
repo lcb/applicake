@@ -11,7 +11,7 @@ import sys
 import unittest
 from applicake.framework.enums import KeyEnum
 from applicake.framework.interfaces import IWrapper
-from applicake.framework.runner import BasicWrapperRunner
+from applicake.framework.runner import WrapperRunner
 from applicake.applications.os.echo import Echo
 
 
@@ -28,6 +28,13 @@ class Wrapper(IWrapper):
                                prefix,self.err_txt)
         return (command,info)
         
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler.add_app_args(log, self.PREFIX, 'Path to the Echo executable')
+        return args_handler
+            
     def validate_run(self,info,log,run_code, out_stream, err_stream):
         exit_code = None
         if 0 != run_code:
@@ -38,7 +45,7 @@ class Wrapper(IWrapper):
 
 class Test(unittest.TestCase):
     """
-    Test class for BasicWrapperRunner class
+    Test class for WrapperRunner class
     """
     
     def setUp(self):
@@ -78,7 +85,7 @@ class Test(unittest.TestCase):
                     '-o',self.output_ini,'-o',self.output_ini, '--NAME',self.random_name,
                     '--PREFIX','/bin/echo','--STORAGE','memory','--LOG_LEVEL','DEBUG']
 
-        runner = BasicWrapperRunner()
+        runner = WrapperRunner()
         wrapper = Wrapper()
         exit_code = runner(sys.argv,wrapper)   
         
@@ -99,7 +106,7 @@ class Test(unittest.TestCase):
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini, '--NAME',self.random_name,
                     '--PREFIX','/bin/echo','--STORAGE','file','--LOG_LEVEL','DEBUG']
-        runner = BasicWrapperRunner()
+        runner = WrapperRunner()
         wrapper = Wrapper()
         exit_code = runner(sys.argv,wrapper)
         
@@ -127,7 +134,7 @@ class Test(unittest.TestCase):
         sys.argv = ['test.py','-i',self.input_ini,'-i',self.input_ini2, 
                     '-o',self.output_ini,'-o',self.output_ini, '--NAME',self.random_name,
                     '--PREFIX','/bin/echo','--STORAGE','file','--LOG_LEVEL','DEBUG']
-        runner = BasicWrapperRunner()
+        runner = WrapperRunner()
         wrapper = Echo()
         exit_code = runner(sys.argv,wrapper)
         

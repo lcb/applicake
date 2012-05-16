@@ -7,8 +7,8 @@ import unittest
 import os
 import shutil
 import sys
-from applicake.framework.runner import BasicApplicationRunner
-from applicake.applications.commons.generator import GuseGenerator
+from applicake.framework.runner import GeneratorRunner
+from applicake.applications.proteomics.openbis.generator import GuseGenerator
 
 
 class Test(unittest.TestCase):
@@ -37,12 +37,13 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
 
 
     def test_guse_generator(self):
-        runner = BasicApplicationRunner()
+        runner = GeneratorRunner()
         wrapper = GuseGenerator()
-        sys.argv = ['run_echo.py', '-i', self.input, '-g',self.output]
+        sys.argv = ['', '-i', self.input, '--%s' % runner.GENERATOR,self.output]
         exit_code = runner(sys.argv,wrapper)        
         assert 0 == exit_code
-        assert 9 == len(runner.info['CREATED_FILES']) # 6 output.ini.[IDX] + out/err/log
+        print runner.info[runner.CREATED_FILES]
+        assert 9 == len(runner.info[runner.CREATED_FILES]) # 6 output.ini.[IDX] + out/err/log
         
 
 

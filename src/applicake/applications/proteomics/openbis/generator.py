@@ -124,7 +124,18 @@ class OpenBisGenerator(IApplication):
         log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
         # write ini files
         self.write_generator_files(info,log,param_file_dicts)
-        return (0,info)            
+        return (0,info)   
+    
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler.add_app_args(log, self.GENERATOR, 'Base name for generating output files (such as for a parameter sweep)',action='append')
+        args_handler.add_app_args(log, self.DATASET_CODE, 'Dataset code from OpenBIS)')
+        args_handler.add_app_args(log, self.CREATED_FILES, 'Files which are created by this application', action='append')
+#        self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE
+        
+        return args_handler       
             
     def string2list(self,dic,keys,split_str):
         """

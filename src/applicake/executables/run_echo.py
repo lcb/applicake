@@ -6,10 +6,10 @@ Created on Mar 28, 2012
 '''
 
 import sys
-from applicake.framework.runner import BasicWrapperRunner
+from applicake.framework.runner import WrapperRunner
 from applicake.applications.os.echo import Echo
 
-runner = BasicWrapperRunner()
+runner = WrapperRunner()
 wrapper = Echo()
 exit_code = runner(sys.argv,wrapper)
 print exit_code
