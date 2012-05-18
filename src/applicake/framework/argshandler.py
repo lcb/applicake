@@ -53,7 +53,7 @@ class ArgsHandler(object):
                                                   'ERROR','CRITICAL'],
                             help="Storage type for produced streams") 
 
-    def add_app_args(self,log,name,description,action='store'):
+    def add_app_args(self,log,name,description,action='store',default=None,choices=None):
         
         name = name.upper()
         self._app_argnames.append(name)
@@ -61,7 +61,7 @@ class ArgsHandler(object):
         log.debug('description [%s]' % description)
         log.debug('action [%s]' % action)     
         self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
-                        help=description,action=action)        
+                        help=description,action=action, default=default, choices=choices)        
     
     
     def get_app_argnames(self):
