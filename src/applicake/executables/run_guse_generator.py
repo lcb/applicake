@@ -7,8 +7,7 @@ Created on Apr 10, 2012
 
 import sys
 from applicake.framework.runner import ApplicationRunner
-from applicake.applications.commons.generator import GuseGenerator
-
+from applicake.applications.proteomics.openbis.generator import GuseGenerator
 
 runner = ApplicationRunner()
 application = GuseGenerator()
