@@ -40,13 +40,15 @@ class Runner(KeyEnum):
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
                         self.NAME: app.__class__.__name__,
-                        self.CREATED_FILES: [],
+                        self.CREATED_FILES: []
                         } 
         tmp_log_stream = StringIO()
         exit_code = 1
+        next_method = None
+        finished_method = None
         try:
             # create memory logger            
-            log = Logger.create(level='DEBUG',name='memory_logger',stream=tmp_log_stream)
+            log = Logger.create(level=default_info[self.LOG_LEVEL],name='memory_logger',stream=tmp_log_stream)
             log.debug('created temporary in-memory logger')
             # get command line arguments
             args = sys.argv
@@ -54,67 +56,66 @@ class Runner(KeyEnum):
             log.debug('arguments [%s]' % args[1:])
             log.debug('Runner class [%s]' % self.__class__.__name__)
             log.debug('Application class [%s]' % app.__class__.__name__)
-            log.info('Start [%s]' % self.get_args_handler.__name__)
+            next_method =  self.get_args_handler.__name__
             args_handler = self.get_args_handler()
-            log.info('Finished [%s]' % self.get_args_handler.__name__)
-            log.info('Start [%s]' % app.set_args.__name__)   
+            finished_method = next_method
+            next_method = app.set_args.__name__   
             args_handler = app.set_args(log,args_handler)
-            log.info('Finished [%s]' % app.set_args.__name__)
-            log.info('Start [%s]' % args_handler.get_parsed_arguments.__name__)
-            pargs = args_handler.get_parsed_arguments(log)
-            log.info('Finish [%s]' % args_handler.get_parsed_arguments.__name__) 
-            log.info('Start [%s]' % self.get_info_handler.__name__)
+            finished_method = next_method
+            next_method = args_handler.get_parsed_arguments.__name__
+            try:
+                pargs = args_handler.get_parsed_arguments(log)
+            except:
+                args_handler.print_help()
+                return exit_code
+            finished_method = next_method
+            next_method = self.get_info_handler.__name__
             info_handler = self.get_info_handler()
-            log.info('Finished [%s]' % self.get_info_handler.__name__)
-            log.info('Start [%s]' % info_handler.get_info.__name__)
+            finished_method = next_method
+            next_method = info_handler.get_info.__name__
             info = info_handler.get_info(log, pargs)
-            log.info('Finished [%s]' % info_handler.get_info.__name__)
+            finished_method = next_method
             log.debug('content of info [%s]' % info)
             info = DictUtils.merge(info, default_info,priority='left')
             log.debug('Added default values to info they were not set before')            
-            log.debug('content of final info [%s]' % info)    
-            log.info('Start [%s]' % self.get_streams.__name__)               
+            log.debug('content of final info [%s]' % info)
+            next_method = self.get_streams.__name__               
             (self.out_stream,self.err_stream,self.log_stream) = self.get_streams(info,log)               
-            log.info('Finished [%s]' % self.get_streams.__name__)   
+            finished_method = next_method 
+            log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')    
             sys.stdout = self.out_stream
-            log.debug('set sys.out to new out stream')
             sys.stderr = self.err_stream
-            log.debug('set sys.err to new err stream')
-            log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')                      
+            log.debug('create new logger dependent of the storage')                  
             log = Logger.create(level=info[self.LOG_LEVEL],
-                         name=info[self.NAME],stream=self.log_stream)      
-            log.debug('created new logger dependent of the storage')
+                         name=info[self.NAME],stream=self.log_stream)                  
+            log.debug('write content of temporary logger to new logger')   
             tmp_log_stream.seek(0)
             self.log_stream.write(tmp_log_stream.read())
-            log.debug('wrote content of temporary logger to new logger')                
-            log.info('Start [%s]' % self.create_workdir.__name__)
+            next_method = self.create_workdir.__name__
             info = self.create_workdir(info,log) 
-            log.info('Finished [%s]' % self.create_workdir.__name__)
-            log.info('Start [%s]' % self.run_app.__name__)
+            finished_method = next_method 
+            next_method =  self.run_app.__name__
             exit_code,info = self.run_app(app,info,log,args_handler)
             if exit_code != 0:
                 log.fatal('exit code of run_app() != 0')
                 sys.exit(1)    
-            log.info('Finished [%s]' % self.run_app.__name__)               
-            log.info('Start [%s]' % info_handler.write_info.__name__)
+            finished_method = next_method              
+            next_method =  info_handler.write_info.__name__
             info_handler.write_info(info,log)
-            log.info('Finished [%s]' % info_handler.write_info.__name__)   
-            log.info('Start [%s]' % self._cleanup.__name__)
+            finished_method = next_method   
+            next_method = self._cleanup.__name__
             exit_code,info,log = self._cleanup(info,log)
-            log.info('Finished [%s]' % self._cleanup.__name__)      
+            finished_method = next_method       
             log.debug('info [%s]' % info)
             log.debug('exit code [%s]' %exit_code)                 
         except Exception, e:
-            log.fatal('error in __call__')
+            log.fatal('error in __call__: last finished method [%s], called method [%s]' % (finished_method,next_method))
+            log.debug('')
             log.exception(e) 
-            self.reset_streams() 
-            log.info('Start [%s]' % self.reset_streams.__name__)          
-            args_handler.print_help()
-            log.info('Finished [%s]' % self.reset_streams.__name__)
+            self.reset_streams()                        
         finally:
-            log.info('Start [%s]' % self.reset_streams.__name__)
-            self.reset_streams()
-            log.info('Finished [%s]' % self.reset_streams.__name__) 
+            log.debug('call [%s]' % self.reset_streams.__name__)
+            self.reset_streams() 
             # needed for guse/pgrade
             if hasattr(self, 'log_stream'): 
                 stream = self.log_stream
@@ -211,9 +212,9 @@ class Runner(KeyEnum):
         @type log: Logger 
         @param log: Logger to store log messages  
         """
-        jobid = 1
+        jobid = 0
         if not info.has_key(self.BASEDIR):
-            log.error("info has not key [%s]. Therefore jobid is set to default=1" % self.BASEDIR)
+            log.info("info has not key [%s]." % self.BASEDIR)
         else:    
             dirname = info[self.BASEDIR]
             log.debug('found base dir [%s]' % dirname)
@@ -249,8 +250,7 @@ class Runner(KeyEnum):
         
         keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX,self.NAME]
         if not info.has_key(keys[0]):
-            log.error('info object does not contain key [%s]' % keys[0])
-            log.error('no work dir has been created')          
+            log.info('info object does not contain key [%s], use current dir [%s] instead' % (keys[0],os.getcwd()))      
         if not info.has_key(keys[1]):
             self._set_jobid(info,log)               
         path_items = []    

@@ -61,13 +61,13 @@ class Test(unittest.TestCase):
         expected = {
                     runner.COMMENT: ['hello', 'world'], 
                     runner.DATASET_CODE: ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
-                    runner.WORKDIR: '1/GuseCollector', 
+                    runner.WORKDIR: '0/GuseCollector', 
                     runner.LOG_LEVEL: 'DEBUG', # the default set in the runner
                     runner.NAME: 'GuseCollector', 
                     runner.COLLECTOR: ['echo_test.ini'], 
                     runner.COLLECTOR_IDX: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     runner.STORAGE: 'memory', # the default set in the runner
-                    runner.JOB_IDX: '1', 
+                    runner.JOB_IDX: '0', 
                     runner.OUTPUT: self.output, 
                     runner.CREATED_FILES: [],
                     }
@@ -92,13 +92,13 @@ class Test(unittest.TestCase):
         expected = {
                     runner.COMMENT: ['hello', 'world'], 
                     runner.DATASET_CODE: ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
-                    runner.WORKDIR: '1/GuseCollector', 
+                    runner.WORKDIR: '0/GuseCollector', 
                     runner.LOG_LEVEL: 'INFO',
                     runner.NAME: 'GuseCollector', 
                     runner.COLLECTOR: ['echo_test.ini'], 
                     'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     runner.STORAGE: 'file',
-                    runner.JOB_IDX: '1', 
+                    runner.JOB_IDX: '0', 
                     runner.OUTPUT: self.output, 
                     runner.CREATED_FILES: ['GuseCollector.out', 'GuseCollector.err', 'GuseCollector.log'],
                     }

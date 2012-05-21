@@ -7,14 +7,17 @@ import unittest
 import os
 import shutil
 import sys
+from applicake.framework.logger import Logger
 from applicake.framework.runner import GeneratorRunner
 from applicake.applications.proteomics.openbis.generator import GuseGenerator
-
+from StringIO import StringIO
 
 class Test(unittest.TestCase):
 
 
     def setUp(self):
+        log_stream = StringIO()
+        self.log = Logger.create(level='DEBUG',name='memory_logger',stream=log_stream)                
         self.input = 'echo_test.ini'
         self.tmp_dir = '%s/tmp' % os.path.abspath(os.getcwd())
         self.cwd = os.getcwd()
@@ -36,14 +39,24 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
         os.chdir(self.cwd)
 
 
-    def test_guse_generator(self):
+    def test_guse_generator__1(self):
         runner = GeneratorRunner()
-        wrapper = GuseGenerator()
+        app = GuseGenerator()
         sys.argv = ['', '-i', self.input, '--%s' % runner.GENERATOR,self.output]
-        exit_code = runner(sys.argv,wrapper)        
+        exit_code = runner(sys.argv,app)        
         assert 0 == exit_code
         print runner.info[runner.CREATED_FILES]
         assert 9 == len(runner.info[runner.CREATED_FILES]) # 6 output.ini.[IDX] + out/err/log
+        
+        
+    def test_guse_generator__2(self):
+        '''test failing if dataset code is not a list'''
+        app = GuseGenerator()
+        info = {
+                'DATASET_CODE':'20120320164249179-361885'
+                }
+        exit_code, info = app.main(info, self.log)
+        assert exit_code == 1
         
 
 

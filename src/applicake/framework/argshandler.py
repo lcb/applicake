@@ -38,11 +38,7 @@ class ArgsHandler(object):
         self._parser.add_argument('-i','--INPUTS',required=False,dest="INPUTS", 
                             action='append',help="Input (configuration) file(s)")
         self._parser.add_argument('-o','--OUTPUT',required=False, dest="OUTPUT",
-                            action='store',help="Output (configuration) file")
-#        self._parser.add_argument('-g','--generator',required=False,dest="GENERATORS", 
-#                            action='append',help="Base name for generating output files (such as for a parameter sweep)")
-#        self._parser.add_argument('-c','--collector',required=False, dest="COLLECTORS",
-#                            action='append',help="Base name for collecting output files (e.g. from a parameter sweep")  
+                            action='store',help="Output (configuration) file") 
         self._parser.add_argument('-n','--NAME',required=False, dest="NAME", 
                             help="Name of the workflow node")
         self._parser.add_argument('-s','--STORAGE',required=False, dest="STORAGE", 
@@ -52,6 +48,9 @@ class ArgsHandler(object):
                             choices=['DEBUG','INFO','WARNING',
                                                   'ERROR','CRITICAL'],
                             help="Storage type for produced streams") 
+        self._parser.add_argument('-d','--BASEDIR',required=False, dest="BASEDIR", 
+                            help="Base directory used to store files produced by the application") 
+        
 
     def add_app_args(self,log,name,description,action='store',default=None,choices=None):
         

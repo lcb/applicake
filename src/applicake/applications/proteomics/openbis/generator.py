@@ -102,6 +102,12 @@ class OpenBisGenerator(IApplication):
         
         # prepare a basedic to produced input files for inner workflow
         basedic = info.copy()
+        
+        #check if value DATASE_CODE is defined as list
+        dsc = basedic[self.DATASET_CODE]
+        if not isinstance(dsc,list):
+            log.fatal('found value of [%s] not to be a list [%s]' % (self.DATASET_CODE,dsc))
+            return(1,info) 
         log.debug('created work copy of "info"')
         log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
         remove_keys = [self.CREATED_FILES,self.NAME]        

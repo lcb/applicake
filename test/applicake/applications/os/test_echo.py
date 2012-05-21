@@ -71,7 +71,7 @@ class Test(unittest.TestCase):
         runner = WrapperRunner()
         wrapper = Echo()
         expected = 'hello world'
-        sys.argv = ['run_echo.py', '--%s' % wrapper.COMMENT,expected, '--%s' % wrapper.PREFIX,'/bin/echo']
+        sys.argv = ['run_echo.py', '--%s' % wrapper.COMMENT,expected, '--%s' % wrapper.PREFIX,'/bin/echo', '-l','ERROR']
         exit_code = runner(sys.argv,wrapper)  
         assert 0 == exit_code      
         runner.out_stream.seek(0)
