@@ -9,12 +9,14 @@ from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mzml
 
 def mzxml2mzml():
-    args = 'test.py --BASEDIR /tmp --STORAGE file --TEMPLATE template.ini --PREFIX /Applications/OpenMS-1.9.0/TOPP/FileConverter'
+    args = 'bla.py --BASEDIR /tmp --STORAGE file --TEMPLATE template.ini --PREFIX FileConverter --MZXML /tmp/ALBU_HUMAN_0F_CAM_core.mzXML --MZML ALBU_HUMAN_0F_CAM_core.mzML' # /Applications/OpenMS-1.9.0/TOPP/
     sys.argv = args.split(' ')
     runner = WrapperRunner()
     application = Mzxml2Mzml()
     exit_code = runner(sys.argv,application)
-    print exit_code    
+    print exit_code
+    if exit_code != 0:
+        raise Exception("mzxml2mzml failed with exit code [%s]" % exit_code)    
     
     
 @follows(mzxml2mzml)

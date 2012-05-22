@@ -29,16 +29,36 @@ class FileConverter(BasicOpenmsWrapper):
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info
 
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler = super(FileConverter,self).set_args(log,args_handler)
+        args_handler.add_app_args(log, self.MZXML, 'Path to the MZXML file (input)')
+        args_handler.add_app_args(log, self.MZML, 'Path the MZML file (output)')     
+        return args_handler   
+    
+    def validate_run(self,info,log, run_code,out_stream, err_stream):
+        """
+        See super class.
+        
+        Return the unaltered run_code from the tool execution as exit_code.
+        """    
+        info[self.CREATED_FILES].append(self.MZML)
+        log.debug('added key [%s] to value of key [%s]' % (self.MZML,self.CREATED_FILES))
+        return(run_code,info)      
+    
 
 class Mzxml2Mzml(FileConverter):
     """
     Convert mzXML to mzML.
     """
+        
     def get_template_handler(self):
         """
         See super class.
         """
-        return Mzxml2MzmlTemplate()
+        return Mzxml2MzmlTemplate()    
 
 class Mzxml2MzmlTemplate(BasicTemplateHandler):
     """

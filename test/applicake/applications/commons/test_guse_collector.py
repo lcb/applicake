@@ -25,8 +25,14 @@ class Test(unittest.TestCase):
         os.mkdir(self.tmp_dir)
         os.chdir(self.tmp_dir)       
         self.range = range(0,10)
+        a = [10,9,8,7,6,5,4,3,2,1]
+        b = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10']
+        c = ['s1','s1','s1','s2','s2','s2','s3','s3','s3','s10']
         for idx in range(0,10):
             path = '_'.join([self.collector_file,"%s" % idx])
+            x = a[idx]
+            y = b[idx]
+            z = c[idx]
             fh = open(path,'w+')            
             fh.write("""COMMENT = 'hello','world'
     STORAGE = file
@@ -35,7 +41,10 @@ class Test(unittest.TestCase):
     BASEDIR = %s
     DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,20120320164249179-361887
     COLLECTOR_IDX = %s
-""" % (self.tmp_dir,idx))
+    P1 = %s
+    P2 = %s
+    P3 = %s
+""" % (self.tmp_dir,idx,x,y,z))
             fh.close()
             self.output = 'test_output.ini'
 
@@ -70,6 +79,9 @@ class Test(unittest.TestCase):
                     runner.JOB_IDX: '0', 
                     runner.OUTPUT: self.output, 
                     runner.CREATED_FILES: [],
+                    'P1': ['10', '9', '8', '7', '6', '5', '4', '3', '2', '1'],
+                    'P2': ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10'],
+                    'P3': ['s1', 's2', 's2', 's2', 's3', 's3', 's3', 's10']
                     }
         # needed to print the diff 
         self.maxDiff = None
@@ -101,6 +113,9 @@ class Test(unittest.TestCase):
                     runner.JOB_IDX: '0', 
                     runner.OUTPUT: self.output, 
                     runner.CREATED_FILES: ['GuseCollector.out', 'GuseCollector.err', 'GuseCollector.log'],
+                    'P1': ['10', '9', '8', '7', '6', '5', '4', '3', '2', '1'],
+                    'P2': ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10'],
+                    'P3': ['s1', 's2', 's2', 's2', 's3', 's3', 's3', 's10']                    
                     }
         # needed to print the diff 
         self.maxDiff = None

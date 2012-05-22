@@ -44,8 +44,6 @@ class Runner(KeyEnum):
                         } 
         tmp_log_stream = StringIO()
         exit_code = 1
-        next_method = None
-        finished_method = None
         try:
             # create memory logger            
             log = Logger.create(level=default_info[self.LOG_LEVEL],name='memory_logger',stream=tmp_log_stream)
@@ -56,66 +54,58 @@ class Runner(KeyEnum):
             log.debug('arguments [%s]' % args[1:])
             log.debug('Runner class [%s]' % self.__class__.__name__)
             log.debug('Application class [%s]' % app.__class__.__name__)
-            next_method =  self.get_args_handler.__name__
+            log.info('Start [%s]' % self.get_args_handler.__name__)
             args_handler = self.get_args_handler()
-            finished_method = next_method
-            next_method = app.set_args.__name__   
+            log.info('Start [%s]' % app.set_args.__name__)   
             args_handler = app.set_args(log,args_handler)
-            finished_method = next_method
-            next_method = args_handler.get_parsed_arguments.__name__
+            log.info('Start [%s]' % args_handler.get_parsed_arguments.__name__)
             try:
                 pargs = args_handler.get_parsed_arguments(log)
             except:
-                args_handler.print_help()
+                # need to reset streams in order to allow args_handler to print usage message
+                self.reset_streams() 
                 return exit_code
-            finished_method = next_method
-            next_method = self.get_info_handler.__name__
+            log.info('Start [%s]' % self.get_info_handler.__name__)
             info_handler = self.get_info_handler()
-            finished_method = next_method
-            next_method = info_handler.get_info.__name__
+            log.info('Start [%s]' % info_handler.get_info.__name__)
             info = info_handler.get_info(log, pargs)
-            finished_method = next_method
             log.debug('content of info [%s]' % info)
             info = DictUtils.merge(info, default_info,priority='left')
             log.debug('Added default values to info they were not set before')            
-            log.debug('content of final info [%s]' % info)
-            next_method = self.get_streams.__name__               
-            (self.out_stream,self.err_stream,self.log_stream) = self.get_streams(info,log)               
-            finished_method = next_method 
-            log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')    
+            log.debug('content of final info [%s]' % info)    
+            log.info('Start [%s]' % self.get_streams.__name__)               
+            (self.out_stream,self.err_stream,self.log_stream) = self.get_streams(info,log)                
             sys.stdout = self.out_stream
+            log.debug('set sys.out to new out stream')
             sys.stderr = self.err_stream
-            log.debug('create new logger dependent of the storage')                  
+            log.debug('set sys.err to new err stream')
+            log.debug('redirect sys streams for stdout/stderr depending on the chosen storage type')                      
             log = Logger.create(level=info[self.LOG_LEVEL],
-                         name=info[self.NAME],stream=self.log_stream)                  
-            log.debug('write content of temporary logger to new logger')   
+                         name=info[self.NAME],stream=self.log_stream)      
+            log.debug('created new logger dependent of the storage')
             tmp_log_stream.seek(0)
             self.log_stream.write(tmp_log_stream.read())
-            next_method = self.create_workdir.__name__
+            log.debug('wrote content of temporary logger to new logger')                
+            log.info('Start [%s]' % self.create_workdir.__name__)
             info = self.create_workdir(info,log) 
-            finished_method = next_method 
-            next_method =  self.run_app.__name__
+            log.info('Start [%s]' % self.run_app.__name__)
             exit_code,info = self.run_app(app,info,log,args_handler)
             if exit_code != 0:
                 log.fatal('exit code of run_app() != 0')
-                sys.exit(1)    
-            finished_method = next_method              
-            next_method =  info_handler.write_info.__name__
+                sys.exit(1)              
+            log.info('Start [%s]' % info_handler.write_info.__name__)
             info_handler.write_info(info,log)
-            finished_method = next_method   
-            next_method = self._cleanup.__name__
+            log.info('Start [%s]' % self._cleanup.__name__)
             exit_code,info,log = self._cleanup(info,log)
-            finished_method = next_method       
             log.debug('info [%s]' % info)
             log.debug('exit code [%s]' %exit_code)                 
         except Exception, e:
-            log.fatal('error in __call__: last finished method [%s], called method [%s]' % (finished_method,next_method))
-            log.debug('')
+            log.fatal('error in __call__')
             log.exception(e) 
-            self.reset_streams()                        
-        finally:
-            log.debug('call [%s]' % self.reset_streams.__name__)
             self.reset_streams() 
+        finally:
+            log.info('Start [%s]' % self.reset_streams.__name__)
+            self.reset_streams()      
             # needed for guse/pgrade
             if hasattr(self, 'log_stream'): 
                 stream = self.log_stream
@@ -182,8 +172,16 @@ class Runner(KeyEnum):
         # 'created_files might be none e.g. if memory-storage is used   
         if info[self.CREATED_FILES] != []:  
             for path in info[self.CREATED_FILES]:
-                src = r'%s' % os.path.abspath(path) 
-                dest = r'%s' % os.path.join(wd,os.path.basename(path))
+                # check if element is a key of info and not an actual file
+                if info.has_key(path):
+                    path = info[path]
+                    src = r'%s' % os.path.abspath(path) 
+                    dest = r'%s' % os.path.join(wd,os.path.basename(path))
+                    info[path] = dest
+                    log.debug('set value of key [%s] from [%s] to [%s]' % (path,info[path],dest))
+                else:
+                    src = r'%s' % os.path.abspath(path) 
+                    dest = r'%s' % os.path.join(wd,os.path.basename(path))                    
                 try:
                     shutil.copy(src,wd)
                     log.debug('Copy [%s] to [%s]' % (src,dest))

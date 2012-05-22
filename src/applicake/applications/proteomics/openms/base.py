@@ -69,3 +69,14 @@ class BasicOpenmsWrapper(IWrapper):
             log.fatal('did not find one of the keys [%s]' % (self.comment_key,self.prefix_key))
             prefix = '' 
         return prefix,info
+
+
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler.add_app_args(log, self.PREFIX, 'Path to the OpenMS executable')
+        args_handler.add_app_args(log, self.TEMPLATE, 'Path to the openMS-template file')
+        args_handler.add_app_args(log, self.CREATED_FILES, 'Files which are created by this application', action='append')        
+        return args_handler
+        
