@@ -13,18 +13,27 @@ class DictUtils(SequenceUtils):
     """
     
     @staticmethod
-    def extract(dic,keys):
+    def extract(dic,keys,include=True):
         """
-        Extract subset of a dictionary based on a list of keys to include
+        Extract subset of a dictionary based on a list of keys which are either included or excluded.
         
         @type dic: dict
         @param dic: The original dictionary
         @type keys:list 
         @param keys: : Keys used to create the subset
+        @type include: boolean
+        @param include: Defines if the list of keys is inclusive or exclusive
         
         @return: Dictionary containing the subset
         """
-        return dict((key, dic[key]) for key in keys if key in dic)
+        if include:        
+            return dict((key, dic[key]) for key in keys if key in dic)
+        else:
+            sub_dic = dic.copy()
+            for key in keys:
+                if key in sub_dic: del sub_dic[key] 
+            return sub_dic
+            
     
     @staticmethod  
     def merge(dict_1, dict_2, priority='left'):
@@ -59,6 +68,16 @@ class DictUtils(SequenceUtils):
                 else:
                     d1[k]=v
             return d1
+        elif priority == 'append':
+            for key in d2.keys():
+                if key in d1.keys():
+                    val = [d1[key],d2[key]]
+                    d1[key] = DictUtils.get_flatten_sequence(val)
+                else:
+                    d1[key] = d2[key] 
+            return d1           
+            
+
         
     @staticmethod
     def remove_none_entries(dic):

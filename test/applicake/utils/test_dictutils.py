@@ -41,6 +41,25 @@ class Test(unittest.TestCase):
         del self.d2
    
 
+    def test_extract(self):
+        res = DictUtils.extract(self.d1, ['FILE_IDX'], include=True)
+        expected = {
+               'FILE_IDX': 0
+               }
+        self.assertDictEqual(res, expected, '') 
+        res = DictUtils.extract(self.d1, ['FILE_IDX'], include=False)
+        expected = {
+                   'BASEDIR': '/tmp',                   
+                   'COMMENT': 'hello world',
+                   'JOB_IDX': 0,
+                   'LOG_LEVEL': 'INFO',
+                   'OUTPUT': '../../../data/output.ini',
+                   'PARAM_IDX': 0,
+                   'STORAGE': 'memory',
+                   'SECTION': {'SUB_1':11},
+                   'LIST': [11]
+                        } 
+        self.assertDictEqual(res, expected, '')       
 
     def test_merge(self):
         res = DictUtils.merge(self.d1, self.d2, priority='left')
@@ -81,7 +100,8 @@ class Test(unittest.TestCase):
                        'STORAGE': 'memory',
                        'SECTION': ['SUB_1','SUB_2'],
                        'LIST': [11,22,222]
-                   }       
+                   } 
+              
 
 
 if __name__ == "__main__":

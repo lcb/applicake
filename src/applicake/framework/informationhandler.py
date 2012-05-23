@@ -56,8 +56,11 @@ class BasicInformationHandler(IInformationHandler):
         """ 
         if info.has_key(self.OUTPUT):
             path = info[self.OUTPUT]
-            log.debug('output file [%s]' % path)                  
-            ConfigHandler().write(info, path) 
+            log.debug('output file [%s]' % path)  
+            remove_keys = [self.INPUT,self.OUTPUT,self.LOG_LEVEL,self.CREATED_FILES,self.GENERATOR,self.COLLECTOR]
+            info_write  = DictUtils.extract(info, remove_keys, include=False)
+            log.debug('remove following keys [%s] before writing info' % remove_keys)                 
+            ConfigHandler().write(info_write, path) 
             valid = FileUtils.is_valid_file(log, path )
             if not valid:
                 log.fatal('Exit program because output file [%s] was not valid' % path)

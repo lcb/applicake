@@ -41,7 +41,7 @@ class Runner(KeyEnum):
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
-                        self.CREATED_FILES: [],             
+                        self.CREATED_FILES: []           
                         }         
         tmp_log_stream = StringIO()
         exit_code = 1
@@ -93,7 +93,7 @@ class Runner(KeyEnum):
             exit_code,info = self.run_app(app,info,log,args_handler)
             if exit_code != 0:
                 log.fatal('exit code of run_app() != 0')
-                sys.exit(1)              
+                sys.exit(1)                             
             log.info('Start [%s]' % info_handler.write_info.__name__)
             info_handler.write_info(info,log)
             log.info('Start [%s]' % self._cleanup.__name__)
