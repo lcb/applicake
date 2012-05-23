@@ -56,7 +56,7 @@ class BasicInformationHandler(IInformationHandler):
         """ 
         if info.has_key(self.OUTPUT):
             path = info[self.OUTPUT]
-            log.debug('output files [%s]' % path)                  
+            log.debug('output file [%s]' % path)                  
             ConfigHandler().write(info, path) 
             valid = FileUtils.is_valid_file(log, path )
             if not valid:

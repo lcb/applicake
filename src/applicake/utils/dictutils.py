@@ -15,7 +15,7 @@ class DictUtils(SequenceUtils):
     @staticmethod
     def extract(dic,keys):
         """
-        Extract subset of a dictionary based on a list of keys
+        Extract subset of a dictionary based on a list of keys to include
         
         @type dic: dict
         @param dic: The original dictionary
@@ -96,4 +96,5 @@ class DictUtils(SequenceUtils):
         if type == 'key':
             return sorted(d.items(), key=lambda t: t[1])    
         elif type == 'value':
-            return sorted(d.items(), key=lambda t: t[0])    
+            return sorted(d.items(), key=lambda t: t[0])   
+         

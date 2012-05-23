@@ -81,8 +81,7 @@ class Test(unittest.TestCase):
                        'STORAGE': 'memory',
                        'SECTION': ['SUB_1','SUB_2'],
                        'LIST': [11,22,222]
-                   }                
-        
+                   }       
 
 
 if __name__ == "__main__":

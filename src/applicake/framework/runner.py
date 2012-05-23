@@ -38,10 +38,6 @@ class Runner(KeyEnum):
         """      
         #
         default_info = {
-                        self.INPUT: [],
-                        self.OUTPUT: '',
-                        self.COLLECTOR: [],
-                        self.GENERATOR: [],
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
@@ -193,15 +189,7 @@ class Runner(KeyEnum):
                 except:
                     log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
                     return(1,info,log)
-        return (0,info,log)   
-    
-    def _get_app_specific_info(self,info,args_handler):
-        """
-        Return a subset of info that depends on the application-specific arguments
-        """ 
-        return {k: info[k] for k in args_handler.get_app_argnames()}
-
-                                                
+        return (0,info,log)           
                     
     def _set_jobid(self,info,log):
         """
@@ -381,10 +369,9 @@ class ApplicationRunner(Runner):
         """  
         exit_code = None     
         if isinstance(app,IApplication):
-            log.info('Start [%s]' % self._get_app_specific_info.__name__)
-            app_info = self._get_app_specific_info(info, args_handler)
+            log.info('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
+            app_info = DictUtils.extract(info, args_handler.get_app_argnames())
             log.debug('app_info [%s]' % app_info)
-            log.info('Finished [%s]' % self._get_app_specific_info.__name__)
             exit_code,app_info = app.main(app_info,log)   
             log.debug('content of app_info after running app [%s]' % app_info)    
             info = DictUtils.merge(info, app_info,priority='left')    
@@ -472,10 +459,9 @@ class WrapperRunner(ApplicationRunner):
         exit_code = None
         if isinstance(app,IWrapper):
             
-            log.info('Start [%s]' % self._get_app_specific_info.__name__)
-            app_info = self._get_app_specific_info(info, args_handler)
+            log.info('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
+            app_info = DictUtils.extract(info, args_handler.get_app_argnames())
             log.debug('app_info [%s]' % app_info)
-            log.info('Finished [%s]' % self._get_app_specific_info.__name__)
             log.info('Start [%s]' % app.prepare_run.__name__)
             command,app_info = app.prepare_run(app_info,log)                 
             log.info('Finish [%s]' % app.prepare_run.__name__)
@@ -501,10 +487,9 @@ class WrapperRunner(ApplicationRunner):
                 # them immediately with .read() to get content
                 self.out_stream.seek(0)
                 self.err_stream.seek(0)
-                log.info('Start [%s]' % self._get_app_specific_info.__name__)
-                app_info = self._get_app_specific_info(info, args_handler)
-                log.debug('app_info [%s]' % app_info)
-                log.info('Finished [%s]' % self._get_app_specific_info.__name__)                
+                log.info('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
+                app_info = DictUtils.extract(info, args_handler.get_app_argnames())
+                log.debug('app_info [%s]' % app_info)               
                 exit_code,app_info = app.validate_run(app_info,log,run_code,self.out_stream,self.err_stream)
                 log.debug('exit code [%s]' % exit_code)
                 log.debug('content of app_info [%s]' % app_info)                        
