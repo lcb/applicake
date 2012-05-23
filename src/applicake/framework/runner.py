@@ -36,12 +36,17 @@ class Runner(KeyEnum):
         
         Return: exit code (integer)
         """      
+        #
         default_info = {
+                        self.INPUT: [],
+                        self.OUTPUT: '',
+                        self.COLLECTOR: [],
+                        self.GENERATOR: [],
+                        self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
-                        self.NAME: app.__class__.__name__,
-                        self.CREATED_FILES: []
-                        } 
+                        self.CREATED_FILES: [],             
+                        }         
         tmp_log_stream = StringIO()
         exit_code = 1
         try:
