@@ -41,7 +41,7 @@ class Runner(KeyEnum):
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
-                        self.CREATED_FILES: []           
+                        self.COPY_TO_WD: []           
                         }         
         tmp_log_stream = StringIO()
         exit_code = 1
@@ -171,8 +171,8 @@ class Runner(KeyEnum):
                 print line                              
         # move created files to working directory
         # 'created_files might be none e.g. if memory-storage is used   
-        if info[self.CREATED_FILES] != []:  
-            for path in info[self.CREATED_FILES]:
+        if info[self.COPY_TO_WD] != []:  
+            for path in info[self.COPY_TO_WD]:
                 # check if element is a key of info and not an actual file
                 if info.has_key(path):
                     path = info[path]
@@ -205,7 +205,8 @@ class Runner(KeyEnum):
         """
         jobid = 0
         if not info.has_key(self.BASEDIR):
-            log.info("info has not key [%s]." % self.BASEDIR)
+            log.info("info has not key [%s]. " % self.BASEDIR +
+                     "Therefore the key [%s] is not set" % (self.JOB_IDX))                       
         else:    
             dirname = info[self.BASEDIR]
             log.debug('found base dir [%s]' % dirname)
@@ -221,8 +222,8 @@ class Runner(KeyEnum):
             fh = open(filename,'w')    
             fh.write(str(jobid))
             locker.unlock(fh)            
-        info[self.JOB_IDX]=jobid    
-        log.debug("added key [%s] to info object" % self.JOB_IDX)
+            info[self.JOB_IDX]=jobid    
+            log.debug("added key [%s] to info object" % self.JOB_IDX)
         
     def create_workdir(self,info,log):
         """
@@ -243,7 +244,9 @@ class Runner(KeyEnum):
         if not info.has_key(keys[0]):
             log.info('info object does not contain key [%s], use current dir [%s] instead' % (keys[0],os.getcwd()))      
         if not info.has_key(keys[1]):
-            self._set_jobid(info,log)               
+            log.debug('BEFORE JOBID ADDED: [%s]' % info)
+            self._set_jobid(info,log)  
+            log.debug('AFTER JOBID ADDED: [%s]' % info)             
         path_items = []    
         for k in keys:
             if info.has_key(k):
@@ -287,7 +290,7 @@ class Runner(KeyEnum):
             err_file = ''.join([info[self.NAME],".err"]) 
             log_file = ''.join([info[self.NAME],".log"])                      
             created_files = [out_file,err_file,log_file]
-            info[self.CREATED_FILES] = created_files
+            info[self.COPY_TO_WD] = created_files
             log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory" % created_files)            
             # streams are initialized with 'w+' that files newly created and therefore previous versions are deleted.
             out_stream = open(out_file, 'w+',buffering=0)            
@@ -373,7 +376,8 @@ class ApplicationRunner(Runner):
             app_info = DictUtils.extract(info, args_handler.get_app_argnames())
             log.debug('app_info [%s]' % app_info)
             exit_code,app_info = app.main(app_info,log)   
-            log.debug('content of app_info after running app [%s]' % app_info)    
+            log.debug('content of app_info after running app [%s]' % app_info)  
+            log.debug('content of info [%s]' % info)  
             info = DictUtils.merge(info, app_info,priority='left')    
             log.debug('content of info after merge with app_info [%s]' % info)
         else:                                    
@@ -391,9 +395,8 @@ class GeneratorRunner(ApplicationRunner):
 
     def run_app(self,app,info,log,args_handler):
         """
-        Specific runner for the generators.
-        
         Generators require access to the complete info object, not only to specific informations.
+        
         See super class.
         """  
         exit_code = None     
@@ -404,8 +407,59 @@ class GeneratorRunner(ApplicationRunner):
                               (app.__class__.__name__,
                                [IApplication,__class__.__name__]))  
             exit_code = 1
-        return exit_code,info           
+        return exit_code,info  
+    
+class CollectorRunner(ApplicationRunner):             
+    """
+    Specific runner for collector applications.
+    """
+
+    def run_app(self,app,info,log,args_handler):
+        """
+        Collectors require a different merging between the (default) information and the information from the collector files.
         
+        See super class.
+        """  
+        exit_code = None     
+        if isinstance(app,IApplication):
+            log.info('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
+            app_info = DictUtils.extract(info, args_handler.get_app_argnames())
+            log.debug('app_info [%s]' % app_info)
+            exit_code,app_info = app.main(app_info,log)   
+            log.debug('content of app_info after running app [%s]' % app_info)  
+            log.debug('content of info [%s]' % info) 
+            
+            # takes basedir and job_idx from the app_info
+            bd = app_info[self.BASEDIR]
+            if isinstance(bd, list):
+                bd = bd[0]
+            info[self.BASEDIR] = bd
+            idx = app_info[self.JOB_IDX]
+            if isinstance(idx, list):
+                idx = idx[0]
+            info[self.JOB_IDX] = idx                
+            # takes new info and reset workdir
+            new_wd = os.path.join(bd,idx,info[self.NAME])
+            old_wd = info[self.WORKDIR]
+            log.debug('%s,%s' % (old_wd,new_wd))
+            shutil.move(old_wd, new_wd)
+            info[self.WORKDIR] = new_wd
+            info = DictUtils.merge(info, app_info,priority='left')  
+            
+            # !!!  TODO add collector files to key 'CREATED_FILES' in order to copy them to the workdir !!!
+              
+            log.debug('content of info after merge with app_info [%s]' % info)
+        else:                                    
+            self.log.critical('the object [%s] is not an instance of one of the following %s'% 
+                              (app.__class__.__name__,
+                               [IApplication,__class__.__name__]))  
+            exit_code = 1
+        return exit_code,info   
+    
+    def _change_workdir(self,info,log):
+        """
+        change the workdir
+        """     
 
 class WrapperRunner(ApplicationRunner):
     """

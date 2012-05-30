@@ -84,12 +84,14 @@ class XmlValidator():
     Validates xml files      
     """  
 
-    def _parsefile(self,path):
+    @staticmethod
+    def _parsefile(path):
         parser = xml.parsers.expat.ParserCreate()
         parser.ParseFile(open(path, "r"))
         return parser
-
-    def is_wellformed(self,path): 
+    
+    @staticmethod
+    def is_wellformed(path): 
         """
         Check if xml file is well-formed
         
@@ -99,7 +101,7 @@ class XmlValidator():
         @return: boolean
         """
         try:
-            self._parsefile(path)
+            XmlValidator._parsefile(path)
             return True
         except Exception, e:
             print str(e)

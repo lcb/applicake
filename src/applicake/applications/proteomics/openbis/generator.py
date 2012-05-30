@@ -110,7 +110,7 @@ class OpenBisGenerator(IApplication):
             return(1,info) 
         log.debug('created work copy of "info"')
         log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
-        remove_keys = [self.CREATED_FILES,self.NAME]        
+        remove_keys = [self.COPY_TO_WD,self.NAME]        
         for key in remove_keys:
             try:
                 del basedic[key]
@@ -138,7 +138,7 @@ class OpenBisGenerator(IApplication):
         """        
         args_handler.add_app_args(log, self.GENERATOR, 'Base name for generating output files (such as for a parameter sweep)',action='append')
         args_handler.add_app_args(log, self.DATASET_CODE, 'Dataset code from OpenBIS)')
-        args_handler.add_app_args(log, self.CREATED_FILES, 'Files which are created by this application', action='append')
+        args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')
 #        self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE
         
         return args_handler       
@@ -167,7 +167,7 @@ class OpenBisGenerator(IApplication):
         @param info: Dictionary with information about the application. The created output files are added to the key [%s]
         @type dicts: list
         @type dicts: List of dictionaries used to create ini files
-        """ % info.CREATED_FILES
+        """ % info.COPY_TO_WD
         raise NotImplementedError("write_generator_files() is not implemented.") 
         
         
@@ -187,7 +187,7 @@ class GuseGenerator(OpenBisGenerator):
             log.debug(path)          
             ConfigHandler().write(dic, path)
             log.debug('create file [%s]' % path)
-            info[self.CREATED_FILES].append(path)
+            info[self.COPY_TO_WD].append(path)
             
 class PgradeGenerator(GuseGenerator):
     """
@@ -205,4 +205,4 @@ class PgradeGenerator(GuseGenerator):
             log.debug(path)          
             ConfigHandler().write(dic, path)
             log.debug('create file [%s]' % path)
-            info[self.CREATED_FILES].append(path)
+            info[self.COPY_TO_WD].append(path)

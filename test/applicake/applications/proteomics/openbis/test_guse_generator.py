@@ -45,8 +45,8 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
         sys.argv = ['', '-i', self.input, '--%s' % runner.GENERATOR,self.output]
         exit_code = runner(sys.argv,app)        
         assert 0 == exit_code
-        print runner.info[runner.CREATED_FILES]
-        assert 9 == len(runner.info[runner.CREATED_FILES]) # 6 output.ini.[IDX] + out/err/log
+        print runner.info[runner.COPY_TO_WD]
+        assert 9 == len(runner.info[runner.COPY_TO_WD]) # 6 output.ini.[IDX] + out/err/log
         
         
     def test_guse_generator__2(self):

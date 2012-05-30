@@ -62,8 +62,7 @@ for key in d2.keys():
 #        else:
 #            d1[key] = [val,d2[key]]
         val = [d1[key],d2[key]]
-        d1[key] = DictUtils.get_flatten_sequence(val)
-        
+        d1[key] = DictUtils.get_flatten_sequence(val)        
     else:
         d1[key] = d2[key]
         

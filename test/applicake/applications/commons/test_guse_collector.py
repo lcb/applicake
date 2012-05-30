@@ -39,6 +39,7 @@ class Test(unittest.TestCase):
     OUTPUT = /fake/output.ini 
     LOG_LEVEL = INFO
     BASEDIR = %s
+    JOB_IDX = 15
     DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,20120320164249179-361887
     COLLECTOR_IDX = %s
     P1 = %s
@@ -68,20 +69,38 @@ class Test(unittest.TestCase):
         # for assert 'BASEDIR has to be removed because it contains full path
         dic.pop(runner.BASEDIR)      
         expected = {
-                    runner.COMMENT: ['hello', 'world'], 
-                    runner.DATASET_CODE: ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
-                    runner.WORKDIR: '0/GuseCollector', 
-                    runner.LOG_LEVEL: 'DEBUG', # the default set in the runner
+                    runner.COMMENT: [
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world'
+                                     ], 
+                    runner.DATASET_CODE: [
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'
+                                          ], 
+                    runner.WORKDIR: 'GuseCollector', 
                     runner.NAME: 'GuseCollector', 
-                    runner.COLLECTOR: ['echo_test.ini'], 
                     runner.COLLECTOR_IDX: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     runner.STORAGE: 'memory', # the default set in the runner
-                    runner.JOB_IDX: '0', 
-                    runner.OUTPUT: self.output, 
-                    runner.CREATED_FILES: [],
+                    runner.JOB_IDX: ['15', '15', '15', '15', '15', '15', '15', '15', '15', '15'], 
                     'P1': ['10', '9', '8', '7', '6', '5', '4', '3', '2', '1'],
                     'P2': ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10'],
-                    'P3': ['s1', 's2', 's2', 's2', 's3', 's3', 's3', 's10']
+                    'P3': ['s1','s1','s1','s2', 's2', 's2', 's3', 's3', 's3', 's10']
                     }
         # needed to print the diff 
         self.maxDiff = None
@@ -102,20 +121,38 @@ class Test(unittest.TestCase):
         # for assert 'BASEDIR has to be removed because it contains full path
         dic.pop(runner.BASEDIR)      
         expected = {
-                    runner.COMMENT: ['hello', 'world'], 
-                    runner.DATASET_CODE: ['20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'], 
-                    runner.WORKDIR: '0/GuseCollector', 
-                    runner.LOG_LEVEL: 'INFO',
+                    runner.COMMENT: [
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world',
+                                     'hello', 'world'
+                                     ],
+                    runner.DATASET_CODE: [
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887',
+                                          '20120320164249179-361885', '20120320164249179-361886', '20120320164249179-361887'
+                                          ], 
+                    runner.WORKDIR: 'GuseCollector', 
                     runner.NAME: 'GuseCollector', 
-                    runner.COLLECTOR: ['echo_test.ini'], 
-                    'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
                     runner.STORAGE: 'file',
-                    runner.JOB_IDX: '0', 
-                    runner.OUTPUT: self.output, 
-                    runner.CREATED_FILES: ['GuseCollector.out', 'GuseCollector.err', 'GuseCollector.log'],
+                    'COLLECTOR_IDX': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+                    runner.JOB_IDX: ['15', '15', '15', '15', '15', '15', '15', '15', '15', '15'], 
                     'P1': ['10', '9', '8', '7', '6', '5', '4', '3', '2', '1'],
                     'P2': ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10'],
-                    'P3': ['s1', 's2', 's2', 's2', 's3', 's3', 's3', 's10']                    
+                    'P3': ['s1','s1','s1', 's2', 's2', 's2', 's3', 's3', 's3', 's10']                    
                     }
         # needed to print the diff 
         self.maxDiff = None

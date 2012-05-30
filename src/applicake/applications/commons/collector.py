@@ -14,7 +14,7 @@ class BasicCollector(IApplication):
     Basic Collector which merges collector files by flatten the value sequence.
     """
 
-    def _get_collector_files(self,info,log):
+    def get_collector_files(self,info,log):
         """
         Return all input files following a certain file pattern.
         
@@ -39,7 +39,8 @@ class BasicCollector(IApplication):
             log.debug('pattern used to search for collector files [%s]' % pattern)
             # merges found collector files for each collector into a single list
             collector_files.extend(glob.glob(pattern))
-        collector_files.sort()    
+        collector_files.sort() 
+           
         return collector_files
 
     def main(self,info,log):
@@ -55,7 +56,9 @@ class BasicCollector(IApplication):
         @type log: see super class
         @param log: see super class 
         """ 
-        paths = self._get_collector_files(info, log)
+        paths = self.get_collector_files(info, log)
+        # add collector files to created files in order to copy them to the work dir
+        info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend(paths)
         if len(paths) == 0:
             log.critical('no collector files found [%s]' % paths)
             return (1,info)            
@@ -76,6 +79,7 @@ class BasicCollector(IApplication):
         See interface
         """        
         args_handler.add_app_args(log, 'collectors', 'Base name for collecting output files (e.g. from a parameter sweep)',action='append')
+        args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')            
         return args_handler
         
     

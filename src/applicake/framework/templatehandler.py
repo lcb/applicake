@@ -49,7 +49,7 @@ class BasicTemplateHandler(ITemplateHandler):
     
     def write_template(self, info, log, template):
         """
-        Write template string to a file location that is defined in\
+        Write template string to a file location that is defined in
         the info object.
         
         Add the file location as value to the key [%s] in the info object.
@@ -57,7 +57,7 @@ class BasicTemplateHandler(ITemplateHandler):
         See super class.
         
         @precondition: info object need the keys [%s,%s]
-        """ % (self.CREATED_FILES,self.CREATED_FILES,self.TEMPLATE)
+        """ % (self.COPY_TO_WD,self.COPY_TO_WD,self.TEMPLATE)
         
         self.check_template_key(info, log)
         path = info[self.TEMPLATE]      
@@ -65,8 +65,8 @@ class BasicTemplateHandler(ITemplateHandler):
         fh.write(template)
         fh.close()
         FileUtils.is_valid_file(log, path) 
-        info[self.CREATED_FILES].append(path)
-        log.debug('added [%s] to key [%s]' % (path,self.CREATED_FILES))
+        info[self.COPY_TO_WD].append(path)
+        log.debug('added [%s] to key [%s]' % (path,self.COPY_TO_WD))
         return info         
         
     def modify_template(self, info, log):
@@ -84,12 +84,12 @@ class BasicTemplateHandler(ITemplateHandler):
         
         @rtype: dict
         @return: The modified info object.
-        """ % (self.CREATED_FILES,self.TEMPLATE)
+        """ % (self.COPY_TO_WD,self.TEMPLATE)
         
         template,info = self.read_template(info, log)
         mod_template,info = self.replace_vars(info, log, template)
         info = self.write_template(info, log, mod_template)
-        return info
+        return mod_template,info
         
              
 

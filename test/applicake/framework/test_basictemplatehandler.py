@@ -27,7 +27,7 @@ class Test(unittest.TestCase):
         fh.write('my template contains a var [%s]' % self.var)
         self.info = {
                      KeyEnum.TEMPLATE:path,
-                     KeyEnum.CREATED_FILES:[],
+                     KeyEnum.COPY_TO_WD:[],
                      'MYVAR': 'value of var'
                      
                      }

@@ -9,7 +9,7 @@ from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mzml
 
 def mzxml2mzml():
-    args = 'bla.py --BASEDIR /tmp --STORAGE file --TEMPLATE template.ini --PREFIX FileConverter --MZXML /tmp/ALBU_HUMAN_0F_CAM_core.mzXML --MZML ALBU_HUMAN_0F_CAM_core.mzML' # /Applications/OpenMS-1.9.0/TOPP/
+    args = 'bla.py --BASEDIR . --STORAGE file --TEMPLATE template.ini --PREFIX /Applications/OpenMS-1.9.0/TOPP/FileConverter --MZXML /Users/quandtan/Downloads/proteomics_test/B10-01219.mzXML --MZML B10-01219.mzML' # /Applications/OpenMS-1.9.0/TOPP/
     sys.argv = args.split(' ')
     runner = WrapperRunner()
     application = Mzxml2Mzml()

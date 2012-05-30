@@ -36,14 +36,14 @@ class BasicOpenmsWrapper(IWrapper):
         """    
         return(run_code,info)    
 
-    def get_template_handler(self):
-        """
-        Interface method to inject specific templates.
-        
-        @rtype: applicake.framework.interfaces.ITemplateHandler
-        @return: Specific template handler used for the tool
-        """
-        raise NotImplementedError("get_template_handler() is not implemented")
+#    def get_template_handler(self):
+#        """
+#        Interface method to inject specific templates.
+#        
+#        @rtype: applicake.framework.interfaces.ITemplateHandler
+#        @return: Specific template handler used for the tool
+#        """
+#        raise NotImplementedError("get_template_handler() is not implemented")
     
     def get_prefix(self,info,log):
         """
@@ -66,7 +66,7 @@ class BasicOpenmsWrapper(IWrapper):
         try:
             prefix = info[self.prefix_key]
         except:
-            log.fatal('did not find one of the keys [%s]' % (self.comment_key,self.prefix_key))
+            log.fatal('did not find one of the keys [%s]' % (self.prefix_key))
             prefix = '' 
         return prefix,info
 
@@ -77,6 +77,6 @@ class BasicOpenmsWrapper(IWrapper):
         """        
         args_handler.add_app_args(log, self.PREFIX, 'Path to the OpenMS executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the openMS-template file')
-        args_handler.add_app_args(log, self.CREATED_FILES, 'Files which are created by this application', action='append')        
+        args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are copied to the work directory', action='append')        
         return args_handler
         

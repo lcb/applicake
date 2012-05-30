@@ -8,6 +8,7 @@ import sys
 #from applicake.framework.interfaces import IArgsHandler
 from applicake.utils.dictutils import DictUtils
 from argparse import ArgumentParser
+from aetypes import Boolean
 
 
         
@@ -24,6 +25,7 @@ class ArgsHandler(object):
     -- name,
     -- storage,
     -- loglevel
+    -- move
     """
     
     def __init__(self):
@@ -49,8 +51,7 @@ class ArgsHandler(object):
                                                   'ERROR','CRITICAL'],
                             help="Storage type for produced streams") 
         self._parser.add_argument('-d','--BASEDIR',required=False, dest="BASEDIR", 
-                            help="Base directory used to store files produced by the application") 
-        
+                            help="Base directory used to store files produced by the application")         
 
     def add_app_args(self,log,name,description,action='store',default=None,choices=None):
         

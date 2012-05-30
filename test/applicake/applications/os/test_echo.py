@@ -57,13 +57,10 @@ class Test(unittest.TestCase):
         exit_code = runner(sys.argv,wrapper)  
         assert 0 == exit_code      
         config = ConfigHandler().read(self.log,self.output)
-        print config
-        outfile = config[wrapper.CREATED_FILES][0]       
-        assert 'hello world\n' == open(outfile,'r').read()
-        errfile = config[wrapper.CREATED_FILES][1]
-        assert os.path.getsize(errfile) == 0
-        logfile = config[wrapper.CREATED_FILES][2]
-        assert os.path.getsize(logfile) >0
+        print config       
+        assert 'hello world\n' == open('Echo.out','r').read()
+        assert os.path.getsize('Echo.err') == 0
+        assert os.path.getsize('Echo.log') >0
         
 
     def test_echo_2(self):
