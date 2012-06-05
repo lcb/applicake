@@ -8,7 +8,6 @@ import sys
 #from applicake.framework.interfaces import IArgsHandler
 from applicake.utils.dictutils import DictUtils
 from argparse import ArgumentParser
-from aetypes import Boolean
 
 
         
