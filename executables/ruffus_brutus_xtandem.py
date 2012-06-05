@@ -58,7 +58,7 @@ THREADS = 4
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    sys.argv = ['IGNORED', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','CRITICAL']
+    sys.argv = ['IGNORED', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG']
     runner = GeneratorRunner()
     application = GuseGenerator()
     exit_code = runner(sys.argv, application)

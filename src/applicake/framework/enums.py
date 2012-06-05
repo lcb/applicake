@@ -7,7 +7,7 @@ Created on Apr 21, 2012
 class KeyEnum(object):
     
     BASEDIR = 'BASEDIR'
-    COPY_TO_WD = 'CREATED_FILES'
+    COPY_TO_WD = 'COPY_TO_WD'
     COLLECTOR = 'COLLECTORS'
     COLLECTOR_IDX = 'COLLECTOR_IDX'
     COMMENT = 'COMMENT'
