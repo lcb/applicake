@@ -43,7 +43,7 @@ class Xtandem(Base):
             else:
                 mods = []
                 for mod in info[key]:
-                    converted_mod = ModificationDb().get(mod, 'xtandem')
+                    converted_mod = ModificationDb().get(mod, self.__class__.__name__)
                     mods.append(converted_mod)
                 info[key] = ','.join(mods)                
         return info

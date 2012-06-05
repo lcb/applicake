@@ -12,7 +12,7 @@ class ModificationDb(object):
     Access to post-translational modifications (PTMs).
     '''
 
-    _search_engines = ['xtandem','omssa']
+    _search_engines = ['Xtandem','omssa']
 
     _mods={
            'Carbamidomethyl (C)':{

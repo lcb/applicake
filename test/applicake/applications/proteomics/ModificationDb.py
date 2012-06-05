@@ -20,7 +20,7 @@ class Test(unittest.TestCase):
 
     def test_get(self):
         c = ModificationDb()
-        self.assertEqual(c.get('Phospho (STY)', 'xtandem'),
+        self.assertEqual(c.get('Phospho (STY)', 'Xtandem'),
                          '79.966331@S,79.966331@T,79.966331@Y',
                          None)
         try:
