@@ -42,7 +42,7 @@ class Xtandem(Base):
                 info[key] = ''
             else:
                 mods = []
-                for mod in info[key].split(','):
+                for mod in info[key].split(';'):
                     log.debug('modification [%s]' % key)
                     log.debug('name [%s]')
                     
