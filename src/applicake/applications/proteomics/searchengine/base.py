@@ -9,6 +9,9 @@ class Base(IWrapper):
     '''
     Basic wrapper class for search engines in MS/MS analysis
     '''
+    
+    STATIC_MODS = 'STATIC_MODS'
+    VARIABLE_MODS = 'VARIABLE_MODS'
 
     def set_args(self,log,args_handler):
         """
@@ -24,6 +27,8 @@ class Base(IWrapper):
         args_handler.add_app_args(log, 'PRECMASSUNIT', 'Unit of the precursor mass error')
         args_handler.add_app_args(log, 'MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages')
         args_handler.add_app_args(log, 'DBASE', 'Sequence database file')
+        args_handler.add_app_args(log, self.STATIC_MODS, 'List of static modifications')
+        args_handler.add_app_args(log, self.VARIABLE_MODS, 'List of variable modifications')
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.')
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')   

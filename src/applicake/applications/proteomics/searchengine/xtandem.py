@@ -8,6 +8,7 @@ from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.xmlutils import XmlValidator
 from applicake.applications.proteomics.searchengine.base import Base
 from applicake.utils.fileutils import FileUtils
+from applicake.applications.proteomics.modifications import ModificationDb
 
 
 
@@ -31,6 +32,22 @@ class Xtandem(Base):
             info['XTSCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' % info['XTSCORE']
         return info
     
+    def _define_mods(self,info,log):
+        """
+        Convert generic static/variable modifications into the program-specific format 
+        """
+        mod_keys = [self.STATIC_MODS,self.VARIABLE_MODS]
+        for key in mod_keys:
+            if not info.has_key(key):
+                info[key] = ''
+            else:
+                mods = []
+                for mod in info[key]:
+                    converted_mod = ModificationDb().get(mod, 'xtandem')
+                    mods.append(converted_mod)
+                info[key] = ','.join(mods)                
+        return info
+                 
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
             info[self.PREFIX] = 'tandem'
@@ -72,6 +89,8 @@ class Xtandem(Base):
         th = self.get_template_handler()
         log.debug('define score value')
         info = self._define_score(info, log)
+        log.debug('define modifications')
+        info = self._define_mods(info, log)
         log.debug('modify template')                
         mod_template,info = th.modify_template(info, log)
         log.debug('write input files')
@@ -163,8 +182,8 @@ class XtandemTemplate(BasicTemplateHandler):
     <note type="input" label="spectrum, threads">$THREADS</note>
 
 <note type="heading">Residue modification</note>
-    <note type="input" label="residue, modification mass">57.021464@C</note>
-    <!--<note type="input" label="residue, potential modification mass">79.966331@S,79.966331@T</note>-->
+    <note type="input" label="residue, modification mass">$STATIC_MODS</note>
+    <!--<note type="input" label="residue, potential modification mass">$VARIABLE_MODS</note>-->
     <note type="input" label="residue, potential modification mass"></note>
     <note type="input" label="residue, potential modification motif"></note>
 
