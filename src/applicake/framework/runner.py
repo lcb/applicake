@@ -291,7 +291,7 @@ class Runner(KeyEnum):
             log_file = ''.join([info[self.NAME],".log"])                      
             created_files = [out_file,err_file,log_file]
             info[self.COPY_TO_WD] = created_files
-            log.debug("add [%s] to info['CREATED_FILES'] to copy them later to the work directory" % created_files)            
+            log.debug("add [%s] to info['%s'] to copy them later to the work directory" % (created_files,self.COPY_TO_WD))            
             # streams are initialized with 'w+' that files newly created and therefore previous versions are deleted.
             out_stream = open(out_file, 'w+',buffering=0)            
             err_stream = open(err_file, 'w+',buffering=0)  
