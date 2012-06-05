@@ -42,8 +42,10 @@ class Xtandem(Base):
                 info[key] = ''
             else:
                 mods = []
-                for mod in info[key]:
-                    log.debug('search engine name [%s]' % self.__class__.__name__)
+                for mod in info[key].split(','):
+                    log.debug('modification [%s]' % key)
+                    log.debug('name [%s]')
+                    
                     converted_mod = ModificationDb(log).get(mod, self.__class__.__name__)
                     mods.append(converted_mod)
                 info[key] = ','.join(mods)                
