@@ -19,6 +19,7 @@ from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.searchengine.xtandem import Xtandem
 from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mgf
+from applicake.applications.proteomics.openbis.dss import Dss
 
 cwd = None
 
@@ -64,7 +65,16 @@ def generator(input_file_name, notused_output_file_names):
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 
     
-@transform(generator, regex("generate.ini_"), "xtandemout.ini_")
+@transform(generator, regex("generate.ini_"), "dssout.ini_")
+def dss(input_file_name, output_file_name):
+    sys.argv = ['IGNORED', '-i', input_file_name, '-o', output_file_name, '--PREFIX', 'getmsdata']
+    runner = WrapperRunner()
+    wrapper = Dss()
+    exit_code = runner(sys.argv, wrapper)
+    if exit_code != 0:
+                raise Exception("dss failed [%s]" % exit_code)    
+    
+@transform(dss, regex("dssout.ini_"), "xtandemout.ini_")
 def tandem(input_file_name, output_file_name):
     sys.argv = ['IGNORED', '-i', input_file_name, '-o', output_file_name, 
                 '--TEMPLATE', 'xtandem.tpl',
