@@ -6,7 +6,6 @@ Created on Jun 5, 2012
 
 import sys
 from applicake.framework.logger import Logger
-from unittest.case import TestCase
 
 class ModificationDb(object):
     '''
@@ -24,17 +23,17 @@ class ModificationDb(object):
                             }
            }           
 
-#    def __init__(self,log=None):
-#        '''
-#        Constructor
-#        
-#        @param param: Logger
-#        @type param: applicake.framework.logger.Logger 
-#        '''
-#        if log is None:
-#            self.log = Logger.create(level='DEBUG',name='memory_logger',stream=sys.stderr)
-#        else:
-#            self.log = log
+    def __init__(self,log=None):
+        '''
+        Constructor
+        
+        @param param: Logger
+        @type param: applicake.framework.logger.Logger 
+        '''
+        if log is None:
+            self.log = Logger.create(level='DEBUG',name='memory_logger',stream=sys.stderr)
+        else:
+            self.log = log
 
 
         
