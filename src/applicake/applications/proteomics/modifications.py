@@ -6,8 +6,9 @@ Created on Jun 5, 2012
 
 import sys
 from applicake.framework.logger import Logger
+from unittest.case import TestCase
 
-class ModificationDb(object):
+class ModificationDb(object,TestCase):
     '''
     Access to post-translational modifications (PTMs).
     '''
@@ -41,8 +42,8 @@ class ModificationDb(object):
         """
         Return 
         """
-        assert self._mods.has_key(name)
-        assert search_engine in self._search_engines
+        self.assertTrue(self._mods.has_key(name),'did not find mod name [%s] in list [%s]' % (name,self._mods.keys()))
+        self.assertTrue(search_engine in self._search_engines, 'search engine [%s] is not in list of supported engines [%s]' % (search_engine,self._search_engines))
         return self._mods[name][search_engine]        
         
     
