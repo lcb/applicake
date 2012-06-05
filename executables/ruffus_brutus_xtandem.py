@@ -45,6 +45,7 @@ def setup():
 LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
+DATASET_DIR = /cluster/scratch/malars/datasets
 DATASET_CODE = 20120320164249179-361885,
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 FRAGMASSERR = 0.4
