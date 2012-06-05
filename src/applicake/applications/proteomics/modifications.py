@@ -8,7 +8,7 @@ import sys
 from applicake.framework.logger import Logger
 from unittest.case import TestCase
 
-class ModificationDb(object,TestCase):
+class ModificationDb(TestCase):
     '''
     Access to post-translational modifications (PTMs).
     '''
