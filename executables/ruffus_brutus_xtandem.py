@@ -42,7 +42,7 @@ def setup():
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
         f.write("""BASEDIR = /cluster/scratch/malars/workflows
-LOG_LEVEL = INFO
+LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
 DATASET_CODE = 20120320164249179-361885,
