@@ -186,8 +186,7 @@ class XtandemTemplate(BasicTemplateHandler):
 
 <note type="heading">Residue modification</note>
     <note type="input" label="residue, modification mass">$STATIC_MODS</note>
-    <!--<note type="input" label="residue, potential modification mass">$VARIABLE_MODS</note>-->
-    <note type="input" label="residue, potential modification mass"></note>
+    <note type="input" label="residue, potential modification mass">$VARIABLE_MODS</note>
     <note type="input" label="residue, potential modification motif"></note>
 
 <note type="heading">Protein general</note>    
