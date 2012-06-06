@@ -1,18 +1,20 @@
+
 '''
 Created on May 24, 2012
 
 @author: quandtan
 '''
 import os
-from applicake.framework.templatehandler import BasicTemplateHandler
-from applicake.utils.xmlutils import XmlValidator
-from applicake.applications.proteomics.searchengine.base import Base
-from applicake.utils.fileutils import FileUtils
 from applicake.applications.proteomics.modifications import ModificationDb
+from applicake.applications.proteomics.base import MsMsIdentification
+from applicake.framework.templatehandler import BasicTemplateHandler
+from applicake.utils.fileutils import FileUtils
+from applicake.utils.xmlutils import XmlValidator
 
 
 
-class Xtandem(Base):
+
+class Xtandem(MsMsIdentification):
     '''
     Wrapper for the search engine X!Tandem.
     '''
@@ -23,13 +25,13 @@ class Xtandem(Base):
 
 
     def _define_score(self, info, log):
-        if not info.has_key('XTSCORE'):
-            info['XTSCORE'] = 'default'
-            log.debug('did not find value for key [%s]. set it to [%s]' % ('XTSCORE', info['XTSCORE']))
-        if info['XTSCORE'] == 'default': # for default score, no entry is allowed in template
-            info['XTSCORE'] = ''
+        if not info.has_key('XTANDEM_SCORE'):
+            info['XTANDEM_SCORE'] = 'default'
+            log.debug('did not find value for key [%s]. set it to [%s]' % ('XTANDEM_SCORE', info['XTANDEM_SCORE']))
+        if info['XTANDEM_SCORE'] == 'default': # for default score, no entry is allowed in template
+            info['XTANDEM_SCORE'] = ''
         else:
-            info['XTSCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' % info['XTSCORE']
+            info['XTANDEM_SCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' % info['XTANDEM_SCORE']
         return info
     
     def _define_mods(self,info,log):
@@ -114,7 +116,7 @@ class Xtandem(Base):
         """        
         args_handler = super(Xtandem, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')   
-        args_handler.add_app_args(log, 'XTSCORE', 'Scoring algorithm used in the search.',choices=['default','k-score','c-score','hrk-score'])        
+        args_handler.add_app_args(log, 'XTANDEM_SCORE', 'Scoring algorithm used in the search.',choices=['default','k-score','c-score','hrk-score'])        
         return args_handler
     
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -214,7 +216,7 @@ class XtandemTemplate(BasicTemplateHandler):
     <note type="input" label="scoring, c ions">no</note>
     <note type="input" label="scoring, cyclic permutation">no</note>
     <note type="input" label="scoring, include reverse">no</note>
-    $XTSCORE
+    $XTANDEM_SCORE
     <note type="input" label="scoring, minimum ion count">1</note>
 
 

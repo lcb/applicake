@@ -4,12 +4,12 @@ Created on May 28, 2012
 @author: quandtan
 '''
 import os
-from applicake.applications.proteomics.searchengine.base import Base
+from applicake.applications.proteomics.searchengine.base import MsMsIdentification
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
-class Omssa(Base):
+class Omssa(MsMsIdentification):
     '''
     Wrapper for the search engine OMSSA.
     '''

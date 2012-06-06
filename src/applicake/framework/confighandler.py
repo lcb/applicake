@@ -9,7 +9,6 @@ from applicake.utils.dictutils import DictUtils
 from applicake.utils.fileutils import FileLocker
 from applicake.utils.fileutils import FileUtils
 from configobj import ConfigObj
-from string import Template 
 
 
 class ConfigHandler(object): 

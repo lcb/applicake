@@ -5,7 +5,7 @@ Created on May 27, 2012
 '''
 from applicake.framework.interfaces import IWrapper
 
-class Base(IWrapper):
+class MsMsIdentification(IWrapper):
     '''
     Basic wrapper class for search engines in MS/MS analysis
     '''
@@ -17,7 +17,7 @@ class Base(IWrapper):
         """
         See super class.
         
-        Set sevral arguments shared by the different search engines
+        Set several arguments shared by the different search engines
         """        
         args_handler.add_app_args(log, self.PREFIX, 'Path to the OpenMS executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
