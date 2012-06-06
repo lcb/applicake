@@ -54,7 +54,7 @@ class Xinteract(MsMsIdentification):
         See interface
         """
         args_handler = super(Xinteract, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, 'PEXMLS', 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
         args_handler.add_app_args(log, 'XINTERACT_ARGS', 'Arguments for xinteract')
         return args_handler
 
