@@ -58,7 +58,8 @@ class BasicInformationHandler(IInformationHandler):
             path = info[self.OUTPUT]
             log.debug('output file [%s]' % path)  
             remove_keys = [self.INPUT,self.OUTPUT,self.LOG_LEVEL,self.COPY_TO_WD,
-                           self.GENERATOR,self.COLLECTOR,self.NAME,self.PREFIX]
+                           self.GENERATOR,self.COLLECTOR,self.NAME,self.PREFIX,
+                           self.TEMPLATE]
             info_write  = DictUtils.extract(info, remove_keys, include=False)
             log.debug('remove following keys [%s] before writing info' % remove_keys)                 
             ConfigHandler().write(info_write, path) 

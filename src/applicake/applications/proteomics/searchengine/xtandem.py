@@ -100,7 +100,9 @@ class Xtandem(MsMsIdentification):
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._input_file = os.path.join(wd,self._input_file)  
         self._result_file = os.path.join(wd,self._result_file) 
-        self._taxonomy_file = os.path.join(wd,self._taxonomy_file)     
+        self._taxonomy_file = os.path.join(wd,self._taxonomy_file)
+        log.debug('add key [XTANDEM_RESULT] to info') 
+        info['XTANDEM_RESULT'] = self._result_file    
 #        info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend([self._taxonomy_file,self._input_file,self._result_file])        
         log.debug('get template handler')
         th = self.get_template_handler()
