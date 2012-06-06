@@ -70,7 +70,7 @@ def generator(input_file_name, notused_output_file_names):
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 
     
-@transform(generator, regex("generate.ini_"), "dssout.ini_")
+@transform(generator, regex("generate.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name, '--PREFIX', 'getmsdata']
     runner = WrapperRunner()
