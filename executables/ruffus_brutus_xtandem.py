@@ -54,8 +54,8 @@ FRAGMASSUNIT = Da
 PRECMASSERR = 15
 PRECMASSUNIT = ppm
 MISSEDCLEAVAGE = 0
-STATIC_MODS = Carbamidomethyl (C);Phospho (STY)
-VARIABLE_MODS = Phospho (STY);Carbamidomethyl (C)
+STATIC_MODS = Carbamidomethyl (C)
+VARIABLE_MODS = Oxidation (M)
 THREADS = 4
 """)       
 

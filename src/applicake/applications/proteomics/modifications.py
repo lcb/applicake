@@ -18,6 +18,9 @@ class ModificationDb(object):
            'Carbamidomethyl (C)':{
                                   _search_engines[0]: '57.021464@C'           
                                   },
+           'Oxidation (M)':{
+                            _search_engines[0]: '15.994915@M'   
+                            },
            'Phospho (STY)':{
                             _search_engines[0]: '79.966331@S,79.966331@T,79.966331@Y'
                             }
