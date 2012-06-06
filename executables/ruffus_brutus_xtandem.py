@@ -127,7 +127,7 @@ def collector(notused_input_file_names, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
-@transform(collector,'collector.ini','interprophet.ini')
+@transform(collector,regex('collector.ini'),'interprophet.ini')
 def interprophet(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
                 ]
