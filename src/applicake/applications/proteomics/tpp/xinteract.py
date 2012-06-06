@@ -43,9 +43,9 @@ class Xinteract(MsMsIdentification):
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
         old = info['PEPXMLS']
-        new = [self._result_file]
+        new = self._result_file
         log.debug('replace value of [PEPXMLS] [%s] with [%s]' %(old,new))     
-        info['PEPXMLS'] = new
+        info['PEPXMLS'] = [new]
         prefix,info = self._get_prefix(info,log)
         command = '%s -N%s %s %s' % (prefix,self._result_file,info['XINTERACT_ARGS'],','.join(old))
         return command,info
