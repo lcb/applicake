@@ -36,7 +36,8 @@ class Xinteract(MsMsIdentification):
         """
         See interface.
 
-    -
+        - replace list of PEPXMLs with output of the application
+        - create command
         """
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
@@ -63,7 +64,11 @@ class Xinteract(MsMsIdentification):
         See super class.
 
         Check the following:
-        -
+        - if decoy hits were found
+        - if exit code was non-zero
+        - if job is incomplete
+        - if file is valid
+        - if xml is well-formed
         """
         exit_code,info = super(Xinteract,self).validate_run(info,log, run_code,out_stream, err_stream)
         if 0 != run_code:
