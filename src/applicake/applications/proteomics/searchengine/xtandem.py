@@ -19,9 +19,10 @@ class Xtandem(MsMsIdentification):
     Wrapper for the search engine X!Tandem.
     '''
     
-    _input_file = '%s.input' % __class__.__name__#'input.xml'
-    _taxonomy_file = 'taxonomy.xml'
-    _result_file = '%s.result' % __class__.__name__ # 'xtandem.xml'
+    def __init__(self):
+        self._input_file = '%s.input' % __class__.__name__#'input.xml'
+        self._result_file = '%s.result' % __class__.__name__ # 'xtandem.xml'
+        self._taxonomy_file = 'taxonomy.xml'        
 
 
     def _define_score(self, info, log):
