@@ -20,19 +20,13 @@ class InterProphet(MsMsIdentification):
         Constructor
         """
         base = self.__class__.__name__
-        self._result_file = '%s.result' % base # result produced by the application
+        self._result_file = '%s.pepxml' % base # result produced by the application
         
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
             info[self.PREFIX] = 'InterProphetParser'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info
-
-    def get_template_handler(self):
-        """
-        See interface
-        """
-        return InterProphetTemplate()
 
     def prepare_run(self,info,log):
         """
@@ -48,7 +42,7 @@ class InterProphet(MsMsIdentification):
         log.debug('replace value of [PEPXMLS] [%s] with [%s]' %(old,new))     
         info['PEPXMLS'] = new
         prefix,info = self._get_prefix(info,log)
-        command = '%s %s %s %s' % (prefix,info['IPROPHET_ARGS'],self._pepxml_filename,','.join(old))    
+        command = '%s %s %s %s' % (prefix,info['IPROPHET_ARGS'],self._result_file,','.join(old))    
         return command,info
 
     def set_args(self,log,args_handler):
@@ -82,16 +76,3 @@ class InterProphet(MsMsIdentification):
             log.critical('[%s] is not well formed.' % self._result_file)
             return 1,info
         return 0,info
-
-
-class InterProphetTemplate(BasicTemplateHandler):
-    """
-    Template handler for InterProphet.
-    """
-
-    def read_template(self, info, log):
-        """
-        See super class.
-        """
-        template = """
-"""
