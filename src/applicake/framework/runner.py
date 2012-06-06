@@ -520,7 +520,7 @@ class WrapperRunner(ApplicationRunner):
             command,app_info = app.prepare_run(app_info,log)                 
             log.info('Finish [%s]' % app.prepare_run.__name__)
             log.debug('content of app_info [%s]' % app_info)    
-            info = DictUtils.merge(info, app_info,priority='left')    
+            info = DictUtils.merge(info, app_info,priority='right')    
             log.debug('content of info after merge with app_info [%s]' % info)             
             if command is None:
                 log.critical('Command was [None]. Interface of [%s] is possibly not correctly implemented' %
