@@ -21,6 +21,7 @@ from applicake.applications.proteomics.searchengine.xtandem import Xtandem
 from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mgf
 from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
+from applicake.applications.proteomics.tpp.xinteract import Xinteract
 
 cwd = None
 
@@ -76,9 +77,9 @@ def dss(input_file_name, output_file_name):
     wrapper = Dss()
     exit_code = runner(sys.argv, wrapper)
     if exit_code != 0:
-                raise Exception("dss failed [%s]" % exit_code)    
+                raise Exception("[%s] failed [%s]" % ('dss',exit_code))    
     
-@transform(dss, regex("dssout.ini_"), "xtandemout.ini_")
+@transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name, 
                 '--TEMPLATE', 'xtandem.tpl',
@@ -87,9 +88,9 @@ def tandem(input_file_name, output_file_name):
     wrapper = Xtandem()
     exit_code = runner(sys.argv, wrapper)
     if exit_code != 0:
-        raise Exception("echo failed [%s]" % exit_code) 
+        raise Exception("[%s] failed [%s]" % ('tandem',exit_code))
 
-@transform(tandem, regex("xtandemout.ini_"), "xtandem2xmlout.ini_")
+@transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name
                 ,'-l','DEBUG']
@@ -97,16 +98,29 @@ def tandem2xml(input_file_name, output_file_name):
     wrapper = Tandem2Xml()
     exit_code = runner(sys.argv, wrapper)
     if exit_code != 0:
-        raise Exception("echo failed [%s]" % exit_code)      
+        raise Exception("[%s] failed [%s]" % ('tandem2xml',exit_code))      
+
+@transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract.ini_")
+def xinteract(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,
+                '-l','DEBUG',
+                'XINTERACT_ARGS','-dDECOY_ -OAPdlIw'
+                ]
+    runner = WrapperRunner()
+    wrapper = Xinteract()
+    exit_code = runner(sys.argv, wrapper)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('xinteract',exit_code))    
+
     
-@merge(tandem2xml, "output.ini")
+@merge(xinteract, "output.ini")
 def collector(notused_input_file_names, output_file_name):
-    sys.argv = ['', '--COLLECTORS', 'xtandem2xmlout.ini', '-o', output_file_name,'-s','file']
+    sys.argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
-        raise Exception("collector failed [%s]" % exit_code)    
+        raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
 pipeline_run([collector])
 
