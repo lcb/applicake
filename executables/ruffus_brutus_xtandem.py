@@ -99,7 +99,7 @@ def tandem2xml(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("echo failed [%s]" % exit_code)      
     
-@merge(tandem, "output.ini")
+@merge(tandem2xml, "output.ini")
 def collector(notused_input_file_names, output_file_name):
     sys.argv = ['', '--COLLECTORS', 'xtandem2xmlout.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
