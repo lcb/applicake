@@ -48,7 +48,7 @@ LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
 DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20120603160111752-510155,20120603165413998-510432,
+DATASET_CODE = 20120603160111752-510155
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 FRAGMASSERR = 0.4
 FRAGMASSUNIT = Da
@@ -57,8 +57,10 @@ PRECMASSUNIT = ppm
 MISSEDCLEAVAGE = 0
 STATIC_MODS = Carbamidomethyl (C)
 VARIABLE_MODS = Oxidation (M)
-THREADS = 4
-""")       
+THREADS = 8
+""" #,20120603165413998-510432,
+)       
+        
 
 @follows(setup)
 @split("input.ini", "generate.ini_*")
@@ -104,7 +106,7 @@ def tandem2xml(input_file_name, output_file_name):
 def xinteract(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,
                 '-l','DEBUG',
-                'XINTERACT_ARGS','-dDECOY_ -OAPdlIw'
+                '--XINTERACT_ARGS','-dDECOY_ -OAPdlIw'
                 ]
     runner = WrapperRunner()
     wrapper = Xinteract()
