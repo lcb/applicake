@@ -19,9 +19,9 @@ class Xtandem(MsMsIdentification):
     Wrapper for the search engine X!Tandem.
     '''
     
-    _input_xml = 'input.xml'
-    _taxonomy_xml = 'taxonomy.xml'
-    _result_file = 'xtandem.xml'
+    _input_file = '%s.input' % __class__.__name__#'input.xml'
+    _taxonomy_file = 'taxonomy.xml'
+    _result_file = '%s.result' % __class__.__name__ # 'xtandem.xml'
 
 
     def _define_score(self, info, log):
@@ -60,33 +60,41 @@ class Xtandem(MsMsIdentification):
         return info[self.PREFIX],info         
 
     def _write_input_files(self,info,log):
-        self._taxonomy_xml = os.path.join(info[self.WORKDIR],self._taxonomy_xml)        
+        self._taxonomy_file = os.path.join(info[self.WORKDIR],self._taxonomy_file)        
         db_file = os.path.join(info[self.WORKDIR],info['DBASE'])
-        self._input_xml = os.path.join(info[self.WORKDIR],self._input_xml)  
+        self._input_file = os.path.join(info[self.WORKDIR],self._input_file)  
         self._result_file = os.path.join(info[self.WORKDIR],self._result_file)
-#        info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend([self._taxonomy_xml,self._input_xml,self._result_file])
-        with open(self._taxonomy_xml, "w") as sink:
+#        info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend([self._taxonomy_file,self._input_file,self._result_file])
+        with open(self._taxonomy_file, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write('<bioml>\n<taxon label="database">')
             sink.write('<file format="peptide" URL="%s"/>' % db_file)
             sink.write("</taxon>\n</bioml>")
-        log.debug('Created [%s]' % self._taxonomy_xml)          
-        with open(self._input_xml, "w") as sink:
+        log.debug('Created [%s]' % self._taxonomy_file)          
+        with open(self._input_file, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+info[self.TEMPLATE]+"</note>\n")
             sink.write("<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>"+self._result_file+"</note>\n")
-            sink.write("<note type='input' label='list path, taxonomy information'>"+self._taxonomy_xml+"</note>\n")
+            sink.write("<note type='input' label='list path, taxonomy information'>"+self._taxonomy_file+"</note>\n")
             sink.write("<note type='input' label='spectrum, path'>"+info['MZXML']+"</note>\n")
             sink.write("<note type='input' label='protein, taxon'>database</note>\n</bioml>\n")
-        log.debug('Created [%s]' % self._input_xml)    
+        log.debug('Created [%s]' % self._input_file)    
         return info
 
+    def get_template_handler(self):
+        """
+        See interface
+        """
+        return XtandemTemplate()
+    
     def prepare_run(self,info,log):
         """
         See interface.
         
-        Read the a specific template and replaces variables from the info object.
-        Tool is executed using the pattern: tools -ini [inifile]
+        - Read the template from the handler
+        - Convert scoring and modifications into the specific format
+        - modifies the template from the handler
+        - writes the files needed to execute the program 
         
         @precondition: info object need the key [%s]
         """ % self.TEMPLATE        
@@ -101,14 +109,8 @@ class Xtandem(MsMsIdentification):
         log.debug('write input files')
         info = self._write_input_files(info, log)        
         prefix,info = self._get_prefix(info,log)
-        command = '%s %s' % (prefix,self._input_xml)
-        return command,info
-
-    def get_template_handler(self):
-        """
-        See interface
-        """
-        return XtandemTemplate()
+        command = '%s %s' % (prefix,self._input_file)
+        return command,info    
 
     def set_args(self,log,args_handler):
         """
@@ -137,6 +139,7 @@ class Xtandem(MsMsIdentification):
             return 1,info
         if not FileUtils.is_valid_file(log, self._result_file):
             log.critical('[%s] is not valid' %self._result_file)
+            return 1,info
         if not XmlValidator.is_wellformed(self._result_file):
             log.critical('[%s] is not well formed.' % self._result_file)
             return 1,info
