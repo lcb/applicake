@@ -378,7 +378,7 @@ class ApplicationRunner(Runner):
             exit_code,app_info = app.main(app_info,log)   
             log.debug('content of app_info after running app [%s]' % app_info)  
             log.debug('content of info [%s]' % info)  
-            info = DictUtils.merge(info, app_info,priority='left')    
+            info = DictUtils.merge(info, app_info,priority='right')    
             log.debug('content of info after merge with app_info [%s]' % info)
         else:                                    
             self.log.critical('the object [%s] is not an instance of one of the following %s'% 

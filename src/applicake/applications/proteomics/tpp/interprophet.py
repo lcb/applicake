@@ -42,7 +42,7 @@ class InterProphet(MsMsIdentification):
         log.debug('replace value of [PEPXMLS] [%s] with [%s]' %(old,new))     
         info['PEPXMLS'] = new
         prefix,info = self._get_prefix(info,log)
-        command = '%s %s %s %s' % (prefix,info['IPROPHET_ARGS'],self._result_file,','.join(old))    
+        command = '%s %s %s %s' % (prefix,info['IPROPHET_ARGS'],','.join(old),new)    
         return command,info
 
     def set_args(self,log,args_handler):
