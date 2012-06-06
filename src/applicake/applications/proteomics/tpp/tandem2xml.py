@@ -38,10 +38,10 @@ class Tandem2Xml(MsMsIdentification):
         """            
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._input_file = os.path.join(wd,self._input_file)  
         self._result_file = os.path.join(wd,self._result_file) 
         info['PEPXML'] = self._result_file
         prefix,info = self._get_prefix(info,log)
+
         command = '%s %s %s' % (prefix,info['XTANDEM_RESULT'],self._result_file)
         return command,info
 
