@@ -106,7 +106,7 @@ def tandem2xml(input_file_name, output_file_name):
 def xinteract(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,
                 '-l','DEBUG',
-                '--XINTERACT_ARGS','-dDECOY_ -OAPdlIw'
+                '--XINTERACT_ARGS','"-dDECOY_ -OAPdlIw"'
                 ]
     runner = WrapperRunner()
     wrapper = Xinteract()
