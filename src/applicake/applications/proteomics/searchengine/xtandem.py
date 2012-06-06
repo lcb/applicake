@@ -20,8 +20,8 @@ class Xtandem(MsMsIdentification):
     '''
     
     def __init__(self):
-        self._input_file = '%s.input' % __class__.__name__#'input.xml'
-        self._result_file = '%s.result' % __class__.__name__ # 'xtandem.xml'
+        self._input_file = '%s.input' % self.__class__.__name__#'input.xml'
+        self._result_file = '%s.result' % self.__class__.__name__ # 'xtandem.xml'
         self._taxonomy_file = 'taxonomy.xml'        
 
 
