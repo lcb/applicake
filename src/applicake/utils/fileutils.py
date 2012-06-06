@@ -60,19 +60,17 @@ class FileUtils(object):
         @return: True if the file is valid, otherwise False 
         """
         
-        fail1 = not os.path.exists(path)
-        fail2 = not os.path.isfile(path)
-        fail3 = not os.access(path,os.R_OK)
-        fail4 = not (os.path.getsize(path) > 0)
-        fails = [fail1,fail2,fail3,fail4]
-        if any(fails):
-            log.error('''file [%s] does not exist [%s], 
-            is not a file [%s], cannot be read [%s] or
-            has no file larger that > 0kb [%s]''' % (
-                                                            os.path.abspath(path),
-                                                            fail1,fail2,fail3,fail4
-                                                            )
-                      )
+        if not os.path.exists(path):
+            log.error('path [%s] does not exist' % path)
+            return False                
+        if not os.path.isfile(path):
+            log.error('path [%s] is no file' % path)
+            return False
+        if not os.access(path,os.R_OK):
+            log.error('file [%s] cannot be read' % path)
+            return False
+        if not (os.path.getsize(path) > 0):
+            log.error('file [%s] is 0KB' % path)
             return False
         else:
             log.debug('file [%s] checked successfully' % path)  
