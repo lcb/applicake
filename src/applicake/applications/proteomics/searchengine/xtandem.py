@@ -20,9 +20,10 @@ class Xtandem(MsMsIdentification):
     '''
     
     def __init__(self):
-        self._input_file = '%s.input' % self.__class__.__name__#'input.xml'
-        self._result_file = '%s.result' % self.__class__.__name__ # 'xtandem.xml'
-        self._taxonomy_file = 'taxonomy.xml'        
+        base = self.__class__.__name__
+        self._input_file = '%s.input' % base # application specific config file
+        self._result_file = '%s.result' % base # result produced by the application
+        self._taxonomy_file = '%s.taxonomy' % base      
 
 
     def _define_score(self, info, log):
@@ -60,12 +61,8 @@ class Xtandem(MsMsIdentification):
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info         
 
-    def _write_input_files(self,info,log):
-        self._taxonomy_file = os.path.join(info[self.WORKDIR],self._taxonomy_file)        
+    def _write_input_files(self,info,log):       
         db_file = os.path.join(info[self.WORKDIR],info['DBASE'])
-        self._input_file = os.path.join(info[self.WORKDIR],self._input_file)  
-        self._result_file = os.path.join(info[self.WORKDIR],self._result_file)
-#        info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend([self._taxonomy_file,self._input_file,self._result_file])
         with open(self._taxonomy_file, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write('<bioml>\n<taxon label="database">')
@@ -98,7 +95,13 @@ class Xtandem(MsMsIdentification):
         - writes the files needed to execute the program 
         
         @precondition: info object need the key [%s]
-        """ % self.TEMPLATE        
+        """ % self.TEMPLATE
+        wd = info[self.WORKDIR]
+        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
+        self._input_file = os.path.join(wd,self._input_file)  
+        self._result_file = os.path.join(wd,self._result_file) 
+        self._taxonomy_file = os.path.join(wd,self._taxonomy_file)     
+#        info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend([self._taxonomy_file,self._input_file,self._result_file])        
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('define score value')

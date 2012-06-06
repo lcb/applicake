@@ -21,32 +21,28 @@ class Tandem2Xml(MsMsIdentification):
         """
         Constructor
         """
-
+        base = self.__class__.__name__
+        self._result_file = '%s.result' % base # result produced by the application
 
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = ''
+            info[self.PREFIX] = 'Tandem2XML'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info  
-
-    def get_template_handler(self):
-        """
-        See interface
-        """
-        return Tandem2XmlTemplate()
 
     def prepare_run(self,info,log):
         """
         See interface.
 
-    - 
+        - 
         """            
+        wd = info[self.WORKDIR]
+        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
+        self._input_file = os.path.join(wd,self._input_file)  
+        self._result_file = os.path.join(wd,self._result_file) 
+        info['PEPXML'] = self._result_file
         prefix,info = self._get_prefix(info,log)
-        self._result_filename  = os.path.join(, self.name  + '.pepxml')
-        self._iniFile.add_to_ini({'PEPXML':self._result_filename})
-        self.log.debug("add key 'PEPXML' with value [%s] to ini" % self._result_filename)
-        return "%s %s %s" % (prefix,input_filename,self._result_filename) 
-        command = '%s %s' % (prefix,self._input_file)
+        command = '%s %s %s' % (prefix,info['XTANDEM_RESULT'],self._result_file)
         return command,info
 
     def set_args(self,log,args_handler):

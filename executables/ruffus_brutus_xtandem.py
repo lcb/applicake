@@ -20,6 +20,7 @@ from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.searchengine.xtandem import Xtandem
 from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mgf
 from applicake.applications.proteomics.openbis.dss import Dss
+from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
 
 cwd = None
 
@@ -61,7 +62,7 @@ THREADS = 4
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    sys.argv = ['IGNORED', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG']
+    sys.argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG']
     runner = GeneratorRunner()
     application = GuseGenerator()
     exit_code = runner(sys.argv, application)
@@ -70,7 +71,7 @@ def generator(input_file_name, notused_output_file_names):
     
 @transform(generator, regex("generate.ini_"), "dssout.ini_")
 def dss(input_file_name, output_file_name):
-    sys.argv = ['IGNORED', '-i', input_file_name, '-o', output_file_name, '--PREFIX', 'getmsdata']
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name, '--PREFIX', 'getmsdata']
     runner = WrapperRunner()
     wrapper = Dss()
     exit_code = runner(sys.argv, wrapper)
@@ -79,19 +80,28 @@ def dss(input_file_name, output_file_name):
     
 @transform(dss, regex("dssout.ini_"), "xtandemout.ini_")
 def tandem(input_file_name, output_file_name):
-    sys.argv = ['IGNORED', '-i', input_file_name, '-o', output_file_name, 
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name, 
                 '--TEMPLATE', 'xtandem.tpl',
-                '--PREFIX', 'tandem','-l','DEBUG']
+                '-l','DEBUG']
     runner = WrapperRunner()
     wrapper = Xtandem()
     exit_code = runner(sys.argv, wrapper)
     if exit_code != 0:
         raise Exception("echo failed [%s]" % exit_code) 
-      
+
+@transform(tandem, regex("xtandemout.ini_"), "xtandem2xmlout.ini_")
+def tandem2xml(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name
+                ,'-l','DEBUG']
+    runner = WrapperRunner()
+    wrapper = Tandem2Xml()
+    exit_code = runner(sys.argv, wrapper)
+    if exit_code != 0:
+        raise Exception("echo failed [%s]" % exit_code)      
     
 @merge(tandem, "output.ini")
 def collector(notused_input_file_names, output_file_name):
-    sys.argv = ['IGNORED', '--COLLECTORS', 'xtandemout.ini', '-o', output_file_name,'-s','file']
+    sys.argv = ['', '--COLLECTORS', 'xtandem2xmlout.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(sys.argv, application)
