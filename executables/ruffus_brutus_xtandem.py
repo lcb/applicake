@@ -22,6 +22,7 @@ from applicake.applications.proteomics.openms.filehandling.fileconverter import 
 from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
 from applicake.applications.proteomics.tpp.xinteract import Xinteract
+from applicake.applications.proteomics.tpp.interprophet import InterProphet
 
 cwd = None
 
@@ -58,6 +59,9 @@ MISSEDCLEAVAGE = 0
 STATIC_MODS = Carbamidomethyl (C)
 VARIABLE_MODS = Oxidation (M)
 THREADS = 8
+XTANDEM_SCORE = k-score
+XINTERACT_ARGS = -dDECOY_ -OAPdlIw
+IPROPHET_ARGS = MINPROB=0
 """ #,20120603165413998-510432,
 )       
         
@@ -105,8 +109,7 @@ def tandem2xml(input_file_name, output_file_name):
 @transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract.ini_")
 def xinteract(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,
-                '-l','DEBUG',
-                '--XINTERACT_ARGS','"-dDECOY_ -OAPdlIw"'
+                '-l','DEBUG'
                 ]
     runner = WrapperRunner()
     wrapper = Xinteract()
@@ -115,7 +118,7 @@ def xinteract(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('xinteract',exit_code))    
 
     
-@merge(xinteract, "output.ini")
+@merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
     sys.argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
@@ -124,7 +127,17 @@ def collector(notused_input_file_names, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
-pipeline_run([collector])
+@transform(collector,'interprophet.ini')
+def interprophet(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
+                ]
+    runner = WrapperRunner()
+    application = InterProphet()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('iprophet',exit_code))     
+
+pipeline_run([interprophet])
 
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg

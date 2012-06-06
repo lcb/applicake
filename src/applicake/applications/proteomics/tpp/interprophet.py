@@ -5,39 +5,40 @@ Created on Jun 6, 2012
 '''
 
 import os
-from applicake.applications.proteomics.modifications import ModificationDb
 from applicake.applications.proteomics.base import MsMsIdentification
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
-class Xinteract(MsMsIdentification):
+class InterProphet(MsMsIdentification):
     """
     Wrapper for the TPP-tool xinteract.
     """
-
-    _input_file = ''
-    _result_file = ''
 
     def __init__(self):
         """
         Constructor
         """
         base = self.__class__.__name__
-        self._result_file = '%s.pepxml' % base
+        self._result_file = '%s.result' % base # result produced by the application
         
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = 'xinteract'
+            info[self.PREFIX] = 'InterProphetParser'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info
+
+    def get_template_handler(self):
+        """
+        See interface
+        """
+        return InterProphetTemplate()
 
     def prepare_run(self,info,log):
         """
         See interface.
 
-        - replace list of PEPXMLs with output of the application
-        - create command
+        - 
         """
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
@@ -47,16 +48,16 @@ class Xinteract(MsMsIdentification):
         log.debug('replace value of [PEPXMLS] [%s] with [%s]' %(old,new))     
         info['PEPXMLS'] = new
         prefix,info = self._get_prefix(info,log)
-        command = '%s -N%s %s %s' % (prefix,self._result_file,info['XINTERACT_ARGS'],','.join(old))
+        command = '%s %s %s %s' % (prefix,info['IPROPHET_ARGS'],self._pepxml_filename,','.join(old))    
         return command,info
 
     def set_args(self,log,args_handler):
         """
         See interface
         """
-        args_handler = super(Xinteract, self).set_args(log,args_handler)
+        args_handler = super(InterProphet, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
-        args_handler.add_app_args(log, 'XINTERACT_ARGS', 'Arguments for xinteract')
+        args_handler.add_app_args(log, 'IPROPHET_ARGS', 'Arguments for InterProphetParser')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -64,30 +65,33 @@ class Xinteract(MsMsIdentification):
         See super class.
 
         Check the following:
-        - if decoy hits were found
-        - if exit code was non-zero
-        - if job is incomplete
-        - if file is valid
-        - if xml is well-formed
+        -
         """
-        exit_code,info = super(Xinteract,self).validate_run(info,log, run_code,out_stream, err_stream)
+        exit_code,info = super(InterProphet,self).validate_run(info,log, run_code,out_stream, err_stream)
         if 0 != run_code:
             return exit_code,info
-        out_stream.seek(0)
         err_stream.seek(0)
-        if 'No decoys with label' in err_stream:
-            self.log.error('found no decoy hits')
-            return 1,info                   
-        if 'exited with non-zero exit code' in out_stream:
-            self.log.error('xinteract did not complete with exit code !=0')
-            return 1,info
-        if 'QUIT - the job is incomplete' in out_stream:
-            self.log.error('xinteract: job is incomplete')
-            return 1,info        
+        for line in err_stream.readlines():
+            if 'fin: error opening' in line:
+                self.log.error("could not read the input file [%s]" % self._pepxml_filename)
+                return 1,info
         if not FileUtils.is_valid_file(log, self._result_file):
             log.critical('[%s] is not valid' %self._result_file)
             return 1,info
         if not XmlValidator.is_wellformed(self._result_file):
             log.critical('[%s] is not well formed.' % self._result_file)
-            return 1,info       
+            return 1,info
         return 0,info
+
+
+class InterProphetTemplate(BasicTemplateHandler):
+    """
+    Template handler for InterProphet.
+    """
+
+    def read_template(self, info, log):
+        """
+        See super class.
+        """
+        template = """
+"""
