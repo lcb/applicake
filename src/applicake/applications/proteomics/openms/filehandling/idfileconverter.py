@@ -9,27 +9,14 @@ import sys
 from applicake.applications.proteomics.base import OpenMs
 from applicake.framework.templatehandler import BasicTemplateHandler
 
-class IdFileConverter(OpenMs):
-    """
-    classdocs
-    """
 
-    _input_file = ''
-    _result_file = ''
-
-    def _get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = ''
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
-
-
-
-
-class PepXml2IdXml(IdFileConverter):
+class PepXml2IdXml(OpenMs):
     """
     Specific implementation if the IdFileConverter class to convert files in pepXML to idXML format.
     """
+      
+    _input_file = ''
+    _result_file = ''
       
     def __init__(self):
         """
@@ -38,6 +25,12 @@ class PepXml2IdXml(IdFileConverter):
         base = self.__class__.__name__
         self._input_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application    
+    
+    def _get_prefix(self,info,log):
+            if not info.has_key(self.PREFIX):
+                info[self.PREFIX] = 'IDFileConverter'
+                log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
+            return info[self.PREFIX],info
     
     def get_template_handler(self):
         """
