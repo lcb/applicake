@@ -152,7 +152,8 @@ def pepxml2idxml(input_file_name, output_file_name):
 
 @transform(pepxml2idxml,regex('pepxml2idxml.ini'),'fdr.ini')
 def fdr(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file', 
+                '--DECOY_STRING','DECOY_'               
                 ]
     runner = WrapperRunner()
     application = FalseDiscoveryRate()

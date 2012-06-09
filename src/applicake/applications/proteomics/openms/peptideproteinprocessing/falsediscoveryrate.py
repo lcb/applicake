@@ -47,6 +47,7 @@ class FalseDiscoveryRate(OpenMs):
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._input_file = os.path.join(wd,self._input_file)
+        info['TEMPLATE'] = self._input_file
         self._result_file = os.path.join(wd,self._result_file)
         # have to temporarily set a key in info to store the original IDXML
         info['ORGIDXML'] = info['IDXML']
