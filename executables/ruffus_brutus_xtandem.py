@@ -18,7 +18,6 @@ from applicake.applications.proteomics.openbis.generator import GuseGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.searchengine.xtandem import Xtandem
-from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mgf
 from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
 from applicake.applications.proteomics.tpp.xinteract import Xinteract
