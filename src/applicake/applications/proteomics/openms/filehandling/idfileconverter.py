@@ -73,7 +73,7 @@ class PepXml2IdXml(IdFileConverter):
         """
         See interface
         """
-        args_handler = super(IdFileConverter, self).set_args(log,args_handler)
+        args_handler = super(PepXml2IdXml, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
         return args_handler  
   
