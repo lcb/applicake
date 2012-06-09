@@ -59,6 +59,7 @@ class PepXml2IdXml(IdFileConverter):
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._input_file = os.path.join(wd,self._input_file)
+        info[self.TEMPLATE] = self._input_file
         self._result_file = os.path.join(wd,self._result_file)
         info['IDXML'] = self._result_file
         log.debug('get template handler')
