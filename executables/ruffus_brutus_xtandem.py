@@ -160,7 +160,7 @@ def fdr(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('fdr',exit_code)) 
 
-pipeline_run([pepxml2idxml])
+pipeline_run([fdr])
 
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
