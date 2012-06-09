@@ -75,6 +75,7 @@ class PepXml2IdXml(OpenMs):
         """
         args_handler = super(PepXml2IdXml, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')  
         return args_handler  
   
 
