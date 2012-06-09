@@ -48,12 +48,15 @@ class FalseDiscoveryRate(OpenMs):
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._input_file = os.path.join(wd,self._input_file)
         self._result_file = os.path.join(wd,self._result_file)
-        self._inIdXml = info['IDXML']
+        # have to temporarily set a key in info to store the original IDXML
+        info['ORGIDXML'] = info['IDXML']
         info['IDXML'] = self._result_file
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
+        # can delete temporary key as it is not longer needed
+        del info['ORIGIDXML']
         prefix,info = self._get_prefix(info,log)
         command = '%s -ini %s' % (prefix,self._input_file)
         return command,info
@@ -82,7 +85,7 @@ class FalseDiscoveryRateTemplate(BasicTemplateHandler):
   <NODE name="FalseDiscoveryRate" description="Estimates the false discovery rate on peptide and protein level using decoy searches.">
     <ITEM name="version" value="1.9.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;FalseDiscoveryRate&apos;">
-      <ITEM name="in" value="%s" type="string" description="Identification input file which contains a search against a concatenated sequence database" tags="input file" restrictions="*.idXML" />
+      <ITEM name="in" value="$ORGIDXML" type="string" description="Identification input file which contains a search against a concatenated sequence database" tags="input file" restrictions="*.idXML" />
       <ITEM name="fwd_in" value="" type="string" description="Identification input to estimate FDR, forward" tags="input file" restrictions="*.idXML" />
       <ITEM name="rev_in" value="" type="string" description="Identification input to estimate FDR, decoy run" tags="input file" restrictions="*.idXML" />
       <ITEM name="out" value="$IDXML" type="string" description="Identification output with annotated FDR" tags="output file,required" restrictions="*.idXML" />
@@ -104,6 +107,6 @@ class FalseDiscoveryRateTemplate(BasicTemplateHandler):
     </NODE>
   </NODE>
 </PARAMETERS>
-""" % (self._inIdXml)
+"""
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
