@@ -16,6 +16,7 @@ class BasicOpenmsWrapper(IWrapper):
         
         Read the a specific template and replaces variables from the info object.
         Tool is executed using the pattern: tools -ini [inifile]
+        - If there is a result file, it is added with a specific key to the info object
         
         @precondition: info object need the key [%s]
         """ % self.TEMPLATE        

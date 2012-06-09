@@ -23,6 +23,7 @@ from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
 from applicake.applications.proteomics.tpp.xinteract import Xinteract
 from applicake.applications.proteomics.tpp.interprophet import InterProphet
+from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 
 cwd = None
 
@@ -136,6 +137,17 @@ def interprophet(input_file_name, output_file_name):
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('iprophet',exit_code))     
+
+
+@transform(collector,regex('interprophet.ini'),'pepxml2idxml.ini')
+def pepxml2idxml(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
+                ]
+    runner = WrapperRunner()
+    application = PepXml2IdXml()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('iprophet',exit_code)) 
 
 pipeline_run([interprophet])
 
