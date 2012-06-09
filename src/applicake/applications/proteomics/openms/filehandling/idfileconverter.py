@@ -108,3 +108,4 @@ class PepXml2IdXmlTemplate(BasicTemplateHandler):
   </NODE>
 </PARAMETERS>
 """
+        return template,info
