@@ -58,7 +58,13 @@ class PepXml2IdXml(OpenMs):
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
+        #need to convert PEPXMLS from list to a string (1st element)
+        # because program only handles single pepxmls
+        pepxmls = info['PEPXMLS']
+        info['PEPXMLS'] = pepxmls[0]
         mod_template,info = th.modify_template(info, log)
+        # reset PEPXMLS to original value
+        info['PEPXMLS'] = pepxmls
         prefix,info = self._get_prefix(info,log)
         command = '%s -ini %s' % (prefix,self._input_file)
         return command,info      
