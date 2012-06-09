@@ -139,7 +139,7 @@ def interprophet(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('iprophet',exit_code))     
 
 
-@transform(collector,regex('interprophet.ini'),'pepxml2idxml.ini')
+@transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
 def pepxml2idxml(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
                 ]
@@ -149,7 +149,7 @@ def pepxml2idxml(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('iprophet',exit_code)) 
 
-pipeline_run([interprophet])
+pipeline_run([pepxml2idxml])
 
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
