@@ -187,8 +187,11 @@ class Runner(KeyEnum):
                     shutil.copy(src,wd)
                     log.debug('Copy [%s] to [%s]' % (src,dest))
                 except:
-                    log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
-                    return(1,info,log)
+                    if FileUtils.is_valid_file(log, dest):
+                        log.debug('file [%s] already exists' % dest)
+                    else:
+                        log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
+                        return(1,info,log)
         return (0,info,log)           
                     
     def _set_jobid(self,info,log):
