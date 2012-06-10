@@ -4,10 +4,10 @@ Created on Jun 9, 2012
 @author: quandtan
 '''
 
-from applicake.applications.proteomics.base import PeptideProteinProcessing
+from applicake.applications.proteomics.base import IdXmlModifier
 from applicake.framework.templatehandler import BasicTemplateHandler
 
-class FalseDiscoveryRate(PeptideProteinProcessing):
+class FalseDiscoveryRate(IdXmlModifier):
     """
     Wrapper for the OpenMS tools FalseDiscoveryRate.
     """

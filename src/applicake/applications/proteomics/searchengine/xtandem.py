@@ -21,7 +21,7 @@ class Xtandem(MsMsIdentification):
     
     def __init__(self):
         base = self.__class__.__name__
-        self._input_file = '%s.input' % base # application specific config file
+        self._template_file = '%s.input' % base # application specific config file
         self._result_file = '%s.result' % base # result produced by the application
         self._taxonomy_file = '%s.taxonomy' % base      
 
@@ -69,14 +69,14 @@ class Xtandem(MsMsIdentification):
             sink.write('<file format="peptide" URL="%s"/>' % db_file)
             sink.write("</taxon>\n</bioml>")
         log.debug('Created [%s]' % self._taxonomy_file)          
-        with open(self._input_file, "w") as sink:
+        with open(self._template_file, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+info[self.TEMPLATE]+"</note>\n")
             sink.write("<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>"+self._result_file+"</note>\n")
             sink.write("<note type='input' label='list path, taxonomy information'>"+self._taxonomy_file+"</note>\n")
             sink.write("<note type='input' label='spectrum, path'>"+info['MZXML']+"</note>\n")
             sink.write("<note type='input' label='protein, taxon'>database</note>\n</bioml>\n")
-        log.debug('Created [%s]' % self._input_file)    
+        log.debug('Created [%s]' % self._template_file)    
         return info
 
     def get_template_handler(self):
@@ -98,7 +98,7 @@ class Xtandem(MsMsIdentification):
         """ % self.TEMPLATE
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._input_file = os.path.join(wd,self._input_file)  
+        self._template_file = os.path.join(wd,self._template_file)  
         self._result_file = os.path.join(wd,self._result_file) 
         self._taxonomy_file = os.path.join(wd,self._taxonomy_file)
         log.debug('add key [XTANDEM_RESULT] to info') 
@@ -115,7 +115,7 @@ class Xtandem(MsMsIdentification):
         log.debug('write input files')
         info = self._write_input_files(info, log)        
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s' % (prefix,self._input_file)
+        command = '%s %s' % (prefix,self._template_file)
         return command,info    
 
     def set_args(self,log,args_handler):

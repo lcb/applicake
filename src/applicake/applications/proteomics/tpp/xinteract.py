@@ -16,7 +16,7 @@ class Xinteract(MsMsIdentification):
     Wrapper for the TPP-tool xinteract.
     """
 
-    _input_file = ''
+    _template_file = ''
     _result_file = ''
 
     def __init__(self):

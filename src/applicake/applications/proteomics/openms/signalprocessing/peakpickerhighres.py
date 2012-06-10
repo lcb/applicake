@@ -4,10 +4,10 @@ Created on Jun 10, 2012
 @author: quandtan
 '''
 
-from applicake.applications.proteomics.base import SignalProcessing
+from applicake.applications.proteomics.base import MzMlModifier
 from applicake.framework.templatehandler import BasicTemplateHandler
 
-class PeakPickerHighRes(SignalProcessing):
+class PeakPickerHighRes(MzMlModifier):
     """
     Wrapper for the OpenMS tools ....
     """
