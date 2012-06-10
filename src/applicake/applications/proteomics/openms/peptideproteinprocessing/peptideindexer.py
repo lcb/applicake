@@ -69,6 +69,7 @@ class PeptideIndexer(OpenMs):
         args_handler = super(PeptideIndexer, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'DECOY_STRING', 'Prefix to indicate decoy entries in a Protein sequence database.')
         args_handler.add_app_args(log, 'IDXML', 'The input idXML file ')
+        args_handler.add_app_args(log, 'DBASE', 'Sequence database file with target/decoy entries')
         return args_handler
 
 
@@ -87,7 +88,7 @@ class PeptideIndexerTemplate(BasicTemplateHandler):
     <ITEM name="version" value="1.9.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;PeptideIndexer&apos;">
       <ITEM name="in" value="$ORGIDXML" type="string" description="Input idXML file containing the identifications." tags="input file,required" restrictions="*.IdXML" />
-      <ITEM name="fasta" value="" type="string" description="Input sequence database in FASTA format. Non-existing relative file-names are looked up via&apos;OpenMS.ini:id_db_dir&apos;" tags="input file,required" restrictions="*.fasta" />
+      <ITEM name="fasta" value="$DBASE" type="string" description="Input sequence database in FASTA format. Non-existing relative file-names are looked up via&apos;OpenMS.ini:id_db_dir&apos;" tags="input file,required" restrictions="*.fasta" />
       <ITEM name="out" value="$IDXML" type="string" description="Output idXML file." tags="output file,required" restrictions="*.IdXML" />
       <ITEM name="decoy_string" value="$DECOY_STRING" type="string" description="String that was appended to the accession of the protein database to indicate a decoy protein." />
       <ITEM name="write_protein_sequence" value="true" type="string" description="If set, the protein sequences are stored as well." restrictions="true,false" />
