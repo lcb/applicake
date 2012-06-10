@@ -162,7 +162,7 @@ class MzMlModifier(OpenMs):
         info['TEMPLATE'] = self._template_file
         self._result_file = os.path.join(wd,self._result_file)
         # have to temporarily set a key in info to store the original IDXML
-        info['ORGMZXML'] = info['IDXML']
+        info['ORGMZXML'] = info['MZXML']
         info['MZML'] = self._result_file
         log.debug('get template handler')
         th = self.get_template_handler()
