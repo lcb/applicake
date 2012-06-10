@@ -52,6 +52,7 @@ TEMPLATE = template.tpl
 DATASET_DIR = /cluster/scratch/malars/datasets
 DATASET_CODE = 20120603160111752-510155,
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
+DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
 FRAGMASSUNIT = Da
 PRECMASSERR = 15
@@ -149,11 +150,19 @@ def pepxml2idxml(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('pepxml2idxml',exit_code)) 
 
+@transform(pepxml2idxml,regex('pepxml2idxml.ini'),'peptideindexer.ini')
+def peptideindexer(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
+                ]
+    runner = WrapperRunner()
+    application = FalseDiscoveryRate()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('peptideindexer',exit_code))
 
-@transform(pepxml2idxml,regex('pepxml2idxml.ini'),'fdr.ini')
+@transform(peptideindexer,regex('peptideindexer.ini'),'fdr.ini')
 def fdr(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file', 
-                '--DECOY_STRING','DECOY_'               
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
                 ]
     runner = WrapperRunner()
     application = FalseDiscoveryRate()
