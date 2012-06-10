@@ -55,7 +55,7 @@ class MzXml2MzMl(OpenMs):
         See interface
         """
         args_handler = super(MzXml2MzMl, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, self.PREFIX, 'Path to the mzXML file.')
+        args_handler.add_app_args(log, 'MZXML', 'Path to the mzXML file.')
         return args_handler
 
 
