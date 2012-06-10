@@ -40,6 +40,7 @@ class MzXml2MzMl(OpenMs):
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._template_file = os.path.join(wd,self._template_file)
+        info[self.TEMPLATE] = self._template_file        
         self._result_file = os.path.join(wd,self._result_file)
         info['MZML'] = self._result_file
         log.debug('get template handler')
