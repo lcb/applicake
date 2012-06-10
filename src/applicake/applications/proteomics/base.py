@@ -3,6 +3,7 @@ Created on May 27, 2012
 
 @author: quandtan
 '''
+import os
 from applicake.framework.interfaces import IWrapper
 
 class MsMsIdentification(IWrapper):
@@ -68,5 +69,54 @@ class OpenMs(IWrapper):
         
         Return the unaltered run_code from the tool execution as exit_code.
         """    
-        return(run_code,info)    
-    
+        return(run_code,info)  
+ 
+class PeptideProteinPreprocessing(OpenMs):
+    """
+    Base class specifically for OpenMS tools dealing with peptide-protein preprocessing
+    """
+
+    _input_file = ''
+    _result_file = ''
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        base = self.__class__.__name__
+        self._input_file = '%s.ini' % base # application specific config file
+        self._result_file = '%s.idXML' % base # result produced by the application
+
+    def prepare_run(self,info,log):
+        """
+        See interface.
+
+        - Read the a specific template and replaces variables from the info object.
+        - Tool is executed using the pattern: [PREFIX] -ini [TEMPLATE].
+        - If there is a result file, it is added with a specific key to the info object.
+        """
+        wd = info[self.WORKDIR]
+        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
+        self._input_file = os.path.join(wd,self._input_file)
+        info['TEMPLATE'] = self._input_file
+        self._result_file = os.path.join(wd,self._result_file)
+        # have to temporarily set a key in info to store the original IDXML
+        info['ORGIDXML'] = info['IDXML']
+        info['IDXML'] = self._result_file
+        log.debug('get template handler')
+        th = self.get_template_handler()
+        log.debug('modify template')
+        mod_template,info = th.modify_template(info, log)
+        # can delete temporary key as it is not longer needed
+        del info['ORGIDXML']
+        prefix,info = self._get_prefix(info,log)
+        command = '%s -ini %s' % (prefix,self._input_file)
+        return command,info
+
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """
+        args_handler = super(PeptideProteinPreprocessing, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, 'IDXML', 'The input idXML file ')
+        return args_handler

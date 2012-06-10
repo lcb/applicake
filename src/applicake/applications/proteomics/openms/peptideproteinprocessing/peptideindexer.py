@@ -4,25 +4,13 @@ Created on Jun 10, 2012
 @author: quandtan
 '''
 
-import os
-from applicake.applications.proteomics.base import OpenMs
+from applicake.applications.proteomics.base import PeptideProteinPreprocessing
 from applicake.framework.templatehandler import BasicTemplateHandler
 
-class PeptideIndexer(OpenMs):
+class PeptideIndexer(PeptideProteinPreprocessing):
     """
     Wrapper for the OpenMS tools PeptideIndexer.
     """
-
-    _input_file = ''
-    _result_file = ''
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        base = self.__class__.__name__
-        self._input_file = '%s.ini' % base # application specific config file
-        self._result_file = '%s.idXML' % base # result produced by the application
 
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -36,39 +24,12 @@ class PeptideIndexer(OpenMs):
         """
         return PeptideIndexerTemplate()
 
-    def prepare_run(self,info,log):
-        """
-        See interface.
-
-        - Read the a specific template and replaces variables from the info object.
-        - Tool is executed using the pattern: [PREFIX] -ini [TEMPLATE].
-        - If there is a result file, it is added with a specific key to the info object.
-        """
-        wd = info[self.WORKDIR]
-        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._input_file = os.path.join(wd,self._input_file)
-        info['TEMPLATE'] = self._input_file
-        self._result_file = os.path.join(wd,self._result_file)
-        # have to temporarily set a key in info to store the original IDXML
-        info['ORGIDXML'] = info['IDXML']
-        info['IDXML'] = self._result_file
-        log.debug('get template handler')
-        th = self.get_template_handler()
-        log.debug('modify template')
-        mod_template,info = th.modify_template(info, log)
-        # can delete temporary key as it is not longer needed
-        del info['ORGIDXML']
-        prefix,info = self._get_prefix(info,log)
-        command = '%s -ini %s' % (prefix,self._input_file)
-        return command,info
-
     def set_args(self,log,args_handler):
         """
         See interface
         """
         args_handler = super(PeptideIndexer, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'DECOY_STRING', 'Prefix to indicate decoy entries in a Protein sequence database.')
-        args_handler.add_app_args(log, 'IDXML', 'The input idXML file ')
         args_handler.add_app_args(log, 'DBASE', 'Sequence database file with target/decoy entries')
         return args_handler
 
