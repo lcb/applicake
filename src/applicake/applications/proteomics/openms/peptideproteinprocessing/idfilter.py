@@ -12,11 +12,13 @@ class IdFilter(PeptideProteinPreprocessing):
     Wrapper for the OpenMS tools IDFilter.
     """
 
-    def _get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = ''
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
+    def __init__(self):
+        """
+        Constructor
+        """
+        super(IdFilter,self).__init__()
+        self._default_prefix = 'IDFilter' # default prefix, usually the name of the OpenMS-tool
+
 
     def get_template_handler(self):
         """
@@ -29,7 +31,7 @@ class IdFilter(PeptideProteinPreprocessing):
         See interface
         """
         args_handler = super(IdFilter, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, '', '')
+        args_handler.add_app_args(log, 'FDR', 'FDR cutoff value that has to be matched')
         return args_handler
 
 
@@ -47,8 +49,8 @@ class IdFilterTemplate(BasicTemplateHandler):
   <NODE name="IDFilter" description="Filters results from protein or peptide identification engines based on different criteria.">
     <ITEM name="version" value="1.9.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;IDFilter&apos;">
-      <ITEM name="in" value="" type="string" description="input file " tags="input file,required" restrictions="*.idXML" />
-      <ITEM name="out" value="" type="string" description="output file " tags="output file,required" restrictions="*.idXML" />
+      <ITEM name="in" value="$ORGIDXML" type="string" description="input file " tags="input file,required" restrictions="*.idXML" />
+      <ITEM name="out" value="$IDXML" type="string" description="output file " tags="output file,required" restrictions="*.idXML" />
       <ITEM name="min_length" value="0" type="int" description="Keep only peptide hits with a length greater or equal this value." restrictions="0:" />
       <ITEM name="unique" value="false" type="string" description="If a peptide hit occurs more than once, only one instance is kept. This will (for instance) remove                             redundant identifications from multiple charge states or concurrent CID+HCD spectra.                             If you are aiming towards quantitation, you probably do *not* want to use this flag!" restrictions="true,false" />
       <ITEM name="unique_per_protein" value="false" type="string" description="Only peptides matching exactly one protein are kept. Remember that isoforms count as different proteins!" restrictions="true,false" />
@@ -58,7 +60,7 @@ class IdFilterTemplate(BasicTemplateHandler):
       <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
       <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
       <NODE name="score" description="Filtering by peptide/protein score">
-        <ITEM name="pep" value="0.01" type="float" description="The score which should be reached by a peptide hit to be kept. The score is dependent on the most recent(!) preprocessing - it could be Mascot scores (if a MascotAdapter was applied before), or an FDR (if FalseDiscoveryRate was applied before), etc." />
+        <ITEM name="pep" value="$FDR" type="float" description="The score which should be reached by a peptide hit to be kept. The score is dependent on the most recent(!) preprocessing - it could be Mascot scores (if a MascotAdapter was applied before), or an FDR (if FalseDiscoveryRate was applied before), etc." />
         <ITEM name="prot" value="0" type="float" description="The score which should be reached by a protein hit to be kept." />
       </NODE>
       <NODE name="thresh" description="Filtering by significance threshold">

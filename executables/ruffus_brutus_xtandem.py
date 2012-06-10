@@ -25,6 +25,7 @@ from applicake.applications.proteomics.tpp.interprophet import InterProphet
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 from applicake.applications.proteomics.openms.peptideproteinprocessing.falsediscoveryrate import FalseDiscoveryRate
 from applicake.applications.proteomics.openms.peptideproteinprocessing.peptideindexer import PeptideIndexer
+from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
 
 cwd = None
 
@@ -170,8 +171,18 @@ def fdr(input_file_name, output_file_name):
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('fdr',exit_code)) 
+    
+@transform(fdr,regex('fdr.ini'),'idfilter.ini')
+def idfilter(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
+                ]
+    runner = WrapperRunner()
+    application = IdFilter()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('idfilter',exit_code))     
 
-pipeline_run([fdr])
+pipeline_run([idfilter])
 
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
