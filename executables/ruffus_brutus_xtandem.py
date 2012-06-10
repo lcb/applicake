@@ -184,7 +184,7 @@ def idfilter(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('idfilter',exit_code)) 
     
-@transform(interprophet,regex('idfilter.ini'),'mzxml2mzml.ini')
+@transform(idfilter,regex('idfilter.ini'),'mzxml2mzml.ini')
 def mzxml2mzml(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
                 ]
