@@ -4,10 +4,10 @@ Created on Jun 10, 2012
 @author: quandtan
 '''
 
-from applicake.applications.proteomics.base import PeptideProteinPreprocessing
+from applicake.applications.proteomics.base import PeptideProteinProcessing
 from applicake.framework.templatehandler import BasicTemplateHandler
 
-class PeptideIndexer(PeptideProteinPreprocessing):
+class PeptideIndexer(PeptideProteinProcessing):
     """
     Wrapper for the OpenMS tools PeptideIndexer.
     """

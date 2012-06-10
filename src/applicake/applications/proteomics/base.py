@@ -49,6 +49,23 @@ class OpenMs(IWrapper):
     '''
     Basic wrapper class for OpenMS tools
     '''
+    
+    _input_file = ''
+    _result_file = ''
+    _default_prefix = ''   
+    
+    def __init__(self):
+        """
+        Constructor
+        """
+        base = self.__class__.__name__
+        self._input_file = '%s.ini' % base # application specific config file    
+    
+    def get_prefix(self,info,log):
+        if not info.has_key(self.PREFIX):
+            info[self.PREFIX] = self._default_prefix
+            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
+        return info[self.PREFIX],info     
 
     def set_args(self,log,args_handler):
         """
@@ -71,28 +88,18 @@ class OpenMs(IWrapper):
         """    
         return(run_code,info)  
  
-class PeptideProteinPreprocessing(OpenMs):
+class PeptideProteinProcessing(OpenMs):
     """
-    Base class specifically for OpenMS tools dealing with peptide-protein preprocessing
+    Base class specifically for OpenMS tools that modify idXML files (e.g. for peptide-protein processing).
     """
-
-    _input_file = ''
-    _result_file = ''
-    _default_prefix = ''
 
     def __init__(self):
         """
         Constructor
         """
+        super(PeptideProteinProcessing,self).__init__()
         base = self.__class__.__name__
-        self._input_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application
-
-    def _get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = self._default_prefix
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
 
     def prepare_run(self,info,log):
         """
@@ -116,7 +123,7 @@ class PeptideProteinPreprocessing(OpenMs):
         mod_template,info = th.modify_template(info, log)
         # can delete temporary key as it is not longer needed
         del info['ORGIDXML']
-        prefix,info = self._get_prefix(info,log)
+        prefix,info = self.get_prefix(info,log)
         command = '%s -ini %s' % (prefix,self._input_file)
         return command,info
 
@@ -124,6 +131,53 @@ class PeptideProteinPreprocessing(OpenMs):
         """
         See interface
         """
-        args_handler = super(PeptideProteinPreprocessing, self).set_args(log,args_handler)
+        args_handler = super(PeptideProteinProcessing, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'IDXML', 'The input idXML file ')
         return args_handler
+    
+class SignalProcessing(OpenMs):
+    """
+    Base class specifically for OpenMS tools that modify mzML files (e.g. for signal processing)
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super(PeptideProteinProcessing,self).__init__()
+        base = self.__class__.__name__
+        self._result_file = '%s.mzML' % base # result produced by the application
+
+    def prepare_run(self,info,log):
+        """
+        See interface.
+
+        - Read the a specific template and replaces variables from the info object.
+        - Tool is executed using the pattern: [PREFIX] -ini [TEMPLATE].
+        - If there is a result file, it is added with a specific key to the info object.
+        """
+        wd = info[self.WORKDIR]
+        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
+        self._input_file = os.path.join(wd,self._input_file)
+        info['TEMPLATE'] = self._input_file
+        self._result_file = os.path.join(wd,self._result_file)
+        # have to temporarily set a key in info to store the original IDXML
+        info['ORGMZXML'] = info['IDXML']
+        info['MZML'] = self._result_file
+        log.debug('get template handler')
+        th = self.get_template_handler()
+        log.debug('modify template')
+        mod_template,info = th.modify_template(info, log)
+        # can delete temporary key as it is not longer needed
+        del info['ORGMZXML']
+        prefix,info = self.get_prefix(info,log)
+        command = '%s -ini %s' % (prefix,self._input_file)
+        return command,info
+
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """
+        args_handler = super(PeptideProteinProcessing, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, 'MZXML', 'The input mzML file ')
+        return args_handler    

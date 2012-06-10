@@ -24,7 +24,7 @@ class Tandem2Xml(MsMsIdentification):
         base = self.__class__.__name__
         self._result_file = '%s.pepxml' % base # result produced by the application
 
-    def _get_prefix(self,info,log):
+    def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
             info[self.PREFIX] = 'Tandem2XML'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
@@ -40,7 +40,7 @@ class Tandem2Xml(MsMsIdentification):
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file) 
         info['PEPXMLS'] = [self._result_file]
-        prefix,info = self._get_prefix(info,log)
+        prefix,info = self.get_prefix(info,log)
 
         command = '%s %s %s' % (prefix,info['XTANDEM_RESULT'],self._result_file)
         return command,info

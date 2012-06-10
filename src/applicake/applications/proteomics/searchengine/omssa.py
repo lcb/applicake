@@ -24,7 +24,7 @@ class Omssa(MsMsIdentification):
         th = self.get_template_handler()
         log.debug('modify template')                
         mod_tpl,info = th.modify_template(info, log)      
-        prefix,info = self._get_prefix(info,log)
+        prefix,info = self.get_prefix(info,log)
 #        basename = info['MGF'].split(".")[0].split("/")[-1]        
 #        _result_file  = os.path.join(info[self.WORKDIR],basename + ".pep.xml")
         self._result_file = os.path.join(info[self.WORKDIR],self._result_file)

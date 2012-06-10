@@ -55,7 +55,7 @@ class Xtandem(MsMsIdentification):
                 info[key] = ','.join(mods)                
         return info
                  
-    def _get_prefix(self,info,log):
+    def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
             info[self.PREFIX] = 'tandem'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
@@ -114,7 +114,7 @@ class Xtandem(MsMsIdentification):
         mod_template,info = th.modify_template(info, log)
         log.debug('write input files')
         info = self._write_input_files(info, log)        
-        prefix,info = self._get_prefix(info,log)
+        prefix,info = self.get_prefix(info,log)
         command = '%s %s' % (prefix,self._input_file)
         return command,info    
 

@@ -26,7 +26,7 @@ class Xinteract(MsMsIdentification):
         base = self.__class__.__name__
         self._result_file = '%s.pepxml' % base
         
-    def _get_prefix(self,info,log):
+    def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
             info[self.PREFIX] = 'xinteract'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
@@ -46,7 +46,7 @@ class Xinteract(MsMsIdentification):
         new = self._result_file
         log.debug('replace value of [PEPXMLS] [%s] with [%s]' %(old,new))     
         info['PEPXMLS'] = [new]
-        prefix,info = self._get_prefix(info,log)
+        prefix,info = self.get_prefix(info,log)
         command = '%s -N%s %s %s' % (prefix,self._result_file,info['XINTERACT_ARGS'],','.join(old))
         return command,info
 

@@ -26,7 +26,7 @@ class PepXml2IdXml(OpenMs):
         self._input_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application    
     
-    def _get_prefix(self,info,log):
+    def get_prefix(self,info,log):
             if not info.has_key(self.PREFIX):
                 info[self.PREFIX] = 'IDFileConverter'
                 log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
@@ -65,7 +65,7 @@ class PepXml2IdXml(OpenMs):
         mod_template,info = th.modify_template(info, log)
         # reset PEPXMLS to original value
         info['PEPXMLS'] = pepxmls
-        prefix,info = self._get_prefix(info,log)
+        prefix,info = self.get_prefix(info,log)
         command = '%s -ini %s' % (prefix,self._input_file)
         return command,info      
 
