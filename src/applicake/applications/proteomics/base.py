@@ -97,7 +97,9 @@ class IdXmlModifier(OpenMs):
         """
         Constructor
         """
-        super(IdXmlModifier,self).__init__()
+        # http://thingspython.wordpress.com/2010/09/27/another-super-wrinkle-raising-typeerror/
+        self._as_super = super(IdXmlModifier,self)
+        self._as_super.__init__()
         base = self.__class__.__name__
         self._result_file = '%s.idXML' % base # result produced by the application
 

@@ -16,7 +16,9 @@ class PeakPickerHighRes(MzMlModifier):
         """
         Constructor
         """
-        super(PeakPickerHighRes,self).__init__()
+        # http://thingspython.wordpress.com/2010/09/27/another-super-wrinkle-raising-typeerror/
+        self._as_super = super(PeakPickerHighRes,self)
+        self._as_super.__init__()
         self._default_prefix = 'PeakPickerHiRes' # default prefix, usually the name of the OpenMS-tool
 
 
