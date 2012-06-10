@@ -12,11 +12,12 @@ class PeptideIndexer(PeptideProteinPreprocessing):
     Wrapper for the OpenMS tools PeptideIndexer.
     """
 
-    def _get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = 'PeptideIndexer'
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
+    def __init__(self):
+        """
+        Constructor
+        """
+        super(PeptideIndexer,self).__init__()
+        self._default_prefix = 'PeptideIndexer' # default prefix, usually the name of the OpenMS-tool
 
     def get_template_handler(self):
         """

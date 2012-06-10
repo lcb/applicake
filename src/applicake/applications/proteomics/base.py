@@ -78,6 +78,7 @@ class PeptideProteinPreprocessing(OpenMs):
 
     _input_file = ''
     _result_file = ''
+    _default_prefix = ''
 
     def __init__(self):
         """
@@ -86,6 +87,12 @@ class PeptideProteinPreprocessing(OpenMs):
         base = self.__class__.__name__
         self._input_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application
+
+    def _get_prefix(self,info,log):
+        if not info.has_key(self.PREFIX):
+            info[self.PREFIX] = self._default_prefix
+            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
+        return info[self.PREFIX],info
 
     def prepare_run(self,info,log):
         """

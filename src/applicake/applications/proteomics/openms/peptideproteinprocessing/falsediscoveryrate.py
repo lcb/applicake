@@ -12,11 +12,12 @@ class FalseDiscoveryRate(PeptideProteinPreprocessing):
     Wrapper for the OpenMS tools FalseDiscoveryRate.
     """
 
-    def _get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = 'FalseDiscoveryRate'
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
+    def __init__(self):
+        """
+        Constructor
+        """
+        super(FalseDiscoveryRate,self).__init__()
+        self._default_prefix = 'FalseDiscoveryRate' # default prefix, usually the name of the OpenMS-tool
 
     def get_template_handler(self):
         """
