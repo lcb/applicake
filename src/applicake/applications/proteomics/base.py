@@ -97,9 +97,7 @@ class IdXmlModifier(OpenMs):
         """
         Constructor
         """
-        # http://thingspython.wordpress.com/2010/09/27/another-super-wrinkle-raising-typeerror/
-        self._as_super = super(IdXmlModifier,self)
-        self._as_super.__init__()
+        super(IdXmlModifier,self).__init__()
         base = self.__class__.__name__
         self._result_file = '%s.idXML' % base # result produced by the application
 
@@ -146,7 +144,8 @@ class MzMlModifier(OpenMs):
         """
         Constructor
         """
-        super(MzMlModifier,self).__init__()
+        self._as_super = super(MzMlModifier,self)
+        self._as_super.__init__()
         base = self.__class__.__name__
         self._result_file = '%s.mzML' % base # result produced by the application
 
