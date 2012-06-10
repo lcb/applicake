@@ -26,6 +26,8 @@ from applicake.applications.proteomics.openms.filehandling.idfileconverter impor
 from applicake.applications.proteomics.openms.peptideproteinprocessing.falsediscoveryrate import FalseDiscoveryRate
 from applicake.applications.proteomics.openms.peptideproteinprocessing.peptideindexer import PeptideIndexer
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
+from applicake.applications.proteomics.openms.filehandling.fileconverter import MzXml2MzMl
+from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
 
 cwd = None
 
@@ -180,9 +182,29 @@ def idfilter(input_file_name, output_file_name):
     application = IdFilter()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('idfilter',exit_code))     
+        raise Exception("[%s] failed [%s]" % ('idfilter',exit_code)) 
+    
+@transform(interprophet,regex('interprophet.ini'),'mzxml2mzml.ini')
+def mzxml2mzml(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
+                ]
+    runner = WrapperRunner()
+    application = MzXml2MzMl()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('mzxml2mzml',exit_code)) 
+
+@transform(mzxml2mzml,regex('mzxml2mzmlt.ini'),'peakpickerhighres.ini')
+def peakpickerhighres(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
+                ]
+    runner = WrapperRunner()
+    application = PeakPickerHighRes()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('peakpickerhighres',exit_code)) 
+         
 
 pipeline_run([idfilter])
-
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg

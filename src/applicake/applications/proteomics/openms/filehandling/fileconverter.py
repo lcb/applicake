@@ -13,9 +13,6 @@ class MzXml2MzMl(OpenMs):
     Specific implementation of the FileConverter tool to convert files in mzXML to mzML format.
     """
 
-    _template_file = ''
-    _result_file = ''
-
     def __init__(self):
         """
         Constructor
@@ -23,12 +20,8 @@ class MzXml2MzMl(OpenMs):
         base = self.__class__.__name__
         self._template_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.mzML' % base # result produced by the application
+        self._default_prefix = 'FileConverter'
 
-    def get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = 'FileConverter'
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
 
     def get_template_handler(self):
         """
