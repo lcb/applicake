@@ -144,8 +144,7 @@ class MzMlModifier(OpenMs):
         """
         Constructor
         """
-        self._as_super = super(MzMlModifier,self)
-        self._as_super.__init__()
+        super(MzMlModifier,self).__init__()
         base = self.__class__.__name__
         self._result_file = '%s.mzML' % base # result produced by the application
 
@@ -179,6 +178,6 @@ class MzMlModifier(OpenMs):
         """
         See interface
         """
-        args_handler = super(IdXmlModifier, self).set_args(log,args_handler)
+        args_handler = super(MzMlModifier, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'MZXML', 'The input mzML file ')
         return args_handler    
