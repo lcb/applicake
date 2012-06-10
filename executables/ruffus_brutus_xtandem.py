@@ -24,6 +24,7 @@ from applicake.applications.proteomics.tpp.xinteract import Xinteract
 from applicake.applications.proteomics.tpp.interprophet import InterProphet
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 from applicake.applications.proteomics.openms.peptideproteinprocessing.falsediscoveryrate import FalseDiscoveryRate
+from applicake.applications.proteomics.openms.peptideproteinprocessing.peptideindexer import PeptideIndexer
 
 cwd = None
 
@@ -155,7 +156,7 @@ def peptideindexer(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
                 ]
     runner = WrapperRunner()
-    application = FalseDiscoveryRate()
+    application = PeptideIndexer()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('peptideindexer',exit_code))
