@@ -60,7 +60,7 @@ class PeakPickerHighResTemplate(BasicTemplateHandler):
       <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
       <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
       <NODE name="algorithm" description="Algorithm parameters section">
-        <ITEM name="signal_to_noise" value="SIGNAL_TO_NOISE" type="float" description="Minimal signal-to-noise ratio for a peak to be picked (0.0 disables SNT estimation!)" restrictions="0:" />
+        <ITEM name="signal_to_noise" value="$SIGNAL_TO_NOISE" type="float" description="Minimal signal-to-noise ratio for a peak to be picked (0.0 disables SNT estimation!)" restrictions="0:" />
         <ITEM name="ms1_only" value="false" type="string" description="If true, peak picking is only applied to MS1 scans. Other scans are copied to the output without changes." restrictions="true,false" />
       </NODE>
     </NODE>
