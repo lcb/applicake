@@ -118,6 +118,7 @@ class FileUtils(object):
         """
         try:
             os.makedirs(path)
+            os.chmod(path, '0777')
             log.debug('dir [%s] was created' % path)
         except OSError as error:
             if error.errno == errno.EEXIST and os.path.isdir(path):
@@ -163,4 +164,25 @@ class FileUtils(object):
                     msg.append('COULT NOT REMOVE DIR [%s]' % d)
                     return (success,';'.join(msg))
         return (success,';'.join(msg))
+
+#    @staticmethod
+#    def _files(self,src_dir,dest_dir,level=0):
+#        """
+#        Copy files from one directory to another.
+#        
+#        @type src_dir: string
+#        @param src_dir: Path to the source directory
+#        @type dest_dir: string
+#        @param dest_dir: Path to the destination directory
+#        @type level: int
+#        @param level: Level number of sub directories to consider. Default is 0.  
+#        """
+#        if level > 0:
+#            subdirs = '*%s'% os.path.sep  * level
+#            regex = os.path.join(src_dir,subdirs)
+#        else:
+#            regex = os.path.join(src_dir,'*')
+#        for name in glob.glob(regex):
+#            shutil
+        
         
