@@ -426,8 +426,11 @@ class CollectorRunner(ApplicationRunner):
     
     def _add_additional_info(self,info,log):
             pargs = {}
-            pargs[self.INPUT] = self.app.get_collector_files(info, log)[0] 
+            collector_files = self.app.get_collector_files(info, log) 
+            log.debug('first collector file found [%s]' % collector_files)
+            pargs[self.INPUT] = collector_files[0]
             collector_info = self.get_info_handler().get_info(log, pargs)
+            log.debug('info from collector file [%s]' % collector_info)
             keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX]
             needed_info = DictUtils.extract(collector_info, keys, include=True)
             return DictUtils.merge(info, needed_info, priority='left')       
