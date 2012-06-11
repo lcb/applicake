@@ -451,6 +451,8 @@ class CollectorRunner(ApplicationRunner):
 #            log.debug('files in old wd [%s]' % os.listdir(old_wd))   
 #            log.debug('files in new wd [%s]' % os.listdir(new_wd))
             shutil.copytree(old_wd, new_wd, symlinks=False, ignore=None)
+#            for file in os.listdir(old_wd):
+#                shutil.r
             shutil.rmtree(old_wd)         
 #            shutil.move(old_wd, new_wd)
             info[self.WORKDIR] = new_wd
