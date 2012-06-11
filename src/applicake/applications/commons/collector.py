@@ -39,8 +39,7 @@ class BasicCollector(IApplication):
             log.debug('pattern used to search for collector files [%s]' % pattern)
             # merges found collector files for each collector into a single list
             collector_files.extend(glob.glob(pattern))
-        collector_files.sort() 
-           
+        collector_files.sort()            
         return collector_files
 
     def main(self,info,log):

@@ -437,7 +437,9 @@ class CollectorRunner(ApplicationRunner):
         """
         if not info.has_key(self.INPUT):
             # need to extract information about workdir if no input file is given
+            log.debug('did not find [%s] key. Get additional information from first collector file. ' % self.INPUT)            
             info = self._add_additional_info(info, log)
+            log.debug('info with additional information [%s]' % info)
         return super(CollectorRunner,self).create_workdir(info,log)
 
     def run_app(self,app,info,log,args_handler):
