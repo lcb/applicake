@@ -28,7 +28,8 @@ from applicake.applications.proteomics.openms.peptideproteinprocessing.peptidein
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
 from applicake.applications.proteomics.openms.filehandling.fileconverter import MzXml2MzMl
 from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
-from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided
+from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided,\
+    FFCStrictLfq
 
 cwd = None
 
@@ -211,7 +212,8 @@ def featurefindercentroided(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file'
                 ]
     runner = WrapperRunner()
-    application = FeatureFinderCentroided()
+#    application = FeatureFinderCentroided()
+    application = FFCStrictLfq()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
