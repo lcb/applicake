@@ -26,7 +26,7 @@ class FeatureFinderCentroided(OpenMs):
 
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = ''
+            info[self.PREFIX] = 'FeatureFinderCentroided'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info
 
