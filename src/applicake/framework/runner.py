@@ -460,23 +460,23 @@ class CollectorRunner(ApplicationRunner):
             log.debug('content of app_info after running app [%s]' % app_info)  
             log.debug('content of info [%s]' % info) 
             
-            # takes basedir and job_idx from the app_info
-            bd = app_info[self.BASEDIR]
-            if isinstance(bd, list):
-                bd = bd[0]
-            info[self.BASEDIR] = bd
-            idx = app_info[self.JOB_IDX]
-            if isinstance(idx, list):
-                idx = idx[0]
-            info[self.JOB_IDX] = idx                
-            # takes new info and reset workdir
-            new_wd = os.path.join(bd,idx,info[self.NAME])
-            old_wd = info[self.WORKDIR]
-            log.debug('%s,%s' % (old_wd,new_wd))
-#            log.debug('files in old wd [%s]' % os.listdir(old_wd))   
-#            log.debug('files in new wd [%s]' % os.listdir(new_wd))
-            shutil.copytree(old_wd, new_wd, symlinks=False, ignore=None)
-            info[self.WORKDIR] = new_wd
+#            # takes basedir and job_idx from the app_info
+#            bd = app_info[self.BASEDIR]
+#            if isinstance(bd, list):
+#                bd = bd[0]
+#            info[self.BASEDIR] = bd
+#            idx = app_info[self.JOB_IDX]
+#            if isinstance(idx, list):
+#                idx = idx[0]
+#            info[self.JOB_IDX] = idx                
+#            # takes new info and reset workdir
+#            new_wd = os.path.join(bd,idx,info[self.NAME])
+#            old_wd = info[self.WORKDIR]
+#            log.debug('%s,%s' % (old_wd,new_wd))
+##            log.debug('files in old wd [%s]' % os.listdir(old_wd))   
+##            log.debug('files in new wd [%s]' % os.listdir(new_wd))
+#            shutil.copytree(old_wd, new_wd, symlinks=False, ignore=None)
+#            info[self.WORKDIR] = new_wd
             info = DictUtils.merge(info, app_info,priority='left')  
             
             # !!!  TODO add collector files to key 'CREATED_FILES' in order to copy them to the workdir !!!
