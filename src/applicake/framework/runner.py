@@ -452,10 +452,6 @@ class CollectorRunner(ApplicationRunner):
 #            log.debug('files in old wd [%s]' % os.listdir(old_wd))   
 #            log.debug('files in new wd [%s]' % os.listdir(new_wd))
             shutil.copytree(old_wd, new_wd, symlinks=False, ignore=None)
-            for path in glob(os.path.join(old_wd,'*')):                             
-                os.remove(path)
-            shutil.rmtree(old_wd)         
-#            shutil.move(old_wd, new_wd)
             info[self.WORKDIR] = new_wd
             info = DictUtils.merge(info, app_info,priority='left')  
             
