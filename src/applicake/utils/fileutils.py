@@ -118,7 +118,7 @@ class FileUtils(object):
         """
         try:
             os.makedirs(path)
-            os.chmod(path, '0777')
+            os.chmod(path, 0777)
             log.debug('dir [%s] was created' % path)
         except OSError as error:
             if error.errno == errno.EEXIST and os.path.isdir(path):
