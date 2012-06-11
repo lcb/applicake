@@ -22,6 +22,7 @@ from applicake.utils.fileutils import FileUtils
 from applicake.utils.fileutils import FileLocker
 from applicake.utils.dictutils import DictUtils                          
 from glob import glob
+from applicake.applications.commons.collector import BasicCollector
                  
                  
 class Runner(KeyEnum):
@@ -420,6 +421,22 @@ class CollectorRunner(ApplicationRunner):
     """
     Specific runner for collector applications.
     """
+    
+    def _add_additional_info(self,info,log):
+            pargs = {}
+            pargs[self.INPUT] = BasicCollector.get_collector_files(info, log)[0] 
+            collector_info = self.get_info_handler().get_info(log, pargs)
+            keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX]
+            needed_info = DictUtils.extract(collector_info, keys, include=True)
+            return DictUtils.merge(info, needed_info, priority='left')       
+    
+    def create_workdir(self,info,log):
+        """
+        """
+        if not info.has_key(self.INPUT):
+            # need to extract information about workdir if no input file is given
+            info = self._add_additional_info(info, log)
+        return super(CollectorRunner,self).create_workdir(info,log)
 
     def run_app(self,app,info,log,args_handler):
         """
