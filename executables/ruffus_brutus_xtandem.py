@@ -206,7 +206,7 @@ def peakpickerhighres(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('peakpickerhighres',exit_code)) 
          
 
-#pipeline_run([peakpickerhighres])
-pipeline_run([collector])
+pipeline_run([peakpickerhighres])
+#pipeline_run([collector])
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
