@@ -21,6 +21,7 @@ from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.fileutils import FileLocker
 from applicake.utils.dictutils import DictUtils                          
+from glob import glob
                  
                  
 class Runner(KeyEnum):
@@ -451,9 +452,9 @@ class CollectorRunner(ApplicationRunner):
 #            log.debug('files in old wd [%s]' % os.listdir(old_wd))   
 #            log.debug('files in new wd [%s]' % os.listdir(new_wd))
             shutil.copytree(old_wd, new_wd, symlinks=False, ignore=None)
-#            for file in os.listdir(old_wd):
-#                shutil.r
-            shutil.rmtree(os.path.abspath(old_wd))         
+            for path in glob(os.path.join(old_wd,'*')):                             
+                os.remove(path)
+            shutil.rmtree(old_wd)         
 #            shutil.move(old_wd, new_wd)
             info[self.WORKDIR] = new_wd
             info = DictUtils.merge(info, app_info,priority='left')  
