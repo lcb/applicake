@@ -63,8 +63,7 @@ class Tandem2Xml(MsMsIdentification):
         """  
         exit_code,info = super(Tandem2Xml,self).validate_run(info,log, run_code,out_stream, err_stream)
         if 0 != run_code:
-            return exit_code,info   
-        out_stream.seek(0)        
+            return exit_code,info        
         if not FileUtils.is_valid_file(log, self._result_file):
             log.critical('[%s] is not valid' %self._result_file)
             return 1,info

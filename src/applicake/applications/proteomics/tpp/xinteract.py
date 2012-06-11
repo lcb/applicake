@@ -75,13 +75,13 @@ class Xinteract(MsMsIdentification):
             return exit_code,info
         out_stream.seek(0)
         err_stream.seek(0)
-        if 'No decoys with label' in err_stream:
+        if 'No decoys with label' in err_stream.read():
             self.log.error('found no decoy hits')
             return 1,info                   
-        if 'exited with non-zero exit code' in out_stream:
+        if 'exited with non-zero exit code' in out_stream.read():
             self.log.error('xinteract did not complete with exit code !=0')
             return 1,info
-        if 'QUIT - the job is incomplete' in out_stream:
+        if 'QUIT - the job is incomplete' in out_stream.read():
             self.log.error('xinteract: job is incomplete')
             return 1,info        
         if not FileUtils.is_valid_file(log, self._result_file):
