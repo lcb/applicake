@@ -88,10 +88,10 @@ class OpenMs(IWrapper):
         """    
         if run_code != 0:            
             return(run_code,info)
-        out_stream.seek(0)
-        if 'error' in out_stream:
-            log.error('found error note in output')
-            return 1,info
+            err_stream.seek(0)
+            if 'error' in err_stream:
+                log.error('found error note in err_stream')
+                return 1,info
           
  
 class IdXmlModifier(OpenMs):
