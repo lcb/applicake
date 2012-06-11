@@ -73,7 +73,9 @@ class Runner(KeyEnum):
             log.debug('content of info [%s]' % info)
             info = DictUtils.merge(info, default_info,priority='left')
             log.debug('Added default values to info they were not set before')            
-            log.debug('content of final info [%s]' % info)    
+            log.debug('content of final info [%s]' % info)   
+            log.info('Start [%s]' % self.create_workdir.__name__)
+            info = self.create_workdir(info,log)              
             log.info('Start [%s]' % self.get_streams.__name__)               
             (self.out_stream,self.err_stream,self.log_stream) = self.get_streams(info,log)                
             sys.stdout = self.out_stream
@@ -87,8 +89,6 @@ class Runner(KeyEnum):
             tmp_log_stream.seek(0)
             self.log_stream.write(tmp_log_stream.read())
             log.debug('wrote content of temporary logger to new logger')                
-            log.info('Start [%s]' % self.create_workdir.__name__)
-            info = self.create_workdir(info,log) 
             log.info('Start [%s]' % self.run_app.__name__)
             exit_code,info = self.run_app(app,info,log,args_handler)
             if exit_code != 0:
@@ -289,12 +289,15 @@ class Runner(KeyEnum):
             log_stream = StringIO() 
             log.debug('Created in-memory streams')                                      
         elif storage == 'file':
-            out_file = ''.join([info[self.NAME],".out"])
-            err_file = ''.join([info[self.NAME],".err"]) 
-            log_file = ''.join([info[self.NAME],".log"])                      
-            created_files = [out_file,err_file,log_file]
-            info[self.COPY_TO_WD] = created_files
-            log.debug("add [%s] to info['%s'] to copy them later to the work directory" % (created_files,self.COPY_TO_WD))            
+            base = info[self.NAME]
+            if info.has_key(self.WORKDIR):
+                base = os.path.join(info[self.WORKDIR],base)             
+            out_file = ''.join([base,".out"])
+            err_file = ''.join([base,".err"]) 
+            log_file = ''.join([base,".log"])                      
+#            created_files = [out_file,err_file,log_file]
+#            info[self.COPY_TO_WD] = created_files
+#            log.debug("add [%s] to info['%s'] to copy them later to the work directory" % (created_files,self.COPY_TO_WD))            
             # streams are initialized with 'w+' that files newly created and therefore previous versions are deleted.
             out_stream = open(out_file, 'w+',buffering=0)            
             err_stream = open(err_file, 'w+',buffering=0)  
