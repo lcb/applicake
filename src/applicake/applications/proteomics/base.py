@@ -86,7 +86,13 @@ class OpenMs(IWrapper):
         
         Return the unaltered run_code from the tool execution as exit_code.
         """    
-        return(run_code,info)  
+        if run_code != 0:            
+            return(run_code,info)
+        out_stream.seek(0)
+        if 'error' in out_stream:
+            log.error('found error note in output')
+            return 1,info
+          
  
 class IdXmlModifier(OpenMs):
     """
