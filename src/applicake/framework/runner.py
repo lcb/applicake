@@ -426,9 +426,9 @@ class CollectorRunner(ApplicationRunner):
     
     def _add_additional_info(self,info,log):
             pargs = {}
-            collector_files = self.app.get_collector_files(info, log) 
-            log.debug('first collector file found [%s]' % collector_files)
-            pargs[self.INPUT] = collector_files[0]
+            collector_file = self.app.get_collector_files(info, log)[0] 
+            log.debug('collector file taken to extract additional infos [%s]' % collector_file)
+            pargs[self.INPUT] = [collector_file]
             collector_info = self.get_info_handler().get_info(log, pargs)
             log.debug('info from collector file [%s]' % collector_info)
             keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX]
