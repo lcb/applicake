@@ -47,6 +47,8 @@ class Runner(KeyEnum):
                         }         
         tmp_log_stream = StringIO()
         exit_code = 1
+        # needed e.g. in collector
+        self.app = app
         try:
             # create memory logger            
             log = Logger.create(level=default_info[self.LOG_LEVEL],name='memory_logger',stream=tmp_log_stream)
@@ -424,7 +426,7 @@ class CollectorRunner(ApplicationRunner):
     
     def _add_additional_info(self,info,log):
             pargs = {}
-            pargs[self.INPUT] = BasicCollector().get_collector_files(info, log)[0] 
+            pargs[self.INPUT] = self.app.get_collector_files(info, log)[0] 
             collector_info = self.get_info_handler().get_info(log, pargs)
             keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX]
             needed_info = DictUtils.extract(collector_info, keys, include=True)
