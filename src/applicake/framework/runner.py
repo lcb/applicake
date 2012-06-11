@@ -448,6 +448,7 @@ class CollectorRunner(ApplicationRunner):
             new_wd = os.path.join(bd,idx,info[self.NAME])
             old_wd = info[self.WORKDIR]
             log.debug('%s,%s' % (old_wd,new_wd))
+            log.debug('files in old wd [%s]' % os.listdir(old_wd))            
             shutil.move(old_wd, new_wd)
             info[self.WORKDIR] = new_wd
             info = DictUtils.merge(info, app_info,priority='left')  
@@ -461,11 +462,7 @@ class CollectorRunner(ApplicationRunner):
                                [IApplication,__class__.__name__]))  
             exit_code = 1
         return exit_code,info   
-    
-    def _change_workdir(self,info,log):
-        """
-        change the workdir
-        """     
+        
 
 class WrapperRunner(ApplicationRunner):
     """
