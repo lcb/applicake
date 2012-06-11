@@ -196,7 +196,8 @@ def mzxml2mzml(input_file_name, output_file_name):
 
 @transform(mzxml2mzml,regex('mzxml2mzml.ini'),'peakpickerhighres.ini')
 def peakpickerhighres(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',
+                '--SIGNAL_TO_NOISE','1'               
                 ]
     runner = WrapperRunner()
     application = PeakPickerHighRes()

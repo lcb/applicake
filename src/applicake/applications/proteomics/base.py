@@ -90,9 +90,9 @@ class OpenMs(IWrapper):
         if run_code != 0:            
             return(run_code,info)
             err_stream.seek(0)
-        if 'error' in err_stream.read():
-            log.error('found error note in err_stream')
-            return 1,info
+#        if 'error' in err_stream.read():
+#            log.error('found error note in err_stream')
+#            return 1,info
         return 0,info
           
  
