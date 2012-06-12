@@ -14,6 +14,24 @@ class MsMsIdentification(IWrapper):
     STATIC_MODS = 'STATIC_MODS'
     VARIABLE_MODS = 'VARIABLE_MODS'
 
+    _template_file = ''
+    _result_file = ''
+    _default_prefix = ''   
+    
+    def __init__(self):
+        """
+        Constructor
+        """
+        base = self.__class__.__name__
+        self._template_file = '%s.tpl' % base # application specific config file
+        self._result_file = '%s.result' % base # result produced by the application    
+        
+    def get_prefix(self,info,log):
+        if not info.has_key(self.PREFIX):
+            info[self.PREFIX] = self._default_prefix
+            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
+        return info[self.PREFIX],info             
+
     def set_args(self,log,args_handler):
         """
         See super class.

@@ -18,11 +18,15 @@ class Xtandem(MsMsIdentification):
     '''
     Wrapper for the search engine X!Tandem.
     '''
+
     
     def __init__(self):
+        '''
+        Constructor
+        '''
+        super(Xtandem,self).__init__()
+        self._default_prefix = 'tandem' # default prefix, usually the name of the application        
         base = self.__class__.__name__
-        self._template_file = '%s.input' % base # application specific config file
-        self._result_file = '%s.result' % base # result produced by the application
         self._taxonomy_file = '%s.taxonomy' % base      
 
 
@@ -53,13 +57,7 @@ class Xtandem(MsMsIdentification):
                     converted_mod = ModificationDb(log).get(mod, self.__class__.__name__)
                     mods.append(converted_mod)
                 info[key] = ','.join(mods)                
-        return info
-                 
-    def get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = 'tandem'
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info         
+        return info    
 
     def _write_input_files(self,info,log):       
         db_file = os.path.join(info[self.WORKDIR],info['DBASE'])
@@ -98,7 +96,8 @@ class Xtandem(MsMsIdentification):
         """ % self.TEMPLATE
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._template_file = os.path.join(wd,self._template_file)  
+        self._template_file = os.path.join(wd,self._template_file) 
+        info['TEMPLATE'] = self._template_file 
         self._result_file = os.path.join(wd,self._result_file) 
         self._taxonomy_file = os.path.join(wd,self._taxonomy_file)
         log.debug('add key [XTANDEM_RESULT] to info') 
