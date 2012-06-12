@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Created on Jun 12, 2012
 
@@ -13,7 +14,6 @@ def idmapper():
     sys.argv = ['', '-i', 'featurefindercentroided.ini', '-o', 'idmapper'
                 ]
     runner = WrapperRunner()
-#    application = FeatureFinderCentroided()
     application = IdMapper()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
