@@ -10,6 +10,11 @@ from ruffus import *
 from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idmapper import IdMapper
 
+
+def setup():
+    print 'start...'
+
+@follows(setup)
 def idmapper():
     sys.argv = ['', '-i', 'featurefindercentroided.ini', '-o', 'idmapper'
                 ]
