@@ -27,7 +27,8 @@ class Xtandem(MsMsIdentification):
         super(Xtandem,self).__init__()
         self._default_prefix = 'tandem' # default prefix, usually the name of the application        
         base = self.__class__.__name__
-        self._taxonomy_file = '%s.taxonomy' % base      
+        self._taxonomy_file = '%s.taxonomy' % base 
+        self._input_file = '%s.input' % base     
 
 
     def _define_score(self, info, log):
@@ -67,14 +68,14 @@ class Xtandem(MsMsIdentification):
             sink.write('<file format="peptide" URL="%s"/>' % db_file)
             sink.write("</taxon>\n</bioml>")
         log.debug('Created [%s]' % self._taxonomy_file)          
-        with open(self._template_file, "w") as sink:
+        with open(self._input_file, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+info[self.TEMPLATE]+"</note>\n")
             sink.write("<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>"+self._result_file+"</note>\n")
             sink.write("<note type='input' label='list path, taxonomy information'>"+self._taxonomy_file+"</note>\n")
             sink.write("<note type='input' label='spectrum, path'>"+info['MZXML']+"</note>\n")
             sink.write("<note type='input' label='protein, taxon'>database</note>\n</bioml>\n")
-        log.debug('Created [%s]' % self._template_file)    
+        log.debug('Created [%s]' % self._input_file)    
         return info
 
     def get_template_handler(self):
