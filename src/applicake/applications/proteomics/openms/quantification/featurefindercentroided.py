@@ -67,7 +67,7 @@ class FeatureFinderCentroided(OpenMs):
         args_handler.add_app_args(log, 'FEATUREXML', 'The output featureXML file ')
         return args_handler
     
-class StrictLfq(FeatureFinderCentroided): 
+class OrbiLessStrict(FeatureFinderCentroided): 
     
     def get_template_handler(self):
         """

@@ -28,7 +28,7 @@ from applicake.applications.proteomics.openms.peptideproteinprocessing.peptidein
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
 from applicake.applications.proteomics.openms.filehandling.fileconverter import MzXml2MzMl
 from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
-from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided, StrictLfq
+from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided, OrbiLessStrict
 
 cwd = None
 
@@ -55,7 +55,7 @@ LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
 DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20120603160111752-510155,
+DATASET_CODE = 20120606045538225-517638,
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
@@ -69,7 +69,10 @@ THREADS = 8
 XTANDEM_SCORE = k-score
 XINTERACT_ARGS = -dDECOY_ -OAPdlIw
 IPROPHET_ARGS = MINPROB=0
-""" #,20120603165413998-510432,
+""" 
+#,20120603165413998-510432,
+# 20120606045538225-517638 -> b10-01219.p.mzxml
+# 20120603160111752-510155 -> b10-01219.c.mzxml 
 )       
         
 
@@ -212,7 +215,7 @@ def featurefindercentroided(input_file_name, output_file_name):
                 ]
     runner = WrapperRunner()
 #    application = FeatureFinderCentroided()
-    application = StrictLfq()
+    application = OrbiLessStrict()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
