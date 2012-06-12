@@ -73,7 +73,7 @@ IPROPHET_ARGS = MINPROB=0
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
 # 20120603160111752-510155 -> b10-01219.c.mzxml 
-# 20120124102254267-296925 -> orbi silac hela from petri
+# 20120124102254267-296925 -> orbi silac hela from petriimport os
 )       
         
 
