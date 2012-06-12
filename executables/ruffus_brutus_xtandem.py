@@ -55,7 +55,7 @@ LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
 DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20120124102254267-296925,
+DATASET_CODE = 20120603160111752-510155,
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
@@ -65,7 +65,7 @@ PRECMASSUNIT = ppm
 MISSEDCLEAVAGE = 0
 STATIC_MODS = Carbamidomethyl (C)
 VARIABLE_MODS = Oxidation (M)
-THREADS = 8
+THREADS = 4
 XTANDEM_SCORE = k-score
 XINTERACT_ARGS = -dDECOY_ -OAPdlIw
 IPROPHET_ARGS = MINPROB=0
