@@ -55,7 +55,7 @@ LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
 DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20120606045538225-517638,
+DATASET_CODE = 20120124102254267-296925,
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
@@ -73,6 +73,7 @@ IPROPHET_ARGS = MINPROB=0
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
 # 20120603160111752-510155 -> b10-01219.c.mzxml 
+# 20120124102254267-296925 -> orbi silac hela from petri
 )       
         
 
