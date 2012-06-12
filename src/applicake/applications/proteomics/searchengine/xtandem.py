@@ -115,7 +115,7 @@ class Xtandem(MsMsIdentification):
         log.debug('write input files')
         info = self._write_input_files(info, log)        
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s' % (prefix,self._template_file)
+        command = '%s %s' % (prefix,self._input_file)
         return command,info    
 
     def set_args(self,log,args_handler):
