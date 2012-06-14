@@ -51,7 +51,7 @@ class Mzxml2Mgf(IWrapper):
         log.debug('modify template')                
         mod_template,info = th.modify_template(info, log)        
         prefix,info = self.get_prefix(info,log)
-        command = "%s %s --outfile %s -o %s -c %s" %(prefix,info['MZXML'],self._result_filename, wd,info['TEMPLATE']) 
+        command = "%s %s --outfile %s -o %s -c %s" %(prefix,info['MZXML'],self._result_file, wd,info['TEMPLATE']) 
         return command,info  
     
     def set_args(self,log,args_handler):
