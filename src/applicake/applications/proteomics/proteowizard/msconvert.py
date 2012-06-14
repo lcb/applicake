@@ -69,8 +69,8 @@ class Mzxml2Mgf(IWrapper):
         See interface
         """
         if 0 != run_code:
-            return run_code
-        return 0  
+            return run_code,info
+        return 0,info  
 
 class Mzxml2MgfTemplate(BasicTemplateHandler):
     """
