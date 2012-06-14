@@ -60,7 +60,8 @@ class Mzxml2Mgf(IWrapper):
         """    
         args_handler.add_app_args(log, 'MGF', 'Peak list file in mgf format')    
         args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format') 
-        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')        
+        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
+        args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
         return args_handler      
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):
