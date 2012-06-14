@@ -110,7 +110,7 @@ def msconvert(input_file_name, output_file_name):
 
 
     
-@transform(dss, regex("msconvert.ini_"), "omssa.ini_")
+@transform(msconvert, regex("msconvert.ini_"), "omssa.ini_")
 def omssa(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name, 
                 '-l','DEBUG']
