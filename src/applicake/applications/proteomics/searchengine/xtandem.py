@@ -39,26 +39,7 @@ class Xtandem(MsMsIdentification):
             info['XTANDEM_SCORE'] = ''
         else:
             info['XTANDEM_SCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' % info['XTANDEM_SCORE']
-        return info
-    
-    def _define_mods(self,info,log):
-        """
-        Convert generic static/variable modifications into the program-specific format 
-        """
-        mod_keys = [self.STATIC_MODS,self.VARIABLE_MODS]
-        for key in mod_keys:
-            if not info.has_key(key):
-                info[key] = ''
-            else:
-                mods = []
-                for mod in info[key].split(';'):
-                    log.debug('modification [%s]' % key)
-                    log.debug('name [%s]')
-                    
-                    converted_mod = ModificationDb(log).get(mod, self.__class__.__name__)
-                    mods.append(converted_mod)
-                info[key] = ','.join(mods)                
-        return info    
+        return info   
 
     def _write_input_files(self,info,log):       
         db_file = os.path.join(info[self.WORKDIR],info['DBASE'])
@@ -109,7 +90,7 @@ class Xtandem(MsMsIdentification):
         log.debug('define score value')
         info = self._define_score(info, log)
         log.debug('define modifications')
-        info = self._define_mods(info, log)
+        info = self.define_mods(info, log)
         log.debug('modify template')                
         mod_template,info = th.modify_template(info, log)
         log.debug('write input files')

@@ -5,6 +5,7 @@ Created on May 27, 2012
 '''
 import os
 from applicake.framework.interfaces import IWrapper
+from applicake.applications.proteomics.modifications import ModificationDb
 
 class MsMsIdentification(IWrapper):
     '''
@@ -25,6 +26,24 @@ class MsMsIdentification(IWrapper):
         base = self.__class__.__name__
         self._template_file = '%s.tpl' % base # application specific config file
         self._result_file = '%s.result' % base # result produced by the application    
+
+    def define_mods(self,info,log):
+        """
+        Convert generic static/variable modifications into the program-specific format 
+        """
+        mod_keys = [self.STATIC_MODS,self.VARIABLE_MODS]
+        for key in mod_keys:
+            if not info.has_key(key):
+                info[key] = ''
+            else:
+                mods = []
+                for mod in info[key].split(';'):
+                    log.debug('modification [%s]' % key)
+                    log.debug('name [%s]')
+                    converted_mod = ModificationDb(log).get(mod, self.__class__.__name__)
+                    mods.append(converted_mod)
+                info[key] = ','.join(mods)                
+        return info 
         
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
