@@ -4,7 +4,7 @@ Created on May 28, 2012
 @author: quandtan
 '''
 import os
-from applicake.applications.proteomics.searchengine.base import MsMsIdentification
+from applicake.applications.proteomics.base import MsMsIdentification
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator

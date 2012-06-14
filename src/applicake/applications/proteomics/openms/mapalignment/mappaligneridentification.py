@@ -22,7 +22,7 @@ class MapAlignerIdentification(OpenMs):
         """
         base = self.__class__.__name__
         self._input_file = '%s.ini' % base # application specific config file
-        self._result_file = '%s.result' % base # result produced by the application
+        self._result_file = '%s.featureXML' % base # result produced by the application
 
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
