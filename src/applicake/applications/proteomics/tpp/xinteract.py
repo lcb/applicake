@@ -5,13 +5,11 @@ Created on Jun 6, 2012
 '''
 
 import os
-from applicake.applications.proteomics.modifications import ModificationDb
-from applicake.applications.proteomics.base import MsMsIdentification
-from applicake.framework.templatehandler import BasicTemplateHandler
+from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
-class Xinteract(MsMsIdentification):
+class Xinteract(IWrapper):
     """
     Wrapper for the TPP-tool xinteract.
     """
@@ -70,24 +68,23 @@ class Xinteract(MsMsIdentification):
         - if file is valid
         - if xml is well-formed
         """
-        exit_code,info = super(Xinteract,self).validate_run(info,log, run_code,out_stream, err_stream)
         if 0 != run_code:
-            return exit_code,info
+            return run_code,info
         out_stream.seek(0)
         err_stream.seek(0)
         if 'No decoys with label' in err_stream.read():
-            self.log.error('found no decoy hits')
+            log.error('found no decoy hits')
             return 1,info                   
         if 'exited with non-zero exit code' in out_stream.read():
-            self.log.error('xinteract did not complete with exit code !=0')
+            log.error('xinteract did complete with exit code !=0')
             return 1,info
         if 'QUIT - the job is incomplete' in out_stream.read():
             self.log.error('xinteract: job is incomplete')
-            return 1,info        
+            return 1,info              
         if not FileUtils.is_valid_file(log, self._result_file):
             log.critical('[%s] is not valid' %self._result_file)
             return 1,info
         if not XmlValidator.is_wellformed(self._result_file):
             log.critical('[%s] is not well formed.' % self._result_file)
-            return 1,info       
+            return 1,info
         return 0,info
