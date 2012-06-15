@@ -67,7 +67,7 @@ class MsMsIdentification(IWrapper):
         
         Set several arguments shared by the different search engines
         """        
-        args_handler.add_app_args(log, self.PREFIX, 'Path to the OpenMS executable')
+        args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, 'FRAGMASSERR', 'Fragment mass error')
         args_handler.add_app_args(log, 'FRAGMASSUNIT', 'Unit of the fragment mass error')
