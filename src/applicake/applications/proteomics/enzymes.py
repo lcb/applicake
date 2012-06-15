@@ -42,7 +42,7 @@ class EnzymeDb(object):
         
     def get(self,name,search_engine):
         """
-        Return the program specific enzyme
+        Return the program specific enzyme.
         """
         try:
             assert self._enzymes.has_key(name)
@@ -51,3 +51,9 @@ class EnzymeDb(object):
         except:
             self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._enzymes.keys(),search_engine,self._search_engines)) 
             sys.exit(1)
+            
+    def get_keys(self):
+        '''
+        Return all available enzymes.
+        '''
+        return self._enzymes.keys()            

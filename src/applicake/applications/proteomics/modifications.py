@@ -14,7 +14,7 @@ class ModificationDb(object):
 
     _search_engines = ['Xtandem','Omssa']
 
-    _enzymes={
+    _mods={
            'Carbamidomethyl (C)':{
                                   _search_engines[0]: '57.021464@C',
                                   _search_engines[1]: '3'           
@@ -53,7 +53,7 @@ class ModificationDb(object):
         
     def get(self,name,search_engine):
         """
-        Return 
+        Return the program specific modification.
         """
         try:
             assert self._enzymes.has_key(name)
@@ -62,5 +62,11 @@ class ModificationDb(object):
         except:
             self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._enzymes.keys(),search_engine,self._search_engines)) 
             sys.exit(1)
+            
+    def get_keys(self):
+        """
+        Return all available modifications.
+        """
+        return self._mods.keys()
         
     
