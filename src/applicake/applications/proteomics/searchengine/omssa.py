@@ -61,7 +61,7 @@ class Omssa(MsMsIdentification):
         self._template_file = os.path.join(wd,self._template_file) 
         info['TEMPLATE'] = self._template_file
         self._result_file = os.path.join(wd,self._result_file) 
-        info['PEPXML'] = self._result_file
+        info['PEPXMLS'] = [self._result_file]
         log.debug('define modifications')
         info = self.define_mods(info, log)    
         log.debug('get template handler')
