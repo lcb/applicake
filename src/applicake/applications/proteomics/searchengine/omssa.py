@@ -112,7 +112,7 @@ class OmssaTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """-nt $THREADS -d $DBASE -e 0 -v $MISSEDCLEAVAGE $STATIC_MODS $VARIABLE_MODS -he 100000.0 -zcc 1 -ii 0 -te $PRECMASSERR -to $FRAGMASSERR -ht 6 -hm 2 -ir 0 -h1 100 -h2 100 -hl 1
+        template = """-nt $THREADS -d $DBASE -e $ENZYME -v $MISSEDCLEAVAGE $STATIC_MODS $VARIABLE_MODS -he 100000.0 -zcc 1 -ii 0 -te $PRECMASSERR -to $FRAGMASSERR -ht 6 -hm 2 -ir 0 -h1 100 -h2 100 -hl 1
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
