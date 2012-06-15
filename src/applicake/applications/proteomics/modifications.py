@@ -14,7 +14,7 @@ class ModificationDb(object):
 
     _search_engines = ['Xtandem','Omssa']
 
-    _mods={
+    _enzymes={
            'Carbamidomethyl (C)':{
                                   _search_engines[0]: '57.021464@C',
                                   _search_engines[1]: '3'           
@@ -56,11 +56,11 @@ class ModificationDb(object):
         Return 
         """
         try:
-            assert self._mods.has_key(name)
+            assert self._enzymes.has_key(name)
             assert search_engine in self._search_engines
-            return self._mods[name][search_engine]
+            return self._enzymes[name][search_engine]
         except:
-            self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._mods.keys(),search_engine,self._search_engines)) 
+            self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._enzymes.keys(),search_engine,self._search_engines)) 
             sys.exit(1)
         
     

@@ -54,6 +54,7 @@ class Omssa(MsMsIdentification):
 
         - Read the template from the handler
         - Convert modifications into the specific format
+        - Convert enzyme into the specific format
         - modifies the template from the handler 
         """
         wd = info[self.WORKDIR]
@@ -63,7 +64,9 @@ class Omssa(MsMsIdentification):
         self._result_file = os.path.join(wd,self._result_file) 
         info['PEPXMLS'] = [self._result_file]
         log.debug('define modifications')
-        info = self.define_mods(info, log)    
+        info = self.define_mods(info, log)
+        log.debug('define enzyme')
+        info = self.define_enzyme(info, log)    
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')

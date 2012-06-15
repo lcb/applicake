@@ -71,6 +71,7 @@ class Xtandem(MsMsIdentification):
         
         - Read the template from the handler
         - Convert scoring and modifications into the specific format
+        - Convert enzyme into the specific format        
         - modifies the template from the handler
         - writes the files needed to execute the program 
         

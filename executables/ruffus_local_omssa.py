@@ -60,6 +60,7 @@ DATASET_DIR = /cluster/scratch/malars/datasets
 DATASET_CODE = 20120124102254267-296925,
 DBASE = /cluster/scratch/malars/biodb/ex_sp/20120301/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
+ENZYME = Semi-Trypsin
 FRAGMASSERR = 0.4
 FRAGMASSUNIT = Da
 PRECMASSERR = 15

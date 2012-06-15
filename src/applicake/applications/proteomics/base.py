@@ -6,6 +6,7 @@ Created on May 27, 2012
 import os
 from applicake.framework.interfaces import IWrapper
 from applicake.applications.proteomics.modifications import ModificationDb
+from applicake.applications.proteomics.enzymes import EnzymeDb
 
 class MsMsIdentification(IWrapper):
     '''
@@ -27,6 +28,14 @@ class MsMsIdentification(IWrapper):
         self._template_file = '%s.tpl' % base # application specific config file
         self._result_file = '%s.result' % base # result produced by the application    
 
+    def define_enzyme(self,info,log):
+        """
+        Convert generic enzyme into the program-specific format
+        """
+        converted_enzyme = EnzymeDb(log).get(info['Enzyme'], self.__class__.__name__)
+        info['Enzyme'] = converted_enzyme                
+        return info 
+    
     def define_mods(self,info,log):
         """
         Convert generic static/variable modifications into the program-specific format 
@@ -44,6 +53,8 @@ class MsMsIdentification(IWrapper):
                     mods.append(converted_mod)
                 info[key] = ','.join(mods)                
         return info 
+    
+    
         
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -65,6 +76,7 @@ class MsMsIdentification(IWrapper):
         args_handler.add_app_args(log, 'PRECMASSUNIT', 'Unit of the precursor mass error')
         args_handler.add_app_args(log, 'MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages')
         args_handler.add_app_args(log, 'DBASE', 'Sequence database file with target/decoy entries')
+        args_handler.add_app_args(log, 'Enzyme', 'Enzyme used to digest the proteins')
         args_handler.add_app_args(log, self.STATIC_MODS, 'List of static modifications')
         args_handler.add_app_args(log, self.VARIABLE_MODS, 'List of variable modifications')
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.')
