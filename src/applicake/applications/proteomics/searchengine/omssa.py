@@ -20,12 +20,13 @@ class Omssa(MsMsIdentification):
         """
         Constructor
         """
+        super(Omssa,self).__init__()
         base = self.__class__.__name__
         self._result_file = '%s.pepXML' % base # result produced by the application
         
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = ''
+            info[self.PREFIX] = 'omssacl'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info
 
