@@ -19,6 +19,7 @@ class Xtandem(MsMsIdentification):
     Wrapper for the search engine X!Tandem.
     '''
 
+    XTANDEM_SEMI_CLEAVAGE = 'XTANDEM_SEMI_CLEAVAGE'
     
     def __init__(self):
         '''
@@ -59,6 +60,19 @@ class Xtandem(MsMsIdentification):
         log.debug('Created [%s]' % self._input_file)    
         return info
 
+    def define_enzyme(self,info,log):
+        """
+        See super class.
+        
+        For X!Tandem, the method has to additionally check for semi cleavage
+        """
+        info = super(Xtandem,self).define_enzyme(info,log)
+        if info[self.ENZYME].endswith(':2'):
+            info[self.ENZYME] = info[self.ENZYME][:-2]
+            info[self.XTANDEM_SEMI_CLEAVAGE] = 'yes'
+        else:
+            info[self.XTANDEM_SEMI_CLEAVAGE] = 'no'
+    
     def get_template_handler(self):
         """
         See interface
@@ -92,6 +106,8 @@ class Xtandem(MsMsIdentification):
         info = self._define_score(info, log)
         log.debug('define modifications')
         info = self.define_mods(info, log)
+        log.debug('define enzyme')
+        info = self.define_enzyme(info, log)         
         log.debug('modify template')                
         mod_template,info = th.modify_template(info, log)
         log.debug('write input files')
@@ -185,8 +201,7 @@ class XtandemTemplate(BasicTemplateHandler):
 <note type="heading">Protein general</note>    
     <note type="input" label="protein, taxon">no default</note>
     <note type="input" label="protein, cleavage site">[RK]|{P}</note>
-    <!--<note type="input" label="protein, cleavage semi">no</note>-->
-    <note type="input" label="protein, cleavage semi">no</note>
+    <note type="input" label="protein, cleavage semi">$XTANDEM_SEMI_CEAVAGE</note>
     <note type="input" label="protein, cleavage C-terminal mass change">+17.00305</note>
     <note type="input" label="protein, cleavage N-terminal mass change">+1.00794</note>    
     <note type="input" label="protein, N-terminal residue modification mass">0.0</note>

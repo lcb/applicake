@@ -15,6 +15,7 @@ class MsMsIdentification(IWrapper):
     
     STATIC_MODS = 'STATIC_MODS'
     VARIABLE_MODS = 'VARIABLE_MODS'
+    ENZYME = 'ENZYME'
 
     _template_file = ''
     _result_file = ''
@@ -32,8 +33,8 @@ class MsMsIdentification(IWrapper):
         """
         Convert generic enzyme into the program-specific format
         """
-        converted_enzyme = EnzymeDb(log).get(info['Enzyme'], self.__class__.__name__)
-        info['Enzyme'] = converted_enzyme                
+        converted_enzyme = EnzymeDb(log).get(info[self.ENZYME], self.__class__.__name__)
+        info[self.ENZYME] = converted_enzyme                
         return info 
     
     def define_mods(self,info,log):
@@ -54,8 +55,6 @@ class MsMsIdentification(IWrapper):
                 info[key] = ','.join(mods)                
         return info 
     
-    
-        
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
             info[self.PREFIX] = self._default_prefix
@@ -76,7 +75,7 @@ class MsMsIdentification(IWrapper):
         args_handler.add_app_args(log, 'PRECMASSUNIT', 'Unit of the precursor mass error')
         args_handler.add_app_args(log, 'MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages')
         args_handler.add_app_args(log, 'DBASE', 'Sequence database file with target/decoy entries')
-        args_handler.add_app_args(log, 'ENZYME', 'Enzyme used to digest the proteins')
+        args_handler.add_app_args(log, self.ENZYME, 'Enzyme used to digest the proteins')
         args_handler.add_app_args(log, self.STATIC_MODS, 'List of static modifications')
         args_handler.add_app_args(log, self.VARIABLE_MODS, 'List of variable modifications')
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.')
