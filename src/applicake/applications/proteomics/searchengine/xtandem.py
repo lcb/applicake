@@ -72,6 +72,7 @@ class Xtandem(MsMsIdentification):
             info[self.XTANDEM_SEMI_CLEAVAGE] = 'yes'
         else:
             info[self.XTANDEM_SEMI_CLEAVAGE] = 'no'
+        return info
     
     def get_template_handler(self):
         """
