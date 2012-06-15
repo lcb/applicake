@@ -202,7 +202,7 @@ class XtandemTemplate(BasicTemplateHandler):
 <note type="heading">Protein general</note>    
     <note type="input" label="protein, taxon">no default</note>
     <note type="input" label="protein, cleavage site">[RK]|{P}</note>
-    <note type="input" label="protein, cleavage semi">$XTANDEM_SEMI_CEAVAGE</note>
+    <note type="input" label="protein, cleavage semi">$XTANDEM_SEMI_CLEAVAGE</note>
     <note type="input" label="protein, cleavage C-terminal mass change">+17.00305</note>
     <note type="input" label="protein, cleavage N-terminal mass change">+1.00794</note>    
     <note type="input" label="protein, N-terminal residue modification mass">0.0</note>
