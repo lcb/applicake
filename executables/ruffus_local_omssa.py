@@ -120,7 +120,17 @@ def omssa(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('omssa',exit_code))
 
-
-pipeline_run([omssa])
+@transform(omssa, regex("omssa.ini_"), "xinteract.ini_")
+def xinteract(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,
+                '-l','DEBUG'
+                ]
+    runner = WrapperRunner()
+    wrapper = Xinteract()
+    exit_code = runner(sys.argv, wrapper)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('xinteract',exit_code))  
+    
+pipeline_run([xinteract])
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg

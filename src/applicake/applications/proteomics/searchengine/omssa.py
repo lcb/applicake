@@ -5,7 +5,6 @@ Created on Jun 14, 2012
 '''
 
 import os
-from applicake.applications.proteomics.modifications import ModificationDb
 from applicake.applications.proteomics.base import MsMsIdentification
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
@@ -53,7 +52,9 @@ class Omssa(MsMsIdentification):
         """
         See interface.
 
-        - 
+        - Read the template from the handler
+        - Convert modifications into the specific format
+        - modifies the template from the handler 
         """
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
