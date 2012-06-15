@@ -56,9 +56,9 @@ class ModificationDb(object):
         Return the program specific modification.
         """
         try:
-            assert self._enzymes.has_key(name)
+            assert self._mods.has_key(name)
             assert search_engine in self._search_engines
-            return self._enzymes[name][search_engine]
+            return self._mods[name][search_engine]
         except:
             self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._enzymes.keys(),search_engine,self._search_engines)) 
             sys.exit(1)
