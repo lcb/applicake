@@ -26,6 +26,14 @@ class ModificationDb(object):
            'Phospho (STY)':{
                             _search_engines[0]: '79.966331@S,79.966331@T,79.966331@Y',
                             _search_engines[1]: '6,7,8,132,133'
+                            },
+           '13C(6)15(N)(2) (K)':{
+                            _search_engines[0]: '8.014199@K',
+                            _search_engines[1]: '181'
+                            },
+           '13C(6)15(N)(4) (R)':{
+                            _search_engines[0]: '10.008269@R',
+                            _search_engines[1]: '137'
                             }
            }           
 
