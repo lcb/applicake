@@ -29,6 +29,19 @@ class Omssa(MsMsIdentification):
             info[self.PREFIX] = 'omssacl'
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info
+    
+    def define_mods(self,info,log):
+        """
+        See super class.
+        
+        Perform Omssa-specific adaptations in addition (setting of the correct flags). 
+        """
+        info = super(Omssa,self).define_mods(info,log)               
+        if info[self.VARIABLE_MODS] is not '':
+            info[self.VARIABLE_MODS] = '-mv %s' % info[self.VARIABLE_MODS]
+        if info[self.STATIC_MODS] is not '':
+            info[self.STATIC_MODS] = '-mf %s' % info[self.STATIC_MODS]
+        return info     
 
     def get_template_handler(self):
         """
@@ -95,7 +108,7 @@ class OmssaTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """-nt $THREADS -d $DBASE -e 0 -v -mf $MISSEDCLEAVAGE -mv $STATIC_MODS $VARIABLE_MODS -he 100000.0 -zcc 1 -ii 0 -te $PRECMASSERR -to $FRAGMASSERR -ht 6 -hm 2 -ir 0 -h1 100 -h2 100 -hl 1
+        template = """-nt $THREADS -d $DBASE -e 0 -v $MISSEDCLEAVAGE $STATIC_MODS $VARIABLE_MODS -he 100000.0 -zcc 1 -ii 0 -te $PRECMASSERR -to $FRAGMASSERR -ht 6 -hm 2 -ir 0 -h1 100 -h2 100 -hl 1
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
