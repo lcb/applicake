@@ -49,7 +49,7 @@ class IdConflictResolverTemplate(BasicTemplateHandler):
   <NODE name="IDConflictResolver" description="Resolves ambiguous annotations of features with peptide identifications">
     <ITEM name="version" value="1.9.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;IDConflictResolver&apos;">
-      <ITEM name="in" value="$FEATUREXML" type="string" description="Input file (data annotated with identifications)" tags="input file,required" restrictions="*.featureXML,*.consensusXML" />
+      <ITEM name="in" value="$ORGFEATUREXML" type="string" description="Input file (data annotated with identifications)" tags="input file,required" restrictions="*.featureXML,*.consensusXML" />
       <ITEM name="out" value="$FEATUREXML" type="string" description="Output file (data with one peptide identification per feature)" tags="output file,required" restrictions="*.featureXML,*.consensusXML" />
       <ITEM name="log" value="" type="string" description="Name of log file (created only when specified)" tags="advanced" />
       <ITEM name="debug" value="0" type="int" description="Sets the debug level" tags="advanced" />
