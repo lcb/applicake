@@ -76,7 +76,7 @@ class MsMsIdentification(IWrapper):
         args_handler.add_app_args(log, 'PRECMASSUNIT', 'Unit of the precursor mass error')
         args_handler.add_app_args(log, 'MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages')
         args_handler.add_app_args(log, 'DBASE', 'Sequence database file with target/decoy entries')
-        args_handler.add_app_args(log, 'Enzyme', 'Enzyme used to digest the proteins')
+        args_handler.add_app_args(log, 'ENZYME', 'Enzyme used to digest the proteins')
         args_handler.add_app_args(log, self.STATIC_MODS, 'List of static modifications')
         args_handler.add_app_args(log, self.VARIABLE_MODS, 'List of variable modifications')
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.')
