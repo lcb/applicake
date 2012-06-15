@@ -254,7 +254,7 @@ class XtandemTemplate(BasicTemplateHandler):
     <note type="input" label="output, performance">yes</note>
     <note type="input" label="output, spectra">yes</note>
     <note type="input" label="output, histograms">no</note>
-    <note type="input" label="output, proteins">no</note>
+    <note type="input" label="output, proteins">yes</note>
     <note type="input" label="output, sequences">no</note>
     <note type="input" label="output, one sequence copy">yes</note>
     <note type="input" label="output, results">all</note>
