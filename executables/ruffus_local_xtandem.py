@@ -30,6 +30,7 @@ from applicake.applications.proteomics.openms.filehandling.fileconverter import 
 from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
 from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided, OrbiLessStrict
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
+from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
 
 cwd = None
 
@@ -160,6 +161,15 @@ def pepxml2csv(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('pepxml2csv',exit_code))   
 
+@transform(interprophet,regex('pepxml2csv.ini'),'fdr2probability.ini')
+def fdr2probability(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
+                ]
+    runner = WrapperRunner()
+    application = Fdr2Probability()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('fdr2probability',exit_code))  
 
 @transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
 def pepxml2idxml(input_file_name, output_file_name):
