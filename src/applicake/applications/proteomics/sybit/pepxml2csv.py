@@ -60,7 +60,7 @@ class Pepxml2Csv(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s %s' % (prefix,info['PEPCSV'],mod_template, info['PEPXMLS'][0])
+        command = '%s %s %s' % (prefix,mod_template, info['PEPXMLS'][0])
         return command,info
 
     def set_args(self,log,args_handler):
