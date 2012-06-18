@@ -92,8 +92,6 @@ class ProteinProphet(IWrapper):
         """
         See super class.
         """
-        if 0 != run_code:
-            return run_code,info
         #err_stream.seek(0)
         out_stream.seek(0)
         stdout = out_stream.read()
