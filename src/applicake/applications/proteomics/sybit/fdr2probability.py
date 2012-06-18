@@ -23,7 +23,7 @@ class Fdr2Probability(IWrapper):
         """
         base = self.__class__.__name__
         self._template_file = '%s.tpl' % base # application specific config file
-        self._result_file = '%s.result' % base # result produced by the application
+        self._result_file = '%s.csv' % base # result produced by the application
 
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -45,7 +45,7 @@ class Fdr2Probability(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        key = self._file_type.upper()
+        key = 'PEPCSV'
         wd = info[self.WORKDIR]        
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
@@ -61,8 +61,7 @@ class Fdr2Probability(IWrapper):
         # can delete temporary key as it is not longer needed
         del info['ORG%s' % key]          
         prefix,info = self.get_prefix(info,log)
-        command = '%s  -OUT=%s -FDR=%s %s %s' % (prefix)
-        cmds.append('%s -OUT=%s -FDR=%s %s %s' % (prefixes[1],self._result_filename,peptide_fdr,params[1],csv_filename))
+        command = '%s %s' % (prefix,mod_template)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -99,7 +98,7 @@ class Fdr2ProbabilityTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """-IPROPHET -DECOY=$DECOY_STRING -OUT=$PEPCSV -FDR=%s $ORGPEPCSV
+        template = """-IPROPHET -DECOY=$DECOY_STRING -OUT=$PEPCSV -FDR=$FDR $ORGPEPCSV
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
