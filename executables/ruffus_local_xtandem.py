@@ -151,7 +151,7 @@ def interprophet(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('iprophet',exit_code))     
 
 
-@transform(collector,regex('interprophet.ini'),'pepxml2csv.ini')
+@transform(interprophet,regex('interprophet.ini'),'pepxml2csv.ini')
 def pepxml2csv(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
                 ]
