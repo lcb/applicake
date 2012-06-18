@@ -31,6 +31,7 @@ from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres
 from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided, OrbiLessStrict
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
+from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
 
 cwd = None
 
@@ -171,6 +172,17 @@ def fdr2probability(input_file_name, output_file_name):
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('fdr2probability',exit_code))  
+    
+    
+@transform(fdr2probability,regex('fdr2probability.ini'),'proteinprophet.ini')
+def proteinprophet(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
+                ]
+    runner = WrapperRunner()
+    application = ProteinProphet()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('proteinprophet',exit_code))      
 
 @transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
 def pepxml2idxml(input_file_name, output_file_name):
@@ -245,7 +257,7 @@ def featurefindercentroided(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
 
-pipeline_run([fdr2probability])
+pipeline_run([proteinprophet])
 #pipeline_run([featurefindercentroided])
 
 
