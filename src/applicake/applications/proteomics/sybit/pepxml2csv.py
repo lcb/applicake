@@ -32,6 +32,12 @@ class Pepxml2Csv(IWrapper):
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info
 
+    def get_template_handler(self):
+        """
+        See interface
+        """
+        return IprophetTemplate()
+
     def prepare_run(self,info,log):
         """
         See interface.
