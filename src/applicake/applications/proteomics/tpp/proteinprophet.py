@@ -8,6 +8,8 @@ import os
 import sys
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
+from applicake.utils.fileutils import FileUtils
+from applicake.utils.xmlutils import XmlValidator
 
 class ProteinProphet(IWrapper):
     '''
@@ -60,7 +62,7 @@ class ProteinProphet(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        command = '%s ' % (prefix)
+        command = '%s %s' % (prefix,mod_template)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -83,6 +85,7 @@ class ProteinProphet(IWrapper):
         """
         if 0 != run_code:
             return run_code,info
+        #err_stream.seek(0)
         out_stream.seek(0)
         stdout = out_stream.read()
         msg = 'No xml file specified; please use the -file option'
@@ -95,7 +98,13 @@ class ProteinProphet(IWrapper):
                 log.error('ProteinProphet error [%s]' % msg)
                 return 1,info
             else:
-                log.debug('ProteinProphet: passed check [%s]' % msg)     
+                log.debug('ProteinProphet: passed check [%s]' % msg)
+        if not FileUtils.is_valid_file(log, self._result_file):
+            log.critical('[%s] is not valid' %self._result_file)
+            return 1,info
+        if not XmlValidator.is_wellformed(self._result_file):
+            log.critical('[%s] is not well formed.' % self._result_file)
+            return 1,info             
         return 0,info
 
 
