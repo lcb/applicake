@@ -33,6 +33,7 @@ from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
 from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
 from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXml2SpectralCount
+from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
 
 cwd = None
 
@@ -196,12 +197,12 @@ def protxml2spectralcount(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('protxml2spectralcount',exit_code))
 
-@transform(protxml2spectralcount,regex('protxml2spectralcount.ini'),'modifications.ini')
+@transform(protxml2spectralcount,regex('protxml2spectralcount.ini'),'protxml2modifications.ini')
 def protxml2modifications(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
                 ]
     runner = WrapperRunner()
-    application = ProtXml2SpectralCount()
+    application = ProtXml2Modifications()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('protxml2modifications',exit_code))
