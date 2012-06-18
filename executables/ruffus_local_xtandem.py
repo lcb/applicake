@@ -196,6 +196,16 @@ def protxml2spectralcount(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('protxml2spectralcount',exit_code))
 
+@transform(protxml2spectralcount,regex('protxml2spectralcount.ini'),'modifications.ini')
+def protxml2modifications(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
+                ]
+    runner = WrapperRunner()
+    application = ProtXml2SpectralCount()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('protxml2modifications',exit_code))
+
 @transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
 def pepxml2idxml(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
@@ -269,7 +279,7 @@ def featurefindercentroided(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
 
-pipeline_run([protxml2spectralcount])
+pipeline_run([protxml2modifications])
 #pipeline_run([featurefindercentroided])
 
 

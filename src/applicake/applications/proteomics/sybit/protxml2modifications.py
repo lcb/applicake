@@ -10,14 +10,14 @@ from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
-class ProtXml2SpectralCount(IWrapper):
+class ProtXml2Modifications(IWrapper):
     '''
-    Wrapper for SyBIT-tool protxml2spectralcount.
+    Wrapper for SyBIT-tool protxml2modifications.
     '''
 
     _template_file = ''
     _result_file = ''
-    _default_prefix = 'protxml2spectralcount'
+    _default_prefix = 'protxml2modifications'
 
     def __init__(self):
         """
@@ -38,7 +38,7 @@ class ProtXml2SpectralCount(IWrapper):
         """
         See interface
         """
-        return ProtXml2SpectralCountTemplate()
+        return ProtXml2ModificationsTemplate()
 
     def prepare_run(self,info,log):
         """
@@ -96,7 +96,7 @@ class ProtXml2SpectralCount(IWrapper):
         return 0,info
 
 
-class ProtXml2SpectralCountTemplate(BasicTemplateHandler):
+class ProtXml2ModificationsTemplate(BasicTemplateHandler):
     """
     Template handler for ProtXml2SpectralCount.
     """
