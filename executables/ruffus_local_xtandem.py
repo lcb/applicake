@@ -32,6 +32,7 @@ from applicake.applications.proteomics.openms.quantification.featurefindercentro
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
 from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
+from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXml2SpectralCount
 
 cwd = None
 
@@ -184,6 +185,17 @@ def proteinprophet(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('proteinprophet',exit_code))      
 
+
+@transform(proteinprophet,regex('proteinprophet.ini'),'protxml2spectralcount.ini')
+def protxml2spectralcount(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
+                ]
+    runner = WrapperRunner()
+    application = ProtXml2SpectralCount()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('protxml2spectralcount',exit_code))
+
 @transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
 def pepxml2idxml(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
@@ -257,7 +269,7 @@ def featurefindercentroided(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
 
-pipeline_run([proteinprophet])
+pipeline_run([protxml2spectralcount])
 #pipeline_run([featurefindercentroided])
 
 
