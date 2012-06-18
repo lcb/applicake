@@ -98,7 +98,7 @@ class ProtXml2Modifications(IWrapper):
 
 class ProtXml2ModificationsTemplate(BasicTemplateHandler):
     """
-    Template handler for ProtXml2SpectralCount.
+    Template handler for ProtXml2Modifications.
     """
 
     def read_template(self, info, log):
