@@ -48,7 +48,7 @@ class Pepxml2Csv(IWrapper):
         """
         if len(info['PEPXMLS']) >1:
             log.fatal('found > 1 pepxml files [%s].' % info['PEPXMLS'])
-            sys.exit(1)
+            sys.exit(1)    
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
@@ -60,7 +60,7 @@ class Pepxml2Csv(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        command = '%s -OUT=%s %s %s' % (prefix,info['PEPCSV'],mod_template, info['PEPXMLS'][0])
+        command = '%s %s %s' % (prefix,info['PEPCSV'],mod_template, info['PEPXMLS'][0])
         return command,info
 
     def set_args(self,log,args_handler):
@@ -73,7 +73,7 @@ class Pepxml2Csv(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         #args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
-        args_handler.add_app_args(log, '', '')
+        args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -100,7 +100,7 @@ class IprophetTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """-IPROPHET -header -cP=0.0
+        template = """-IPROPHET -header -cP=0.0 -OUT=$PEPCSV
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
