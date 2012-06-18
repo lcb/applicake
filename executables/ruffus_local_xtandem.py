@@ -29,6 +29,7 @@ from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter 
 from applicake.applications.proteomics.openms.filehandling.fileconverter import MzXml2MzMl
 from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
 from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided, OrbiLessStrict
+from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 
 cwd = None
 
@@ -150,6 +151,17 @@ def interprophet(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('iprophet',exit_code))     
 
 
+@transform(collector,regex('interprophet.ini'),'pepxml2csv.ini')
+def pepxml2csv(input_file_name, output_file_name):
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
+                ]
+    runner = WrapperRunner()
+    application = Pepxml2Csv()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('pepxml2csv',exit_code))   
+
+
 @transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
 def pepxml2idxml(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
@@ -223,6 +235,8 @@ def featurefindercentroided(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
 
-pipeline_run([featurefindercentroided])
+pipeline_run([pepxml2csv])
+#pipeline_run([featurefindercentroided])
+
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
