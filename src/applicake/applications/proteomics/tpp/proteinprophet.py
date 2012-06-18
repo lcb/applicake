@@ -5,6 +5,7 @@ Created on Jun 18, 2012
 '''
 
 import os
+import sys
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 
@@ -45,11 +46,13 @@ class ProteinProphet(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        key = self._file_type.upper()
+        if len(info['PEPXMLS']) >1:
+            log.fatal('found > 1 pepxml files [%s].' % info['PEPXMLS'])
+            sys.exit(1) 
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
-        info[key] = self._result_file
+        info['PROTXML'] = self._result_file
         self._template_file = os.path.join(wd,self._template_file)
         info['TEMPLATE'] = self._template_file
         log.debug('get template handler')
