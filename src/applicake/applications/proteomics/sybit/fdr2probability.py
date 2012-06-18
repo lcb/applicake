@@ -85,7 +85,9 @@ class Fdr2Probability(IWrapper):
         """
         if 0 != run_code:
             return run_code,info
-    #out_stream.seek(0)
+        out_stream.seek(0)
+        out = out_stream.read()
+        info['PROBABILITY']= out.rstrip('\r\n')
     #err_stream.seek(0)
         return 0,info
 
