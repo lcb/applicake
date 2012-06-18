@@ -244,7 +244,7 @@ def featurefindercentroided(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
 
-pipeline_run([pepxml2csv])
+pipeline_run([fdr2probability])
 #pipeline_run([featurefindercentroided])
 
 
