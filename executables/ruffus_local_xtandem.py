@@ -34,6 +34,7 @@ from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probabil
 from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
 from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXml2SpectralCount
 from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
+from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
 
 cwd = None
 
@@ -212,7 +213,7 @@ def protxml2openbis(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
                 ]
     runner = WrapperRunner()
-    application = ProtXml2Modifications()
+    application = ProtXml2Openbis()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('protxml2openbis',exit_code))
