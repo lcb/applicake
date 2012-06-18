@@ -161,7 +161,7 @@ def pepxml2csv(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('pepxml2csv',exit_code))   
 
-@transform(interprophet,regex('pepxml2csv.ini'),'fdr2probability.ini')
+@transform(pepxml2csv,regex('pepxml2csv.ini'),'fdr2probability.ini')
 def fdr2probability(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
                 ]
