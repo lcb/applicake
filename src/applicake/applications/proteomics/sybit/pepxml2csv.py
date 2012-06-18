@@ -11,7 +11,7 @@ from applicake.framework.templatehandler import BasicTemplateHandler
 
 class Pepxml2Csv(IWrapper):
     '''
-    Wrapper for ... .
+    Wrapper for sybit tool pepxml2csv .
     '''
 
     _template_file = ''
@@ -23,7 +23,7 @@ class Pepxml2Csv(IWrapper):
         Constructor
         """
         base = self.__class__.__name__
-        #self._template_file = '%s.tpl' % base # application specific config file
+        self._template_file = '%s.tpl' % base # application specific config file
         self._result_file = '%s.csv' % base # result produced by the application
 
     def get_prefix(self,info,log):
