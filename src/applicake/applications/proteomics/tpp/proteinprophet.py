@@ -50,7 +50,13 @@ class ProteinProphet(IWrapper):
         """
         if len(info['PEPXMLS']) >1:
             log.fatal('found > 1 pepxml files [%s].' % info['PEPXMLS'])
-            sys.exit(1) 
+            sys.exit(1)
+        else:
+            # store original values in temporary key
+            info['ORGPEPXMLS'] = info['PEPXMLS']
+            # takes 1st value and stores it as new value
+            info['PEPXMLS'] = info['PEPXMLS'][0] 
+            
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
@@ -61,6 +67,9 @@ class ProteinProphet(IWrapper):
         th = self.get_template_handler()
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
+        # revert temporary key
+        info['PEPXML'] = info['ORGPEPXMLS']
+        del info['ORGPEPXMLS'] 
         prefix,info = self.get_prefix(info,log)
         command = '%s %s' % (prefix,mod_template)
         return command,info
@@ -119,7 +128,7 @@ class IprophetTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """IPROPHET MINPROB$PROBABILITY
+        template = """$PEPXMLS $PROTXML IPROPHET MINPROB$PROBABILITY
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
