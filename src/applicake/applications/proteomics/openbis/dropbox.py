@@ -19,8 +19,8 @@ class Copy2Dropbox(IApplication):
         space = info['SPACE']
         project = info['PROJECT']
         prefix = ''
-        if info.has_key('JOBID'):
-            prefix = info['JOBID']
+        if info.has_key('JOBIDX'):
+            prefix = info['JOBIDX']
         if info.has_key('PARAM_IDX'):
             prefix = '%s.%s' (prefix,info['PARAM_IDX'])
         dirname = '%s+%s+%s' % (space, project, prefix)
