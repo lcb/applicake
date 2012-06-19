@@ -139,8 +139,7 @@ class OpenBisGenerator(IApplication):
         args_handler.add_app_args(log, self.GENERATOR, 'Base name for generating output files (such as for a parameter sweep)',action='append')
         args_handler.add_app_args(log, self.DATASET_CODE, 'Dataset code from OpenBIS)')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')
-#        self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE
-        
+#        self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE        
         return args_handler       
             
     def string2list(self,dic,keys,split_str):

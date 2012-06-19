@@ -391,9 +391,9 @@ class ApplicationRunner(Runner):
             info = DictUtils.merge(info, app_info,priority='right')    
             log.debug('content of info after merge with app_info [%s]' % info)
         else:                                    
-            self.log.critical('the object [%s] is not an instance of one of the following %s'% 
+            log.critical('the object [%s] is not an instance of one of the following %s'% 
                               (app.__class__.__name__,
-                               [IApplication,__class__.__name__]))  
+                               IApplication().__class__.__name__))  
             exit_code = 1
         return exit_code,info
     

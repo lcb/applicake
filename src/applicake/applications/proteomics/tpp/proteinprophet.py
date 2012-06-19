@@ -68,8 +68,8 @@ class ProteinProphet(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         # revert temporary key
-        info['PEPXML'] = info['ORGPEPXMLS']
-        del info['ORGPEPXMLS'] 
+        info['PROTXML'] = info['ORGPROTXML']
+        del info['ORGPROTXML'] 
         prefix,info = self.get_prefix(info,log)
         command = '%s %s' % (prefix,mod_template)
         return command,info
