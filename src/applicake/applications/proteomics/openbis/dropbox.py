@@ -29,7 +29,7 @@ class Copy2Dropbox(IApplication):
         keys = ['PEPXMLS','PEPCSV','PROTXML']
         files = []
         for key in keys:
-            if info.has_keys(key):
+            if info.has_key(key):
                 if isinstance(info[key], list):
                     files = info[key]
                 else:
