@@ -4,6 +4,7 @@ Created on Jun 19, 2012
 @author: quandtan
 '''
 
+import os
 from applicake.framework.interfaces import IApplication
 
 class Copy2Dropbox(IApplication):
@@ -20,7 +21,8 @@ class Copy2Dropbox(IApplication):
             prefix = info['JOBID']
         if info.has_key('PARAM_IDX'):
             prefix = '%s.%s' (prefix,info['PARAM_IDX'])
-        info[self.WORKDIR] = '%s+%s+%s' % (space, project, prefix)
+        dirname = '%s+%s+%s' % (space, project, prefix)
+        info[self.WORKDIR] = os.path.join(info['DROPBOX'],dirname)
         return info
 
     def main(self,info,log):
