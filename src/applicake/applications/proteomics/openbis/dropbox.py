@@ -6,6 +6,8 @@ Created on Jun 19, 2012
 
 import os
 from applicake.framework.interfaces import IApplication
+from applicake.utils.fileutils import FileUtils
+import shutil
 
 class Copy2Dropbox(IApplication):
     '''
@@ -13,7 +15,7 @@ class Copy2Dropbox(IApplication):
     '''
 
 
-    def _set_wd(self, info):
+    def _get_dropboxdir(self, info):
         space = info['SPACE']
         project = info['PROJECT']
         prefix = ''
@@ -22,11 +24,11 @@ class Copy2Dropbox(IApplication):
         if info.has_key('PARAM_IDX'):
             prefix = '%s.%s' (prefix,info['PARAM_IDX'])
         dirname = '%s+%s+%s' % (space, project, prefix)
-        info[self.WORKDIR] = os.path.join(info['DROPBOX'],dirname)
-        return info
+        return os.path.join(info['DROPBOX'],dirname)
 
     def main(self,info,log):
-        info = self._set_wd(info)
+        path = self._get_dropboxdir(info)
+        FileUtils.makedirs_safe(log, path,clean=True)
         
         keys = ['PEPXMLS','PEPCSV','PROTXML']
         files = []
@@ -37,7 +39,15 @@ class Copy2Dropbox(IApplication):
                 else:
                     files = [info[key]]
                 for file in files:
-                    info[self.COPY_TO_WD].append(file)
+                    try:
+                        shutil.copy(file,path)
+                        log.debug('Copy [%s] to [%s]' % (file,path))
+                    except:
+                        if FileUtils.is_valid_file(log, file):
+                            log.debug('file [%s] already exists' % file)
+                        else:
+                            log.fatal('Stop program because could not copy [%s] to [%s]' % (file,path))
+                            return(1,info,log)
             else:
                 log.error('info did not contain key [%s]' % key)
                 return 1, info
