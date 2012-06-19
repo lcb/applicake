@@ -36,11 +36,10 @@ class Copy2Dropbox(IApplication):
                     files = [info[key]]
                 for file in files:
                     info[self.COPY_TO_WD].append(file)
-                
             else:
                 log.error('info did not contain key [%s]' % key)
                 return 1, info
-        return 
+        return 0,info
         
     def set_args(self,log,args_handler):
         """
