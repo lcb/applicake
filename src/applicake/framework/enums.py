@@ -28,7 +28,7 @@ class KeyEnum(object):
     OUTPUT = 'OUTPUT'      
     PARAM_IDX = 'PARAM_IDX'
     PREFIX = 'PREFIX'
-    PRINT_NO_LOG = 'PRINT_NO_LOG'
+    PRINT_LOG = 'PRINT_LOG'
     TEMPLATE = 'TEMPLATE'
     SOURCE = 'SOURCE'
     STORAGE = 'STORAGE'
