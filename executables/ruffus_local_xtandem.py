@@ -106,8 +106,7 @@ def dss(input_file_name, output_file_name):
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name, 
-                '--PREFIX', 'tandem.exe','-s','file'
-                '-l','DEBUG']
+                '--PREFIX', 'tandem.exe','-s','file','-l','DEBUG']
     runner = WrapperRunner()
     wrapper = Xtandem()
     exit_code = runner(sys.argv, wrapper)
