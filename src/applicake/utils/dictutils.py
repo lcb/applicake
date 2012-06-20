@@ -112,8 +112,8 @@ class DictUtils(SequenceUtils):
         @return: The sorted dictionary.  
         """
         d = dic.copy()
-        if type == 'key':
+        if by == 'key':
             return sorted(d.items(), key=lambda t: t[1])    
-        elif type == 'value':
+        elif by == 'value':
             return sorted(d.items(), key=lambda t: t[0])   
          
