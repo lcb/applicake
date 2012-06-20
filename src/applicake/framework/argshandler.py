@@ -78,7 +78,7 @@ class ArgsHandler(object):
         @type args: list
         @param args: List of arguments. List structure is assumed to follow sys.argv (meaning the first argument is the name of the python script).  
         """       
-        pargs = vars(self._parser.parse_args(sys.argv[1:]))
+        pargs = vars(self._parser.parse_args(args[1:]))
         # if optional args are not set, a key = None is created
         # these have to be removed
         pargs = DictUtils.remove_none_entries(pargs)
