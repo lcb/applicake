@@ -102,7 +102,7 @@ FDR=0.01
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG','-p']
     runner = GeneratorRunner()
     application = GuseGenerator()
     exit_code = runner(argv, application)
