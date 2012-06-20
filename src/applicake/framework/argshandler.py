@@ -69,9 +69,14 @@ class ArgsHandler(object):
     def get_app_argnames(self):
         return self._app_argnames
             
-    def get_parsed_arguments(self,log):
+    def get_parsed_arguments(self,log,args):
         """
-        See super class.
+        Return arguments parsed by the argument parser.
+        
+        @type log: Logger 
+        @param log: Logger to store log messages  
+        @type args: list
+        @param args: List of arguments. List structure is assumed to follow sys.argv (meaning the first argument is the name of the python script).  
         """       
         pargs = vars(self._parser.parse_args(sys.argv[1:]))
         # if optional args are not set, a key = None is created

@@ -64,7 +64,7 @@ class Runner(KeyEnum):
             args_handler = app.set_args(log,args_handler)
             log.info('Start [%s]' % args_handler.get_parsed_arguments.__name__)
             try:
-                pargs = args_handler.get_parsed_arguments(log)
+                pargs = args_handler.get_parsed_arguments(log,args)
             except:
                 # need to reset streams in order to allow args_handler to print usage message
                 self.reset_streams() 
