@@ -47,10 +47,10 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     argv = ['', '-i', input_file_name, '-o', output_file_name]
     if opts is not None:
         argv.extend(opts)
-        print argv
     application = applic()
     if isinstance(application, IApplication):
         runner = ApplicationRunner()
+        print 'use application runner'
     elif isinstance(application, IWrapper):
         runner = WrapperRunner()
     else:
@@ -146,7 +146,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    wrap(Unifier,'collector.ini','unifier.ini',['-p'])   
+    wrap(Unifier,'collector.ini','unifier.ini',['-p','--UNIFIER_REDUCE'])   
 
 @follows(unifier)
 def interprophet():
