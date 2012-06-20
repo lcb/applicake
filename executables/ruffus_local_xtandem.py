@@ -146,11 +146,11 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    wrap(Unifier,'collector.ini','unifier.ini',['-p','--UNIFIER_REDUCE'])   
+    wrap(Unifier,'collector.ini','unifier.ini',['--UNIFIER_REDUCE'])   
 
 @follows(unifier)
 def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini')    
+    wrap(InterProphet,'unifier.ini','interprophet.ini',['-p'])    
 
 @follows(interprophet)
 def pepxml2csv():
