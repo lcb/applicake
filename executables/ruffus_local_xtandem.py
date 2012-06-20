@@ -106,7 +106,7 @@ def dss(input_file_name, output_file_name):
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
     sys.argv = ['', '-i', input_file_name, '-o', output_file_name, 
-                '--PREFIX', 'tandem.exe',
+                '--PREFIX', 'tandem.exe','-s','file'
                 '-l','DEBUG']
     runner = WrapperRunner()
     wrapper = Xtandem()
@@ -138,7 +138,7 @@ def xinteract(input_file_name, output_file_name):
     
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    sys.argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
+    sys.argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name]
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(sys.argv, application)
@@ -147,8 +147,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @transform(collector,regex('collector.ini'),'interprophet.ini')
 def interprophet(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = InterProphet()
     exit_code = runner(sys.argv, application)
@@ -158,8 +157,7 @@ def interprophet(input_file_name, output_file_name):
 
 @transform(interprophet,regex('interprophet.ini'),'pepxml2csv.ini')
 def pepxml2csv(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = Pepxml2Csv()
     exit_code = runner(sys.argv, application)
@@ -168,8 +166,7 @@ def pepxml2csv(input_file_name, output_file_name):
 
 @transform(pepxml2csv,regex('pepxml2csv.ini'),'fdr2probability.ini')
 def fdr2probability(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = Fdr2Probability()
     exit_code = runner(sys.argv, application)
@@ -179,8 +176,7 @@ def fdr2probability(input_file_name, output_file_name):
     
 @transform(fdr2probability,regex('fdr2probability.ini'),'proteinprophet.ini')
 def proteinprophet(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = ProteinProphet()
     exit_code = runner(sys.argv, application)
@@ -190,8 +186,7 @@ def proteinprophet(input_file_name, output_file_name):
 
 @transform(proteinprophet,regex('proteinprophet.ini'),'protxml2spectralcount.ini')
 def protxml2spectralcount(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = ProtXml2SpectralCount()
     exit_code = runner(sys.argv, application)
@@ -200,8 +195,7 @@ def protxml2spectralcount(input_file_name, output_file_name):
 
 @transform(protxml2spectralcount,regex('protxml2spectralcount.ini'),'protxml2modifications.ini')
 def protxml2modifications(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = ProtXml2Modifications()
     exit_code = runner(sys.argv, application)
@@ -210,8 +204,7 @@ def protxml2modifications(input_file_name, output_file_name):
 
 @transform(protxml2modifications,regex('protxml2modifications.ini'),'.ini')
 def protxml2openbis(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = ProtXml2Openbis()
     exit_code = runner(sys.argv, application)
@@ -221,8 +214,7 @@ def protxml2openbis(input_file_name, output_file_name):
 
 @transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
 def pepxml2idxml(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',                
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = PepXml2IdXml()
     exit_code = runner(sys.argv, application)
@@ -231,8 +223,7 @@ def pepxml2idxml(input_file_name, output_file_name):
 
 @transform(pepxml2idxml,regex('pepxml2idxml.ini'),'peptideindexer.ini')
 def peptideindexer(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = PeptideIndexer()
     exit_code = runner(sys.argv, application)
@@ -241,8 +232,7 @@ def peptideindexer(input_file_name, output_file_name):
 
 @transform(peptideindexer,regex('peptideindexer.ini'),'fdr.ini')
 def fdr(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = FalseDiscoveryRate()
     exit_code = runner(sys.argv, application)
@@ -251,8 +241,7 @@ def fdr(input_file_name, output_file_name):
     
 @transform(fdr,regex('fdr.ini'),'idfilter.ini')
 def idfilter(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = IdFilter()
     exit_code = runner(sys.argv, application)
@@ -261,8 +250,7 @@ def idfilter(input_file_name, output_file_name):
     
 @transform(idfilter,regex('idfilter.ini'),'mzxml2mzml.ini')
 def mzxml2mzml(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',               
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = MzXml2MzMl()
     exit_code = runner(sys.argv, application)
@@ -271,9 +259,7 @@ def mzxml2mzml(input_file_name, output_file_name):
 
 @transform(mzxml2mzml,regex('mzxml2mzml.ini'),'peakpickerhighres.ini')
 def peakpickerhighres(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file',
-                '--SIGNAL_TO_NOISE','1'               
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'--SIGNAL_TO_NOISE','1']
     runner = WrapperRunner()
     application = PeakPickerHighRes()
     exit_code = runner(sys.argv, application)
@@ -282,8 +268,7 @@ def peakpickerhighres(input_file_name, output_file_name):
          
 @transform(peakpickerhighres,regex('peakpickerhighres.ini'),'featurefindercentroided.ini')
 def featurefindercentroided(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-s','file'
-                ]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
 #    application = FeatureFinderCentroided()
     application = OrbiLessStrict()
