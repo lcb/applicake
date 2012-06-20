@@ -137,7 +137,7 @@ def xinteract(input_file_name, output_file_name):
     
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    sys.argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name]
+    sys.argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(sys.argv, application)
