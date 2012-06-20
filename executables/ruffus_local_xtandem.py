@@ -194,7 +194,7 @@ def protxml2spectralcount(input_file_name, output_file_name):
 
 @transform(protxml2spectralcount,regex('protxml2spectralcount.ini'),'protxml2modifications.ini')
 def protxml2modifications(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-p']
     runner = WrapperRunner()
     application = ProtXml2Modifications()
     exit_code = runner(sys.argv, application)
