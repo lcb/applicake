@@ -123,14 +123,7 @@ def tandem2xml(input_file_name, output_file_name):
 
 @transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract.ini_")
 def xinteract(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,
-                '-l','DEBUG'
-                ]
-    runner = WrapperRunner()
-    wrapper = Xinteract()
-    exit_code = runner(sys.argv, wrapper)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('xinteract',exit_code))    
+    wrap(Xinteract,input_file_name, output_file_name)   
 
     
 @merge(xinteract, "collector.ini")
@@ -144,32 +137,16 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def interprophet():
-    sys.argv = ['', '-i', 'collector.ini', '-o', 'interprophet.ini']
-    runner = WrapperRunner()
-    application = InterProphet()
-    exit_code = runner(sys.argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('iprophet',exit_code))     
+    wrap(InterProphet,'collector.ini','interprophet.ini')    
 
-
-@transform(interprophet,regex('interprophet.ini'),'pepxml2csv.ini')
-def pepxml2csv(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = Pepxml2Csv()
-    exit_code = runner(sys.argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('pepxml2csv',exit_code))   
-
-@transform(pepxml2csv,regex('pepxml2csv.ini'),'fdr2probability.ini')
-def fdr2probability(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = Fdr2Probability()
-    exit_code = runner(sys.argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('fdr2probability',exit_code))  
+@follows(interprophet)
+def pepxml2csv():
+    wrap(Pepxml2Csv,'interprophet.ini','pepxml2csv.ini')   
     
+@follows(pepxml2csv)
+def fdr2probability():
+    wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
+
     
 @transform(fdr2probability,regex('fdr2probability.ini'),'proteinprophet.ini')
 def proteinprophet(input_file_name, output_file_name):
