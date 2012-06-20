@@ -43,13 +43,13 @@ cwd = None
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
     if opts is not None:
-        sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
-        sys.argv.extend(opts)
+        argv = ['', '-i', input_file_name, '-o', output_file_name]
+        argv.extend(opts)
     else:
-        sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+        argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = applic()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
@@ -95,17 +95,17 @@ FDR=0.01
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
 # 20120603160111752-510155 -> b10-01219.c.mzxml 
-# 20120124102254267-296925 -> orbi silac hela from petriimport os
+# 20120124102254267-296925,20120124121656335-296961 -> orbi silac hela from petri
 )       
         
 
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    sys.argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG']
     runner = GeneratorRunner()
     application = GuseGenerator()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 
     
@@ -129,10 +129,10 @@ def xinteract(input_file_name, output_file_name):
     
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    sys.argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
@@ -181,65 +181,65 @@ def copy2dropbox():
 
 @transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
 def pepxml2idxml(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = PepXml2IdXml()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('pepxml2idxml',exit_code)) 
 
 @transform(pepxml2idxml,regex('pepxml2idxml.ini'),'peptideindexer.ini')
 def peptideindexer(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = PeptideIndexer()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('peptideindexer',exit_code))
 
 @transform(peptideindexer,regex('peptideindexer.ini'),'fdr.ini')
 def fdr(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = FalseDiscoveryRate()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('fdr',exit_code)) 
     
 @transform(fdr,regex('fdr.ini'),'idfilter.ini')
 def idfilter(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = IdFilter()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('idfilter',exit_code)) 
     
 @transform(idfilter,regex('idfilter.ini'),'mzxml2mzml.ini')
 def mzxml2mzml(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
     application = MzXml2MzMl()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('mzxml2mzml',exit_code)) 
 
 @transform(mzxml2mzml,regex('mzxml2mzml.ini'),'peakpickerhighres.ini')
 def peakpickerhighres(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'--SIGNAL_TO_NOISE','1']
+    argv = ['', '-i', input_file_name, '-o', output_file_name,'--SIGNAL_TO_NOISE','1']
     runner = WrapperRunner()
     application = PeakPickerHighRes()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('peakpickerhighres',exit_code)) 
          
 @transform(peakpickerhighres,regex('peakpickerhighres.ini'),'featurefindercentroided.ini')
 def featurefindercentroided(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
 #    application = FeatureFinderCentroided()
     application = OrbiLessStrict()
-    exit_code = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          

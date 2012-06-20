@@ -52,8 +52,8 @@ class Runner(KeyEnum):
             # create memory logger            
             log = Logger.create(level=default_info[self.LOG_LEVEL],name=StringUtils.get_random(15),stream=tmp_log_stream)
             log.debug('created temporary in-memory logger')
-            # get command line arguments
-            args = sys.argv
+#            # get command line arguments
+#            args = sys.argv
             log.debug('application class file [%s]' % args[0])
             log.debug('arguments [%s]' % args[1:])
             log.debug('Runner class [%s]' % self.__class__.__name__)
