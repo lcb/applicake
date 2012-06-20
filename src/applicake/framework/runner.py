@@ -112,13 +112,13 @@ class Runner(KeyEnum):
             self.reset_streams() 
             print info     
             # needed for guse/pgrade
-#            if info[self.PRINT_LOG]:
-            if hasattr(self, 'log_stream'): 
-                stream = self.log_stream
-            else:
-                stream = tmp_log_stream               
-            stream.seek(0)
-            sys.stderr.write(stream.read())            
+            if info[self.PRINT_LOG]:
+                if hasattr(self, 'log_stream'): 
+                    stream = self.log_stream
+                else:
+                    stream = tmp_log_stream               
+                stream.seek(0)
+                sys.stderr.write(stream.read())            
             self.info = info    
             return exit_code
         

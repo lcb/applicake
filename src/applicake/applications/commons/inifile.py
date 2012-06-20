@@ -33,6 +33,6 @@ class Unifier(IApplication):
         See interface.
         """                
         args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')
-#        args_handler.add_app_args('UNIFIER_REDUCE',"If set, lists with a single element are reduced to that element.",
-#                                  action="store_true",default=False)  
+        args_handler.add_app_args(log,'UNIFIER_REDUCE',"If set, lists with a single element are reduced to that element.",
+                                  action="store_true",default=False)  
         return args_handler
