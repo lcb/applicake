@@ -15,7 +15,16 @@ class Unifier(IApplication):
     def main(self,info,log):
         """
         See interface.
+        
+        Does the following:
+        - check if reduce option is a single value
+        - all keys that contain list-values are reduced to lists with unique members
+        - if reduce is set, lists with single values are replaced by that value
+        - runner specific keys such as INPUTS are not touched as they are not written to the final output.ini
         """
+        info = info.copy()
+        del info[self.INPUT]
+        
         reduce = info['UNIFIER_REDUCE']
         if isinstance(reduce, list):
             if len(reduce)>1:
