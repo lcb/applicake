@@ -8,7 +8,7 @@ import os
 import shutil
 import sys
 from applicake.framework.logger import Logger
-from applicake.framework.runner import GeneratorRunner
+from applicake.framework.runner import IniFileRunner
 from applicake.applications.proteomics.openbis.generator import GuseGenerator
 from StringIO import StringIO
 
@@ -40,7 +40,7 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
 
 
     def test_guse_generator__1(self):
-        runner = GeneratorRunner()
+        runner = IniFileRunner()
         app = GuseGenerator()
         sys.argv = ['', '-i', self.input, '--%s' % runner.GENERATOR,self.output]
         exit_code = runner(sys.argv,app)        

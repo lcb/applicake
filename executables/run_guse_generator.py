@@ -6,10 +6,10 @@ Created on Apr 10, 2012
 '''
 
 import sys
-from applicake.framework.runner import GeneratorRunner
+from applicake.framework.runner import IniFileRunner
 from applicake.applications.proteomics.openbis.generator import GuseGenerator
 
-runner = GeneratorRunner()
+runner = IniFileRunner()
 application = GuseGenerator()
 exit_code = runner(sys.argv,application)
 print exit_code

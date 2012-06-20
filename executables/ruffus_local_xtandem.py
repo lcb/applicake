@@ -11,7 +11,7 @@ from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
-from applicake.framework.runner import GeneratorRunner, ApplicationRunner
+from applicake.framework.runner import IniFileRunner, ApplicationRunner
 from applicake.framework.runner import CollectorRunner
 from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.openbis.generator import GuseGenerator
@@ -110,7 +110,7 @@ FDR=0.01
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
-    runner = GeneratorRunner()
+    runner = IniFileRunner()
     application = GuseGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
@@ -147,7 +147,7 @@ def collector(notused_input_file_names, output_file_name):
 @follows(collector)
 def unifier():
     argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
-    runner = GeneratorRunner()
+    runner = IniFileRunner()
     application = Unifier()
     exit_code = runner(argv, application)
     if exit_code != 0:

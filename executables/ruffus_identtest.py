@@ -12,7 +12,7 @@ from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
-from applicake.framework.runner import GeneratorRunner
+from applicake.framework.runner import IniFileRunner
 from applicake.framework.runner import CollectorRunner
 from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.openbis.generator import GuseGenerator
@@ -62,7 +62,7 @@ THREADS = 4
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     sys.argv = ['IGNORED', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','CRITICAL']
-    runner = GeneratorRunner()
+    runner = IniFileRunner()
     application = GuseGenerator()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:

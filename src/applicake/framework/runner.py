@@ -398,9 +398,9 @@ class ApplicationRunner(Runner):
         return exit_code,info
     
 
-class GeneratorRunner(ApplicationRunner):
+class IniFileRunner(ApplicationRunner):
     """
-    Specific runner for generator applications.
+    Specific runner for applications that need access to the complete content of the info object.
     """
 
     def run_app(self,app,info,log,args_handler):
