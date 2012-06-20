@@ -41,8 +41,7 @@ class Runner(KeyEnum):
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
-                        self.COPY_TO_WD: [],     
-                        self.PRINT_NO_LOG: False      
+                        self.COPY_TO_WD: [],        
                         }         
         tmp_log_stream = StringIO()
         exit_code = 1
