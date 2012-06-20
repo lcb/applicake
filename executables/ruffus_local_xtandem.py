@@ -103,7 +103,7 @@ FDR=0.01
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG','-p']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
     runner = GeneratorRunner()
     application = GuseGenerator()
     exit_code = runner(argv, application)
@@ -140,7 +140,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    wrap(Unifier,'collector.ini','unifier.ini',['-p'])   
+    wrap(Unifier,'collector.ini','unifier.ini',opts=['-p'])   
 
 @follows(unifier)
 def interprophet():
