@@ -15,11 +15,7 @@ class SequenceUtils(object):
         Returns a single, flat list which contains all elements retrieved
         from the sequence and all recursively contained sub-sequences
         (iterables).
-        Examples:
-        >>> [1, 2, [3,4], (5,6)]
-        [1, 2, [3, 4], (5, 6)]
-        >>> get_flatten_sequence([[[1,2,3], (42,None)], [4,5], [6], 7, MyVector(8,9,10)])
-        [1, 2, 3, 42, None, 4, 5, 6, 7, 8, 9, 10]"""    
+        """    
         seq = []
         for e in sequence:
             if hasattr(e, "__iter__") and not isinstance(e, basestring):
@@ -27,3 +23,30 @@ class SequenceUtils(object):
             else:
                 seq.append(e)
         return seq 
+    
+    @staticmethod
+    def unify(seq, idfun=None, reduce=False):
+        '''
+        Remove duplicates from list
+        
+        @type seq: list
+        @param seq: List to unify
+        @type reduce: boolean
+        @param reduce: If true, a list with a single element is reduced to the element itself
+        ''' 
+        # order preserving
+        if idfun is None:
+            def idfun(x): return x
+        seen = {}
+        result = []
+        for item in seq:
+            marker = idfun(item)
+            # in old Python versions:
+            # if seen.has_key(marker)
+            # but in new ones:
+            if marker in seen: continue
+            seen[marker] = 1
+            result.append(item)
+        if reduce and len(result)==1:
+            result = result[0]
+        return result    

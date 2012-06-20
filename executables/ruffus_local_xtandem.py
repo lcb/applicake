@@ -36,6 +36,7 @@ from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXm
 from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
 from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
+from applicake.applications.commons.inifile import Unifier
 
 cwd = None
 
@@ -136,9 +137,14 @@ def collector(notused_input_file_names, output_file_name):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
+
 @follows(collector)
+def unifier():
+    wrap(Unifier,'collector.ini','unifier.ini')   
+
+@follows(unifier)
 def interprophet():
-    wrap(InterProphet,'collector.ini','interprophet.ini')    
+    wrap(InterProphet,'unifier.ini','interprophet.ini')    
 
 @follows(interprophet)
 def pepxml2csv():

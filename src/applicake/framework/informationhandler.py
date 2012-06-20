@@ -63,8 +63,6 @@ class BasicInformationHandler(IInformationHandler):
             
             info_write  = DictUtils.extract(info, remove_keys, include=False)
             log.debug('remove following keys [%s] before writing info' % remove_keys)                 
-            # sort info by keys before writing it 
-            log.debug('sorted dict [%s]'% DictUtils.sort(info_write))
             ConfigHandler().write(info_write, path) 
             valid = FileUtils.is_valid_file(log, path )
             if not valid:
