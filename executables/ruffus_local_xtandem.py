@@ -28,13 +28,14 @@ from applicake.applications.proteomics.openms.peptideproteinprocessing.peptidein
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
 from applicake.applications.proteomics.openms.filehandling.fileconverter import MzXml2MzMl
 from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
-from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided, OrbiLessStrict
+from applicake.applications.proteomics.openms.quantification.featurefindercentroided import OrbiLessStrict
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
 from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
 from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXml2SpectralCount
 from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
 from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
+from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
 
 cwd = None
 
@@ -147,43 +148,35 @@ def pepxml2csv():
 def fdr2probability():
     wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
 
-    
-@transform(fdr2probability,regex('fdr2probability.ini'),'proteinprophet.ini')
-def proteinprophet(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = ProteinProphet()
-    exit_code = runner(sys.argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('proteinprophet',exit_code))      
+@follows(fdr2probability)
+def proteinprophet():
+    wrap(ProteinProphet,'fdr2probability.ini','proteinprophet.ini') 
 
+@follows(proteinprophet)
+def protxml2spectralcount():
+    wrap(ProtXml2SpectralCount,'proteinprophet.ini','protxml2spectralcount.ini') 
 
-@transform(proteinprophet,regex('proteinprophet.ini'),'protxml2spectralcount.ini')
-def protxml2spectralcount(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = ProtXml2SpectralCount()
-    exit_code = runner(sys.argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('protxml2spectralcount',exit_code))
+@follows(protxml2spectralcount)
+def protxml2modifications():
+    wrap(ProtXml2Modifications,'protxml2spectralcount.ini','protxml2modifications.ini') 
 
-@transform(protxml2spectralcount,regex('protxml2spectralcount.ini'),'protxml2modifications.ini')
-def protxml2modifications(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'-p']
-    runner = WrapperRunner()
-    application = ProtXml2Modifications()
-    exit_code = runner(sys.argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('protxml2modifications',exit_code))
+@follows(protxml2modifications)
+def protxml2openbis():
+    wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
 
-@transform(protxml2modifications,regex('protxml2modifications.ini'),'.ini')
-def protxml2openbis(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = ProtXml2Openbis()
-    exit_code = runner(sys.argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('protxml2openbis',exit_code))
+@follows(protxml2openbis)
+def copy2dropbox():
+    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox') 
+
+#@follows()
+#def ():
+#    wrap(,'','') 
+#    @follows()
+#def ():
+#    wrap(,'','') 
+#    @follows()
+#def ():
+#    wrap(,'','')     
 
 
 @transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
