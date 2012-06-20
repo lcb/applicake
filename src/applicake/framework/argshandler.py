@@ -62,10 +62,14 @@ class ArgsHandler(object):
         self._app_argnames.append(name)
         log.debug('argument name [%s]' % name)
         log.debug('description [%s]' % description)
-        log.debug('action [%s]' % action)     
-        self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
-                        help=description,action=action, default=default, choices=choices)        
-    
+        log.debug('action [%s]' % action)    
+        if action is 'store_true' or action is 'store_false':
+            self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
+                            help=description,action=action, default=default)
+        else:               
+            self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
+                            help=description,action=action, default=default, choices=choices)        
+        
     
     def get_app_argnames(self):
         return self._app_argnames

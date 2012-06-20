@@ -110,7 +110,6 @@ class Runner(KeyEnum):
         finally:
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams() 
-            print info     
             # needed for guse/pgrade
             if info[self.PRINT_LOG]:
                 if hasattr(self, 'log_stream'): 
