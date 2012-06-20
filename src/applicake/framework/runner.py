@@ -154,7 +154,7 @@ class Runner(KeyEnum):
             if info.has_key(self.OUTPUT):
                 DictUtils.get_flatten_sequence([files_to_copy,info[self.OUTPUT]])
                 log.debug('found following output file to copy [%s]' % info[self.OUTPUT])
-                files_to_copy.append(info[self.OUTPUT])            
+                files_to_copy.extend([info[self.OUTPUT]])            
             for path in files_to_copy:
                 # 'r' escapes special characters
                 src = r'%s' % os.path.abspath(path) 

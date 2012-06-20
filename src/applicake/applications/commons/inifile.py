@@ -24,7 +24,6 @@ class Unifier(IApplication):
             else:
                 reduce = reduce[0]
         for key in info.keys():
-            print key
             if isinstance(info[key], list):
                 info[key] = SequenceUtils.unify(info[key], reduce = reduce)
         return 0,info
