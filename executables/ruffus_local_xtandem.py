@@ -146,7 +146,12 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    wrap(Unifier,'collector.ini','unifier.ini',['--UNIFIER_REDUCE'])   
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
+    runner = GeneratorRunner()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("generator failed [%s]" % exit_code)  
 
 @follows(unifier)
 def interprophet():
