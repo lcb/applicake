@@ -140,7 +140,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    wrap(Unifier,'collector.ini','unifier.ini')   
+    wrap(Unifier,'collector.ini','unifier.ini',['-p'])   
 
 @follows(unifier)
 def interprophet():
