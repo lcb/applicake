@@ -109,35 +109,17 @@ def generator(input_file_name, notused_output_file_names):
         raise Exception("generator failed [%s]" % exit_code) 
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
-def dss(input_file_name, output_file_name):
-#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name, '--PREFIX', 'getmsdata']
-#    runner = WrapperRunner()
-#    wrapper = Dss()
-#    exit_code = runner(sys.argv, wrapper)
-#    if exit_code != 0:
-#                raise Exception("[%s] failed [%s]" % ('dss',exit_code))    
+def dss(input_file_name, output_file_name):   
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
 
     
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name, 
-                '--PREFIX', 'tandem.exe','-s','file','-l','DEBUG']
-    runner = WrapperRunner()
-    wrapper = Xtandem()
-    exit_code = runner(sys.argv, wrapper)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('tandem',exit_code))
+    wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe','-s','file','-l','DEBUG'])
 
 @transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name
-                ,'-l','DEBUG']
-    runner = WrapperRunner()
-    wrapper = Tandem2Xml()
-    exit_code = runner(sys.argv, wrapper)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('tandem2xml',exit_code))      
+    wrap(Tandem2Xml,input_file_name, output_file_name)  
 
 @transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract.ini_")
 def xinteract(input_file_name, output_file_name):
