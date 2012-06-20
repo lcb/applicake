@@ -5,7 +5,6 @@ Created on Apr 22, 2012
 '''
 
 import sys
-#from applicake.framework.interfaces import IArgsHandler
 from applicake.utils.dictutils import DictUtils
 from argparse import ArgumentParser
 
@@ -50,7 +49,10 @@ class ArgsHandler(object):
                                                   'ERROR','CRITICAL'],
                             help="Storage type for produced streams") 
         self._parser.add_argument('-d','--BASEDIR',required=False, dest="BASEDIR", 
-                            help="Base directory used to store files produced by the application")         
+                            help="Base directory used to store files produced by the application")
+        self._parser.add_argument('-p','--PRINT_LOG',required=False, dest="PRINT_LOG",
+                                  action="store_true",
+                                  help="If true, log is printed to stderr before exit. (This is independent of the storage type!).")            
 
     def add_app_args(self,log,name,description,action='store',default=None,choices=None):
         

@@ -21,8 +21,6 @@ from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.fileutils import FileLocker
 from applicake.utils.dictutils import DictUtils                          
-from glob import glob
-from applicake.applications.commons.collector import BasicCollector
                  
                  
 class Runner(KeyEnum):
@@ -43,7 +41,8 @@ class Runner(KeyEnum):
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
-                        self.COPY_TO_WD: []           
+                        self.COPY_TO_WD: [],     
+                        self.PRINT_LOG: True      
                         }         
         tmp_log_stream = StringIO()
         exit_code = 1
@@ -112,12 +111,13 @@ class Runner(KeyEnum):
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams()      
             # needed for guse/pgrade
-            if hasattr(self, 'log_stream'): 
-                stream = self.log_stream
-            else:
-                stream = tmp_log_stream               
-            stream.seek(0)
-            sys.stderr.write(stream.read())            
+            if self.PRINT_LOG:
+                if hasattr(self, 'log_stream'): 
+                    stream = self.log_stream
+                else:
+                    stream = tmp_log_stream               
+                stream.seek(0)
+                sys.stderr.write(stream.read())            
             self.info = info    
             return exit_code
         
