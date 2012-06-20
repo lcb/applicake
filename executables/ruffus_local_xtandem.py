@@ -38,6 +38,20 @@ from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Open
 
 cwd = None
 
+
+#helper function
+def wrap(applic,  input_file_name, output_file_name,opts=None):
+    if opts is not None:
+        opts = opts.split(',')
+        sys.argv = ['', '-i', input_file_name, '-o', output_file_name, opts]
+    else:
+        sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+    runner = WrapperRunner()
+    application = applic()
+    exit_code = runner(sys.argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
+
 def execute(command):
     p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
     output, error = p.communicate()                                                                                                                                                                            
@@ -95,13 +109,9 @@ def generator(input_file_name, notused_output_file_names):
         raise Exception("generator failed [%s]" % exit_code) 
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
-def dss(input_file_name, output_file_name):
-    sys.argv = ['', '-i', input_file_name, '-o', output_file_name, '--PREFIX', 'getmsdata']
-    runner = WrapperRunner()
-    wrapper = Dss()
-    exit_code = runner(sys.argv, wrapper)
-    if exit_code != 0:
-                raise Exception("[%s] failed [%s]" % ('dss',exit_code))    
+def dss(input_file_name, output_file_name):    
+    wrap(Dss,input_file_name, output_file_name,'--PREFIX getmsdata')
+
     
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
