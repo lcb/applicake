@@ -42,7 +42,7 @@ class Runner(KeyEnum):
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
                         self.COPY_TO_WD: [],     
-                        self.PRINT_LOG: True      
+                        self.PRINT_NO_LOG: False      
                         }         
         tmp_log_stream = StringIO()
         exit_code = 1
@@ -111,7 +111,7 @@ class Runner(KeyEnum):
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams()      
             # needed for guse/pgrade
-            if self.PRINT_LOG:
+            if not self.PRINT_NO_LOG:
                 if hasattr(self, 'log_stream'): 
                     stream = self.log_stream
                 else:

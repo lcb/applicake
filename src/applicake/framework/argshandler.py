@@ -50,9 +50,10 @@ class ArgsHandler(object):
                             help="Storage type for produced streams") 
         self._parser.add_argument('-d','--BASEDIR',required=False, dest="BASEDIR", 
                             help="Base directory used to store files produced by the application")
-        self._parser.add_argument('-p','--PRINT_LOG',required=False, dest="PRINT_LOG",
-                                  action="store_true",
-                                  help="If true, log is printed to stderr before exit. (This is independent of the storage type!).")            
+        # use default=None in order to better control settings of default values in the runner
+        self._parser.add_argument('-p','--PRINT_NO_LOG',required=False, dest="PRINT_NO_LOG",
+                                  action="store_false",default=None,
+                                  help="If set, log is not printed to stderr before exit. (This is independent of the storage type!).")            
 
     def add_app_args(self,log,name,description,action='store',default=None,choices=None):
         
