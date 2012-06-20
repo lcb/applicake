@@ -21,6 +21,7 @@ from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.fileutils import FileLocker
 from applicake.utils.dictutils import DictUtils                          
+from applicake.utils.stringutils import StringUtils
                  
                  
 class Runner(KeyEnum):
@@ -49,7 +50,7 @@ class Runner(KeyEnum):
         self.app = app
         try:
             # create memory logger            
-            log = Logger.create(level=default_info[self.LOG_LEVEL],name='memory_logger',stream=tmp_log_stream)
+            log = Logger.create(level=default_info[self.LOG_LEVEL],name=StringUtils.get_random(15),stream=tmp_log_stream)
             log.debug('created temporary in-memory logger')
             # get command line arguments
             args = sys.argv
