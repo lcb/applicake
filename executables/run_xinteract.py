@@ -10,7 +10,7 @@ from applicake.applications.proteomics.tpp.xinteract import Xinteract
 
 
 runner = WrapperRunner()
-app = Xinteract()
-exit_code = runner(sys.argv,app)
+application = Xinteract()
+exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

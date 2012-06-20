@@ -10,7 +10,7 @@ from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.openbis.dss import Dss
 
 runner = WrapperRunner()
-wrapper = Dss()
-exit_code = runner(sys.argv, wrapper)
+application = Dss()
+exit_code = runner(sys.argv, application)
 print exit_code
 

@@ -10,6 +10,6 @@ from applicake.framework.runner import ApplicationRunner
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
 
 runner = ApplicationRunner()
-app = Copy2Dropbox()
-exit_code = runner(sys.argv,app)
+application = Copy2Dropbox()
+exit_code = runner(sys.argv,application)
 print exit_code

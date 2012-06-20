@@ -10,7 +10,7 @@ from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
 
 
 runner = WrapperRunner()
-app = Tandem2Xml()
-exit_code = runner(sys.argv,app)
+application = Tandem2Xml()
+exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

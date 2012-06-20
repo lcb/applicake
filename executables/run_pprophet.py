@@ -7,10 +7,10 @@ Created on May 24, 2012
 
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.searchengine.xtandem import Xtandem
+from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
 
 runner = WrapperRunner()
-application = Xtandem()
-exit_code = runner(sys.argv,application)
+application = Omssa()
+exit_code = ProteinProphet(sys.argv,application)
 print exit_code
 sys.exit(exit_code)
