@@ -43,11 +43,10 @@ cwd = None
 
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
     if opts is not None:
-        argv = ['', '-i', input_file_name, '-o', output_file_name]
         argv.extend(opts)
-    else:
-        argv = ['', '-i', input_file_name, '-o', output_file_name]
+        print argv
     runner = WrapperRunner()
     application = applic()
     exit_code = runner(argv, application)
