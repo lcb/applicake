@@ -42,8 +42,8 @@ cwd = None
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
     if opts is not None:
-        opts = opts.split(',')
-        sys.argv = ['', '-i', input_file_name, '-o', output_file_name, opts]
+        sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+        sys.argv.extend(opts)
     else:
         sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
@@ -109,8 +109,14 @@ def generator(input_file_name, notused_output_file_names):
         raise Exception("generator failed [%s]" % exit_code) 
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
-def dss(input_file_name, output_file_name):    
-    wrap(Dss,input_file_name, output_file_name,'--PREFIX getmsdata')
+def dss(input_file_name, output_file_name):
+#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name, '--PREFIX', 'getmsdata']
+#    runner = WrapperRunner()
+#    wrapper = Dss()
+#    exit_code = runner(sys.argv, wrapper)
+#    if exit_code != 0:
+#                raise Exception("[%s] failed [%s]" % ('dss',exit_code))    
+    wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
 
     
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
