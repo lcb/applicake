@@ -11,7 +11,7 @@ from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
-from applicake.framework.runner import GeneratorRunner
+from applicake.framework.runner import GeneratorRunner, ApplicationRunner
 from applicake.framework.runner import CollectorRunner
 from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.openbis.generator import GuseGenerator
@@ -37,6 +37,7 @@ from applicake.applications.proteomics.sybit.protxml2modifications import ProtXm
 from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
 from applicake.applications.commons.inifile import Unifier
+from applicake.framework.interfaces import IApplication, IWrapper
 
 cwd = None
 
@@ -47,7 +48,13 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     if opts is not None:
         argv.extend(opts)
         print argv
-    runner = WrapperRunner()
+    application = applic()
+    if isinstance(application, IApplication):
+        runner = ApplicationRunner()
+    elif isinstance(application, IWrapper):
+        runner = WrapperRunner()
+    else:
+        raise Exception('could not identfy [%s]' % applic.__name__)    
     application = applic()
     exit_code = runner(argv, application)
     if exit_code != 0:
@@ -139,7 +146,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    wrap(Unifier,'collector.ini','unifier.ini',opts=['-p'])   
+    wrap(Unifier,'collector.ini','unifier.ini',['-p'])   
 
 @follows(unifier)
 def interprophet():
