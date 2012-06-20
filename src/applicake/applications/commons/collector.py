@@ -77,7 +77,7 @@ class BasicCollector(IApplication):
         """
         See interface
         """        
-        args_handler.add_app_args(log, 'collectors', 'Base name for collecting output files (e.g. from a parameter sweep)',action='append')
+        args_handler.add_app_args(log, self.COLLECTOR, 'Base name for collecting output files (e.g. from a parameter sweep)',action='append')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')            
         return args_handler
         
