@@ -5,14 +5,14 @@ Created on Jun 6, 2012
 '''
 
 import os
-from applicake.applications.proteomics.base import MsMsIdentification
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
+from applicake.framework.interfaces import IWrapper
 
-class InterProphet(MsMsIdentification):
+class InterProphet(IWrapper):
     """
-    Wrapper for the TPP-tool xinteract.
+    Wrapper for the TPP-tool InterProphetParser.
     """
 
     def __init__(self):
@@ -31,8 +31,6 @@ class InterProphet(MsMsIdentification):
     def prepare_run(self,info,log):
         """
         See interface.
-
-        - 
         """
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
@@ -49,7 +47,9 @@ class InterProphet(MsMsIdentification):
         """
         See interface
         """
-        args_handler = super(InterProphet, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
+        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files') 
+        args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
         args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
         args_handler.add_app_args(log, 'IPROPHET_ARGS', 'Arguments for InterProphetParser')
         return args_handler
