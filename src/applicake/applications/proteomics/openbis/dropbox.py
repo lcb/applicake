@@ -8,6 +8,7 @@ import os
 from applicake.framework.interfaces import IApplication
 from applicake.utils.fileutils import FileUtils
 import shutil
+from applicake.framework.informationhandler import BasicInformationHandler
 
 class Copy2Dropbox(IApplication):
     '''
@@ -51,6 +52,10 @@ class Copy2Dropbox(IApplication):
             else:
                 log.error('info did not contain key [%s]' % key)
                 return 1, info
+        # write a copy of the  info object with the current status to the dopbox dir 
+        info_copy = info.copy()
+        info_copy['OUTPUT'] = os.path.join(path,'search.properties')
+        BasicInformationHandler().write_info(info, log)
         return 0,info
         
     def set_args(self,log,args_handler):
