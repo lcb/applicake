@@ -195,4 +195,4 @@ class IWrapper(KeyEnum):
         @rtype: (int,dict)
         @return: Tuple of 2 objects; the exit code and the (updated) info object. 
         """
-        raise NotImplementedError("prepare_run() is not implemented")      
+        raise NotImplementedError("validate_run() is not implemented")      

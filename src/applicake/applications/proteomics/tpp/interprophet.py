@@ -54,7 +54,7 @@ class InterProphet(IWrapper):
         args_handler.add_app_args(log, 'IPROPHET_ARGS', 'Arguments for InterProphetParser')
         return args_handler
 
-    def validate_run(self,info,log, run_code,out_stream, err_stream):
+    def validate_run(self,info,log, run_code,out_stream, err_stream):    
         """
         See super class.
 
