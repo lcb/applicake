@@ -42,7 +42,8 @@ class Runner(KeyEnum):
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
-                        self.COPY_TO_WD: [],        
+                        self.COPY_TO_WD: [],  
+                        self.PRINT_LOG: True      
                         }         
         tmp_log_stream = StringIO()
         exit_code = 1
@@ -72,7 +73,13 @@ class Runner(KeyEnum):
             log.info('Start [%s]' % self.get_info_handler.__name__)
             info_handler = self.get_info_handler()
             log.info('Start [%s]' % info_handler.get_info.__name__)
-            info = info_handler.get_info(log, pargs)
+            try:
+                info = info_handler.get_info(log, pargs)
+            except:
+                # if get_info() fails, default info is set and the program stopped by
+                # sys.exit(1) so the final dear_down can start
+                info = default_info
+                sys.exit(1)
             log.debug('content of info [%s]' % info)
             info = DictUtils.merge(info, default_info,priority='left')
             log.debug('Added default values to info they were not set before')            

@@ -23,7 +23,7 @@ class ArgsHandler(object):
     -- name,
     -- storage,
     -- loglevel
-    -- move
+    -- basedir
     -- print_log
     """
     
