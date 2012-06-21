@@ -61,9 +61,8 @@ class InterProphet(IWrapper):
         Check the following:
         -
         """
-        exit_code,info = super(InterProphet,self).validate_run(info,log, run_code,out_stream, err_stream)
         if 0 != run_code:
-            return exit_code,info
+            return run_code,info
         err_stream.seek(0)
         for line in err_stream.readlines():
             if 'fin: error opening' in line:
