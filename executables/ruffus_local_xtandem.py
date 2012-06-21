@@ -183,7 +183,7 @@ def protxml2openbis():
 
 @follows(protxml2openbis)
 def copy2dropbox():
-    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox') 
+    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox.ini') 
 
 #@follows()
 #def ():
@@ -261,7 +261,7 @@ def featurefindercentroided(input_file_name, output_file_name):
         raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
 
-pipeline_run([protxml2openbis])
+pipeline_run([copy2dropbox])
 #pipeline_run([featurefindercentroided])
 
 
