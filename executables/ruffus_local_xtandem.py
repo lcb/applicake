@@ -155,7 +155,7 @@ def unifier():
 
 @follows(unifier)
 def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini',['-p'])    
+    wrap(InterProphet,'unifier.ini','interprophet.ini')    
 
 @follows(interprophet)
 def pepxml2csv():
@@ -183,7 +183,7 @@ def protxml2openbis():
 
 @follows(protxml2openbis)
 def copy2dropbox():
-    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox.ini') 
+    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox.ini',['-p']) 
 
 #@follows()
 #def ():
