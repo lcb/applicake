@@ -54,8 +54,8 @@ class Copy2Dropbox(IApplication):
                 return 1, info
         # write a copy of the  info object with the current status to the dopbox dir 
         info_copy = info.copy()
-        info_copy['OUTPUT'] = os.path.join(path,'search.properties')
-        BasicInformationHandler().write_info(info, log)
+        info_copy[self.OUTPUT] = os.path.join(path,'search.properties')
+        BasicInformationHandler().write_info(info_copy, log)
         return 0,info
         
     def set_args(self,log,args_handler):
