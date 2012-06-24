@@ -106,7 +106,6 @@ FDR=0.01
 SPACE = QUANDTAN
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
-MASCOT_HOSTNAME = imsb-ra-mascot.ethz.ch
 """ 
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
@@ -135,7 +134,8 @@ def mzxml2mzml(input_file_name, output_file_name):
     
 @transform(mzxml2mzml, regex("mzxml2mzml.ini_"), "mascotadapteronline.ini_")
 def mascotadapteronline(input_file_name, output_file_name):
-    wrap(MascotAdapterOnline,input_file_name, output_file_name,['-p'])
+    wrap(MascotAdapterOnline,input_file_name, output_file_name,
+         ['MASCOT_HOSTNAME','imsb-ra-mascot.ethz.ch','MASCOT_USERNAME','bla','MASCOT_PASSWORD','blabla' '-p'])
 
 @transform(mascotadapteronline, regex("mascotadapteronline.ini_"), "idxml2pepxml.ini_")
 def idxml2pepxml(input_file_name, output_file_name):

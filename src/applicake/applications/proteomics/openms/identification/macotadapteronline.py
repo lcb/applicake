@@ -12,8 +12,6 @@ class MascotAdapterOnline(SearchEngineAdapter):
     """
     Wrapper for the search engine-adapter MascotAdapterOnline
     """
-    
-    MASCOT_HOSTNAME = 'MASCOT_HOSTNAME'
 
     def __init__(self):
         """
@@ -66,7 +64,9 @@ class MascotAdapterOnline(SearchEngineAdapter):
         See interface
         """
         args_handler = super(MascotAdapterOnline, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, self.MASCOT_HOSTNAME, 'Hostname (or ip-address) of the Mascot server')       
+        args_handler.add_app_args(log, 'MASCOT_HOSTNAME', 'Hostname (or ip-address) of the Mascot server')
+        args_handler.add_app_args(log, 'MASCOT_USERNAME', 'user name to access the Mascot server')
+        args_handler.add_app_args(log, 'MASCOT_PASSWORD', 'password to access the Mascot server')
         return args_handler
 
 
@@ -132,8 +132,8 @@ class MascotAdapterOnlineTemplate(BasicTemplateHandler):
         <ITEM name="proxy_username" value="" type="string" description="Login name for the proxy server, if needed" tags="advanced" />
         <ITEM name="proxy_password" value="" type="string" description="Login password for the proxy server, if needed" tags="advanced" />
         <ITEM name="login" value="true" type="string" description="Flag which should be set &apos;true&apos; if Mascot security is enabled; also set &apos;username&apos; and &apos;password&apos; then." restrictions="true,false" />
-        <ITEM name="username" value="" type="string" description="Name of the user if login is used (Mascot security must be enabled!)" />
-        <ITEM name="password" value="" type="string" description="Password of the user if login is used (Mascot security must be enabled!)" />
+        <ITEM name="username" value="$MASCOT_USERNAME" type="string" description="Name of the user if login is used (Mascot security must be enabled!)" />
+        <ITEM name="password" value="$MASCOT_PASSWORD" type="string" description="Password of the user if login is used (Mascot security must be enabled!)" />
         <ITEM name="query_master" value="false" type="string" description="If this option is set to true, query peptides will be returned with non-truncated lists, however, protein references of peptides will not be correct." tags="advanced" restrictions="true,false" />
       </NODE>
     </NODE>
