@@ -53,12 +53,14 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     application = applic()
     if isinstance(application, IApplication):
         runner = ApplicationRunner()
-        print 'use application runner'
+        print 'use application runner with applic [%s] and argv [%s]' % (applic.__name__,argv)
     elif isinstance(application, IWrapper):
         runner = WrapperRunner()
-        print 'use wrapper runner'
+        print 'use wrapper runner with applic [%s] and argv [%s]' % (applic.__name__,argv)
     else:
-        raise Exception('could not identfy [%s]' % applic.__name__)    
+        msg = 'could not identfy runner with applic [%s] and argv [%s]' % (applic.__name__,argv)
+        print msg
+        raise Exception(msg)    
     application = applic()
     exit_code = runner(argv, application)
     if exit_code != 0:
