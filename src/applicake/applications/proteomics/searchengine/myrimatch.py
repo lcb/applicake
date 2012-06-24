@@ -34,6 +34,7 @@ class Myrimatch(MsMsIdentification):
         """
         info = super(Myrimatch,self).define_enzyme(info,log)        
         enzyme_info = info[self.ENZYME].split(':')
+        log.debug()
         info[self.ENZYME] = enzyme_info[0]
         info[self.MYRIMATCH_MINTERMINICLEAVAGES] = enzyme_info[1]
         return info        
@@ -138,7 +139,7 @@ TicCutoffPercentage = 0.95
 
 CleavageRules = "$ENZYME
 MaxMissedCleavages = $MISSEDCLEAVAGE
-MinTerminiCleavages = $MINTERMINICLEAVAGES 
+MinTerminiCleavages = $MYRIMATCH_MINTERMINICLEAVAGES 
 MinPeptideLength =  5
 MaxPeptideLength = 75
 MaxPeptideMass = 6500
