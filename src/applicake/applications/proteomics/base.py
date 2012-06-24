@@ -8,7 +8,7 @@ from applicake.framework.interfaces import IWrapper
 from applicake.applications.proteomics.modifications import ModificationDb
 from applicake.applications.proteomics.enzymes import EnzymeDb
 
-class MsMsIdentification(IWrapper):
+class SearchEngine(IWrapper):
     '''
     Basic wrapper class for search engines in MS/MS analysis
     '''
@@ -119,7 +119,7 @@ class OpenMs(IWrapper):
         """
         See super class.
         
-        Set several arguments shared by the different search engines
+        Set several arguments shared by the different OpenMS-tools
         """        
         args_handler.add_app_args(log, self.PREFIX, 'Path to the OpenMS executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the openMS-template file')
@@ -142,7 +142,62 @@ class OpenMs(IWrapper):
 #            log.error('found error note in err_stream')
 #            return 1,info
         return 0,info
-          
+    
+class SearchEngineAdapter(OpenMs):
+    """
+    Base class for search engine-adapters in OpenMS.
+    """
+
+    STATIC_MODS = 'STATIC_MODS'
+    VARIABLE_MODS = 'VARIABLE_MODS'
+    ENZYME = 'ENZYME'
+         
+    def define_enzyme(self,info,log,search_engine_name):
+        """
+        Convert generic enzyme into the adapter-specific format.
+        """
+        converted_enzyme = EnzymeDb(log).get(info[self.ENZYME], search_engine_name)
+        info[self.ENZYME] = converted_enzyme                
+        return info 
+    
+    def define_mods(self,info,log):
+        """
+        Convert generic static/variable modifications into the OpenMS-specific format.
+        """
+        mod_keys = [self.STATIC_MODS,self.VARIABLE_MODS]
+        for key in mod_keys:
+            if not info.has_key(key):
+                info[key] = ''
+            else:
+                mods = []
+                for mod in info[key].split(';'):
+                    log.debug('modification [%s]' % key)
+                    log.debug('name [%s]')
+                    converted_mod = ModificationDb(log).get(mod, 'Openms')
+                    mods.append(converted_mod)
+                info[key] = '\n'.join(mods)                
+        return info          
+         
+         
+    def set_args(self,log,args_handler):
+        """
+        See super class.
+        
+        Set several arguments shared by the different OpenMS-tools
+        """   
+        args_handler = super(SearchEngineAdapter,self).set_args(self,log,args_handler)  
+        args_handler.add_app_args(log, 'FRAGMASSERR', 'Fragment mass error')
+        args_handler.add_app_args(log, 'FRAGMASSUNIT', 'Unit of the fragment mass error')
+        args_handler.add_app_args(log, 'PRECMASSERR', 'Precursor mass error')
+        args_handler.add_app_args(log, 'PRECMASSUNIT', 'Unit of the precursor mass error')
+        args_handler.add_app_args(log, 'MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages')
+        args_handler.add_app_args(log, 'DBASE', 'Sequence database file with target/decoy entries')
+        args_handler.add_app_args(log, self.ENZYME, 'Enzyme used to digest the proteins',choices=EnzymeDb().get_keys())
+        args_handler.add_app_args(log, self.STATIC_MODS, 'List of static modifications',choices=ModificationDb().get_keys())
+        args_handler.add_app_args(log, self.VARIABLE_MODS, 'List of variable modifications',choices=ModificationDb().get_keys())
+        args_handler.add_app_args(log, 'IDXML', 'The idXML input file')
+        return args_handler     
+        
 
 class SingleFileTypeModifier(OpenMs):
     """

@@ -5,12 +5,12 @@ Created on Jun 24, 2012
 '''
 
 import os
-from applicake.applications.proteomics.base import MsMsIdentification
+from applicake.applications.proteomics.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
-class Myrimatch(MsMsIdentification):
+class Myrimatch(SearchEngine):
     """
     Wrapper for the search engine Myrimatch.
     """

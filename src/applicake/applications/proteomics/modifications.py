@@ -12,36 +12,39 @@ class ModificationDb(object):
     Access to post-translational modifications (PTMs).
     '''
 
-    _search_engines = ['Xtandem','Omssa','Myrimatch']
+    _search_engines = ['Xtandem','Omssa','Myrimatch','Openms']
 
     _mods={
            'Carbamidomethyl (C)':{
                                   _search_engines[0]: '57.021464@C',
                                   _search_engines[1]: '3',
-                                  _search_engines[2]: 'C 57.021464'   
+                                  _search_engines[2]: 'C 57.021464',
+                                  _search_engines[3]: '<LISTITEM value="Carbamidomethyl (C)"/>'
             
                                   },
            'Oxidation (M)':{
                             _search_engines[0]: '15.994915@M',
                             _search_engines[1]: '1',
-                            _search_engines[2]: 'M $ 15.995' 
+                            _search_engines[2]: 'M $ 15.995',
+                            _search_engines[3]: '<LISTITEM value="Oxidation (M)"/>'
                             },
            'Phospho (STY)':{
                             _search_engines[0]: '79.966331@S,79.966331@T,79.966331@Y',
                             _search_engines[1]: '6,7,8,132,133',
                             _search_engines[2]: '[STY] @ 79.966',
-                            
+                            _search_engines[3]: '<LISTITEM value="Phospho (STY)"/>'
                             },
            '13C(6)15(N)(2) (K)':{
                             _search_engines[0]: '8.014199@K',
                             _search_engines[1]: '181',
-                            _search_engines[2]: 'K & 8.014199'
-                            
+                            _search_engines[2]: 'K & 8.014199',
+                            _search_engines[3]: '<LISTITEM value="13C(6)15(N)(2) (K)"/>'
                             },
            '13C(6)15(N)(4) (R)':{
                             _search_engines[0]: '10.008269@R',
                             _search_engines[1]: '137',
-                            _search_engines[2]: 'R ! 10.008269'
+                            _search_engines[2]: 'R ! 10.008269',
+                            _search_engines[3]: '<LISTITEM value="13C(6)15(N)(4) (R)"/>'
                             }
            }           
 

@@ -6,7 +6,7 @@ Created on May 24, 2012
 '''
 import os
 from applicake.applications.proteomics.modifications import ModificationDb
-from applicake.applications.proteomics.base import MsMsIdentification
+from applicake.applications.proteomics.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
@@ -14,7 +14,7 @@ from applicake.utils.xmlutils import XmlValidator
 
 
 
-class Xtandem(MsMsIdentification):
+class Xtandem(SearchEngine):
     '''
     Wrapper for the search engine X!Tandem.
     '''
