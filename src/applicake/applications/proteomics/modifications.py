@@ -18,7 +18,7 @@ class ModificationDb(object):
            'Carbamidomethyl (C)':{
                                   _search_engines[0]: '57.021464@C',
                                   _search_engines[1]: '3',
-                                  _search_engines[2]: 'C # 57.021464'   
+                                  _search_engines[2]: 'C 57.021464'   
             
                                   },
            'Oxidation (M)':{
