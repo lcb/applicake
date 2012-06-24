@@ -118,15 +118,16 @@ class Runner(KeyEnum):
         finally:
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams() 
-            # needed in case an error occurs before the info object has been generated               
-            # needed for guse/pgrade
-            if not hasattr(self, 'info') or info[self.PRINT_LOG]:
-                if hasattr(self, 'log_stream'): 
-                    stream = self.log_stream
-                else:
-                    stream = tmp_log_stream               
-                stream.seek(0)
-                sys.stderr.write(stream.read())            
+            if hasattr(self, 'log_stream'): 
+                stream = self.log_stream
+            else:
+                stream = tmp_log_stream               
+            stream.seek(0)
+            # needed in case an error occurs before the info object has been generated 
+            if not hasattr(self, 'info'):
+                sys.stderr.write(stream.read())
+            elif info[self.PRINT_LOG]:
+                sys.stderr.write(stream.read())
             self.info = info  
             print 'has attr info [%s]' % hasattr(self, 'info')  
             return exit_code
