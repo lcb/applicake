@@ -53,10 +53,8 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     application = applic()
     if isinstance(application, IApplication):
         runner = ApplicationRunner()
-        print 'use application runner with applic [%s] and argv [%s]' % (applic.__name__,argv)
     elif isinstance(application, IWrapper):
         runner = WrapperRunner()
-        print 'use wrapper runner with applic [%s] and argv [%s]' % (applic.__name__,argv)
     else:
         msg = 'could not identfy runner with applic [%s] and argv [%s]' % (applic.__name__,argv)
         print msg
@@ -64,6 +62,7 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     application = applic()
     exit_code = runner(argv, application)
     if exit_code != 0:
+        print 'use runner of type [%s] with applic [%s] and argv [%s]' % (runner.__name__,applic.__name__,argv)
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
 def execute(command):
@@ -118,7 +117,7 @@ DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG','-p']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
     runner = IniFileRunner()
     application = GuseGenerator()
     exit_code = runner(argv, application)
