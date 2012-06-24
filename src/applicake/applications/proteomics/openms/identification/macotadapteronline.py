@@ -52,7 +52,7 @@ class MascotAdapterOnline(SearchEngineAdapter):
         log.debug('define modifications')
         info = self.define_mods(info, log)
         log.debug('define enzyme')
-        info = self.define_enzyme(info, log)                 
+        info = self.define_enzyme(info, log,'Mascot')                 
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
