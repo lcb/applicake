@@ -56,6 +56,7 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
         print 'use application runner'
     elif isinstance(application, IWrapper):
         runner = WrapperRunner()
+        print 'use wrapper runner'
     else:
         raise Exception('could not identfy [%s]' % applic.__name__)    
     application = applic()

@@ -13,15 +13,12 @@ class MascotAdapterOnline(SearchEngineAdapter):
     Wrapper for the search engine-adapter MascotAdapterOnline
     """
 
-    _input_file = ''
-    _result_file = ''
-
     def __init__(self):
         """
         Constructor
         """
         base = self.__class__.__name__
-        self._input_file = '%s.ini' % base # application specific config file
+        self._template_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application
 
     def _get_prefix(self,info,log):
@@ -46,8 +43,8 @@ class MascotAdapterOnline(SearchEngineAdapter):
         """
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._input_file = os.path.join(wd,self._input_file)
-        info['TEMPLATE'] = self._input_file       
+        self._template_file = os.path.join(wd,self._template_file)
+        info['TEMPLATE'] = self._template_file       
         self._result_file = os.path.join(wd,self._result_file)
         info['IDXML'] = self._result_file
         log.debug('get template handler')
@@ -55,7 +52,7 @@ class MascotAdapterOnline(SearchEngineAdapter):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self._get_prefix(info,log)
-        command = '%s -ini %s' % (prefix,self._input_file)
+        command = '%s -ini %s' % (prefix,self._template_file)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -63,6 +60,7 @@ class MascotAdapterOnline(SearchEngineAdapter):
         See interface
         """
         args_handler = super(MascotAdapterOnline, self).set_args(log,args_handler)
+        
         return args_handler
 
 
