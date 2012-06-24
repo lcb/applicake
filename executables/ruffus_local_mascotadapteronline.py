@@ -134,7 +134,7 @@ def mzxml2mzml(input_file_name, output_file_name):
 def mascotadapteronline(input_file_name, output_file_name):
     wrap(MascotAdapterOnline,input_file_name, output_file_name,['-p'])
 
-@transform(mascotadapteronline, regex("(mascotadapteronline.ini_"), "idxml2pepxml.ini_")
+@transform(mascotadapteronline, regex("mascotadapteronline.ini_"), "idxml2pepxml.ini_")
 def idxml2pepxml(input_file_name, output_file_name):
     wrap(IdXml2PepXml,input_file_name, output_file_name,['-p'])
 
