@@ -23,8 +23,6 @@ class Myrimatch(MsMsIdentification):
         """
         super(Myrimatch,self).__init__()
         base = self.__class__.__name__
-        self._result_file = '%s.pepXML' % base # result produced by the application
-        
         
     def define_enzyme(self,info,log):
         """
@@ -64,7 +62,8 @@ class Myrimatch(MsMsIdentification):
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._template_file = os.path.join(wd,self._template_file) 
         info['TEMPLATE'] = self._template_file
-        self._result_file = os.path.join(wd,self._result_file) 
+        basename = os.path.splitext(os.path.split(info['MZXML'])[1])[0]    
+        self._result_file  = os.path.join(wd,basename + ".pepXML")
         info['PEPXMLS'] = [self._result_file]
         log.debug('define modifications')
         info = self.define_mods(info, log)
@@ -78,8 +77,6 @@ class Myrimatch(MsMsIdentification):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)              
         prefix,info = self._get_prefix(info,log)
-#        command = "%s %s %s " %(prefix,mod_template,self._result_file)
-        # myrimatch -ProteinDatabase AE004092_sp_9606.fasta B08-02057_p.mzXML 
         command = "%s -cpus %s -cfg %s -workdir %s -ProteinDatabase %s %s" %(prefix,info['THREADS'],info['TEMPLATE'],
                                                                           info[self.WORKDIR], info['DBASE'],
                                                                           info['MZXML'])        
