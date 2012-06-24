@@ -106,6 +106,7 @@ FDR=0.01
 SPACE = QUANDTAN
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
+MASCOT_HOSTNAME = imsb-ra-mascot.ethz.ch
 """ 
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml

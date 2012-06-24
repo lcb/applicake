@@ -12,6 +12,8 @@ class MascotAdapterOnline(SearchEngineAdapter):
     """
     Wrapper for the search engine-adapter MascotAdapterOnline
     """
+    
+    MASCOT_HOSTNAME = 'MASCOT_HOSTNAME'
 
     def __init__(self):
         """
@@ -59,7 +61,8 @@ class MascotAdapterOnline(SearchEngineAdapter):
         """
         See interface
         """
-        args_handler = super(MascotAdapterOnline, self).set_args(log,args_handler)       
+        args_handler = super(MascotAdapterOnline, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, self.MASCOT_HOSTNAME, 'Hostname (or ip-address) of the Mascot server')       
         return args_handler
 
 
@@ -114,7 +117,7 @@ class MascotAdapterOnlineTemplate(BasicTemplateHandler):
         <ITEM name="boundary" value="GZWgAaYKjHFeUaLOLEIOMq" type="string" description="MIME boundary" tags="advanced" />
       </NODE>
       <NODE name="Mascot_server" description="Mascot server details">
-        <ITEM name="hostname" value="" type="string" description="Address of the host where Mascot listens, e.g. &apos;mascot-server&apos; or &apos;127.0.0.1&apos;" />
+        <ITEM name="hostname" value="$MASCOT_HOSTNAME" type="string" description="Address of the host where Mascot listens, e.g. &apos;mascot-server&apos; or &apos;127.0.0.1&apos;" />
         <ITEM name="host_port" value="80" type="int" description="Port where the Mascot server listens, 80 should be a good guess" restrictions="0:" />
         <ITEM name="server_path" value="mascot" type="string" description="Path on the server where Mascot server listens, &apos;mascot&apos; should be a good guess" />
         <ITEM name="timeout" value="1500" type="int" description="Timeout in seconds, after which the query is declared as failed.This is NOT the whole time the search takes, but the time in between two progress steps. Some Mascot servers freeze during this (unstable network etc) and idle forever, the connection is killed. Set this to 0 to disable timeout!" restrictions="0:" />
