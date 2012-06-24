@@ -37,14 +37,16 @@ class Runner(KeyEnum):
         
         Return: exit code (integer)
         """      
-        #
+        # default values
         default_info = {
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         self.LOG_LEVEL:'DEBUG',
                         self.COPY_TO_WD: [],  
                         self.PRINT_LOG: True      
-                        }         
+                        } 
+        #set default values
+        info = default_info        
         tmp_log_stream = StringIO()
         exit_code = 1
         # needed e.g. in collector
@@ -123,10 +125,7 @@ class Runner(KeyEnum):
             else:
                 stream = tmp_log_stream               
             stream.seek(0)
-            # needed in case an error occurs before the info object has been generated 
-            if not hasattr(self, 'info'):
-                sys.stderr.write(stream.read())
-            elif info[self.PRINT_LOG]:
+            if info[self.PRINT_LOG]:
                 sys.stderr.write(stream.read())
             self.info = info  
             print 'has attr info [%s]' % hasattr(self, 'info')  
