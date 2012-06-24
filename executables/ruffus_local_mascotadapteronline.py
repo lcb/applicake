@@ -128,7 +128,7 @@ def dss(input_file_name, output_file_name):
 
 @transform(dss, regex("dss.ini_"), "mzxml2mzml.ini_")
 def mzxml2mzml(input_file_name, output_file_name):
-    wrap(MzXml2MzMl,input_file_name, output_file_name['-s','file','-l','DEBUG','-p'])
+    wrap(MzXml2MzMl,input_file_name, output_file_name,['-s','file','-l','DEBUG','-p'])
     
 @transform(mzxml2mzml, regex("mzxml2mzml.ini_"), "(mascotadapteronline.ini_")
 def mascotadapteronline(input_file_name, output_file_name):
