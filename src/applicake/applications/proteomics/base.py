@@ -167,7 +167,7 @@ class SearchEngineAdapter(OpenMs):
         mod_keys = [self.STATIC_MODS,self.VARIABLE_MODS]
         for key in mod_keys:
             if not info.has_key(key):
-                info[key] = ''
+                info[key] = '<LISTITEM value=""/>'
             else:
                 mods = []
                 for mod in info[key].split(';'):
