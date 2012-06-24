@@ -152,3 +152,5 @@ NumBatches = 50
 ThreadCountMultiplier = 10
 UseMultipleProcessors = true
 """
+        log.debug('read template from [%s]' % self.__class__.__name__)
+        return template,info
