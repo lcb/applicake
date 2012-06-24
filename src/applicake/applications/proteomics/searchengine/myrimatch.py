@@ -34,7 +34,7 @@ class Myrimatch(MsMsIdentification):
         """
         info = super(Myrimatch,self).define_enzyme(info,log)        
         enzyme_info = info[self.ENZYME].split(':')
-        log.debug()
+        log.debug('enzyme info: [%s]'% enzyme_info)
         info[self.ENZYME] = enzyme_info[0]
         info[self.MYRIMATCH_MINTERMINICLEAVAGES] = enzyme_info[1]
         return info        
