@@ -77,9 +77,9 @@ class Myrimatch(MsMsIdentification):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)              
         prefix,info = self._get_prefix(info,log)
-        command = "%s %s %s " %(prefix,mod_template,self._result_file)
+#        command = "%s %s %s " %(prefix,mod_template,self._result_file)
         # myrimatch -ProteinDatabase AE004092_sp_9606.fasta B08-02057_p.mzXML 
-        return "%s -cpus %s -cfg %s -workdir %s -ProteinDatabase %s %s" %(prefix,info['THREADS'],info['TEMPLATE'],
+        command = "%s -cpus %s -cfg %s -workdir %s -ProteinDatabase %s %s" %(prefix,info['THREADS'],info['TEMPLATE'],
                                                                           info[self.WORKDIR], info['DBASE'],
                                                                           info['MZXML'])        
         
