@@ -51,9 +51,9 @@ class Runner(KeyEnum):
         self.app = app
         try:
             # create memory logger            
-            sys.__stdout__.write('create memory logger')
+            sys.__stdout__.write('create memory logger\n')
             log = Logger.create(level=default_info[self.LOG_LEVEL],name=StringUtils.get_random(15),stream=tmp_log_stream)
-            sys.__stdout__.write('finished creating memory logger')
+            sys.__stdout__.write('finished creating memory logger\n')
             log.debug('created temporary in-memory logger')
 #            # get command line arguments
 #            args = sys.argv
@@ -119,14 +119,9 @@ class Runner(KeyEnum):
         finally:
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams() 
-            # needed in case an error occurs before the info object has been generated
-            if not hasattr(self, 'info'):
-                stream = tmp_log_stream               
-                stream.seek(0)
-                sys.stderr.write(stream.read())
-                return 1                  
+            # needed in case an error occurs before the info object has been generated               
             # needed for guse/pgrade
-            if info[self.PRINT_LOG]:
+            if not hasattr(self, 'info') or info[self.PRINT_LOG]:
                 if hasattr(self, 'log_stream'): 
                     stream = self.log_stream
                 else:
