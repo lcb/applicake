@@ -118,7 +118,7 @@ DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG','-p']
     runner = IniFileRunner()
     application = GuseGenerator()
     exit_code = runner(argv, application)
