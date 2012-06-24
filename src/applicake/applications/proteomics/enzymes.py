@@ -12,16 +12,19 @@ class EnzymeDb(object):
     Access to enzymes
     '''
 
-    _search_engines = ['Xtandem','Omssa']
+    _search_engines = ['Xtandem','Omssa','Myrimatch']
 
     _enzymes={
            'Trypsin':{
                                   _search_engines[0]: '[RK]{P}',
-                                  _search_engines[1]: '0'           
+                                  _search_engines[1]: '0',
+                                  _search_engines[2]: 'Trypsin/P:2'  #The number after the ':' is the number of MinTerminiCleavages
+             
                                   },
            'Semi-Tryptic':{
                             _search_engines[0]: '[RK]{P}:2', #does not exist and therefore has to be parsed in xtandem class
-                            _search_engines[1]: '16' 
+                            _search_engines[1]: '16',
+                            _search_engines[2]: 'Trypsin/P:1'   
                             },
               
            }           
