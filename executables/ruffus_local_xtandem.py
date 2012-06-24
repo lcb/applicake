@@ -26,7 +26,7 @@ from applicake.applications.proteomics.openms.filehandling.idfileconverter impor
 from applicake.applications.proteomics.openms.peptideproteinprocessing.falsediscoveryrate import FalseDiscoveryRate
 from applicake.applications.proteomics.openms.peptideproteinprocessing.peptideindexer import PeptideIndexer
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
-from applicake.applications.proteomics.openms.filehandling.fileconverter import MzXml2MzMl
+from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mzml
 from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
 from applicake.applications.proteomics.openms.quantification.featurefindercentroided import OrbiLessStrict
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
@@ -239,7 +239,7 @@ def idfilter(input_file_name, output_file_name):
 def mzxml2mzml(input_file_name, output_file_name):
     argv = ['', '-i', input_file_name, '-o', output_file_name]
     runner = WrapperRunner()
-    application = MzXml2MzMl()
+    application = Mzxml2Mzml()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('mzxml2mzml',exit_code)) 

@@ -8,7 +8,7 @@ import os
 from applicake.applications.proteomics.base import OpenMs
 from applicake.framework.templatehandler import BasicTemplateHandler
 
-class MzXml2MzMl(OpenMs):
+class Mzxml2Mzml(OpenMs):
     """
     Specific implementation of the FileConverter tool to convert files in mzXML to mzML format.
     """
@@ -27,7 +27,7 @@ class MzXml2MzMl(OpenMs):
         """
         See interface
         """
-        return MzXml2MzMlTemplate()
+        return Mzxml2MzmlTemplate()
 
     def prepare_run(self,info,log):
         """
@@ -55,14 +55,14 @@ class MzXml2MzMl(OpenMs):
         """
         See interface
         """
-        args_handler = super(MzXml2MzMl, self).set_args(log,args_handler)
+        args_handler = super(Mzxml2Mzml, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'MZXML', 'Path to the mzXML file.')
         return args_handler
 
 
-class MzXml2MzMlTemplate(BasicTemplateHandler):
+class Mzxml2MzmlTemplate(BasicTemplateHandler):
     """
-    Template handler for MzXml2MzMl.
+    Template handler for Mzxml2Mzml.
     """
 
     def read_template(self, info, log):

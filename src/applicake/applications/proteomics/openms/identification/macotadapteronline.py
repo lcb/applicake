@@ -72,6 +72,7 @@ class MascotAdapterOnlineTemplate(BasicTemplateHandler):
         """
         See super class.
         """
+        # Threads is not set by a variable as this does not make sense here
         template = """<?xml version="1.0" encoding="ISO-8859-1"?>
 <PARAMETERS version="1.3" xsi:noNamespaceSchemaLocation="http://open-ms.sourceforge.net/schemas/Param_1_3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <NODE name="MascotAdapterOnline" description="Annotates MS/MS spectra using Mascot.">
@@ -82,7 +83,7 @@ class MascotAdapterOnlineTemplate(BasicTemplateHandler):
       <ITEM name="keep_protein_links" value="false" type="string" description="The Mascot response file usually returns incomplete/wrong protein hits, so re-indexing the peptide hits is required. To avoid confusion why there are so few protein hits and force re-indexing, no proteins should be reported. To see the original (wrong) list, enable this flag." tags="advanced" restrictions="true,false" />
       <ITEM name="log" value="" type="string" description="Name of log file (created only when specified)" tags="advanced" />
       <ITEM name="debug" value="0" type="int" description="Sets the debug level" tags="advanced" />
-      <ITEM name="threads" value="$THREADS" type="int" description="Sets the number of threads allowed to be used by the TOPP tool" />
+      <ITEM name="threads" value="1" type="int" description="Sets the number of threads allowed to be used by the TOPP tool" />
       <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
       <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
       <NODE name="Mascot_parameters" description="Mascot parameters used for searching">
