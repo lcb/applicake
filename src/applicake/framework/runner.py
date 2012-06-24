@@ -119,6 +119,7 @@ class Runner(KeyEnum):
         finally:
             log.info('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams() 
+            # needed in case an error occurs before the info object has been generated
             if not hasattr(self, 'info'):
                 stream = tmp_log_stream               
                 stream.seek(0)

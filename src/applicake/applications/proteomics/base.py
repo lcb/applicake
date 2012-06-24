@@ -185,7 +185,7 @@ class SearchEngineAdapter(OpenMs):
         
         Set several arguments shared by the different OpenMS-tools
         """   
-        args_handler = super(SearchEngineAdapter,self).set_args(self,log,args_handler)  
+        args_handler = super(SearchEngineAdapter,self).set_args(log,args_handler)  
         args_handler.add_app_args(log, 'FRAGMASSERR', 'Fragment mass error')
         args_handler.add_app_args(log, 'FRAGMASSUNIT', 'Unit of the fragment mass error')
         args_handler.add_app_args(log, 'PRECMASSERR', 'Precursor mass error')

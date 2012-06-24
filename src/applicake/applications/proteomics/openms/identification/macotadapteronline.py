@@ -59,8 +59,7 @@ class MascotAdapterOnline(SearchEngineAdapter):
         """
         See interface
         """
-        args_handler = super(MascotAdapterOnline, self).set_args(log,args_handler)
-        
+        args_handler = super(MascotAdapterOnline, self).set_args(log,args_handler)       
         return args_handler
 
 
