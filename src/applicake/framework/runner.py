@@ -53,7 +53,6 @@ class Runner(KeyEnum):
         self.app = app
         try:
             # create memory logger            
-            sys.__stdout__.write('create temporary memory logger\n')
             log = Logger.create(level=default_info[self.LOG_LEVEL],name=StringUtils.get_random(15),stream=tmp_log_stream)
             log.debug('created temporary in-memory logger')
 #            # get command line arguments

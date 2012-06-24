@@ -49,6 +49,10 @@ class MascotAdapterOnline(SearchEngineAdapter):
         info['TEMPLATE'] = self._template_file       
         self._result_file = os.path.join(wd,self._result_file)
         info['IDXML'] = self._result_file
+        log.debug('define modifications')
+        info = self.define_mods(info, log)
+        log.debug('define enzyme')
+        info = self.define_enzyme(info, log)                 
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
