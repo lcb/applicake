@@ -72,7 +72,7 @@ class Myrimatch(MsMsIdentification):
         log.debug('get template handler')
         th = self.get_template_handler()
         if info['FRAGMASSUNIT'] == 'Da':
-            self.log.debug("replace 'FRAGMASSUNIT' with value [Da] to [daltons]")
+            log.debug("replace 'FRAGMASSUNIT' with value [Da] to [daltons]")
             info['FRAGMASSUNIT'] ='daltons'            
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)              
