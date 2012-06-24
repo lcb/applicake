@@ -12,7 +12,7 @@ from applicake.utils.xmlutils import XmlValidator
 
 class Omssa(MsMsIdentification):
     """
-    classdocs
+    Wrapper for the search engine OMSSA.
     """
 
     def __init__(self):
@@ -71,6 +71,16 @@ class Omssa(MsMsIdentification):
         th = self.get_template_handler()
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
+        
+        # necessary check for the precursor mass unig
+        if info['PRECMASSUNIT'].lower() == "ppm":
+            mod_template = mod_template + ' -teppm'
+            self.log.debug('added [ -teppm] to modified template because the precursor mass is defined in ppm')  
+#        # because omssa does not write the correct basename tag,
+#        # the mzxml_basename has to be used in the output name of the pep.xml     
+#        mzxml_basename = info['MZXML'].split(".")[0].split("/")[-1]             
+#        self._result_filename  = os.path.join(self._wd,mzxml_basename + ".pep.xml")
+#        self._iniFile.add_to_ini({'PEPXML':self._result_filename})                
         prefix,info = self._get_prefix(info,log)
         command = "%s %s -fm %s -op %s" %(prefix,mod_template,info['MGF'],self._result_file)
         return command,info
