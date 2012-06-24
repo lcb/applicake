@@ -77,6 +77,7 @@ class Runner(KeyEnum):
             info_handler = self.get_info_handler()
             log.info('Start [%s]' % info_handler.get_info.__name__)
             try:
+                # overwrite previous default values
                 info = info_handler.get_info(log, pargs)
             except:
                 # if get_info() fails, default info is set and the program stopped by
@@ -128,7 +129,6 @@ class Runner(KeyEnum):
             if info[self.PRINT_LOG]:
                 sys.stderr.write(stream.read())
             self.info = info  
-            print 'has attr info [%s]' % hasattr(self, 'info')  
             return exit_code
         
     def _cleanup(self,info,log):

@@ -195,7 +195,7 @@ class SearchEngineAdapter(OpenMs):
         args_handler.add_app_args(log, self.ENZYME, 'Enzyme used to digest the proteins',choices=EnzymeDb().get_keys())
         args_handler.add_app_args(log, self.STATIC_MODS, 'List of static modifications',choices=ModificationDb().get_keys())
         args_handler.add_app_args(log, self.VARIABLE_MODS, 'List of variable modifications',choices=ModificationDb().get_keys())
-        args_handler.add_app_args(log, 'IDXML', 'The idXML input file')
+        args_handler.add_app_args(log, 'MZML', 'Path to the mzML file.')
         return args_handler     
         
 
