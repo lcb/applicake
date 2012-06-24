@@ -15,7 +15,7 @@ class Myrimatch(MsMsIdentification):
     Wrapper for the search engine Myrimatch.
     """
 
-    MYRIMATCH_MINTERMINICLEAVAGES = 'MinTerminiCleavages'
+    MYRIMATCH_MINTERMINICLEAVAGES = 'MYRIMATCH_MINTERMINICLEAVAGES'
 
     def __init__(self):
         """
@@ -137,7 +137,7 @@ NumChargeStates = 5
 UseSmartPlusThreeModel = true
 TicCutoffPercentage = 0.95
 
-CleavageRules = "$ENZYME
+CleavageRules = "$ENZYME"
 MaxMissedCleavages = $MISSEDCLEAVAGE
 MinTerminiCleavages = $MYRIMATCH_MINTERMINICLEAVAGES 
 MinPeptideLength =  5
