@@ -127,7 +127,8 @@ class Runner(KeyEnum):
                     stream = tmp_log_stream               
                 stream.seek(0)
                 sys.stderr.write(stream.read())            
-            self.info = info    
+            self.info = info  
+            print 'has attr info [%s]' % hasattr(self, 'info')  
             return exit_code
         
     def _cleanup(self,info,log):

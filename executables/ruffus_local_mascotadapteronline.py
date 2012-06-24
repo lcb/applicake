@@ -62,7 +62,7 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     application = applic()
     exit_code = runner(argv, application)
     if exit_code != 0:
-        print 'use runner of type [%s] with applic [%s] and argv [%s]' % (runner.__name__,applic.__name__,argv)
+        print 'use runner of type [%s] with applic [%s] and argv [%s]' % (runner.__class__.__name__,applic.__name__,argv)
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
 def execute(command):
