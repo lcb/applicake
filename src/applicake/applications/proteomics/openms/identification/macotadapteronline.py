@@ -19,8 +19,8 @@ class MascotAdapterOnline(SearchEngineAdapter):
         """
         base = self.__class__.__name__
         self._template_file = '%s.ini' % base # application specific config file
-        self._result_file = '%s.idXML' % base # result produced by the application
-
+        self._result_file = '%s.idXML' % base # result produced by the application        
+    
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
             info[self.PREFIX] = 'MascotAdapterOnline'
@@ -51,12 +51,20 @@ class MascotAdapterOnline(SearchEngineAdapter):
         info = self.define_mods(info, log)
         log.debug('define enzyme')
         info = self.define_enzyme(info, log,'Mascot')                 
+        # have to modify the database name
+        log.debug('define mascot specific database name')
+        dbase_org = info['DBASE']
+        basename = os.path.basename(dbase_org)
+        info['DBASE'] = os.path.splitext(basename)[0]
+        log.debug('database name [%s]' % info['DBASE'])
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self._get_prefix(info,log)
         command = '%s -ini %s' % (prefix,self._template_file)
+        info['DBASE'] = dbase_org
+        log.debug('reset database value to original [%s]' % info['DBASE'])
         return command,info
 
     def set_args(self,log,args_handler):
