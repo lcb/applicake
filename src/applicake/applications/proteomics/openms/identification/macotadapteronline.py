@@ -122,7 +122,7 @@ class MascotAdapterOnlineTemplate(BasicTemplateHandler):
         <ITEM name="number_of_hits" value="10" type="int" description="Number of hits which should be returned, if 0 AUTO mode is enabled." restrictions="0:" />
         <ITEM name="skip_spectrum_charges" value="false" type="string" description="Sometimes precursor charges are given for each spectrum but are wrong, setting this to &apos;true&apos; does not write any charge information to the spectrum, the general charge information is however kept." restrictions="true,false" />
         <ITEM name="search_title" value="OpenMS_search" type="string" description="Sets the title of the search." tags="advanced" />
-        <ITEM name="username" value="OpenMS" type="string" description="Sets the username which is mentioned in the results file." tags="advanced" />
+        <ITEM name="username" value="applicake" type="string" description="Sets the username which is mentioned in the results file." tags="advanced" />
         <ITEM name="format" value="Mascot generic" type="string" description="Sets the format type of the peak list, this should not be changed." tags="advanced" />
         <ITEM name="form_version" value="1.01" type="string" description="Sets the version of the peak list format, this should not be changed." tags="advanced" />
         <ITEM name="peaklists_only" value="false" type="string" description="Skip the parameter header and the MIME parts; just write the peak lists" tags="advanced" restrictions="true,false" />
