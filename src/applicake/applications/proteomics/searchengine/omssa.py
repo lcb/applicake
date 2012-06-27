@@ -75,7 +75,7 @@ class Omssa(SearchEngine):
         # necessary check for the precursor mass unig
         if info['PRECMASSUNIT'].lower() == "ppm":
             mod_template = mod_template + ' -teppm'
-            self.log.debug('added [ -teppm] to modified template because the precursor mass is defined in ppm')  
+            log.debug('added [ -teppm] to modified template because the precursor mass is defined in ppm')  
 #        # because omssa does not write the correct basename tag,
 #        # the mzxml_basename has to be used in the output name of the pep.xml     
 #        mzxml_basename = info['MZXML'].split(".")[0].split("/")[-1]             
