@@ -185,9 +185,18 @@ def protxml2modifications():
 def protxml2openbis():
     wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
 
+#@follows(protxml2openbis)
+#def copy2dropbox():
+#    wrap(Copy2IdentDropbox,'protxml2openbis.ini','copy2dropbox.ini',['-p']) 
+
 @follows(protxml2openbis)
 def copy2dropbox():
-    wrap(Copy2IdentDropbox,'protxml2openbis.ini','copy2dropbox.ini',['-p']) 
+    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini','-p']
+    runner = IniFileRunner()
+    application = Copy2IdentDropbox()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier [%s]" % exit_code)  
 
 #@follows()
 #def ():
