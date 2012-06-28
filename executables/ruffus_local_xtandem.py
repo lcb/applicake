@@ -35,7 +35,8 @@ from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
 from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXml2SpectralCount
 from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
 from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
-from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
+from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox,\
+    Copy2IdentDropbox
 from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
 
@@ -186,7 +187,7 @@ def protxml2openbis():
 
 @follows(protxml2openbis)
 def copy2dropbox():
-    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox.ini',['-p']) 
+    wrap(Copy2IdentDropbox,'protxml2openbis.ini','copy2dropbox.ini',['-p']) 
 
 #@follows()
 #def ():
