@@ -6,10 +6,10 @@ Created on Jun 19, 2012
 '''
 
 import sys
-from applicake.framework.runner import ApplicationRunner
+from applicake.framework.runner import WrapperRunner
 from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
 
-runner = ApplicationRunner()
+runner = WrapperRunner()
 application = ProtXml2Modifications()
 exit_code = runner(sys.argv,application)
 print exit_code
