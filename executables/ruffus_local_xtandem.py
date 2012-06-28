@@ -102,6 +102,7 @@ FDR=0.01
 SPACE = QUANDTAN
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
+WORKFLOW=ruffus_local_xtandem
 """ 
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
@@ -184,10 +185,6 @@ def protxml2modifications():
 @follows(protxml2modifications)
 def protxml2openbis():
     wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
-
-#@follows(protxml2openbis)
-#def copy2dropbox():
-#    wrap(Copy2IdentDropbox,'protxml2openbis.ini','copy2dropbox.ini',['-p']) 
 
 @follows(protxml2openbis)
 def copy2dropbox():
