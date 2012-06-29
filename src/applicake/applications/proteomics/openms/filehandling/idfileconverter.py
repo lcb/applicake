@@ -140,7 +140,7 @@ class IdXml2PepXml(OpenMs):
         """
         See interface
         """
-        return PepXml2IdXmlTemplate()    
+        return IdXml2PepXmlTemplate()    
     
     def prepare_run(self,info,log):
         """
@@ -174,7 +174,7 @@ class IdXml2PepXml(OpenMs):
         """
         See interface
         """
-        args_handler = super(PepXml2IdXml, self).set_args(log,args_handler)
+        args_handler = super(IdXml2PepXml, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'IDXML', 'The idXML input file')
         return args_handler  
   
