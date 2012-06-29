@@ -41,6 +41,7 @@ from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
 from applicake.applications.proteomics.openms.identification.macotadapteronline import MascotAdapterOnline
+from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
 
 cwd = None
 
@@ -142,15 +143,14 @@ def mascotadapteronline(input_file_name, output_file_name):
 def idxml2pepxml(input_file_name, output_file_name):
     wrap(IdXml2PepXml,input_file_name, output_file_name,['-p'])
 
-
-@transform(idxml2pepxml, regex("idxml2pepxml_"), "xinteract.ini_")
-def xinteract(input_file_name, output_file_name):
-    wrap(Xinteract,input_file_name, output_file_name)   
+@transform(idxml2pepxml, regex("idxml2pepxml_"), "refreshparser.ini_")
+def refreshparser(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name)   
 
     
-@merge(xinteract, "collector.ini")
+@merge(refreshparser, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'refreshparser.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
