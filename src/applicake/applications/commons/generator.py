@@ -124,7 +124,7 @@ class Generator(IApplication):
         @param info: Dictionary with information about the application. The created output files are added to the key [%s]
         @type dicts: list
         @type dicts: List of dictionaries used to create ini files
-        """ % info.COPY_TO_WD
+        """ % self.COPY_TO_WD
              
         for idx,dic in enumerate(dicts):
             path = "%s%s%s" % (dic[self.GENERATOR],idx_sep,idx) 
@@ -156,8 +156,7 @@ class DatasetcodeGenerator(Generator):
         """ % (self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE)
         
         # prepare a basedic to produced input files for inner workflow
-        log.debug('create work copy of "info"')
-        log.debug('info[%s]' % info)    
+        log.debug('create work copy of "info"')   
         basedic = info.copy()        
         #check if value DATASE_CODE is defined as list
         dsc = basedic[self.DATASET_CODE]
