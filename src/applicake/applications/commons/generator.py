@@ -156,7 +156,8 @@ class DatasetcodeGenerator(Generator):
         """ % (self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE)
         
         # prepare a basedic to produced input files for inner workflow
-        log.debug('create work copy of "info"')    
+        log.debug('create work copy of "info"')
+        log.debug('info[%s]' % info)    
         basedic = info.copy()        
         #check if value DATASE_CODE is defined as list
         dsc = basedic[self.DATASET_CODE]
