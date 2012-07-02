@@ -149,52 +149,52 @@ def collector(notused_input_file_names, output_file_name):
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
 
-#@follows(collector)
-#def unifier():
-#    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
-#    runner = IniFileRunner()
-#    application = Unifier()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("unifier [%s]" % exit_code)  
-#
-#@follows(unifier)
-#def interprophet():
-#    wrap(InterProphet,'unifier.ini','interprophet.ini')    
-#
-#@follows(interprophet)
-#def pepxml2csv():
-#    wrap(Pepxml2Csv,'interprophet.ini','pepxml2csv.ini')   
-#    
-#@follows(pepxml2csv)
-#def fdr2probability():
-#    wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
-#
-#@follows(fdr2probability)
-#def proteinprophet():
-#    wrap(ProteinProphet,'fdr2probability.ini','proteinprophet.ini') 
-#
-#@follows(proteinprophet)
-#def protxml2spectralcount():
-#    wrap(ProtXml2SpectralCount,'proteinprophet.ini','protxml2spectralcount.ini') 
-#
-#@follows(protxml2spectralcount)
-#def protxml2modifications():
-#    wrap(ProtXml2Modifications,'protxml2spectralcount.ini','protxml2modifications.ini') 
-#
-#@follows(protxml2modifications)
-#def protxml2openbis():
-#    wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
-#
-#@follows(protxml2openbis)
-#def copy2dropbox():
-#    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini','-p']
-#    runner = IniFileRunner()
-#    application = Copy2IdentDropbox()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("unifier [%s]" % exit_code)  
-#
+@follows(collector)
+def unifier():
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
+    runner = IniFileRunner()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier [%s]" % exit_code)  
+
+@follows(unifier)
+def interprophet():
+    wrap(InterProphet,'unifier.ini','interprophet.ini')    
+
+@follows(interprophet)
+def pepxml2csv():
+    wrap(Pepxml2Csv,'interprophet.ini','pepxml2csv.ini')   
+    
+@follows(pepxml2csv)
+def fdr2probability():
+    wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
+
+@follows(fdr2probability)
+def proteinprophet():
+    wrap(ProteinProphet,'fdr2probability.ini','proteinprophet.ini') 
+
+@follows(proteinprophet)
+def protxml2spectralcount():
+    wrap(ProtXml2SpectralCount,'proteinprophet.ini','protxml2spectralcount.ini') 
+
+@follows(protxml2spectralcount)
+def protxml2modifications():
+    wrap(ProtXml2Modifications,'protxml2spectralcount.ini','protxml2modifications.ini') 
+
+@follows(protxml2modifications)
+def protxml2openbis():
+    wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
+
+@follows(protxml2openbis)
+def copy2dropbox():
+    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini','-p']
+    runner = IniFileRunner()
+    application = Copy2IdentDropbox()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier [%s]" % exit_code)  
+
 ##@follows()
 ##def ():
 ##    wrap(,'','') 
@@ -271,6 +271,6 @@ def collector(notused_input_file_names, output_file_name):
 #        raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
 
-#pipeline_run([copy2dropbox])
+pipeline_run([copy2dropbox])
 #pipeline_run([featurefindercentroided])
-pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = True) #svg
+#pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = True) #svg
