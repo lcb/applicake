@@ -14,7 +14,7 @@ from subprocess import PIPE
 from applicake.framework.runner import IniFileRunner
 from applicake.framework.runner import CollectorRunner
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.openbis.generator import GuseGenerator
+from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.searchengine.xtandem import Xtandem
@@ -85,7 +85,7 @@ IPROPHET_ARGS = MINPROB=0
 def generator(input_file_name, notused_output_file_names):
     sys.argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG']
     runner = IniFileRunner()
-    application = GuseGenerator()
+    application = DatasetcodeGenerator()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 

@@ -33,7 +33,6 @@ class DictUtils(SequenceUtils):
             for key in keys:
                 if key in sub_dic: del sub_dic[key] 
             return sub_dic
-            
     
     @staticmethod  
     def merge(dict_1, dict_2, priority='left'):

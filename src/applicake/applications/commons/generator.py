@@ -8,14 +8,15 @@ import itertools
 from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
 
-class OpenBisGenerator(IApplication):
+
+class Generator(IApplication):
     """
-    Generator for usage with openBIS
+    Basic generator class that provides several helper methods.
     
-    Generates all possible value combinations from the input file if it contains keys with multiple values.
+    A Generator creates all possible value combinations from the input file if it contains keys with multiple values.
     The results are stored in files which are named in dependency input file name and the pattern accepted 
     by the applied worklfow manager.
-    """    
+    """
 
     def get_list_product(self,list_of_lists):
         """
@@ -34,7 +35,7 @@ class OpenBisGenerator(IApplication):
         for element in itertools.product(*list_of_lists):
             l.append(element)
         return l
-    
+
     def get_product_dicts(self, dic, log, escape_keys,idx_key):
         """
         Creates the value combinations of a dictionary with multiple values for its keys
@@ -86,6 +87,60 @@ class OpenBisGenerator(IApplication):
             val = dic[key]
             dic[key] = escape_str.join(val)
             
+    def string2list(self,dic,keys,split_str):
+        """
+        Takes a dictionary and transforms values of keys that are lists into a string.
+        This might needed to 'escape' lists that should not be part of a list-product generation
+        
+        @type dic: dict 
+        @param dic: Dictionary that contains key-holding lists that should be escaped.
+        @type keys: list
+        @param keys: List of keys for which their values have to be transformed.
+        @type escape_str: string
+        @param escape_str: String used to split a string and generate a list.    
+        """
+        for key in keys:
+            val = dic[key]
+            dic[key] = val.split(split_str)    
+                  
+            
+#    def write_files(self,info,log,dicts):
+#        """
+#        Generates ini files from a list of dictionaries
+#        
+#        @type info: dict 
+#        @param info: Dictionary with information about the application. The created output files are added to the key [%s]
+#        @type dicts: list
+#        @type dicts: List of dictionaries used to create ini files
+#        """ % info.COPY_TO_WD
+#        raise NotImplementedError("write_files() is not implemented.")            
+    
+    
+    def write_files(self,info,log,dicts,idx_sep='_'): 
+        """
+        Generates ini files from a list of dictionaries
+        
+        @type info: dict 
+        @param info: Dictionary with information about the application. The created output files are added to the key [%s]
+        @type dicts: list
+        @type dicts: List of dictionaries used to create ini files
+        """ % info.COPY_TO_WD
+             
+        for idx,dic in enumerate(dicts):
+            path = "%s%s%s" % (dic[self.GENERATOR],idx_sep,idx) 
+            log.debug(path)          
+            ConfigHandler().write(dic, path)
+            log.debug('create file [%s]' % path)
+            info[self.COPY_TO_WD].append(path)
+
+class DatasetcodeGenerator(Generator):
+    """
+    Generator that rely on the existence of a specific dataset-code key that is retrieved from an OpenBIS instance.
+    
+    The generator splits the input file by the all possible parameter combinations and then by all defined dataset-codes.
+    """
+
+
     def main(self,info,log):
         """
         Generate the cartesian product of all values from info and writes them to files. 
@@ -101,14 +156,13 @@ class OpenBisGenerator(IApplication):
         """ % (self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE)
         
         # prepare a basedic to produced input files for inner workflow
-        basedic = info.copy()
-        
+        log.debug('create work copy of "info"')    
+        basedic = info.copy()        
         #check if value DATASE_CODE is defined as list
         dsc = basedic[self.DATASET_CODE]
         if not isinstance(dsc,list):
             log.fatal('found value of [%s] not to be a list [%s]' % (self.DATASET_CODE,dsc))
             return(1,info) 
-        log.debug('created work copy of "info"')
         log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
         remove_keys = [self.COPY_TO_WD,self.NAME]        
         for key in remove_keys:
@@ -129,7 +183,7 @@ class OpenBisGenerator(IApplication):
             param_file_dicts.extend(file_dicts)
         log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
         # write ini files
-        self.write_generator_files(info,log,param_file_dicts)
+        self.write_files(info,log,param_file_dicts)
         return (0,info)   
     
     def set_args(self,log,args_handler):
@@ -141,67 +195,35 @@ class OpenBisGenerator(IApplication):
         args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')
 #        self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE        
         return args_handler       
+        
+        
+#class GuseDatasetcodeGenerator(DatasetcodeGenerator):
+#    """
+#    Basic generator for the gUSE workflow manager.
+#    
+#    It creates output files of the format [INPUTFILENAME]_[INDEX]
+#    """    
+#    
+#    def write_files(self,info,log,dicts): 
+#        """
+#        see super class
+#        """       
+#        for idx,dic in enumerate(dicts):
+#            path = "%s_%s" % (dic[self.GENERATOR],idx) 
+#            log.debug(path)          
+#            ConfigHandler().write(dic, path)
+#            log.debug('create file [%s]' % path)
+#            info[self.COPY_TO_WD].append(path)
             
-    def string2list(self,dic,keys,split_str):
-        """
-        Takes a dictionary and transforms values of keys that are lists into a string.
-        This might needed to 'escape' lists that should not be part of a list-product generation
-        
-        @type dic: dict 
-        @param dic: Dictionary that contains key-holding lists that should be escaped.
-        @type keys: list
-        @param keys: List of keys for which their values have to be transformed.
-        @type escape_str: string
-        @param escape_str: String used to split a string and generate a list.    
-        """
-        for key in keys:
-            val = dic[key]
-            dic[key] = val.split(split_str)          
-            
-    def write_generator_files(self,info,log,dicts):
-        """
-        Generates ini files from a list of dictionaries
-        
-        @type info: dict 
-        @param info: Dictionary with information about the application. The created output files are added to the key [%s]
-        @type dicts: list
-        @type dicts: List of dictionaries used to create ini files
-        """ % info.COPY_TO_WD
-        raise NotImplementedError("write_generator_files() is not implemented.") 
-        
-        
-class GuseGenerator(OpenBisGenerator):
+class PgradeDatasetcodeGenerator(DatasetcodeGenerator):
     """
-    Basic generator for the gUSE workflow manager.
-    
-    It creates output files of the format [INPUTFILENAME]_[INDEX]
-    """    
-    
-    def write_generator_files(self,info,log,dicts): 
-        """
-        see super class
-        """       
-        for idx,dic in enumerate(dicts):
-            path = "%s_%s" % (dic[self.GENERATOR],idx) 
-            log.debug(path)          
-            ConfigHandler().write(dic, path)
-            log.debug('create file [%s]' % path)
-            info[self.COPY_TO_WD].append(path)
-            
-class PgradeGenerator(GuseGenerator):
-    """
-    Basic generator for the P-Grade workflow manager.
+    Dataset-code generator for the P-Grade workflow manager.
     
     It creates output files of the format [INPUTFILENAME].[INDEX]
     """
     
-    def write_generator_files(self,info,log,dicts): 
+    def write_files(self,info,log,dicts): 
         """
         see super class
         """       
-        for idx,dic in enumerate(dicts):
-            path = "%s.%s" % (dic[self.GENERATOR],idx) 
-            log.debug(path)          
-            ConfigHandler().write(dic, path)
-            log.debug('create file [%s]' % path)
-            info[self.COPY_TO_WD].append(path)
+        super(PgradeDatasetcodeGenerator,self).write_files(info,log,dicts,idx_sep='.')

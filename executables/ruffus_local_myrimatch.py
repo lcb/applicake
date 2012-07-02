@@ -15,7 +15,7 @@ from subprocess import PIPE
 from applicake.framework.runner import IniFileRunner, ApplicationRunner
 from applicake.framework.runner import CollectorRunner
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.openbis.generator import GuseGenerator
+from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.searchengine.xtandem import Xtandem
@@ -116,7 +116,7 @@ DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
     runner = IniFileRunner()
-    application = GuseGenerator()
+    application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 

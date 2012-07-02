@@ -7,10 +7,10 @@ Created on Apr 10, 2012
 
 import sys
 from applicake.framework.runner import IniFileRunner
-from applicake.applications.proteomics.openbis.generator import GuseGenerator
+from applicake.applications.commons.generator import DatasetcodeGenerator
 
 runner = IniFileRunner()
-application = GuseGenerator()
+application = DatasetcodeGenerator()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

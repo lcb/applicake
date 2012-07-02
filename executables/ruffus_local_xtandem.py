@@ -14,7 +14,7 @@ from subprocess import PIPE
 from applicake.framework.runner import IniFileRunner, ApplicationRunner
 from applicake.framework.runner import CollectorRunner
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.openbis.generator import GuseGenerator
+from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.searchengine.xtandem import Xtandem
@@ -116,7 +116,7 @@ WORKFLOW=ruffus_local_xtandem
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
     runner = IniFileRunner()
-    application = GuseGenerator()
+    application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 
@@ -149,130 +149,128 @@ def collector(notused_input_file_names, output_file_name):
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
 
-@follows(collector)
-def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
-    runner = IniFileRunner()
-    application = Unifier()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("unifier [%s]" % exit_code)  
-
-@follows(unifier)
-def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini')    
-
-@follows(interprophet)
-def pepxml2csv():
-    wrap(Pepxml2Csv,'interprophet.ini','pepxml2csv.ini')   
-    
-@follows(pepxml2csv)
-def fdr2probability():
-    wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
-
-@follows(fdr2probability)
-def proteinprophet():
-    wrap(ProteinProphet,'fdr2probability.ini','proteinprophet.ini') 
-
-@follows(proteinprophet)
-def protxml2spectralcount():
-    wrap(ProtXml2SpectralCount,'proteinprophet.ini','protxml2spectralcount.ini') 
-
-@follows(protxml2spectralcount)
-def protxml2modifications():
-    wrap(ProtXml2Modifications,'protxml2spectralcount.ini','protxml2modifications.ini') 
-
-@follows(protxml2modifications)
-def protxml2openbis():
-    wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
-
-@follows(protxml2openbis)
-def copy2dropbox():
-    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini','-p']
-    runner = IniFileRunner()
-    application = Copy2IdentDropbox()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("unifier [%s]" % exit_code)  
-
-#@follows()
-#def ():
-#    wrap(,'','') 
-#    @follows()
-#def ():
-#    wrap(,'','') 
-#    @follows()
-#def ():
-#    wrap(,'','')     
-
-
-@transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
-def pepxml2idxml(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = PepXml2IdXml()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('pepxml2idxml',exit_code)) 
-
-@transform(pepxml2idxml,regex('pepxml2idxml.ini'),'peptideindexer.ini')
-def peptideindexer(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = PeptideIndexer()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('peptideindexer',exit_code))
-
-@transform(peptideindexer,regex('peptideindexer.ini'),'fdr.ini')
-def fdr(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = FalseDiscoveryRate()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('fdr',exit_code)) 
-    
-@transform(fdr,regex('fdr.ini'),'idfilter.ini')
-def idfilter(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = IdFilter()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('idfilter',exit_code)) 
-    
-@transform(idfilter,regex('idfilter.ini'),'mzxml2mzml.ini')
-def mzxml2mzml(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-    application = Mzxml2Mzml()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('mzxml2mzml',exit_code)) 
-
-@transform(mzxml2mzml,regex('mzxml2mzml.ini'),'peakpickerhighres.ini')
-def peakpickerhighres(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o', output_file_name,'--SIGNAL_TO_NOISE','1']
-    runner = WrapperRunner()
-    application = PeakPickerHighRes()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('peakpickerhighres',exit_code)) 
+#@follows(collector)
+#def unifier():
+#    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
+#    runner = IniFileRunner()
+#    application = Unifier()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("unifier [%s]" % exit_code)  
+#
+#@follows(unifier)
+#def interprophet():
+#    wrap(InterProphet,'unifier.ini','interprophet.ini')    
+#
+#@follows(interprophet)
+#def pepxml2csv():
+#    wrap(Pepxml2Csv,'interprophet.ini','pepxml2csv.ini')   
+#    
+#@follows(pepxml2csv)
+#def fdr2probability():
+#    wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
+#
+#@follows(fdr2probability)
+#def proteinprophet():
+#    wrap(ProteinProphet,'fdr2probability.ini','proteinprophet.ini') 
+#
+#@follows(proteinprophet)
+#def protxml2spectralcount():
+#    wrap(ProtXml2SpectralCount,'proteinprophet.ini','protxml2spectralcount.ini') 
+#
+#@follows(protxml2spectralcount)
+#def protxml2modifications():
+#    wrap(ProtXml2Modifications,'protxml2spectralcount.ini','protxml2modifications.ini') 
+#
+#@follows(protxml2modifications)
+#def protxml2openbis():
+#    wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
+#
+#@follows(protxml2openbis)
+#def copy2dropbox():
+#    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini','-p']
+#    runner = IniFileRunner()
+#    application = Copy2IdentDropbox()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("unifier [%s]" % exit_code)  
+#
+##@follows()
+##def ():
+##    wrap(,'','') 
+##    @follows()
+##def ():
+##    wrap(,'','') 
+##    @follows()
+##def ():
+##    wrap(,'','')     
+#
+#
+#@transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
+#def pepxml2idxml(input_file_name, output_file_name):
+#    argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = PepXml2IdXml()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('pepxml2idxml',exit_code)) 
+#
+#@transform(pepxml2idxml,regex('pepxml2idxml.ini'),'peptideindexer.ini')
+#def peptideindexer(input_file_name, output_file_name):
+#    argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = PeptideIndexer()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('peptideindexer',exit_code))
+#
+#@transform(peptideindexer,regex('peptideindexer.ini'),'fdr.ini')
+#def fdr(input_file_name, output_file_name):
+#    argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = FalseDiscoveryRate()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('fdr',exit_code)) 
+#    
+#@transform(fdr,regex('fdr.ini'),'idfilter.ini')
+#def idfilter(input_file_name, output_file_name):
+#    argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = IdFilter()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('idfilter',exit_code)) 
+#    
+#@transform(idfilter,regex('idfilter.ini'),'mzxml2mzml.ini')
+#def mzxml2mzml(input_file_name, output_file_name):
+#    argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = Mzxml2Mzml()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('mzxml2mzml',exit_code)) 
+#
+#@transform(mzxml2mzml,regex('mzxml2mzml.ini'),'peakpickerhighres.ini')
+#def peakpickerhighres(input_file_name, output_file_name):
+#    argv = ['', '-i', input_file_name, '-o', output_file_name,'--SIGNAL_TO_NOISE','1']
+#    runner = WrapperRunner()
+#    application = PeakPickerHighRes()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('peakpickerhighres',exit_code)) 
+#         
+#@transform(peakpickerhighres,regex('peakpickerhighres.ini'),'featurefindercentroided.ini')
+#def featurefindercentroided(input_file_name, output_file_name):
+#    argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+##    application = FeatureFinderCentroided()
+#    application = OrbiLessStrict()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
-@transform(peakpickerhighres,regex('peakpickerhighres.ini'),'featurefindercentroided.ini')
-def featurefindercentroided(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o', output_file_name]
-    runner = WrapperRunner()
-#    application = FeatureFinderCentroided()
-    application = OrbiLessStrict()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
-         
 
-pipeline_run([copy2dropbox])
+#pipeline_run([copy2dropbox])
 #pipeline_run([featurefindercentroided])
-
-
-#pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
+pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = True) #svg
