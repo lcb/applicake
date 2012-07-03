@@ -13,14 +13,13 @@ from subprocess import PIPE
 from applicake.framework.runner import IniFileRunner, ApplicationRunner
 from applicake.framework.runner import CollectorRunner
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.commons.generator import DatasetcodeGenerator 
+from applicake.applications.proteomics.openbis.generator import GuseGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.searchengine.xtandem import Xtandem
 from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
 from applicake.applications.proteomics.tpp.xinteract import Xinteract
-from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
 from applicake.applications.proteomics.tpp.interprophet import InterProphet
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml,\
     IdXml2PepXml
@@ -72,15 +71,71 @@ def execute(command):
     err_stream = StringIO(error) 
 
 
+
+def mascotadapteronline():
+    wrap(MascotAdapterOnline,'mzxml2mzml.ini','mascotadapteronline.ini',['--MASCOT_HOSTNAME','imsb-ra-mascot.ethz.ch','--MASCOT_USERNAME','bla','--MASCOT_PASSWORD','blabla','-p'])
+
+@follows(mascotadapteronline)
 def idxml2pepxml():
-    wrap(IdXml2PepXml,'mascotadapteronline.ini','idxml2pepxml.ini')
+    wrap(IdXml2PepXml,'mascotadapteronline.ini','idxml2pepxml.ini',['-p'])
+
+
+
+#pipeline_run([idxml2pepxml])
+
 
 @follows(idxml2pepxml)
-def refreshparser():
-    wrap(RefreshParser,'idxml2pepxml.ini','refreshparser.ini',['-p'])   
+def xinteract():
+    wrap(Xinteract,'idxml2pepxml.ini','xinteract.ini')   
 
-@follows(refreshparser)
+@follows(xinteract)
 def interprophet():
-    wrap(InterProphet,'refreshparser.ini','interprophet.ini')  
+    wrap(InterProphet,'xinteract.ini','interprophet.ini')    
 
-pipeline_run([interprophet])
+@follows(interprophet)
+def pepxml2csv():
+    wrap(Pepxml2Csv,'interprophet.ini','pepxml2csv.ini')   
+    
+@follows(pepxml2csv)
+def fdr2probability():
+    wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
+
+@follows(fdr2probability)
+def proteinprophet():
+    wrap(ProteinProphet,'fdr2probability.ini','proteinprophet.ini') 
+
+@follows(proteinprophet)
+def protxml2spectralcount():
+    wrap(ProtXml2SpectralCount,'proteinprophet.ini','protxml2spectralcount.ini') 
+
+@follows(protxml2spectralcount)
+def protxml2modifications():
+    wrap(ProtXml2Modifications,'protxml2spectralcount.ini','protxml2modifications.ini') 
+
+@follows(protxml2modifications)
+def protxml2openbis():
+    wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
+
+@follows(protxml2openbis)
+def copy2dropbox():
+    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox.ini') 
+
+#@follows()
+#def ():
+#    wrap(,'','') 
+#    @follows()
+#def ():
+#    wrap(,'','') 
+#    @follows()
+#def ():
+#    wrap(,'','')     
+
+
+
+
+pipeline_run([copy2dropbox])
+#pipeline_run([featurefindercentroided])
+
+
+#pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
+

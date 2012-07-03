@@ -271,6 +271,8 @@ def copy2dropbox():
 #        raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
          
 
-pipeline_run([copy2dropbox])
 #pipeline_run([featurefindercentroided])
-#pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = True) #svg
+
+#pipeline_run([copy2dropbox])
+
+pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
