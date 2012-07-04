@@ -440,7 +440,7 @@ class CollectorRunner(ApplicationRunner):
             pargs[self.INPUT] = [collector_file]
             collector_info = self.get_info_handler().get_info(log, pargs)
             log.debug('info from collector file [%s]' % collector_info)
-            keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX]
+            keys = [self.BASEDIR,self.JOB_IDX]#,self.PARAM_IDX,self.FILE_IDX]
             needed_info = DictUtils.extract(collector_info, keys, include=True)
             return DictUtils.merge(info, needed_info, priority='left')       
     
