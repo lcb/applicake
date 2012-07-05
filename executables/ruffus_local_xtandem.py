@@ -271,6 +271,6 @@ def copy2dropbox():
 
 #pipeline_run([featurefindercentroided])
 
-#pipeline_run([copy2dropbox])
+pipeline_run([copy2dropbox])
 
-pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
+#pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
