@@ -582,7 +582,7 @@ class WrapperRunner(ApplicationRunner):
         """
         # when the command does not exist, process just dies.therefore a try/catch is needed          
         try:     
-            if storage == 'memory':
+            if storage == 'memory' or storage == 'memory_all':
                 p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
                 output, error = p.communicate()                                                                                                                                                                            
                 self.out_stream = StringIO(output)
