@@ -439,7 +439,7 @@ class UnifierRunner(IniFileRunner):
         """
         See super class.
         """ % [self.FILE_IDX,self.PARAM_IDX]        
-        check_keys = [self.INPUT,self.PARAM_IDX,self.FILE_IDX]
+        check_keys = [self.PARAM_IDX,self.FILE_IDX]
         for key in check_keys:            
             log.debug('check key :%s'% key)
             if isinstance(info[key],list):
