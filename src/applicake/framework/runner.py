@@ -125,7 +125,27 @@ class Runner(KeyEnum):
             else:
                 stream = tmp_log_stream               
             stream.seek(0)
-            if info[self.PRINT_LOG]:
+#            if info[self.STORAGE] == 'memory_all':
+#                # switched of because log will be printed already
+#                info[self.PRINT_LOG] = False
+#                sys.stderr.write(stream.read())
+#                if hasattr(self, 'out_stream'):
+#                    sys.stdout.write('===stdout===')
+#                    self.out_stream.seek(0)
+#                    sys.stdout.write(self.out_stream.read())
+#                    sys.stdout.write('===stderr===')            
+#            elif info[self.STORAGE] == 'memory_all':
+#                # switched of because log will be printed already
+#                info[self.PRINT_LOG] = False
+#                sys.stderr.write(stream.read())
+#                if hasattr(self, 'out_stream'):
+#                    sys.stdout.write('===stdout===')
+#                    self.out_stream.seek(0)
+#                    sys.stdout.write(self.out_stream.read())
+#                    sys.stdout.write('===stderr===')
+#                    self.err_stream.seek(0)
+#                    sys.stdout.write(self.err_stream.read())                
+            if info[self.PRINT_LOG] or info[self.STORAGE]== 'memory_all':
                 sys.stderr.write(stream.read())
             self.info = info  
             return exit_code
@@ -194,7 +214,7 @@ class Runner(KeyEnum):
             sys.stderr.write('==log==\n')
             self.log_stream.seek(0)
             for line in self.log_stream.readlines():
-                sys.stderr.write('%s\n'% line)                                    
+                sys.stderr.write(line)                                    
         # move created files to working directory
         # 'created_files might be none e.g. if memory-storage is used   
         if info[self.COPY_TO_WD] != []:  
