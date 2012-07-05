@@ -432,20 +432,19 @@ class UnifierRunner(IniFileRunner):
     """
     Specific runner for the unifier application.
     
-    The unifier runs usually after the collector application.
-    Therefore, adaptations of the info object have to be made.
+    Adaptations of the info object have to be made if the unifier runs after a collector app.
     """
 
     def create_workdir(self,info,log):
         """
         See super class.
-        
-        In addition, removes the keys %s
         """ % [self.FILE_IDX,self.PARAM_IDX]        
-        remove_keys = [self.INPUT,self.PARAM_IDX,self.FILE_IDX]
-        for key in remove_keys:            
-            log.debug('remove following keys from info:%s'% key)
-            del info[key]            
+        check_keys = [self.INPUT,self.PARAM_IDX,self.FILE_IDX]
+        for key in check_keys:            
+            log.debug('check key :%s'% key)
+            if isinstance(info[key],list):
+                log.debug('found list as value. Therefore key will be removed from info.')
+                del info[key]            
         return super(CollectorRunner,self).create_workdir(info,log)
     
     
