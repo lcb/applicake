@@ -12,7 +12,8 @@ from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
 from applicake.framework.runner import UnifierRunner, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
-from applicake.applications.commons.generator import DatasetcodeGenerator
+from applicake.applications.commons.generator import DatasetcodeGenerator,\
+    ParametersetGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.searchengine.xtandem import Xtandem
@@ -148,17 +149,30 @@ def collector(notused_input_file_names, output_file_name):
 
 
 @follows(collector)
-def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
-    runner = UnifierRunner()
-    application = Unifier()
+def paramgenerator():
+    argv = ['', '-i', 'collector.ini', '-o','paramgenerator.ini','-p']
+    runner = IniFileRunner()
+    application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("unifier [%s]" % exit_code)  
 
-@follows(unifier)
+@follows(paramgenerator)
 def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini')    
+    wrap(InterProphet,'paramgenerator.ini','interprophet.ini')
+
+#@follows(collector)
+#def unifier():
+#    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
+#    runner = UnifierRunner()
+#    application = Unifier()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("unifier [%s]" % exit_code)  
+#
+#@follows(unifier)
+#def interprophet():
+#    wrap(InterProphet,'unifier.ini','interprophet.ini')    
 
 @follows(interprophet)
 def pepxml2csv():
