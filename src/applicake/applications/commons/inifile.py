@@ -24,7 +24,6 @@ class Unifier(IApplication):
         """
         info = info.copy()
         del info[self.INPUT]
-        
         reduce = info['UNIFIER_REDUCE']
         if isinstance(reduce, list):
             if len(reduce)>1:

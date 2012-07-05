@@ -11,9 +11,7 @@ from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
-from applicake.framework.runner import IniFileRunner, ApplicationRunner
-from applicake.framework.runner import CollectorRunner
-from applicake.framework.runner import WrapperRunner
+from applicake.framework.runner import UnifierRunner, ApplicationRunner,CollectorRunner,WrapperRunner
 from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
@@ -114,7 +112,7 @@ WORKFLOW=ruffus_local_xtandem
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG','-p']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
     runner = IniFileRunner()
     application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
@@ -152,7 +150,7 @@ def collector(notused_input_file_names, output_file_name):
 @follows(collector)
 def unifier():
     argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
-    runner = IniFileRunner()
+    runner = UnifierRunner()
     application = Unifier()
     exit_code = runner(argv, application)
     if exit_code != 0:

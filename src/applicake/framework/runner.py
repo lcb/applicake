@@ -414,9 +414,9 @@ class IniFileRunner(ApplicationRunner):
 
     def run_app(self,app,info,log,args_handler):
         """
-        Generators require access to the complete info object, not only to specific informations.
-        
         See super class.
+        
+        Generators require access to the complete info object, not only to specific informations.
         """  
         exit_code = None     
         if isinstance(app,IApplication):
@@ -428,19 +428,44 @@ class IniFileRunner(ApplicationRunner):
             exit_code = 1
         return exit_code,info  
     
+class UnifierRunner(IniFileRunner):
+    """
+    Specific runner for the unifier application.
+    
+    The unifier runs usually after the collector application.
+    Therefore, adaptations of the info object have to be made.
+    """
+
+    def create_workdir(self,info,log):
+        """
+        See super class.
+        
+        In addition, removes the keys %s
+        """ % [self.FILE_IDX,self.PARAM_IDX]        
+        remove_keys = [self.INPUT,self.PARAM_IDX,self.FILE_IDX]
+        for key in remove_keys:            
+            log.debug('remove following keys from info:%s'% key)
+            del info[key]            
+        return super(CollectorRunner,self).create_workdir(info,log)
+    
+    
 class CollectorRunner(ApplicationRunner):             
     """
     Specific runner for collector applications.
     """
     
     def _add_additional_info(self,info,log):
+            '''
+            Need to extract specific information from the first collector file if no input file is defined.
+            '''
             pargs = {}
             collector_file = self.app.get_collector_files(info, log)[0] 
             log.debug('collector file taken to extract additional infos [%s]' % collector_file)
             pargs[self.INPUT] = [collector_file]
             collector_info = self.get_info_handler().get_info(log, pargs)
             log.debug('info from collector file [%s]' % collector_info)
-            keys = [self.BASEDIR,self.JOB_IDX]#,self.PARAM_IDX,self.FILE_IDX]
+            # the info is needed to create the work directory
+            keys = [self.BASEDIR,self.JOB_IDX]            
             needed_info = DictUtils.extract(collector_info, keys, include=True)
             return DictUtils.merge(info, needed_info, priority='left')       
     
