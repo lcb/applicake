@@ -160,7 +160,7 @@ def paramgenerator(input_file_name, notused_output_file_names):
 
 @transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
 def interprophet(input_file_name, output_file_name):
-    wrap(InterProphet,input_file_name, output_file_name,'-p')
+    wrap(InterProphet,input_file_name, output_file_name,['-p'])
 
 #@follows(collector)
 #def unifier():
