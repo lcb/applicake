@@ -156,7 +156,7 @@ def paramgenerator(input_file_name, notused_output_file_names):
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
-        raise Exception("unifier [%s]" % exit_code)  
+        raise Exception("paramgenerator [%s]" % exit_code)  
 
 @transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
 def interprophet(input_file_name, output_file_name):

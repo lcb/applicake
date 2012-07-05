@@ -132,8 +132,10 @@ class ParametersetGenerator(Generator):
         if not isinstance(info[self.PARAM_IDX],list):
             log.error('value [%s] of key [%s] was no list' % (self.PARAM_IDX, info[self.PARAM_IDX]))
             return 1,info
-        log.debug('remove key [%s] as it is not any longer needed' % self.FILE_IDX)
-        del info[self.FILE_IDX]
+        remove_keys = [self.INPUT,self.FILE_IDX]
+        for key in remove_keys:
+            log.debug('remove key [%s] as it is not any longer needed' % key)
+            del info[key]
         param_dicts = []
         if len(SequenceUtils.unify(info[self.PARAM_IDX], reduce = True)) ==1:                        
             for key in info.keys():
