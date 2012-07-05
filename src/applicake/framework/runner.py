@@ -471,7 +471,8 @@ class UnifierRunner(IniFileRunner):
     def create_workdir(self,info,log):
         """
         See super class.
-        """        
+        """  
+        del info[self.WORKDIR]      
         check_keys = [self.PARAM_IDX,self.FILE_IDX]
         mod_info = info.copy()
         for key in check_keys:            
