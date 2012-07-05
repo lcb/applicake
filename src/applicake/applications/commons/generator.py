@@ -115,7 +115,6 @@ class ParametersetGenerator(Generator):
     Generator that runs after a collector to split the information by the parameter sets.
     """
 
-
     def main(self,info,log):
         """
         Generate the cartesian product of all values from info and writes them to files. 
@@ -137,7 +136,7 @@ class ParametersetGenerator(Generator):
         log.debug('remove key [%s] as it is not any longer needed' % self.FILE_IDX)
         del basedic[self.FILE_IDX]
         param_dicts = []
-        if len(info[self.PARAM_IDX]) ==1:                        
+        if len(SequenceUtils.unify(info[self.PARAM_IDX], reduce = True)) ==1:                        
             for key in info.keys():
                 if isinstance(info[key], list):
                     info[key] = SequenceUtils.unify(info[key], reduce = True)
