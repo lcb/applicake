@@ -445,7 +445,7 @@ class UnifierRunner(IniFileRunner):
             if isinstance(info[key],list):
                 log.debug('found list as value. Therefore key will be removed from info.')
                 del info[key]            
-        return super(CollectorRunner,self).create_workdir(info,log)
+        return super(UnifierRunner,self).create_workdir(info,log)
     
     
 class CollectorRunner(ApplicationRunner):             
