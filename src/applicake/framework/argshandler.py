@@ -43,7 +43,7 @@ class ArgsHandler(object):
         self._parser.add_argument('-n','--NAME',required=False, dest="NAME", 
                             help="Name of the workflow node")
         self._parser.add_argument('-s','--STORAGE',required=False, dest="STORAGE", 
-                            choices=['memory','file'],
+                            choices=['memory','memory_all','file'],
                             help="Storage type for produced streams")  
         self._parser.add_argument('-l','--LOG_LEVEL',required=False, dest="LOG_LEVEL", 
                             choices=['DEBUG','INFO','WARNING',

@@ -181,7 +181,20 @@ class Runner(KeyEnum):
             print '=== stderr ==='
             self.err_stream.seek(0)
             for line in self.err_stream.readlines():
-                print line                              
+                print line                 
+        if info[self.STORAGE] == 'memory_all':
+            print '=== stdout ==='
+            self.out_stream.seek(0)
+            for line in self.out_stream.readlines():
+                print line
+            print '=== stderr ==='
+            self.err_stream.seek(0)
+            for line in self.err_stream.readlines():
+                print line 
+            sys.stderr.write('==log==\n')
+            self.log_stream.seek(0)
+            for line in self.log_stream.readlines():
+                sys.stderr.write('%s\n'% line)                                    
         # move created files to working directory
         # 'created_files might be none e.g. if memory-storage is used   
         if info[self.COPY_TO_WD] != []:  
@@ -296,7 +309,7 @@ class Runner(KeyEnum):
             log.debug('found key [%s]: [%s]' % (key, info.has_key(key)))
         storage = info[self.STORAGE]
         log.debug('STORAGE type: [%s]' % storage)
-        if storage == 'memory':
+        if storage == 'memory' or storage == 'memory_all':
             out_stream = StringIO()            
             err_stream = StringIO() 
             log_stream = StringIO() 
