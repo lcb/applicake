@@ -471,14 +471,16 @@ class UnifierRunner(IniFileRunner):
     def create_workdir(self,info,log):
         """
         See super class.
-        """ % [self.FILE_IDX,self.PARAM_IDX]        
+        """        
         check_keys = [self.PARAM_IDX,self.FILE_IDX]
+        mod_info = info.copy()
         for key in check_keys:            
             log.debug('check key :%s'% key)
-            if isinstance(info[key],list):
-                log.debug('found list as value. Therefore key will be removed from info.')
-                del info[key]            
-        return super(UnifierRunner,self).create_workdir(info,log)
+            if isinstance(mod_info[key],list):
+                log.debug('found list as value. Therefore key is not considered for creating the work dir.')
+                del mod_info[key]            
+        mod_info = super(UnifierRunner,self).create_workdir(mod_info,log)
+        return DictUtils.merge(info, mod_info, priority='left')
     
     
 class CollectorRunner(ApplicationRunner):             

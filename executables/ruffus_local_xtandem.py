@@ -152,7 +152,7 @@ def collector(notused_input_file_names, output_file_name):
 @split("collector.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-p']
-    runner = IniFileRunner()
+    runner = UnifierRunner()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
