@@ -137,14 +137,6 @@ class IWrapper(KeyEnum):
     Interface for application that wraps an external application
     """
         
-    def get_template_handler(self):
-        """
-        Interface method to inject specific templates.
-        
-        @rtype: applicake.framework.interfaces.ITemplateHandler
-        @return: Specific template handler used for the tool
-        """
-        raise NotImplementedError("get_template_handler() is not implemented")        
         
     def prepare_run(self,info,log):
         """
