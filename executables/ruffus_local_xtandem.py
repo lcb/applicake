@@ -150,7 +150,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def paramgenerator():
-    argv = ['', '-i', 'collector.ini', '-o','paramgenerator.ini','-p']
+    argv = ['', '-i', 'collector.ini', '-g','paramgenerate.ini','-o','paramgenerator.ini','-p']
     runner = IniFileRunner()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
