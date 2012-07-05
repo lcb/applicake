@@ -35,7 +35,7 @@ class DictUtils(SequenceUtils):
             return sub_dic
     
     @staticmethod     
-    def get_product_dicts(self, dic, log, escape_keys,idx_key):
+    def get_product_dicts(dic, log, escape_keys,idx_key):
         """
         Creates the value combinations of a dictionary with multiple values for its keys
         

@@ -27,7 +27,7 @@ class SequenceUtils(object):
 
     
     @staticmethod
-    def get_list_product(self,list_of_lists):
+    def get_list_product(list_of_lists):
         """
         Generate a list of product combinations from a list of lists.
         
@@ -46,7 +46,7 @@ class SequenceUtils(object):
         return l 
 
     @staticmethod
-    def list2string(self,dic,keys,escape_str):
+    def list2string(dic,keys,escape_str):
         """
         Takes a dictionary and transforms values of keys that are lists into a string.
         This might needed to 'escape' lists that should not be part of a list-product generation
@@ -64,7 +64,7 @@ class SequenceUtils(object):
             dic[key] = escape_str.join(val)
     
     @staticmethod        
-    def string2list(self,dic,keys,split_str):
+    def string2list(dic,keys,split_str):
         """
         Takes a dictionary and transforms values of keys that are lists into a string.
         This might needed to 'escape' lists that should not be part of a list-product generation
