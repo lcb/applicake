@@ -11,7 +11,7 @@ from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
-from applicake.framework.runner import UnifierRunner, ApplicationRunner,CollectorRunner,WrapperRunner
+from applicake.framework.runner import UnifierRunner, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
 from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
