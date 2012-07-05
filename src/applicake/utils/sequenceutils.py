@@ -3,6 +3,7 @@ Created on Mar 31, 2012
 
 @author: quandtan
 '''
+import itertools
 
 class SequenceUtils(object):
     """
@@ -23,6 +24,61 @@ class SequenceUtils(object):
             else:
                 seq.append(e)
         return seq 
+
+    
+    @staticmethod
+    def get_list_product(self,list_of_lists):
+        """
+        Generate a list of product combinations from a list of lists.
+        
+        @type list_of_lists: list of lists
+        @param list_of_lists: List of lists from which the product combinations should be created
+        
+        @return: List with all product combinations
+        """
+        # itertools.product() fails, if not all elements of the list are also lists.
+        for idx, val in enumerate(list_of_lists):  
+            if type(val) is not list:                
+                list_of_lists[idx] = [val] 
+        l = []
+        for element in itertools.product(*list_of_lists):
+            l.append(element)
+        return l 
+
+    @staticmethod
+    def list2string(self,dic,keys,escape_str):
+        """
+        Takes a dictionary and transforms values of keys that are lists into a string.
+        This might needed to 'escape' lists that should not be part of a list-product generation
+        
+        @type dic: dict 
+        @param dic: Dictionary that contains key-holding lists that should be escaped.
+        @type keys: list
+        @param keys: List of keys for which their values have to be transformed.
+        @type escape_str: string
+        @param escape_str: String used to transform a list to a string. The string should not be ',' as this is used
+        to generate list products
+        """
+        for key in keys:
+            val = dic[key]
+            dic[key] = escape_str.join(val)
+    
+    @staticmethod        
+    def string2list(self,dic,keys,split_str):
+        """
+        Takes a dictionary and transforms values of keys that are lists into a string.
+        This might needed to 'escape' lists that should not be part of a list-product generation
+        
+        @type dic: dict 
+        @param dic: Dictionary that contains key-holding lists that should be escaped.
+        @type keys: list
+        @param keys: List of keys for which their values have to be transformed.
+        @type escape_str: string
+        @param escape_str: String used to split a string and generate a list.    
+        """
+        for key in keys:
+            val = dic[key]
+            dic[key] = val.split(split_str)      
     
     @staticmethod
     def unify(seq, idfun=None, reduce=False):
@@ -49,4 +105,4 @@ class SequenceUtils(object):
             result.append(item)
         if reduce and len(result)==1:
             result = result[0]
-        return result    
+        return result          

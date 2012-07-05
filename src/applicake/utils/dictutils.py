@@ -34,6 +34,40 @@ class DictUtils(SequenceUtils):
                 if key in sub_dic: del sub_dic[key] 
             return sub_dic
     
+    @staticmethod     
+    def get_product_dicts(self, dic, log, escape_keys,idx_key):
+        """
+        Creates the value combinations of a dictionary with multiple values for its keys
+        
+        @type dic: dict
+        @param dic: Dictionary used to generate cartesian products from 
+        @type log: Logger
+        @param log: Logger object to write log messages 
+        @type escape_keys: list 
+        @param escape_keys: List of keys that should be excluded from the combination generation
+        @type idx_key: string 
+        @param idx_key: Key to store the combination index
+        
+        @return: List of dictionaries
+        """
+        escape_str = ';'
+        # escape (list-) value of selected keys
+        SequenceUtils.list2string(dic, escape_keys, escape_str)
+        keys = dic.keys()
+        values = dic.values()
+        elements = SequenceUtils.get_list_product(values)
+        idx = 0
+        product_dicts = []
+        for idx, element in enumerate(elements):
+            dic = dict(zip(keys, element))
+            # revert escaping of selected (list-) values
+            SequenceUtils.string2list(dic, escape_keys, escape_str)
+            # add to each product dictionary a new key: the index key
+            dic[idx_key] = idx
+            idx += 1
+            product_dicts.append(dic)    
+        return product_dicts    
+    
     @staticmethod  
     def merge(dict_1, dict_2, priority='left'):
         """
