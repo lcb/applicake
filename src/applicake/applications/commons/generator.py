@@ -36,6 +36,7 @@ class Generator(IApplication):
             BasicInformationHandler().write_info(dic, log)
             log.debug('create file [%s]' % path)
             info[self.COPY_TO_WD].append(path)
+        return info
 
 class DatasetcodeGenerator(Generator):
     """
@@ -137,8 +138,8 @@ class ParametersetGenerator(Generator):
             return 1,info
         
         #remove file_idx as it is not longer needed
-        del info[self.FILE_IDX]
         basedic = info.copy()
+        del basedic[self.FILE_IDX]        
         param_dicts = []
         if len(SequenceUtils.unify(basedic[self.PARAM_IDX], reduce = True)) ==1:                        
             for key in info.keys():
@@ -174,7 +175,7 @@ class ParametersetGenerator(Generator):
                 log.debug('param idx [%s] created dict [%s]' % (param_idx,param_dict))
                 param_dicts.append(param_dict)    
         # write ini files
-        self.write_files(info,log,param_dicts)
+        info = self.write_files(basedic,log,param_dicts)
         return (0,info)           
             
     
