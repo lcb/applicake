@@ -45,12 +45,14 @@ class Xtandem(SearchEngine):
 
     def _write_input_files(self,info,log):       
         db_file = os.path.join(info[self.WORKDIR],info['DBASE'])
+        self._taxonomy_file = os.path.join(info[self.WORKDIR],self._taxonomy_file)
         with open(self._taxonomy_file, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write('<bioml>\n<taxon label="database">')
             sink.write('<file format="peptide" URL="%s"/>' % db_file)
             sink.write("</taxon>\n</bioml>")
-        log.debug('Created [%s]' % self._taxonomy_file)          
+        log.debug('Created [%s]' % self._taxonomy_file) 
+        self._input_file = os.path.join(info[self.WORKDIR],self._input_file)         
         with open(self._input_file, "w") as sink:
             sink.write('<?xml version="1.0"?>\n')
             sink.write("<bioml>\n<note type='input' label='list path, default parameters'>"+info[self.TEMPLATE]+"</note>\n")
