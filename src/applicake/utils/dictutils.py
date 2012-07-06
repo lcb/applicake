@@ -4,6 +4,7 @@ Created on Mar 31, 2012
 @author: quandtan
 '''
 
+import sys
 from applicake.utils.sequenceutils import SequenceUtils
 
 
@@ -59,6 +60,8 @@ class DictUtils(SequenceUtils):
         idx = 0
         product_dicts = []
         for idx, element in enumerate(elements):
+            log.debug('enter')
+            log.debug('result zip: [%s]' % zip(keys, element))
             dic = dict(zip(keys, element))
             log.debug('dic: [%s]' % dic)
             # revert escaping of selected (list-) values
@@ -66,7 +69,10 @@ class DictUtils(SequenceUtils):
             # add to each product dictionary a new key: the index key
             dic[idx_key] = idx
             idx += 1
-            product_dicts.append(dic)    
+            product_dicts.append(dic)  
+        if product_dicts == []:
+            log.fatal('no product dictionaries were produced')
+            sys.exit(1)  
         return product_dicts    
     
     @staticmethod  
