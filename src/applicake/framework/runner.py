@@ -179,6 +179,7 @@ class Runner(KeyEnum):
                 files_to_copy = []
                 if info.has_key(self.INPUT) and len(info[self.INPUT]) >0 :
                     log.debug('check for input files to copy')
+                    log.debug([info.has_key(self.INPUT) and len(info[self.INPUT]) >0,len(info[self.INPUT]) >0])
                     DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.INPUT]])
                     log.debug('found following input files to copy [%s]' % info[self.INPUT])
                     files_to_copy.extend(info[self.INPUT])
