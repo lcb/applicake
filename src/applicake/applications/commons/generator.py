@@ -157,8 +157,10 @@ class ParametersetGenerator(Generator):
                 log.debug('found it at positions [%s] in original array [%s]' % (positions,info[self.PARAM_IDX]))
                 # extracts for every key of the info object the values that match these positions
                 # and writes them into a new dictionary
+                log.debug('start splitting values for every key in info object')
                 for key in keys:
-                    value = info[key]                    
+                    value = info[key]   
+                    log.debug('value [%s] for key [%s]' % (value,key))                 
                     param_dict[key] = [value[pos] for pos in positions]
                 param_dicts.append(param_dict)    
         # write ini files
