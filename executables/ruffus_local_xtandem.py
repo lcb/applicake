@@ -78,11 +78,11 @@ def setup():
 #    execute('rm jobid.txt') 
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/scratch/malars/workflows
+        f.write("""BASEDIR = /cluster/scratch_xl/shareholder/malars/workflows/
 LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
-DATASET_DIR = /cluster/scratch_xl/shareholder/malars/workflows/
+DATASET_DIR = /cluster/scratch_xl/shareholder/malars/datasets
 DATASET_CODE = 20120124102254267-296925,20120124121656335-296961
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
