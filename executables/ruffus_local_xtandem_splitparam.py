@@ -122,6 +122,7 @@ def generator(input_file_name, notused_output_file_names):
         raise Exception("generator failed [%s]" % exit_code) 
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
+@jobs_limit(1)
 def dss(input_file_name, output_file_name):   
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
 
