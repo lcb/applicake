@@ -177,11 +177,11 @@ class Runner(KeyEnum):
                 log.debug('start copying/moving files to work dir')
                 # copy input files to working directory
                 files_to_copy = []
-                if info.has_key(self.INPUT):
+                if info.has_key(self.INPUT) and len(info[self.INPUT]) >0 :
                     DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.INPUT]])
                     log.debug('found following input files to copy [%s]' % info[self.INPUT])
                     files_to_copy.extend(info[self.INPUT])
-                if info.has_key(self.OUTPUT):
+                if info.has_key(self.OUTPUT) and len(info[self.OUTPUT]) >0:
                     DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.OUTPUT]])
                     log.debug('found following output file to copy [%s]' % info[self.OUTPUT])
                     files_to_copy.append(info[self.OUTPUT])            
