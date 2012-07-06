@@ -41,13 +41,13 @@ class SequenceUtils(object):
         return seq 
 
     @staticmethod
-    def get_indices(list, filter):
+    def get_indices(list, lambda_filter):
         """
         Return a list of indices for all matches.
         
         @param list: List to search
         @type list: list
-        @param filter: lambda filter e.g. lambda x: x>99 
+        @param lambda_filter: lambda filter e.g. lambda x: x>99 
         
         @return: List of indices that match the criteria
         @rtype: list  
@@ -57,7 +57,7 @@ class SequenceUtils(object):
         while(True):
             try:
                 # next value in list passing the test
-                nextvalue = filter(filter, list[i:])[0]
+                nextvalue = filter(lambda_filter, list[i:])[0]
     
                 # add index of this value in the index list,
                 # by searching the value in L[i:] 
