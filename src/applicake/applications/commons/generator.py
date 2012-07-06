@@ -135,10 +135,14 @@ class ParametersetGenerator(Generator):
         if not isinstance(info[self.PARAM_IDX],list):
             log.error('value [%s] of key [%s] was no list' % (self.PARAM_IDX, info[self.PARAM_IDX]))
             return 1,info
-        remove_keys = [self.INPUT,self.FILE_IDX,self.PRINT_LOG]
+        
+        #remove file_idx as it is not longer needed
+        del info[self.FILE_IDX]
+        exclude_keys = [self.GENERATOR,self.OUTPUT]
+#        remove_keys = [self.INPUT,self.FILE_IDX]
 #        remove_keys = BasicInformationHandler().remove_keys
 #        remove_keys.append(self.FILE_IDX) 
-        basedic = DictUtils.extract(info, remove_keys, include=False)
+        basedic = DictUtils.extract(info,exclude_keys , include=False)
         param_dicts = []
         if len(SequenceUtils.unify(basedic[self.PARAM_IDX], reduce = True)) ==1:                        
             for key in info.keys():
