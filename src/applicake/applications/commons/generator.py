@@ -148,6 +148,7 @@ class ParametersetGenerator(Generator):
         else:
             param_dict = {}
             keys = basedic.keys()
+            log.debug('number of keys [%s]' % len(keys))
             param_idxs = basedic[self.PARAM_IDX]
             # loops of unique list of found parameter idices
             for param_idx in SequenceUtils.unify(param_idxs):
