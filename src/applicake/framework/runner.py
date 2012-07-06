@@ -166,79 +166,82 @@ class Runner(KeyEnum):
         
         @rtype: (int,dict,logger)
         @return: Tuple of 3 objects; the exit code,the (updated) info object and the updated logger.          
-        """         
-        log.info('Start [%s]' % self.reset_streams.__name__)
-        self.reset_streams()
-        log.info('Finished [%s]' % self.reset_streams.__name__)
-        log.debug('found key [%s] [%s]' % (self.WORKDIR, info.has_key(self.WORKDIR)))        
-        if info.has_key(self.WORKDIR):
-            wd = info[self.WORKDIR]
-            log.debug('start copying/moving files to work dir')
-            # copy input files to working directory
-            files_to_copy = []
-            if info.has_key(self.INPUT):
-                DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.INPUT]])
-                log.debug('found following input files to copy [%s]' % info[self.INPUT])
-                files_to_copy.extend(info[self.INPUT])
-            if info.has_key(self.OUTPUT):
-                DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.OUTPUT]])
-                log.debug('found following output file to copy [%s]' % info[self.OUTPUT])
-                files_to_copy.append(info[self.OUTPUT])            
-            for path in files_to_copy:
-                # 'r' escapes special characters
-                src = r'%s' % os.path.abspath(path) 
-                try:
-                    shutil.copy(src,wd) 
-                    log.debug('Copied [%s] to [%s]' % (src,wd))
-                except:
-                    log.critical('Counld not copy [%s] to [%s]' % (src,wd))
-                    return (1,info,log)            
-        if info[self.STORAGE] == 'memory':
-            print '=== stdout ==='
-            self.out_stream.seek(0)
-            for line in self.out_stream.readlines():
-                print line
-            print '=== stderr ==='
-            self.err_stream.seek(0)
-            for line in self.err_stream.readlines():
-                print line                 
-        if info[self.STORAGE] == 'memory_all':
-            print '=== stdout ==='
-            self.out_stream.seek(0)
-            for line in self.out_stream.readlines():
-                print line
-            print '=== stderr ==='
-            self.err_stream.seek(0)
-            for line in self.err_stream.readlines():
-                print line 
-            sys.stderr.write('==log==\n')
-            self.log_stream.seek(0)
-            for line in self.log_stream.readlines():
-                sys.stderr.write(line)                                    
-        # move created files to working directory
-        # 'created_files might be none e.g. if memory-storage is used   
-        if info[self.COPY_TO_WD] != []:  
-            for path in info[self.COPY_TO_WD]:
-                # check if element is a key of info and not an actual file
-                if info.has_key(path):
-                    path = info[path]
+        """     
+        try:    
+            log.info('Start [%s]' % self.reset_streams.__name__)
+            self.reset_streams()
+            log.info('Finished [%s]' % self.reset_streams.__name__)
+            log.debug('found key [%s] [%s]' % (self.WORKDIR, info.has_key(self.WORKDIR)))        
+            if info.has_key(self.WORKDIR):
+                wd = info[self.WORKDIR]
+                log.debug('start copying/moving files to work dir')
+                # copy input files to working directory
+                files_to_copy = []
+                if info.has_key(self.INPUT):
+                    DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.INPUT]])
+                    log.debug('found following input files to copy [%s]' % info[self.INPUT])
+                    files_to_copy.extend(info[self.INPUT])
+                if info.has_key(self.OUTPUT):
+                    DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.OUTPUT]])
+                    log.debug('found following output file to copy [%s]' % info[self.OUTPUT])
+                    files_to_copy.append(info[self.OUTPUT])            
+                for path in files_to_copy:
+                    # 'r' escapes special characters
                     src = r'%s' % os.path.abspath(path) 
-                    dest = r'%s' % os.path.join(wd,os.path.basename(path))
-                    info[path] = dest
-                    log.debug('set value of key [%s] from [%s] to [%s]' % (path,info[path],dest))
-                else:
-                    src = r'%s' % os.path.abspath(path) 
-                    dest = r'%s' % os.path.join(wd,os.path.basename(path))                    
-                try:
-                    shutil.copy(src,wd)
-                    log.debug('Copy [%s] to [%s]' % (src,dest))
-                except:
-                    if FileUtils.is_valid_file(log, dest):
-                        log.debug('file [%s] already exists' % dest)
+                    try:
+                        shutil.copy(src,wd) 
+                        log.debug('Copied [%s] to [%s]' % (src,wd))
+                    except:
+                        log.critical('Counld not copy [%s] to [%s]' % (src,wd))
+                        return (1,info,log)            
+            if info[self.STORAGE] == 'memory':
+                print '=== stdout ==='
+                self.out_stream.seek(0)
+                for line in self.out_stream.readlines():
+                    print line
+                print '=== stderr ==='
+                self.err_stream.seek(0)
+                for line in self.err_stream.readlines():
+                    print line                 
+            if info[self.STORAGE] == 'memory_all':
+                print '=== stdout ==='
+                self.out_stream.seek(0)
+                for line in self.out_stream.readlines():
+                    print line
+                print '=== stderr ==='
+                self.err_stream.seek(0)
+                for line in self.err_stream.readlines():
+                    print line 
+                sys.stderr.write('==log==\n')
+                self.log_stream.seek(0)
+                for line in self.log_stream.readlines():
+                    sys.stderr.write(line)                                    
+            # move created files to working directory
+            # 'created_files might be none e.g. if memory-storage is used   
+            if info[self.COPY_TO_WD] != []:  
+                for path in info[self.COPY_TO_WD]:
+                    # check if element is a key of info and not an actual file
+                    if info.has_key(path):
+                        path = info[path]
+                        src = r'%s' % os.path.abspath(path) 
+                        dest = r'%s' % os.path.join(wd,os.path.basename(path))
+                        info[path] = dest
+                        log.debug('set value of key [%s] from [%s] to [%s]' % (path,info[path],dest))
                     else:
-                        log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
-                        return(1,info,log)
-        return (0,info,log)           
+                        src = r'%s' % os.path.abspath(path) 
+                        dest = r'%s' % os.path.join(wd,os.path.basename(path))                    
+                    try:
+                        shutil.copy(src,wd)
+                        log.debug('Copy [%s] to [%s]' % (src,dest))
+                    except:
+                        if FileUtils.is_valid_file(log, dest):
+                            log.debug('file [%s] already exists' % dest)
+                        else:
+                            log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
+                            return(1,info,log)
+            return (0,info,log)
+        except:
+            return 1,info,log           
                     
     def _set_jobid(self,info,log):
         """
