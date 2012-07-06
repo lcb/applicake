@@ -57,7 +57,7 @@ class DictUtils(SequenceUtils):
         keys = dic.keys()
         values = dic.values()
         log.debug('values [%s]' % values)
-        elements = SequenceUtils.get_list_product(values)
+        elements = SequenceUtils.get_list_product(log,values)
         log.debug('elements [%s]' % elements)
         idx = 0
         product_dicts = []

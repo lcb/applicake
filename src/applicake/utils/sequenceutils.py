@@ -4,6 +4,7 @@ Created on Mar 31, 2012
 @author: quandtan
 '''
 import itertools
+import sys
 
 class SequenceUtils(object):
     """
@@ -11,23 +12,27 @@ class SequenceUtils(object):
     """
 
     @staticmethod
-    def get_flatten_sequence(sequence):
-        """get_flatten_sequence(sequence) -> list    
+    def get_flatten_sequence(log,sequence):
+        """  
         Returns a single, flat list which contains all elements retrieved
         from the sequence and all recursively contained sub-sequences
         (iterables).
+        
         """    
         seq = []
         for e in sequence:
             if hasattr(e, "__iter__") and not isinstance(e, basestring):
-                seq.extend(SequenceUtils.get_flatten_sequence(e))
+                seq.extend(SequenceUtils.get_flatten_sequence(log,e))
             else:
                 seq.append(e)
+        if seq == []:
+            log.fatal('no sequence created')
+            sys.exit(1)
         return seq 
 
     
     @staticmethod
-    def get_list_product(list_of_lists):
+    def get_list_product(log,list_of_lists):
         """
         Generate a list of product combinations from a list of lists.
         
@@ -43,6 +48,9 @@ class SequenceUtils(object):
         l = []
         for element in itertools.product(*list_of_lists):
             l.append(element)
+        if l == []:
+            log.fatal('no list product was produced.')
+            sys.exit(1)    
         return l 
 
     @staticmethod
