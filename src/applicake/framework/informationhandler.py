@@ -15,6 +15,12 @@ class BasicInformationHandler(IInformationHandler):
     Basic implementation of the IInformationHandler interface. 
     """      
     
+    def __init__(self):
+        # keys that have to be removed before writing the information object
+        self.remove_keys = [self.INPUT,self.OUTPUT,self.LOG_LEVEL,self.COPY_TO_WD,
+                       self.GENERATOR,self.COLLECTOR,self.NAME,self.PREFIX,
+                       self.TEMPLATE,self.PRINT_LOG]
+    
     def get_info(self,log,pargs):
         """
         See super class.
@@ -56,13 +62,9 @@ class BasicInformationHandler(IInformationHandler):
         """ 
         if info.has_key(self.OUTPUT):
             path = info[self.OUTPUT]
-            log.debug('output file [%s]' % path)  
-            remove_keys = [self.INPUT,self.OUTPUT,self.LOG_LEVEL,self.COPY_TO_WD,
-                           self.GENERATOR,self.COLLECTOR,self.NAME,self.PREFIX,
-                           self.TEMPLATE,self.PRINT_LOG]
-            
-            info_write  = DictUtils.extract(info, remove_keys, include=False)
-            log.debug('remove following keys [%s] before writing info' % remove_keys)                 
+            log.debug('output file [%s]' % path)             
+            info_write  = DictUtils.extract(info, self.remove_keys, include=False)
+            log.debug('remove following keys [%s] before writing info' % self.remove_keys)                 
             ConfigHandler().write(info_write, path) 
             valid = FileUtils.is_valid_file(log, path )
             if not valid:
