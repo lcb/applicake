@@ -138,7 +138,7 @@ class ParametersetGenerator(Generator):
         #remove_keys = [self.INPUT,self.FILE_IDX]
         remove_keys = BasicInformationHandler().remove_keys
         remove_keys.append(self.FILE_IDX) 
-        basedic = DictUtils.extract(info, self.remove_keys, include=False)
+        basedic = DictUtils.extract(info, remove_keys, include=False)
         param_dicts = []
         if len(SequenceUtils.unify(basedic[self.PARAM_IDX], reduce = True)) ==1:                        
             for key in info.keys():
