@@ -12,7 +12,7 @@ from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
-from applicake.framework.runner import UnifierRunner, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
+from applicake.framework.runner import IniFileRunner2, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
 from applicake.applications.commons.generator import DatasetcodeGenerator,\
     ParametersetGenerator
 from applicake.applications.os.echo import Echo
@@ -154,7 +154,7 @@ def collector(notused_input_file_names, output_file_name):
 @split("collector.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
-    runner = UnifierRunner()
+    runner = IniFileRunner2()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
@@ -163,7 +163,7 @@ def paramgenerator(input_file_name, notused_output_file_names):
 #@transform(paramgenerator, regex("paramgenerate.ini_"), "unifier.ini_")
 #def unifier(input_file_name, output_file_name):
 #    argv = ['', '-i', input_file_name, '-o',output_file_name,'-p','--UNIFIER_REDUCE']
-#    runner = UnifierRunner()
+#    runner = IniFileRunner2()
 #    application = Unifier()
 #    exit_code = runner(argv, application)
 #    if exit_code != 0:

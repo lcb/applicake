@@ -11,7 +11,7 @@ from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
-from applicake.framework.runner import UnifierRunner, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
+from applicake.framework.runner import IniFileRunner2, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
 from applicake.applications.commons.generator import DatasetcodeGenerator,\
     ParametersetGenerator
 from applicake.applications.os.echo import Echo
@@ -151,7 +151,7 @@ def collector(notused_input_file_names, output_file_name):
 @follows(collector)
 def unifier():
     argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
-    runner = UnifierRunner()
+    runner = IniFileRunner2()
     application = Unifier()
     exit_code = runner(argv, application)
     if exit_code != 0:

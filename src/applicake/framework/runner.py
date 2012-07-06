@@ -124,27 +124,7 @@ class Runner(KeyEnum):
                 stream = self.log_stream
             else:
                 stream = tmp_log_stream               
-            stream.seek(0)
-#            if info[self.STORAGE] == 'memory_all':
-#                # switched of because log will be printed already
-#                info[self.PRINT_LOG] = False
-#                sys.stderr.write(stream.read())
-#                if hasattr(self, 'out_stream'):
-#                    sys.stdout.write('===stdout===')
-#                    self.out_stream.seek(0)
-#                    sys.stdout.write(self.out_stream.read())
-#                    sys.stdout.write('===stderr===')            
-#            elif info[self.STORAGE] == 'memory_all':
-#                # switched of because log will be printed already
-#                info[self.PRINT_LOG] = False
-#                sys.stderr.write(stream.read())
-#                if hasattr(self, 'out_stream'):
-#                    sys.stdout.write('===stdout===')
-#                    self.out_stream.seek(0)
-#                    sys.stdout.write(self.out_stream.read())
-#                    sys.stdout.write('===stderr===')
-#                    self.err_stream.seek(0)
-#                    sys.stdout.write(self.err_stream.read())                
+            stream.seek(0)               
             if info[self.PRINT_LOG] or info[self.STORAGE]== 'memory_all':
                 sys.stderr.write(stream.read())
             self.info = info  
@@ -466,11 +446,11 @@ class IniFileRunner(ApplicationRunner):
             exit_code = 1
         return exit_code,info  
     
-class UnifierRunner(IniFileRunner):
+class IniFileRunner2(IniFileRunner):
     """
-    Specific runner for the unifier application.
+    Like IniFileRunner but for application that run directly after a collector.
     
-    Adaptations of the info object have to be made if the unifier runs after a collector app.
+    Adaptations of the info object have to be made if an app (such as a generator) runs after a collector app.
     """
 
     def create_workdir(self,info,log):
@@ -485,7 +465,7 @@ class UnifierRunner(IniFileRunner):
             if isinstance(mod_info[key],list):
                 log.debug('found list as value. Therefore key is not considered for creating the work dir.')
                 del mod_info[key]            
-        mod_info = super(UnifierRunner,self).create_workdir(mod_info,log)
+        mod_info = super(IniFileRunner2,self).create_workdir(mod_info,log)
         return DictUtils.merge(log,info, mod_info, priority='left')
     
     

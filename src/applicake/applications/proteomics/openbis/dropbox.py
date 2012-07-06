@@ -127,5 +127,10 @@ class Copy2IdentDropbox(Copy2Dropbox):
         info['DBASENAME'] = os.path.splitext(os.path.split(info['DBASE'])[1])[0]
         # need to set PARENT-DATASET-CODES for lfq
         info['PARENT-DATA-SET-CODES']=info[self.DATASET_CODE]
+        # set values to NONE if they were e.g. "" before
+        check_keys = ['STATIC_MODS','VARIABLE_MODS']
+        for key in check_keys:
+            if info[key] == "":
+                info[key] = 'NONE'
         return super(Copy2IdentDropbox,self).main(info,log)
         
