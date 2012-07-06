@@ -127,6 +127,7 @@ def dss(input_file_name, output_file_name):
 
     
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
+@jobs_limit(1)
 def tandem(input_file_name, output_file_name):
     wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe','-s','file','-l','DEBUG'])
 
@@ -207,6 +208,6 @@ def copy2dropbox(input_file_name, output_file_name):
         raise Exception("copy2dropbox [%s]" % exit_code)  
 
 
-pipeline_run([copy2dropbox])
+pipeline_run([copy2dropbox], multiprocess = 4)
 
 #pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
