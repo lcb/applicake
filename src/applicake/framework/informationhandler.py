@@ -41,12 +41,12 @@ class BasicInformationHandler(IInformationHandler):
                     config = ConfigHandler().read(log, path)
                     inputs = DictUtils.merge(dict_1=inputs, dict_2=config, priority='flatten_sequence')       
             created_files = {self.COPY_TO_WD:[]}
-            inputs = DictUtils.merge(inputs, created_files,priority='right')
+            inputs = DictUtils.merge(log,inputs, created_files,priority='right')
             log.debug("Add/reset key [%s] in info object" % self.COPY_TO_WD)
 #            prefix = {self.prefix_key: None}
-#            inputs = DictUtils.merge(inputs, prefix,priority='right')
+#            inputs = DictUtils.merge(log,inputs, prefix,priority='right')
 #            log.debug("Add/reset key [%s] in info object" % self.prefix_key)                    
-            return DictUtils.merge(dict_1=pargs, dict_2=inputs, priority='left') 
+            return DictUtils.merge(log,dict_1=pargs, dict_2=inputs, priority='left') 
         
     def write_info(self,info,log):
         """

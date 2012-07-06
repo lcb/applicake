@@ -66,10 +66,10 @@ class BasicCollector(IApplication):
             log.debug('path [%s]' % path)
             config = ConfigHandler().read(log,path)
             log.debug('config [%s]' % config)
-#            collector_config = DictUtils.merge(collector_config, config,priority='flatten_sequence') 
-            collector_config = DictUtils.merge(collector_config, config,priority='append')
+#            collector_config = DictUtils.merge(log,collector_config, config,priority='flatten_sequence') 
+            collector_config = DictUtils.merge(log,collector_config, config,priority='append')
             log.debug('collector_config [%s]' % collector_config)
-        info = DictUtils.merge(info, collector_config, priority='left')
+        info = DictUtils.merge(log,info, collector_config, priority='left')
         log.debug('info content [%s]' % info)       
         return (0,info)
     

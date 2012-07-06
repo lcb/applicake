@@ -33,7 +33,7 @@ class ConfigHandler(object):
                 msg.append('file [%s] is valid' % fin)
                 new_config = ConfigHandler().read(fin)
                 msg.append('created dictionary from file content')
-                config = DictUtils.merge(config, new_config, priority='flatten_sequence')
+                config = DictUtils.merge(log,config, new_config, priority='flatten_sequence')
                 msg.append('merge content with content from previous files')     
         success = True 
         msg = '\n'.join(msg) 

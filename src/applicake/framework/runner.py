@@ -84,7 +84,7 @@ class Runner(KeyEnum):
                 info = default_info
                 sys.exit(1)
             log.debug('content of info [%s]' % info)
-            info = DictUtils.merge(info, default_info,priority='left')
+            info = DictUtils.merge(log,info, default_info,priority='left')
             log.debug('Added default values to info they were not set before')            
             log.debug('content of final info [%s]' % info)   
             log.info('Start [%s]' % self.create_workdir.__name__)
@@ -177,11 +177,11 @@ class Runner(KeyEnum):
             # copy input files to working directory
             files_to_copy = []
             if info.has_key(self.INPUT):
-                DictUtils.get_flatten_sequence([files_to_copy,info[self.INPUT]])
+                DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.INPUT]])
                 log.debug('found following input files to copy [%s]' % info[self.INPUT])
                 files_to_copy.extend(info[self.INPUT])
             if info.has_key(self.OUTPUT):
-                DictUtils.get_flatten_sequence([files_to_copy,info[self.OUTPUT]])
+                DictUtils.get_flatten_sequence(log,[files_to_copy,info[self.OUTPUT]])
                 log.debug('found following output file to copy [%s]' % info[self.OUTPUT])
                 files_to_copy.append(info[self.OUTPUT])            
             for path in files_to_copy:
@@ -430,7 +430,7 @@ class ApplicationRunner(Runner):
             exit_code,app_info = app.main(app_info,log)   
             log.debug('content of app_info after running app [%s]' % app_info)  
             log.debug('content of info [%s]' % info)  
-            info = DictUtils.merge(info, app_info,priority='right')    
+            info = DictUtils.merge(log,info, app_info,priority='right')    
             log.debug('content of info after merge with app_info [%s]' % info)
         else:                                    
             log.critical('the object [%s] is not an instance of one of the following %s'% 
@@ -481,7 +481,7 @@ class UnifierRunner(IniFileRunner):
                 log.debug('found list as value. Therefore key is not considered for creating the work dir.')
                 del mod_info[key]            
         mod_info = super(UnifierRunner,self).create_workdir(mod_info,log)
-        return DictUtils.merge(info, mod_info, priority='left')
+        return DictUtils.merge(log,log,info, mod_info, priority='left')
     
     
 class CollectorRunner(ApplicationRunner):             
@@ -546,7 +546,7 @@ class CollectorRunner(ApplicationRunner):
 ##            log.debug('files in new wd [%s]' % os.listdir(new_wd))
 #            shutil.copytree(old_wd, new_wd, symlinks=False, ignore=None)
 #            info[self.WORKDIR] = new_wd
-            info = DictUtils.merge(info, app_info,priority='left')  
+            info = DictUtils.merge(log,info, app_info,priority='left')  
             
             # !!!  TODO add collector files to key 'CREATED_FILES' in order to copy them to the workdir !!!
               
@@ -618,7 +618,7 @@ class WrapperRunner(ApplicationRunner):
             command,app_info = app.prepare_run(app_info,log)                 
             log.info('Finish [%s]' % app.prepare_run.__name__)
             log.debug('content of app_info [%s]' % app_info)    
-            info = DictUtils.merge(info, app_info,priority='right')    
+            info = DictUtils.merge(log,info, app_info,priority='right')    
             log.debug('content of info after merge with app_info [%s]' % info)             
             if command is None:
                 log.critical('Command was [None]. Interface of [%s] is possibly not correctly implemented' %
@@ -646,7 +646,7 @@ class WrapperRunner(ApplicationRunner):
                 log.debug('exit code [%s]' % exit_code)
                 log.debug('content of app_info [%s]' % app_info)                        
                 log.info('Finish [%s]' % app.validate_run.__name__) 
-                info = DictUtils.merge(info, app_info,priority='left')    
+                info = DictUtils.merge(log,info, app_info,priority='left')    
                 log.debug('content of info after merge with app_info [%s]' % info) 
         else:                                   
             log.critical("the object [%s] is not an instance of one of the following [%s]" % (app.__class__.__name__ ,

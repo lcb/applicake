@@ -78,7 +78,7 @@ class DictUtils(SequenceUtils):
         return product_dicts    
     
     @staticmethod  
-    def merge(dict_1, dict_2, priority='left'):
+    def merge(log,dict_1, dict_2, priority='left'):
         """
         Merging of 2 dictionaries
         
@@ -106,7 +106,7 @@ class DictUtils(SequenceUtils):
                 if k in d1.keys():
                     if d1[k] != d2[k]:                        
                         sequence = [d1[k],d2[k]]
-                        d1[k] = DictUtils.get_flatten_sequence(sequence)
+                        d1[k] = DictUtils.get_flatten_sequence(log,sequence)
                 else:
                     d1[k]=v
             return d1
@@ -114,7 +114,7 @@ class DictUtils(SequenceUtils):
             for key in d2.keys():
                 if key in d1.keys():
                     val = [d1[key],d2[key]]
-                    d1[key] = DictUtils.get_flatten_sequence(val)
+                    d1[key] = DictUtils.get_flatten_sequence(log,val)
                 else:
                     d1[key] = d2[key] 
             return d1           

@@ -10,6 +10,8 @@ from applicake.utils.dictutils import DictUtils
 class Test(unittest.TestCase):
     
     def setUp(self):
+        log_stream = StringIO()
+        self.log = Logger.create(level='DEBUG',name='memory_logger',stream=log_stream)
         self.d1 = {
                    'BASEDIR': '/tmp',                   
                    'COMMENT': 'hello world',
@@ -62,7 +64,7 @@ class Test(unittest.TestCase):
         self.assertDictEqual(res, expected, '')       
 
     def test_merge(self):
-        res = DictUtils.merge(self.d1, self.d2, priority='left')
+        res = DictUtils.merge(self.log,self.log,self.d1, self.d2, priority='left')
         assert res == {                                       
                        'BASEDIR': '/tmp',                   
                        'COMMENT': 'hello world',
@@ -75,7 +77,7 @@ class Test(unittest.TestCase):
                        'SECTION': {'SUB_1':11},
                        'LIST': [11]
                    }
-        res = DictUtils.merge(self.d1, self.d2, priority='right')
+        res = DictUtils.merge(self.log,self.d1, self.d2, priority='right')
         assert res == {                                       
                        'BASEDIR': '/tmp',                   
                        'COMMENT': 'hello world',
@@ -88,7 +90,7 @@ class Test(unittest.TestCase):
                        'SECTION': {'SUB_2':22},
                        'LIST': [22,222]
                    }  
-        res = DictUtils.merge(self.d1, self.d2, priority='flatten_sequence')
+        res = DictUtils.merge(self.log,self.d1, self.d2, priority='flatten_sequence')
         assert res == {                                       
                        'BASEDIR': '/tmp',                   
                        'COMMENT': 'hello world',
