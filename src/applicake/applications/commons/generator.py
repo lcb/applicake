@@ -67,7 +67,7 @@ class DatasetcodeGenerator(Generator):
         if not isinstance(dsc,list):
             log.fatal('found value of [%s] not to be a list [%s]' % (self.DATASET_CODE,dsc))
             return(1,info) 
-        log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
+#        log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
 #        remove_keys = [self.COPY_TO_WD,self.NAME]        
 #        for key in remove_keys:
 #            try:
@@ -77,6 +77,7 @@ class DatasetcodeGenerator(Generator):
 #                log.debug('work copy did not have key [%s]' % key)            
         # prepare first the product of a parameter combinations
         escape_keys = [self.DATASET_CODE]
+        log.debug('get param_dicts')
         param_dicts = DictUtils.get_product_dicts(basedic, log, escape_keys,idx_key=self.PARAM_IDX)
         log.debug('param_dicts: [%s]' % param_dicts)
         log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
