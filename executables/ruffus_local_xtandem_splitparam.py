@@ -128,7 +128,7 @@ def dss(input_file_name, output_file_name):
     
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-    wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe','-s','file','-l','DEBUG'])
+    wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe','-s','file','-l','DEBUG','-p'])
 
 @transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
