@@ -138,30 +138,31 @@ class ParametersetGenerator(Generator):
         #remove_keys = [self.INPUT,self.FILE_IDX]
         remove_keys = BasicInformationHandler().remove_keys
         remove_keys.append(self.FILE_IDX) 
+        basedic = info.copy()
         for key in remove_keys:
             #log.debug('remove key [%s] as it is not any longer needed' % key)
-            del info[key]
+            del basedic[key]
         param_dicts = []
-        if len(SequenceUtils.unify(info[self.PARAM_IDX], reduce = True)) ==1:                        
+        if len(SequenceUtils.unify(basedic[self.PARAM_IDX], reduce = True)) ==1:                        
             for key in info.keys():
-                if isinstance(info[key], list):
-                    info[key] = SequenceUtils.unify(info[key], reduce = True)
-            param_dicts.append(info.copy())            
+                if isinstance(basedic[key], list):
+                    basedic[key] = SequenceUtils.unify(info[key], reduce = True)
+            param_dicts.append(basedic)            
         else:
             param_dict = {}
-            keys = info.keys()
-            param_idxs = info[self.PARAM_IDX]
+            keys = basedic.keys()
+            param_idxs = basedic[self.PARAM_IDX]
             # loops of unique list of found parameter idices
             for param_idx in SequenceUtils.unify(param_idxs):
                 # gets the positions in the value list of the key
                 log.debug('process parameter index [%s]' % param_idx)
                 positions = SequenceUtils.get_indices(param_idxs, lambda x: x ==param_idx)
-                log.debug('found it at positions [%s] in original array [%s]' % (positions,info[self.PARAM_IDX]))
+                log.debug('found it at positions [%s] in original array [%s]' % (positions,basedic[self.PARAM_IDX]))
                 # extracts for every key of the info object the values that match these positions
                 # and writes them into a new dictionary
                 log.debug('start splitting values for every key in info object')
                 for key in keys:
-                    value = info[key]   
+                    value = basedic[key]   
                     log.debug('value [%s] for key [%s]' % (value,key)) 
                     if not isinstance(value, list):
                         log.info('found value is not a list')
