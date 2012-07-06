@@ -77,7 +77,6 @@ class DatasetcodeGenerator(Generator):
                 log.debug('work copy did not have key [%s]' % key)            
         # prepare first the product of a parameter combinations
         escape_keys = [self.DATASET_CODE]
-        log.debug('get param_dicts')
         param_dicts = DictUtils.get_product_dicts(basedic, log, escape_keys,idx_key=self.PARAM_IDX)
         log.debug('param_dicts: [%s]' % param_dicts)
         log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
