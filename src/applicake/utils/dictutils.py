@@ -56,16 +56,11 @@ class DictUtils(SequenceUtils):
         SequenceUtils.list2string(dic, escape_keys, escape_str)
         keys = dic.keys()
         values = dic.values()
-        log.debug('values [%s]' % values)
         elements = SequenceUtils.get_list_product(log,values)
-        log.debug('elements [%s]' % elements)
         idx = 0
         product_dicts = []
         for idx, element in enumerate(elements):
-            log.debug('enter')
-            log.debug('result zip: [%s]' % zip(keys, element))
             dic = dict(zip(keys, element))
-            log.debug('dic: [%s]' % dic)
             # revert escaping of selected (list-) values
             SequenceUtils.string2list(dic, escape_keys, escape_str)
             # add to each product dictionary a new key: the index key

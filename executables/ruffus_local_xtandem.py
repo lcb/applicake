@@ -113,7 +113,7 @@ WORKFLOW=ruffus_local_xtandem
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG','-p']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
     runner = IniFileRunner()
     application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
@@ -140,7 +140,7 @@ def xinteract(input_file_name, output_file_name):
     
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file','-p']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
