@@ -161,7 +161,7 @@ class ParametersetGenerator(Generator):
                 log.debug('start splitting values for every key in info object')
                 for key in keys:
                     value = basedic[key]   
-                    log.debug('value [%s] for key [%s]' % (value,key)) 
+                    #log.debug('value [%s] for key [%s]' % (value,key)) 
                     if not isinstance(value, list):
                         log.info('found value is not a list')
                         param_dict[key] = value
@@ -171,6 +171,7 @@ class ParametersetGenerator(Generator):
                     else:                
                         values = [value[pos] for pos in positions]
                         param_dict[key] = SequenceUtils.unify(values,reduce=True)
+                log.debug('param idx [%s] created dict [%s]' % (param_idx,param_dict))
                 param_dicts.append(param_dict)    
         # write ini files
         self.write_files(info,log,param_dicts)
