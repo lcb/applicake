@@ -152,7 +152,9 @@ class ParametersetGenerator(Generator):
             # loops of unique list of found parameter idices
             for param_idx in SequenceUtils.unify(param_idxs):
                 # gets the positions in the value list of the key
+                log.debug('process parameter index [%s]' % param_idx)
                 positions = SequenceUtils.get_indices(param_idxs, lambda x: x ==param_idx)
+                log.debug('found it at positions [%s] in original array [%s]' % (positions,info[self.PARAM_IDX]))
                 # extracts for every key of the info object the values that match these positions
                 # and writes them into a new dictionary
                 for key in keys:
