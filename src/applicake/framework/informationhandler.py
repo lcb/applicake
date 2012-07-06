@@ -39,7 +39,7 @@ class BasicInformationHandler(IInformationHandler):
                     sys.exit(1)
                 else:
                     config = ConfigHandler().read(log, path)
-                    inputs = DictUtils.merge(dict_1=inputs, dict_2=config, priority='flatten_sequence')       
+                    inputs = DictUtils.merge(log,dict_1=inputs, dict_2=config, priority='flatten_sequence')       
             created_files = {self.COPY_TO_WD:[]}
             inputs = DictUtils.merge(log,inputs, created_files,priority='right')
             log.debug("Add/reset key [%s] in info object" % self.COPY_TO_WD)
