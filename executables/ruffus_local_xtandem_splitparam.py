@@ -141,7 +141,7 @@ def xinteract(input_file_name, output_file_name):
     
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file','-p']
+    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -150,9 +150,9 @@ def collector(notused_input_file_names, output_file_name):
 
 
 @follows(collector)
-@split("collector.ini", "paramgenerate.ini_*")
+@split("collector.ini", "paramgenerate.ini_")
 def paramgenerator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-p']
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
     runner = UnifierRunner()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
@@ -161,7 +161,7 @@ def paramgenerator(input_file_name, notused_output_file_names):
 
 @transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
 def interprophet(input_file_name, output_file_name):
-    wrap(InterProphet,input_file_name, output_file_name,['-p'])
+    wrap(InterProphet,input_file_name, output_file_name)
 
 @transform(interprophet, regex("interprophet.ini_"), "pepxml2csv.ini_")
 def pepxml2csv(input_file_name, output_file_name):
