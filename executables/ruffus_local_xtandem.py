@@ -159,7 +159,7 @@ def unifier():
 
 @follows(unifier)
 def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini')    
+    wrap(InterProphet,'unifier.ini','interprophet.ini',['-p'])    
 
 @follows(interprophet)
 def pepxml2csv():
