@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 '''
-Created on Jun 5, 2012
+Created on Jul 6, 2012
 
 @author: quandtan
 '''
+
 
 import os
 import sys
@@ -149,128 +150,52 @@ def collector(notused_input_file_names, output_file_name):
 
 
 @follows(collector)
-def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
+@split("collector.ini", "paramgenerate.ini_*")
+def paramgenerator(input_file_name, notused_output_file_names):
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-p']
     runner = UnifierRunner()
-    application = Unifier()
+    application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
-        raise Exception("unifier [%s]" % exit_code)  
+        raise Exception("paramgenerator [%s]" % exit_code)  
 
-@follows(unifier)
-def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini')    
+@transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
+def interprophet(input_file_name, output_file_name):
+    wrap(InterProphet,input_file_name, output_file_name,['-p'])
 
-@follows(interprophet)
-def pepxml2csv():
-    wrap(Pepxml2Csv,'interprophet.ini','pepxml2csv.ini')   
+@transform(interprophet, regex("interprophet.ini_"), "pepxml2csv.ini_")
+def pepxml2csv(input_file_name, output_file_name):
+    wrap(Pepxml2Csv,input_file_name, output_file_name)          
     
-@follows(pepxml2csv)
-def fdr2probability():
-    wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
+@transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
+def fdr2probability(input_file_name, output_file_name):
+    wrap(Fdr2Probability,input_file_name, output_file_name)        
 
-@follows(fdr2probability)
-def proteinprophet():
-    wrap(ProteinProphet,'fdr2probability.ini','proteinprophet.ini') 
+@transform(fdr2probability, regex("fdr2probability.ini_"), "proteinprophet.ini_") 
+def proteinprophet(input_file_name, output_file_name):
+    wrap(ProteinProphet,input_file_name, output_file_name)
 
-@follows(proteinprophet)
-def protxml2spectralcount():
-    wrap(ProtXml2SpectralCount,'proteinprophet.ini','protxml2spectralcount.ini') 
+@transform(proteinprophet, regex("proteinprophet.ini_"), "protxml2spectralcount.ini_") 
+def protxml2spectralcount(input_file_name, output_file_name):
+    wrap(ProtXml2SpectralCount,input_file_name, output_file_name)
 
-@follows(protxml2spectralcount)
-def protxml2modifications():
-    wrap(ProtXml2Modifications,'protxml2spectralcount.ini','protxml2modifications.ini') 
+@transform(protxml2spectralcount, regex("protxml2spectralcount.ini_"), "protxml2modifications.ini_")
+def protxml2modifications(input_file_name, output_file_name):
+    wrap(ProtXml2Modifications,input_file_name, output_file_name)
 
-@follows(protxml2modifications)
-def protxml2openbis():
-    wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
+@transform(protxml2modifications, regex("protxml2modifications.ini_"), "protxml2openbis.ini_")
+def protxml2openbis(input_file_name, output_file_name):
+    wrap(ProtXml2Openbis,input_file_name, output_file_name)
 
-@follows(protxml2openbis)
-def copy2dropbox():
-    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini','-p']
+@transform(protxml2openbis, regex("protxml2openbis.ini_"),"copy2dropbox.ini_")
+def copy2dropbox(input_file_name, output_file_name):
+    argv = ["", "-i", input_file_name, "-o",output_file_name,"-p"]
     runner = IniFileRunner()
     application = Copy2IdentDropbox()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("copy2dropbox [%s]" % exit_code)  
 
-##@follows()
-##def ():
-##    wrap(,'','') 
-##    @follows()
-##def ():
-##    wrap(,'','') 
-##    @follows()
-##def ():
-##    wrap(,'','')     
-#
-#
-#@transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
-#def pepxml2idxml(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = PepXml2IdXml()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('pepxml2idxml',exit_code)) 
-#
-#@transform(pepxml2idxml,regex('pepxml2idxml.ini'),'peptideindexer.ini')
-#def peptideindexer(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = PeptideIndexer()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('peptideindexer',exit_code))
-#
-#@transform(peptideindexer,regex('peptideindexer.ini'),'fdr.ini')
-#def fdr(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = FalseDiscoveryRate()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('fdr',exit_code)) 
-#    
-#@transform(fdr,regex('fdr.ini'),'idfilter.ini')
-#def idfilter(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = IdFilter()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('idfilter',exit_code)) 
-#    
-#@transform(idfilter,regex('idfilter.ini'),'mzxml2mzml.ini')
-#def mzxml2mzml(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = Mzxml2Mzml()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('mzxml2mzml',exit_code)) 
-#
-#@transform(mzxml2mzml,regex('mzxml2mzml.ini'),'peakpickerhighres.ini')
-#def peakpickerhighres(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name,'--SIGNAL_TO_NOISE','1']
-#    runner = WrapperRunner()
-#    application = PeakPickerHighRes()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('peakpickerhighres',exit_code)) 
-#         
-#@transform(peakpickerhighres,regex('peakpickerhighres.ini'),'featurefindercentroided.ini')
-#def featurefindercentroided(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-##    application = FeatureFinderCentroided()
-#    application = OrbiLessStrict()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
-         
-
-#pipeline_run([featurefindercentroided])
 
 pipeline_run([copy2dropbox])
 
