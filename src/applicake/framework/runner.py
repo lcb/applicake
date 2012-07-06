@@ -486,7 +486,7 @@ class UnifierRunner(IniFileRunner):
                 log.debug('found list as value. Therefore key is not considered for creating the work dir.')
                 del mod_info[key]            
         mod_info = super(UnifierRunner,self).create_workdir(mod_info,log)
-        return DictUtils.merge(log,log,info, mod_info, priority='left')
+        return DictUtils.merge(log,info, mod_info, priority='left')
     
     
 class CollectorRunner(ApplicationRunner):             
