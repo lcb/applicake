@@ -10,6 +10,7 @@ from applicake.applications.proteomics.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
+from applicake.utils.dictutils import DictUtils
 
 
 
@@ -104,14 +105,19 @@ class Xtandem(SearchEngine):
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('define score value')
-        info = self._define_score(info, log)
+        # need to create a working copy to prevent replacement or generic definitions
+        # with app specific definitions
+        app_info = info.copy()
+        app_info = self._define_score(app_info, log)
         log.debug('define modifications')
-        info = self.define_mods(info, log)
+        app_info = self.define_mods(app_info, log)
         log.debug('define enzyme')
-        info = self.define_enzyme(info, log)         
+        app_info = self.define_enzyme(app_info, log)         
         log.debug('modify template')                
-        mod_template,info = th.modify_template(info, log)
-        log.debug('write input files')
+        mod_template,app_info = th.modify_template(app_info, log)
+        # update original info object with new keys from working copy
+        info = DictUtils.merge(log, info, app_info, priority='left')
+        log.debug('write input files')        
         info = self._write_input_files(info, log)        
         prefix,info = self.get_prefix(info,log)
         command = '%s %s' % (prefix,self._input_file)
