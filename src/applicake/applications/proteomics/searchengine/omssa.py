@@ -9,6 +9,7 @@ from applicake.applications.proteomics.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
+from applicake.utils.dictutils import DictUtils
 
 class Omssa(SearchEngine):
     """
@@ -63,26 +64,30 @@ class Omssa(SearchEngine):
         info['TEMPLATE'] = self._template_file
         self._result_file = os.path.join(wd,self._result_file) 
         info['PEPXMLS'] = [self._result_file]
+        # need to create a working copy to prevent replacement or generic definitions
+        # with app specific definitions
+        app_info = info.copy()
         log.debug('define modifications')
-        info = self.define_mods(info, log)
+        app_info = self.define_mods(app_info, log)
         log.debug('define enzyme')
-        info = self.define_enzyme(info, log)    
+        app_info = self.define_enzyme(app_info, log)    
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
-        mod_template,info = th.modify_template(info, log)
-        
+        mod_template,app_info = th.modify_template(app_info, log)
         # necessary check for the precursor mass unig
-        if info['PRECMASSUNIT'].lower() == "ppm":
+        if app_info['PRECMASSUNIT'].lower() == "ppm":
             mod_template = mod_template + ' -teppm'
             log.debug('added [ -teppm] to modified template because the precursor mass is defined in ppm')  
 #        # because omssa does not write the correct basename tag,
 #        # the mzxml_basename has to be used in the output name of the pep.xml     
-#        mzxml_basename = info['MZXML'].split(".")[0].split("/")[-1]             
+#        mzxml_basename = app_info['MZXML'].split(".")[0].split("/")[-1]             
 #        self._result_filename  = os.path.join(self._wd,mzxml_basename + ".pep.xml")
 #        self._iniFile.add_to_ini({'PEPXML':self._result_filename})                
-        prefix,info = self._get_prefix(info,log)
-        command = "%s %s -fm %s -op %s" %(prefix,mod_template,info['MGF'],self._result_file)
+        prefix,app_info = self._get_prefix(app_info,log)
+        command = "%s %s -fm %s -op %s" %(prefix,mod_template,app_info['MGF'],self._result_file)
+        # update original info object with new keys from working copy
+        info = DictUtils.merge(log, info, app_info, priority='left')        
         return command,info
 
     def set_args(self,log,args_handler):

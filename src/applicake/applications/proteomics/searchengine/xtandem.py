@@ -115,12 +115,12 @@ class Xtandem(SearchEngine):
         app_info = self.define_enzyme(app_info, log)         
         log.debug('modify template')                
         mod_template,app_info = th.modify_template(app_info, log)
-        # update original info object with new keys from working copy
-        info = DictUtils.merge(log, info, app_info, priority='left')
         log.debug('write input files')        
-        info = self._write_input_files(info, log)        
-        prefix,info = self.get_prefix(info,log)
+        app_info = self._write_input_files(app_info, log)        
+        prefix,app_info = self.get_prefix(app_info,log)
         command = '%s %s' % (prefix,self._input_file)
+        # update original info object with new keys from working copy
+        info = DictUtils.merge(log, info, app_info, priority='left')        
         return command,info    
 
     def set_args(self,log,args_handler):

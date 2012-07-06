@@ -9,6 +9,7 @@ from applicake.applications.proteomics.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
+from applicake.utils.dictutils import DictUtils
 
 class Myrimatch(SearchEngine):
     """
@@ -65,22 +66,26 @@ class Myrimatch(SearchEngine):
         basename = os.path.splitext(os.path.split(info['MZXML'])[1])[0]    
         self._result_file  = os.path.join(wd,basename + ".pepXML")
         info['PEPXMLS'] = [self._result_file]
+        # need to create a working copy to prevent replacement or generic definitions
+        # with app specific definitions
+        app_info = info.copy()        
         log.debug('define modifications')
-        info = self.define_mods(info, log)
+        app_info = self.define_mods(app_info, log)
         log.debug('define enzyme')
-        info = self.define_enzyme(info, log)        
+        app_info = self.define_enzyme(app_info, log)        
         log.debug('get template handler')
         th = self.get_template_handler()
-        if info['FRAGMASSUNIT'] == 'Da':
+        if app_info['FRAGMASSUNIT'] == 'Da':
             log.debug("replace 'FRAGMASSUNIT' with value [Da] to [daltons]")
-            info['FRAGMASSUNIT'] ='daltons'            
+            app_info['FRAGMASSUNIT'] ='daltons'            
         log.debug('modify template')
-        mod_template,info = th.modify_template(info, log)              
+        mod_template,app_info = th.modify_template(app_info, log)              
         prefix,info = self._get_prefix(info,log)
-        command = "%s -cpus %s -cfg %s -workdir %s -ProteinDatabase %s %s" %(prefix,info['THREADS'],info['TEMPLATE'],
-                                                                          info[self.WORKDIR], info['DBASE'],
-                                                                          info['MZXML'])        
-        
+        command = "%s -cpus %s -cfg %s -workdir %s -ProteinDatabase %s %s" %(prefix,app_info['THREADS'],app_info['TEMPLATE'],
+                                                                          app_info[self.WORKDIR], app_info['DBASE'],
+                                                                          app_info['MZXML'])        
+        # update original info object with new keys from working copy
+        info = DictUtils.merge(log, info, app_info, priority='left')        
         return command,info
 
     def set_args(self,log,args_handler):
