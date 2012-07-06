@@ -138,11 +138,7 @@ class ParametersetGenerator(Generator):
         
         #remove file_idx as it is not longer needed
         del info[self.FILE_IDX]
-        exclude_keys = [self.GENERATOR,self.OUTPUT]
-#        remove_keys = [self.INPUT,self.FILE_IDX]
-#        remove_keys = BasicInformationHandler().remove_keys
-#        remove_keys.append(self.FILE_IDX) 
-        basedic = DictUtils.extract(info,exclude_keys , include=False)
+        basedic = info.copy()
         param_dicts = []
         if len(SequenceUtils.unify(basedic[self.PARAM_IDX], reduce = True)) ==1:                        
             for key in info.keys():
@@ -167,6 +163,9 @@ class ParametersetGenerator(Generator):
                     log.debug('value [%s] for key [%s]' % (value,key)) 
                     if not isinstance(value, list):
                         log.info('found value is not a list')
+                        param_dict[key] = value
+                    elif len(value) != len(param_idxs):
+                        log.info('length of value [%s] does not correspond to length of param indices [%s]. key possibly not coming from input file' % (len(value),len(param_idxs)))
                         param_dict[key] = value
                     else:                
                         param_dict[key] = [value[pos] for pos in positions]
