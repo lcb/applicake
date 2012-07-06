@@ -207,6 +207,6 @@ def copy2dropbox(input_file_name, output_file_name):
         raise Exception("copy2dropbox [%s]" % exit_code)  
 
 
-pipeline_run([copy2dropbox], multiprocess = 4)
+pipeline_run([copy2dropbox])
 
 #pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
