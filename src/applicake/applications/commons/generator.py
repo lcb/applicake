@@ -30,6 +30,7 @@ class Generator(IApplication):
         """ % self.COPY_TO_WD
              
         for idx,dic in enumerate(dicts):
+            log.debug('dict to write: [%s]' % dict)
             path = "%s%s%s" % (dic[self.GENERATOR],idx_sep,idx) 
             log.debug(path)          
             dic[self.OUTPUT] = path
