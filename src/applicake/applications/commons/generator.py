@@ -166,9 +166,10 @@ class ParametersetGenerator(Generator):
                         param_dict[key] = value
                     elif len(value) != len(param_idxs):
                         log.info('length of value [%s] does not correspond to length of param indices [%s]. key possibly not coming from input file' % (len(value),len(param_idxs)))
-                        param_dict[key] = value
+                        param_dict[key] = SequenceUtils.unify(value,reduce=True)
                     else:                
-                        param_dict[key] = [value[pos] for pos in positions]
+                        values = [value[pos] for pos in positions]
+                        param_dict[key] = SequenceUtils.unify(values,reduce=True)
                 param_dicts.append(param_dict)    
         # write ini files
         self.write_files(info,log,param_dicts)
