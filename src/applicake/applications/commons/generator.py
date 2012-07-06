@@ -148,12 +148,12 @@ class ParametersetGenerator(Generator):
                     basedic[key] = SequenceUtils.unify(info[key], reduce = True)
             param_dicts.append(basedic)            
         else:
-            param_dict = {}
             keys = basedic.keys()
             log.debug('number of keys [%s]' % len(keys))
             param_idxs = basedic[self.PARAM_IDX]
             # loops of unique list of found parameter idices
             for param_idx in SequenceUtils.unify(param_idxs):
+                param_dict = {}
                 # gets the positions in the value list of the key
                 log.debug('process parameter index [%s]' % param_idx)
                 positions = SequenceUtils.get_indices(param_idxs, lambda x: x ==param_idx)
