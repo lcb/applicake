@@ -4,8 +4,10 @@ Created on Apr 2, 2012
 @author: quandtan
 '''
 import unittest
-from applicake.utils.dictutils import DictUtils
 
+from applicake.utils.dictutils import DictUtils
+from applicake.framework.logger import Logger
+from StringIO import StringIO
 
 class Test(unittest.TestCase):
     

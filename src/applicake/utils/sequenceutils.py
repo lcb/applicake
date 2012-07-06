@@ -22,7 +22,9 @@ class SequenceUtils(object):
         seq = []
         for e in sequence:
             if hasattr(e, "__iter__") and not isinstance(e, basestring):
-                seq.extend(SequenceUtils.get_flatten_sequence(log,e))
+                # empty sequences like [] are not considered
+                if len(e)>0:
+                    seq.extend(SequenceUtils.get_flatten_sequence(log,e))
             else:
                 seq.append(e)
         if seq == []:
