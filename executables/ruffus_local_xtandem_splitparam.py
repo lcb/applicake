@@ -150,7 +150,7 @@ def collector(notused_input_file_names, output_file_name):
 
 
 @follows(collector)
-@split("collector.ini", "paramgenerate.ini_")
+@split("collector.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
     runner = UnifierRunner()
