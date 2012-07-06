@@ -56,7 +56,9 @@ class DictUtils(SequenceUtils):
         SequenceUtils.list2string(dic, escape_keys, escape_str)
         keys = dic.keys()
         values = dic.values()
+        log.debug('values [%s]' % values)
         elements = SequenceUtils.get_list_product(values)
+        log.debug('elements [%s]' % elements)
         idx = 0
         product_dicts = []
         for idx, element in enumerate(elements):
