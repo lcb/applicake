@@ -160,8 +160,12 @@ class ParametersetGenerator(Generator):
                 log.debug('start splitting values for every key in info object')
                 for key in keys:
                     value = info[key]   
-                    log.debug('value [%s] for key [%s]' % (value,key))                 
-                    param_dict[key] = [value[pos] for pos in positions]
+                    log.debug('value [%s] for key [%s]' % (value,key)) 
+                    if not isinstance(value, list):
+                        log.info('found value is not a list')
+                        param_dict[key] = value
+                    else:                
+                        param_dict[key] = [value[pos] for pos in positions]
                 param_dicts.append(param_dict)    
         # write ini files
         self.write_files(info,log,param_dicts)
