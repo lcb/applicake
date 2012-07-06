@@ -159,7 +159,16 @@ def paramgenerator(input_file_name, notused_output_file_names):
     if exit_code != 0:
         raise Exception("paramgenerator [%s]" % exit_code)  
 
-@transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
+@transform(paramgenerator, regex("paramgenerate.ini_"), "unifier.ini_")
+def unifier(input_file_name, output_file_name):
+    argv = ['', '-i', input_file_name, '-o',output_file_name,'-p','--UNIFIER_REDUCE']
+    runner = UnifierRunner()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier [%s]" % exit_code)  
+
+@transform(unifier, regex("unifier.ini_"), "interprophet.ini_")
 def interprophet(input_file_name, output_file_name):
     wrap(InterProphet,input_file_name, output_file_name)
 

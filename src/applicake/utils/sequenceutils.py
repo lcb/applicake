@@ -10,6 +10,14 @@ class SequenceUtils(object):
     """
     Utilities for handling sequences such as lists, and tuples
     """
+    
+    @staticmethod
+    def findall(list,filter):
+        """
+        Return all elements of a list that match the filter.
+        """
+        idxs = SequenceUtils.get_indices(list, filter)
+        return [list[idx] for idx in idxs]
 
     @staticmethod
     def get_flatten_sequence(log,sequence):
@@ -32,6 +40,35 @@ class SequenceUtils(object):
             sys.exit(1)
         return seq 
 
+    @staticmethod
+    def get_indices(list, filter):
+        """
+        Return a list of indices for all matches.
+        
+        @param list: List to search
+        @type list: list
+        @param filter: lambda filter e.g. lambda x: x>99 
+        
+        @return: List of indices that match the criteria
+        @rtype: list  
+        """
+        i=0
+        indices = []
+        while(True):
+            try:
+                # next value in list passing the test
+                nextvalue = filter(filter, list[i:])[0]
+    
+                # add index of this value in the index list,
+                # by searching the value in L[i:] 
+                indices.append(list.index(nextvalue, i))
+    
+                # iterate i, that is the next index from where to search
+                i=indices[-1]+1
+            #when there is no further "good value", filter returns [],
+            # hence there is an out of range exeption
+            except IndexError:
+                return indices    
     
     @staticmethod
     def get_list_product(log,list_of_lists):
