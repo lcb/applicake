@@ -127,7 +127,6 @@ def dss(input_file_name, output_file_name):
 
     
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
-@jobs_limit(1)
 def tandem(input_file_name, output_file_name):
     wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe','-s','file','-l','DEBUG'])
 
