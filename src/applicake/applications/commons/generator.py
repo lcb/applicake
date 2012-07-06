@@ -33,6 +33,7 @@ class Generator(IApplication):
             path = "%s%s%s" % (dic[self.GENERATOR],idx_sep,idx) 
             log.debug(path)          
 #            ConfigHandler().write(dic, path)
+            dic[self.OUTPUT] = path
             BasicInformationHandler().write_info(dic, log)
             log.debug('create file [%s]' % path)
             info[self.COPY_TO_WD].append(path)
