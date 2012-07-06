@@ -507,7 +507,7 @@ class CollectorRunner(ApplicationRunner):
             # the info is needed to create the work directory
             keys = [self.BASEDIR,self.JOB_IDX]            
             needed_info = DictUtils.extract(collector_info, keys, include=True)
-            return DictUtils.merge(info, needed_info, priority='left')       
+            return DictUtils.merge(log,info, needed_info, priority='left')       
     
     def create_workdir(self,info,log):
         """
