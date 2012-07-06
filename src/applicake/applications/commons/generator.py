@@ -9,6 +9,7 @@ from applicake.framework.confighandler import ConfigHandler
 from applicake.framework.interfaces import IApplication
 from applicake.utils.sequenceutils import SequenceUtils
 from applicake.utils.dictutils import DictUtils
+from applicake.framework.informationhandler import BasicInformationHandler
 
 
 class Generator(IApplication):
@@ -31,7 +32,8 @@ class Generator(IApplication):
         for idx,dic in enumerate(dicts):
             path = "%s%s%s" % (dic[self.GENERATOR],idx_sep,idx) 
             log.debug(path)          
-            ConfigHandler().write(dic, path)
+#            ConfigHandler().write(dic, path)
+            BasicInformationHandler().write_info(dic, log)
             log.debug('create file [%s]' % path)
             info[self.COPY_TO_WD].append(path)
 
@@ -66,13 +68,13 @@ class DatasetcodeGenerator(Generator):
             log.fatal('found value of [%s] not to be a list [%s]' % (self.DATASET_CODE,dsc))
             return(1,info) 
         log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
-        remove_keys = [self.COPY_TO_WD,self.NAME]        
-        for key in remove_keys:
-            try:
-                del basedic[key]
-                log.debug('removed key [%s] from work copy' % key)
-            except:
-                log.debug('work copy did not have key [%s]' % key)            
+#        remove_keys = [self.COPY_TO_WD,self.NAME]        
+#        for key in remove_keys:
+#            try:
+#                del basedic[key]
+#                log.debug('removed key [%s] from work copy' % key)
+#            except:
+#                log.debug('work copy did not have key [%s]' % key)            
         # prepare first the product of a parameter combinations
         escape_keys = [self.DATASET_CODE]
         param_dicts = DictUtils.get_product_dicts(basedic, log, escape_keys,idx_key=self.PARAM_IDX)
