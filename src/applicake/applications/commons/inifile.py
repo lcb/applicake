@@ -23,7 +23,12 @@ class Unifier(IApplication):
         - runner specific keys such as INPUTS are not touched as they are not written to the final output.ini
         """
         info = info.copy()
-        del info[self.INPUT]
+        del info[self.INPUT]        
+        check_keys = [self.INPUT,self.PARAM_IDX,self.FILE_IDX]
+        for key in check_keys:
+            if isinstance(info[key],list):
+                log.debug('remove key [%$] because value [%] is list' % (key,info[key]))
+                del info[key]        
         reduce = info['UNIFIER_REDUCE']
         if isinstance(reduce, list):
             if len(reduce)>1:
