@@ -36,9 +36,11 @@ class Dss(IWrapper):
         if not prefix in Dss.ALLOWED_PREFIXES:
             log.error("prefix ('%s') must be one of %s" % (prefix, Dss.ALLOWED_PREFIXES))
             sys.exit(1)
-        self._result_filename = prefix+".out"
-        try: os.remove(self._result_filename)
-        except: pass
+        self._result_filename = info['RESULT_FILE']
+        if self._result_filename == '':
+            self._result_filename = prefix+".out"
+        if os.path.isfile(self._result_filename):
+            os.remove(self._result_filename)
         
         dss_keys = info[self.DSSKEYS]
         if type(dss_keys) is str:
@@ -101,6 +103,8 @@ class Dss(IWrapper):
         args_handler.add_app_args(log, self.DSSKEYS, "controls the output. results are values of these keys. "+
                                                      "the default is 'DSSOUTPUT' plus potentially a prefix depending key", default='')
         args_handler.add_app_args(log, self.PREFIX, "one of these executables: %s" % self.ALLOWED_PREFIXES, choices=self.ALLOWED_PREFIXES)
+        args_handler.add_app_args(log, 'RESULT_FILE', "result file of the dss-client call, contains pathes to downloaded files. "+
+                                                      "the default is the <prefix>.out", default='')
         args_handler.add_app_args(log, 'QUIET', "no messages written to stdout if set to true", default='False')
         args_handler.add_app_args(log, 'KEEP_NAME', "for prefix is 'gegmsdata' only: output keeps original file name if set to true "+
                                                        "(otherwise it will be changed to samplecode~dscode.mzXXML)", default='False')
