@@ -24,7 +24,7 @@ class Unifier(IApplication):
         """
         info = info.copy()
         del info[self.INPUT]        
-        check_keys = [self.INPUT,self.PARAM_IDX,self.FILE_IDX]
+        check_keys = [self.PARAM_IDX,self.FILE_IDX]
         for key in check_keys:
             if isinstance(info[key],list):
                 log.debug('remove key [%$] because value [%] is list' % (key,info[key]))
