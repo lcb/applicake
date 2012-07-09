@@ -12,20 +12,23 @@ class EnzymeDb(object):
     Access to enzymes
     '''
 
-    _search_engines = ['Xtandem','Omssa','Myrimatch','Mascot']
+    _applications = ['Xtandem','Omssa','Myrimatch','Mascot','InteractParser']
 
     _enzymes={
            'Trypsin':{
-                                  _search_engines[0]: '[RK]{P}',
-                                  _search_engines[1]: '0',
-                                  _search_engines[2]: 'Trypsin/P:2',  #The number after the ':' is the number of MinTerminiCleavages
-                                  _search_engines[3]: 'Trypsin'             
+                                  _applications[0]: '[RK]{P}',
+                                  _applications[1]: '0',
+                                  _applications[2]: 'Trypsin/P:2',  #The number after the ':' is the number of MinTerminiCleavages
+                                  _applications[3]: 'Trypsin',
+                                  _applications[4]: 'Trypsin'
+               
                                   },
            'Semi-Tryptic':{
-                            _search_engines[0]: '[RK]{P}:2', #does not exist and therefore has to be parsed in xtandem class
-                            _search_engines[1]: '16',
-                            _search_engines[2]: 'Trypsin/P:1',
-                            _search_engines[3]: 'semiTrypsin'
+                            _applications[0]: '[RK]{P}:2', #does not exist and therefore has to be parsed in xtandem class
+                            _applications[1]: '16',
+                            _applications[2]: 'Trypsin/P:1',
+                            _applications[3]: 'semiTrypsin',
+                            _applications[4]: 'semiTrypsin',
                             },
               
            }           
@@ -50,10 +53,10 @@ class EnzymeDb(object):
         """
         try:
             assert self._enzymes.has_key(name)
-            assert search_engine in self._search_engines
+            assert search_engine in self._applications
             return self._enzymes[name][search_engine]
         except:
-            self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._enzymes.keys(),search_engine,self._search_engines)) 
+            self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._enzymes.keys(),search_engine,self._applications)) 
             sys.exit(1)
             
     def get_keys(self):
