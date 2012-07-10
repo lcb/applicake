@@ -40,9 +40,33 @@ from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
 from applicake.applications.proteomics.openms.identification.macotadapteronline import MascotAdapterOnline
+from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mzml
 
 cwd = None
 
+#helper function
+def wrap(applic,  input_file_name, output_file_name,opts=None):
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
+    if opts is not None:
+        argv.extend(opts)
+    application = applic()
+    if isinstance(application, IApplication):
+        runner = ApplicationRunner()
+        print 'use application runner'
+    elif isinstance(application, IWrapper):
+        runner = WrapperRunner()
+    else:
+        raise Exception('could not identfy [%s]' % applic.__name__)    
+    application = applic()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
+
+def execute(command):
+    p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
+    output, error = p.communicate()                                                                                                                                                                            
+    out_stream = StringIO(output)
+    err_stream = StringIO(error)
 
 def setup():
     cwd = '.'
@@ -54,9 +78,8 @@ def setup():
     execute('rm *ini*')
     with open("input.ini", 'w+') as f:
         f.write("""BASEDIR = /cluster/scratch/malars/workflows/
-LOG_LEVEL = DEBUG
+LOG_LEVEL = INFO
 STORAGE = file
-TEMPLATE = template.tpl
 DATASET_DIR = /cluster/scratch/malars/datasets
 DATASET_CODE = 20120124102254267-296925,20120124121656335-296961
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
@@ -77,7 +100,7 @@ SPACE = QUANDTAN
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 WORKFLOW=ruffus_local_mascotadapter
-""" )       
+""" )
         
 
 @follows(setup)
@@ -95,26 +118,31 @@ def dss(input_file_name, output_file_name):
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
 
 @transform(dss, regex("dss.ini_"), "mzxml2mzml.ini_")
-def mzxml2mzml():
-    wrap(Mzxml2Mzml,'dss.ini','mzxml2mzml.ini')
+def mzxml2mzml(infile,outfile):
+    argv = ['', '-i', infile, '-o',outfile]
+    runner = WrapperRunner()
+    application = Mzxml2Mzml()
+    exit_code = runner(argv,application)
+    if exit_code != 0:
+        raise Exception("mzxml2mzml failed [%s]" % exit_code) 
 
 @transform(mzxml2mzml, regex("mzxml2mzml.ini_"), "mascotadapteronline.ini_")
-def mascotadapteronline():
-    wrap(MascotAdapterOnline,'mzxml2mzml.ini','mascotadapteronline.ini',['--MASCOT_HOSTNAME','imsb-ra-mascot.ethz.ch','--MASCOT_USERNAME','bla','--MASCOT_PASSWORD','blabla','-p'])
+def mascotadapteronline(infile,outfile):
+    wrap(MascotAdapterOnline,infile,outfile,['--MASCOT_HOSTNAME','imsb-ra-mascot.ethz.ch','--MASCOT_USERNAME','b','--MASCOT_PASSWORD','bb'])
 
 @transform(mascotadapteronline, regex("mascotadapteronline.ini_"), "idxml2pepxml.ini_")
-def idxml2pepxml():
-    wrap(IdXml2PepXml,'mascotadapteronline.ini','idxml2pepxml.ini',['-p'])
+def idxml2pepxml(infile,outfile):
+    wrap(IdXml2PepXml,infile,outfile)
 
 
-@transform(tandem2xml, regex("idxml2pepxml.ini_"), "xinteract.ini_")
+@transform(idxml2pepxml, regex("idxml2pepxml.ini_"), "xinteract.ini_")
 def xinteract(input_file_name, output_file_name):
     wrap(Xinteract,input_file_name, output_file_name)   
 
     
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file','-p']
+    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name]
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -124,7 +152,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
     runner = IniFileRunner2()
     application = Unifier()
     exit_code = runner(argv, application)
@@ -161,7 +189,7 @@ def protxml2openbis():
 
 @follows(protxml2openbis)
 def copy2dropbox():
-    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini','-p']
+    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini']
     runner = IniFileRunner()
     application = Copy2IdentDropbox()
     exit_code = runner(argv, application)
