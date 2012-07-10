@@ -71,7 +71,7 @@ class ModificationDb(object):
             assert search_engine in self._applications
             return self._mods[name][search_engine]
         except:
-            self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._enzymes.keys(),search_engine,self._applications)) 
+            self.log.fatal('either name [%s] not found [%s] or search engine [%s] is not supported [%s]' % (name,self._mods.keys(),search_engine,self._applications)) 
             sys.exit(1)
             
     def get_keys(self):
