@@ -44,53 +44,96 @@ from applicake.applications.proteomics.openms.identification.macotadapteronline 
 cwd = None
 
 
-#helper function
-def wrap(applic,  input_file_name, output_file_name,opts=None):
-    argv = ['', '-i', input_file_name, '-o', output_file_name]
-    if opts is not None:
-        argv.extend(opts)
-    application = applic()
-    if isinstance(application, IApplication):
-        runner = ApplicationRunner()
-    elif isinstance(application, IWrapper):
-        runner = WrapperRunner()
-    else:
-        msg = 'could not identfy runner with applic [%s] and argv [%s]' % (applic.__name__,argv)
-        print msg
-        raise Exception(msg)    
-    application = applic()
+def setup():
+    cwd = '.'
+    os.chdir(cwd)
+    execute("find . -type d -iname '[0-9]*' -exec rm -rf {} \;")
+    execute('rm *.err')
+    execute('rm *.out')
+    execute('rm *.log')
+    execute('rm *ini*')
+    with open("input.ini", 'w+') as f:
+        f.write("""BASEDIR = /cluster/scratch/malars/workflows/
+LOG_LEVEL = DEBUG
+STORAGE = file
+TEMPLATE = template.tpl
+DATASET_DIR = /cluster/scratch/malars/datasets
+DATASET_CODE = 20120124102254267-296925,20120124121656335-296961
+DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
+DECOY_STRING = DECOY_ 
+FRAGMASSERR = 0.4
+FRAGMASSUNIT = Da
+PRECMASSERR = 15
+PRECMASSUNIT = ppm
+MISSEDCLEAVAGE = 0
+ENZYME = Trypsin
+STATIC_MODS = Carbamidomethyl (C)
+THREADS = 4
+XTANDEM_SCORE = k-score
+XINTERACT_ARGS = -dDECOY_ -OAPdlIw
+IPROPHET_ARGS = MINPROB=0
+FDR=0.01
+SPACE = QUANDTAN
+PROJECT = TEST
+DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
+WORKFLOW=ruffus_local_mascotadapter
+""" )       
+        
+
+@follows(setup)
+@split("input.ini", "generate.ini_*")
+def generator(input_file_name, notused_output_file_names):
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
+    runner = IniFileRunner()
+    application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
-        print 'use runner of type [%s] with applic [%s] and argv [%s]' % (runner.__class__.__name__,applic.__name__,argv)
-        raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
+        raise Exception("generator failed [%s]" % exit_code) 
+    
+@transform(generator, regex("generate.ini_"), "dss.ini_")
+def dss(input_file_name, output_file_name):   
+    wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
 
-def execute(command):
-    p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
-    output, error = p.communicate()                                                                                                                                                                              
-    out_stream = StringIO(output)
-    err_stream = StringIO(error) 
+@transform(dss, regex("dss.ini_"), "mzxml2mzml.ini_")
+def mzxml2mzml():
+    wrap(Mzxml2Mzml,'dss.ini','mzxml2mzml.ini')
 
-
-
+@transform(mzxml2mzml, regex("mzxml2mzml.ini_"), "mascotadapteronline.ini_")
 def mascotadapteronline():
     wrap(MascotAdapterOnline,'mzxml2mzml.ini','mascotadapteronline.ini',['--MASCOT_HOSTNAME','imsb-ra-mascot.ethz.ch','--MASCOT_USERNAME','bla','--MASCOT_PASSWORD','blabla','-p'])
 
-@follows(mascotadapteronline)
+@transform(mascotadapteronline, regex("mascotadapteronline.ini_"), "idxml2pepxml.ini_")
 def idxml2pepxml():
     wrap(IdXml2PepXml,'mascotadapteronline.ini','idxml2pepxml.ini',['-p'])
 
 
+@transform(tandem2xml, regex("idxml2pepxml.ini_"), "xinteract.ini_")
+def xinteract(input_file_name, output_file_name):
+    wrap(Xinteract,input_file_name, output_file_name)   
 
-#pipeline_run([idxml2pepxml])
+    
+@merge(xinteract, "collector.ini")
+def collector(notused_input_file_names, output_file_name):
+    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file','-p']
+    runner = CollectorRunner()
+    application = GuseCollector()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
 
-@follows(idxml2pepxml)
-def xinteract():
-    wrap(Xinteract,'idxml2pepxml.ini','xinteract.ini')   
+@follows(collector)
+def unifier():
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
+    runner = IniFileRunner2()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier [%s]" % exit_code)  
 
-@follows(xinteract)
+@follows(unifier)
 def interprophet():
-    wrap(InterProphet,'xinteract.ini','interprophet.ini')    
+    wrap(InterProphet,'unifier.ini','interprophet.ini',['-p'])    
 
 @follows(interprophet)
 def pepxml2csv():
@@ -118,24 +161,11 @@ def protxml2openbis():
 
 @follows(protxml2openbis)
 def copy2dropbox():
-    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox.ini') 
-
-#@follows()
-#def ():
-#    wrap(,'','') 
-#    @follows()
-#def ():
-#    wrap(,'','') 
-#    @follows()
-#def ():
-#    wrap(,'','')     
-
-
-
+    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini','-p']
+    runner = IniFileRunner()
+    application = Copy2IdentDropbox()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("copy2dropbox [%s]" % exit_code)  
 
 pipeline_run([copy2dropbox])
-#pipeline_run([featurefindercentroided])
-
-
-#pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
-
