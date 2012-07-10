@@ -27,7 +27,7 @@ class Unifier(IApplication):
         check_keys = [self.PARAM_IDX,self.FILE_IDX]
         for key in check_keys:
             if isinstance(info[key],list):
-                log.debug('remove key [%$] because value [%] is list' % (key,info[key]))
+                log.debug('remove key [%s] because value [%s] is list' % (key,info[key]))
                 del info[key]        
         reduce = info['UNIFIER_REDUCE']
         if isinstance(reduce, list):
