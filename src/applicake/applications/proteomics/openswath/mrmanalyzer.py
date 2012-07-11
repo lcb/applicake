@@ -25,7 +25,7 @@ class MRMAnalyzer(IWrapper):
         Constructor
         """
         base = self.__class__.__name__
-        self._template_file = '%s.ini' % base # application specific config file
+        self._template_file = '%s_template.ini' % base # application specific config file
         self._result_file = '%s.featureXML' % base # result produced by the application
 
     def get_prefix(self,info,log):
