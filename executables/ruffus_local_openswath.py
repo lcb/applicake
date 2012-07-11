@@ -52,11 +52,11 @@ def execute(command):
 def setup():
     cwd = '.'
     os.chdir(cwd)
-#    execute("find . -type d -iname '[0-9]*' -exec rm -rf {} \;")
-#    execute('rm *.err')
-#    execute('rm *.out')
-#    execute('rm *.log')
-#    execute('rm *ini*')
+    execute("find . -type d -iname '[0-9]*' -exec rm -rf {} \;")
+    execute('rm *.err')
+    execute('rm *.out')
+    execute('rm *.log')
+    execute('rm *ini*')
 
 #    execute('rm jobid.txt') 
     execute('rm flowchart.*')    
@@ -76,20 +76,19 @@ MIN_COVERAGE = 0.6
 )       
         
 
-#@follows(setup)
-#def chromatogramextractor():
-#    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
-#    
-#@follows(chromatogramextractor)
-#def mrmrtnormalizer():
-#    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmrtnormalizer.ini',['-p'])     
-#
-#@follows(mrmrtnormalizer)
-#def chromatogramextractor2():
-#    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
-#
-#@follows(chromatogramextractor2)
+@follows(setup)
+def chromatogramextractor():
+    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
+    
+@follows(chromatogramextractor)
+def mrmrtnormalizer():
+    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmrtnormalizer.ini',['-p'])     
 
+@follows(mrmrtnormalizer)
+def chromatogramextractor2():
+    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
+
+@follows(chromatogramextractor2)
 def mrmanalyzer():
     wrap(MRMAnalyzer,'chromatogramextractor2.ini','mrmanalyzer.ini',['-p']) 
 
@@ -98,6 +97,6 @@ def featurexmltotsv():
     wrap(FeatureXMLToTSV,'mrmanalyzer.ini','featurexmltotsv.ini',['-p']) 
       
 
-pipeline_run([mrmanalyzer], multiprocess = 1)
+pipeline_run([featurexmltotsv], multiprocess = 1)
 
 #pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
