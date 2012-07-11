@@ -63,7 +63,7 @@ def setup():
 LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
-THREADS = 4
+THREADS = 8
 MZMLGZ = /cluster/scratch/malars/openswath/data/UPS12/data/chludwig_L110830_23_SW/*.mzML.gz
 TRAML = /cluster/scratch/malars/openswath/assays/iRT/DIA_iRT.TraML
 MIN_UPPER_EDGE_DIST = 1
