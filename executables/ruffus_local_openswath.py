@@ -71,9 +71,7 @@ TRAML = /cluster/scratch/malars/openswath/assays/iRT/DIA_iRT.TraML
 MIN_UPPER_EDGE_DIST = 1
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
-""" 
-#MZMLGZ = /cluster/scratch/malars/openswath/data/UPS12/data/chludwig_L110830_23_SW/*.mzML.gz
-#TRAML = /cluster/scratch/malars/openswath/assays/iRT/DIA_iRT.TraML     
+"""     
 )       
         
 
