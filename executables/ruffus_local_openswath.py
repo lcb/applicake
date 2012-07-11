@@ -19,6 +19,7 @@ from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.openswath.chromatogramextractor import ChromatogramExtractor
 from applicake.applications.proteomics.openswath.mrmnormalizer import MRMNormalizer
 from applicake.applications.proteomics.openswath.mrmanalyzer import MRMAnalyzer
+from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
 
 cwd = None
 
@@ -74,23 +75,29 @@ MIN_COVERAGE = 0.6
 )       
         
 
+#@follows(setup)
+#def chromatogramextractor():
+#    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
+#    
+#@follows(chromatogramextractor)
+#def mrmnormalizer():
+#    wrap(MRMNormalizer,'chromatogramextractor.ini','mrmnormalizer.ini',['-p'])     
+#
+#@follows(mrmnormalizer)
+#def chromatogramextractor2():
+#    wrap(ChromatogramExtractor,'chromatogramextractor.ini','chromatogramextractor2.ini',['-p']) 
+#
+#@follows(chromatogramextractor2)
+
 @follows(setup)
-def chromatogramextractor():
-    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
-    
-@follows(chromatogramextractor)
-def mrmnormalizer():
-    wrap(MRMNormalizer,'chromatogramextractor.ini','mrmnormalizer.ini',['-p'])     
-
-@follows(mrmnormalizer)
-def chromatogramextractor2():
-    wrap(ChromatogramExtractor,'chromatogramextractor.ini','chromatogramextractor2.ini',['-p']) 
-
-@follows(chromatogramextractor2)
 def mrmanalyzer():
     wrap(MRMAnalyzer,'chromatogramextractor2.ini','mrmanalyzer.ini',['-p']) 
+
+@follows(mrmanalyzer)
+def featurexmltotsv():
+    wrap(FeatureXMLToTSV,'mrmanalyzer.ini','featurexmltotsv.ini',['-p']) 
       
 
-pipeline_run([mrmanalyzer], multiprocess = 4)
+pipeline_run([mrmanalyzer], multiprocess = 1)
 
 #pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg

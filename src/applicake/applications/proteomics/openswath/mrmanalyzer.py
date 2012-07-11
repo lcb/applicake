@@ -7,10 +7,12 @@ Created on Jul 11, 2012
 import os
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
+from applicake.utils.fileutils import FileUtils
+from applicake.utils.xmlutils import XmlValidator
 
 class MRMAnalyzer(IWrapper):
     '''
-    Wrapper for the MRMAnalyzer in OpenSwath.
+    Wrapper for the MRMAnalyzer in OpenSWATH.
     '''
 
     _template_file = ''
@@ -80,7 +82,8 @@ class MRMAnalyzer(IWrapper):
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.') 
         args_handler.add_app_args(log, 'CHROM_MZML', 'Path to the chrom.mzML files.')
         args_handler.add_app_args(log, 'TRAFOXML', 'Path to the .trafoXML files.')        
-        args_handler.add_app_args(log, 'MZMLGZ', 'Path to the gzipped mzML files.')        
+        args_handler.add_app_args(log, 'MZMLGZ', 'Path to the gzipped mzML files.')  
+        args_handler.add_app_args(log, 'TRAML', 'Path to the TraML file.')      
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', '')    
         return args_handler
 
@@ -92,6 +95,12 @@ class MRMAnalyzer(IWrapper):
             return run_code,info
     #out_stream.seek(0)
     #err_stream.seek(0)
+        if not FileUtils.is_valid_file(log, self._result_file):
+            log.critical('[%s] is not valid' %self._result_file)
+            return 1,info
+        if not XmlValidator.is_wellformed(self._result_file):
+            log.critical('[%s] is not well formed.' % self._result_file)
+            return 1,info    
         return 0,info
 
 
