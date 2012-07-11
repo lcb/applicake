@@ -17,7 +17,7 @@ from applicake.framework.runner import IniFileRunner2, ApplicationRunner,Collect
 
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.openswath.chromatogramextractor import ChromatogramExtractor
-from applicake.applications.proteomics.openswath.mrmnormalizer import MRMRTNormalizer
+from applicake.applications.proteomics.openswath.mrmrtnormalizer import MRMRTNormalizer
 from applicake.applications.proteomics.openswath.mrmanalyzer import MRMAnalyzer
 from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
 
@@ -52,11 +52,12 @@ def execute(command):
 def setup():
     cwd = '.'
     os.chdir(cwd)
-    execute("find . -type d -iname '[0-9]*' -exec rm -rf {} \;")
-    execute('rm *.err')
-    execute('rm *.out')
-    execute('rm *.log')
-    execute('rm *ini*')
+#    execute("find . -type d -iname '[0-9]*' -exec rm -rf {} \;")
+#    execute('rm *.err')
+#    execute('rm *.out')
+#    execute('rm *.log')
+#    execute('rm *ini*')
+
 #    execute('rm jobid.txt') 
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
@@ -75,19 +76,20 @@ MIN_COVERAGE = 0.6
 )       
         
 
-@follows(setup)
-def chromatogramextractor():
-    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
-    
-@follows(chromatogramextractor)
-def mrmrtnormalizer():
-    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmrtnormalizer.ini',['-p'])     
+#@follows(setup)
+#def chromatogramextractor():
+#    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
+#    
+#@follows(chromatogramextractor)
+#def mrmrtnormalizer():
+#    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmrtnormalizer.ini',['-p'])     
+#
+#@follows(mrmrtnormalizer)
+#def chromatogramextractor2():
+#    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
+#
+#@follows(chromatogramextractor2)
 
-@follows(mrmrtnormalizer)
-def chromatogramextractor2():
-    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
-
-@follows(chromatogramextractor2)
 def mrmanalyzer():
     wrap(MRMAnalyzer,'chromatogramextractor2.ini','mrmanalyzer.ini',['-p']) 
 
