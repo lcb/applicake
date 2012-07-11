@@ -10,9 +10,9 @@ from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
-class MRMNormalizer(IWrapper):
+class MRMRTNormalizer(IWrapper):
     '''
-    Wrapper for the MRMNormalizer in OpenSWATH.
+    Wrapper for the MRMRTNormalizer in OpenSWATH.
     '''
 
     _template_file = ''

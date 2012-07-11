@@ -38,6 +38,7 @@ class MRMAnalyzer(IWrapper):
         """
         See interface
         """
+        #return BasicTemplateHandler()
         return MRMAnalyzerTemplate()
 
     def prepare_run(self,info,log):
@@ -171,7 +172,6 @@ ue to 100)" />
     </NODE>
   </NODE>
 </PARAMETERS>
-
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info

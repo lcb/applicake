@@ -17,7 +17,7 @@ from applicake.framework.runner import IniFileRunner2, ApplicationRunner,Collect
 
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.openswath.chromatogramextractor import ChromatogramExtractor
-from applicake.applications.proteomics.openswath.mrmnormalizer import MRMNormalizer
+from applicake.applications.proteomics.openswath.mrmnormalizer import MRMRTNormalizer
 from applicake.applications.proteomics.openswath.mrmanalyzer import MRMAnalyzer
 from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
 
@@ -81,11 +81,11 @@ def chromatogramextractor():
     
 @follows(chromatogramextractor)
 def mrmnormalizer():
-    wrap(MRMNormalizer,'chromatogramextractor.ini','mrmnormalizer.ini',['-p'])     
+    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmnormalizer.ini',['-p'])     
 
 @follows(mrmnormalizer)
 def chromatogramextractor2():
-    wrap(ChromatogramExtractor,'chromatogramextractor.ini','chromatogramextractor2.ini',['-p']) 
+    wrap(ChromatogramExtractor,'chromatogramextractor.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
 
 @follows(chromatogramextractor2)
 def mrmanalyzer():
