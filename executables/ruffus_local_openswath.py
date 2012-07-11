@@ -66,13 +66,14 @@ LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
 THREADS = 8
-MZMLGZ = /cluster/scratch/malars/openswath/data/UPS12/data/chludwig_L110830_23_SW/*.mzML.gz
-TRAML = /cluster/scratch/malars/openswath/assays/iRT/DIA_iRT.TraML
+MZMLGZ = /cluster/apps/openms/openswath/OpenSWATH/data/testdata/ChromatogramExtractor_input.mzML
+TRAML = /cluster/apps/openms/openswath/OpenSWATH/data/testdata/ChromatogramExtractor_input.TraML
 MIN_UPPER_EDGE_DIST = 1
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
 """ 
-     
+#MZMLGZ = /cluster/scratch/malars/openswath/data/UPS12/data/chludwig_L110830_23_SW/*.mzML.gz
+#TRAML = /cluster/scratch/malars/openswath/assays/iRT/DIA_iRT.TraML     
 )       
         
 
