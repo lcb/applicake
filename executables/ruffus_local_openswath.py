@@ -75,19 +75,19 @@ MIN_COVERAGE = 0.6
 
 @follows(setup)
 def chromatogramextractor():
-    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini') 
+    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
     
 @follows(chromatogramextractor)
 def mrmnormalizer():
-    wrap(MRMNormalizer,'chromatogramextractor.ini','mrmnormalizer.ini')     
+    wrap(MRMNormalizer,'chromatogramextractor.ini','mrmnormalizer.ini',['-p'])     
 
 @follows(mrmnormalizer)
 def chromatogramextractor2():
-    wrap(ChromatogramExtractor,'chromatogramextractor.ini','chromatogramextractor2.ini') 
+    wrap(ChromatogramExtractor,'chromatogramextractor.ini','chromatogramextractor2.ini',['-p']) 
 
 @follows(chromatogramextractor2)
 def mrmanalyzer():
-    wrap(MRMAnalyzer,'chromatogramextractor2.ini','mrmanalyzer.ini') 
+    wrap(MRMAnalyzer,'chromatogramextractor2.ini','mrmanalyzer.ini',['-p']) 
       
 
 pipeline_run([mrmanalyzer], multiprocess = 4)
