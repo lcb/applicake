@@ -75,19 +75,20 @@ MIN_COVERAGE = 0.6
 )       
         
 
-@follows(setup)
-def chromatogramextractor():
-    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
-    
-@follows(chromatogramextractor)
-def mrmrtnormalizer():
-    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmrtnormalizer.ini',['-p'])     
+#@follows(setup)
+#def chromatogramextractor():
+#    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
+#    
+#@follows(chromatogramextractor)
+#def mrmrtnormalizer():
+#    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmrtnormalizer.ini',['-p'])     
+#
+#@follows(mrmrtnormalizer)
+#def chromatogramextractor2():
+#    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
+#
+#@follows(chromatogramextractor2)
 
-@follows(mrmrtnormalizer)
-def chromatogramextractor2():
-    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
-
-@follows(chromatogramextractor2)
 def mrmanalyzer():
     wrap(MRMAnalyzer,'chromatogramextractor2.ini','mrmanalyzer.ini',['-p']) 
 
