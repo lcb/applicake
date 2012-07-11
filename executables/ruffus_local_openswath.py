@@ -80,12 +80,12 @@ def chromatogramextractor():
     wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
     
 @follows(chromatogramextractor)
-def mrmnormalizer():
-    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmnormalizer.ini',['-p'])     
+def mrmrtnormalizer():
+    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmrtnormalizer.ini',['-p'])     
 
-@follows(mrmnormalizer)
+@follows(mrmrtnormalizer)
 def chromatogramextractor2():
-    wrap(ChromatogramExtractor,'chromatogramextractor.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
+    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
 
 @follows(chromatogramextractor2)
 def mrmanalyzer():
