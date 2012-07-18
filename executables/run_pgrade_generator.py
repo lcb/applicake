@@ -6,11 +6,11 @@ Created on Apr 23, 2012
 '''
 
 import sys
-from applicake.framework.runner import ApplicationRunner
+from applicake.framework.runner import IniFileRunner
 from applicake.applications.commons.generator import DatasetcodeGenerator
 
 
-runner = ApplicationRunner()
+runner = IniFileRunner()
 application = DatasetcodeGenerator()
 exit_code = runner(sys.argv,application)
 print exit_code
