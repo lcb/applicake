@@ -143,9 +143,9 @@ class ParametersetGenerator(Generator):
         del basedic[self.FILE_IDX]        
         param_dicts = []
         if len(SequenceUtils.unify(basedic[self.PARAM_IDX], reduce = True)) ==1:                        
-            for key in info.keys():
+            for key in basedic.keys():
                 if isinstance(basedic[key], list):
-                    basedic[key] = SequenceUtils.unify(info[key], reduce = True)
+                    basedic[key] = SequenceUtils.unify(basedic[key], reduce = True)
             param_dicts.append(basedic)            
         else:
             keys = basedic.keys()
