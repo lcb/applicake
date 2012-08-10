@@ -15,7 +15,7 @@ from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.proteomics.rosetta.rosetta import Rosetta
 from applicake.applications.proteomics.rosetta.extractrosetta import Extractrosetta
 from applicake.applications.proteomics.rosetta.mergerosetta import Mergerosetta
-from applicake.applications.proteomics.openbis.dropbox import Copy2RosettaDropbox
+from applicake.applications.proteomics.openbis.rosettadropbox import Copy2RosettaDropbox
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
