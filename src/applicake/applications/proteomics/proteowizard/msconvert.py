@@ -35,11 +35,7 @@ class Mzxml2Mgf(IWrapper):
     def prepare_run(self,info,log):
         """
         See interface.
-        
-        - 
-                
-        @precondition: info object need the key [%s]
-        """ % self.TEMPLATE
+        """
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._template_file = os.path.join(wd,self._template_file) 
@@ -48,8 +44,12 @@ class Mzxml2Mgf(IWrapper):
         info['MGF'] = self._result_file  
         log.debug('get template handler')
         th = self.get_template_handler()
-        log.debug('modify template')                
-        mod_template,info = th.modify_template(info, log)        
+        log.debug('modify template')   
+        # create temporary key runid which is the basename of the mzXML file
+        info['MSCONVERT_RUNID'] = os.path.splitext(os.path.split(info['MZXML'])[1])[0]             
+        mod_template,info = th.modify_template(info, log)
+        # delete temporary key as it is not longer useful  
+        del info['MSCONVERT_RUNID']
         prefix,info = self.get_prefix(info,log)
         command = "%s %s --outfile %s -o %s -c %s" %(prefix,info['MZXML'],self._result_file, wd,info['TEMPLATE']) 
         return command,info  
@@ -82,7 +82,7 @@ class Mzxml2MgfTemplate(BasicTemplateHandler):
         """
         template = """# example configuration file
 mgf=true
-filter=titleMaker <RunId>.<ScanNumber>.<ScanNumber>.<ChargeState>
+filter=titleMaker $MSCONVERT_RUNID.<ScanNumber>.<ScanNumber>.<ChargeState>
 
 #mzXML=true
 #zlib=true

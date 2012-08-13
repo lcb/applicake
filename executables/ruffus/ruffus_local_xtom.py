@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Created on Aug 13, 2012
 
@@ -104,7 +105,7 @@ FDR=0.01
 SPACE = QUANDTAN
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
-WORKFLOW=ruffus_local_xtandem
+WORKFLOW=ruffus_local_xtom
 """ 
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
@@ -130,11 +131,11 @@ def dss(input_file_name, output_file_name):
         
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-    wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe','-s','file','-l','DEBUG','-p'])
+    wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe','-s','file','-l','DEBUG'])
 
 @transform(dss, regex("dss.ini_"), "msconvert.ini_")
 def msconvert(input_file_name, output_file_name):
-    wrap(Mzxml2Mgf,input_file_name, output_file_name,['-s','file','-l','DEBUG','-p'])
+    wrap(Mzxml2Mgf,input_file_name, output_file_name,['-s','file','-l','DEBUG'])
     
 @transform(msconvert, regex("msconvert.ini_"), "omssa.ini_")
 def omssa(input_file_name, output_file_name):
@@ -160,7 +161,6 @@ def collector(notused_input_file_names, output_file_name):
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
-
 
 @follows(collector)
 @split("collector.ini", "paramgenerate.ini_*")
