@@ -43,9 +43,6 @@ class Copy2RosettaDropbox(Copy2Dropbox):
         if not info.has_key('ROSETTAMERGEDOUT'):
             log.error('Did not find mandatory key [ROSETTAMERGEDOUT]')
             return 1, info
-        if not info.has_key('ATTRIBUTENAME'):
-            log.error('Did not find mandatory key [ATTRIBUTENAME]')
-            return 1, info
         info_copy = info.copy()
         info_copy[self.OUTPUT] = os.path.join(self._get_dropboxdir(info),'dataset.properties')
         BasicInformationHandler().write_info(info_copy, log)
