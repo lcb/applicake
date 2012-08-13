@@ -57,6 +57,7 @@ class Rosetta(IWrapper):
         See interface
         """    
         args_handler.add_app_args(log, 'ROSETTAINPUTDIR', 'Peak list file in mgf format')     
+        args_handler.add_app_args(log, 'NSTRUCT', 'Number of structures created')     
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
         return args_handler      
@@ -107,7 +108,7 @@ class RosettaTemplate(BasicTemplateHandler):
 -idealize_after_loop_close
 -out:file:silent_struct_type binary
 -out:file:silent $ROSETTAOUT
--out:nstruct 10
+-out:nstruct $NSTRUCT
 
 -loops:extended
 -loops:build_initial

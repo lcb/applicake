@@ -54,6 +54,7 @@ DATASET_DIR = /cluster/scratch/malars/datasets
 DATASET_CODE = 20120301183733088-335945, 20120301154907468-332952
 WORKFLOW = ruffus_local_rosetta
 COMMENT = commentt
+NSTRUCT = 5
 DROPBOX = /cluster/scratch/malars/loblum/fakedropbox
 """)       
         

@@ -3,15 +3,17 @@ Created on Aug 10, 2012
 
 @author: lorenz
 '''
+import os
 import shutil
 from applicake.utils.fileutils import FileUtils
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
+from applicake.framework.informationhandler import BasicInformationHandler
 
 class Copy2RosettaDropbox(Copy2Dropbox):
     
-    def set_args(self,log,args_handler):
-        args_handler.add_app_args(log, 'ROSETTAMERGEDOUT', 'Merget output.dat file')     
-        return super(Copy2RosettaDropbox,self).set_args(log,args_handler)
+#    def set_args(self,log,args_handler):
+#        args_handler.add_app_args(log, 'ROSETTAMERGEDOUT', 'Merget output.dat file')     
+#        return super(Copy2RosettaDropbox,self).set_args(log,args_handler)
     
     def copy_dropbox_specific_files(self,info,log,path):
         keys = ['ROSETTAMERGEDOUT']
@@ -41,5 +43,11 @@ class Copy2RosettaDropbox(Copy2Dropbox):
         if not info.has_key('ROSETTAMERGEDOUT'):
             log.error('Did not find mandatory key [ROSETTAMERGEDOUT]')
             return 1, info
+        if not info.has_key('ATTRIBUTENAME'):
+            log.error('Did not find mandatory key [ATTRIBUTENAME]')
+            return 1, info
+        info_copy = info.copy()
+        info_copy[self.OUTPUT] = os.path.join(self._get_dropboxdir(info),'dataset.properties')
+        BasicInformationHandler().write_info(info_copy, log)
         
         return super(Copy2RosettaDropbox,self).main(info,log)
