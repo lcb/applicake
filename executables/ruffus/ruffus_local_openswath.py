@@ -20,6 +20,8 @@ from applicake.applications.proteomics.openswath.chromatogramextractor import Ch
 from applicake.applications.proteomics.openswath.mrmrtnormalizer import MRMRTNormalizer
 from applicake.applications.proteomics.openswath.mrmanalyzer import MRMAnalyzer
 from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
+from applicake.applications.proteomics.openswath.FileMerger import FileMerger
+
 
 cwd = None
 
@@ -61,34 +63,39 @@ def setup():
 #    execute('rm jobid.txt') 
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/home/biol/quandtan/test/workflows
+        f.write("""BASEDIR = /cluster/home/biol/wwolski/imsb/ruffus
 LOG_LEVEL = DEBUG
 STORAGE = file
-TEMPLATE = template.tpl
 THREADS = 8
-MZMLGZ = /cluster/scratch/malars/openswath/data/UPS12/data/chludwig_L110830_23_SW/*.mzML.gz
-TRAML = /cluster/scratch/malars/openswath/assays/iRT/DIA_iRT.TraML
+MZMLGZ = /cluster/scratch/malars/openswath/data/AQUA_fixed_water/split_napedro_L120224_001_SW-400AQUA_no_background_2ul_dilution_10
+[CHROMEXTRACTOR1]
+TRAML = "/cluster/scratch/malars/openswath/assays/iRT/DIA_iRT.TraML"
+[CHROMEXTRACTOR2]
+TRAML = "/cluster/scratch/malars/openswath/assays/AQUA/AQUA4_sh.TraML"
 MIN_UPPER_EDGE_DIST = 1
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
-"""     
+"""
 )       
         
 
-#@follows(setup)
-#def chromatogramextractor():
-#    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
-#    
-#@follows(chromatogramextractor)
-#def mrmrtnormalizer():
-#    wrap(MRMRTNormalizer,'chromatogramextractor.ini','mrmrtnormalizer.ini',['-p'])     
-#
-#@follows(mrmrtnormalizer)
-#def chromatogramextractor2():
-#    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
-#
-#@follows(chromatogramextractor2)
+@follows(setup)
+def chromatogramextractor():
+    wrap(ChromatogramExtractor,'input.ini','chromatogramextractor.ini',['-p']) 
 
+@follows(chromatogramextractor)
+def filemerger():
+    wrap(FileMerger,'chromatogramextractor.ini','filemerger.ini')
+    
+@follows(filemerger)
+def mrmrtnormalizer():
+    wrap(MRMRTNormalizer,'filemerger.ini','mrmrtnormalizer.ini',['-p'])     
+#
+@follows(mrmrtnormalizer)
+def chromatogramextractor2():
+    wrap(ChromatogramExtractor,'mrmrtnormalizer.ini','chromatogramextractor2.ini',['-n','ChromatogramExtractor2', '-p']) 
+#
+@follows(chromatogramextractor2)
 def mrmanalyzer():
     wrap(MRMAnalyzer,'chromatogramextractor2.ini','mrmanalyzer.ini',['-p']) 
 
