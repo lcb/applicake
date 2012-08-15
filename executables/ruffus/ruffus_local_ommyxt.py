@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 '''
-Created on Aug 13, 2012
+Created on Aug 15, 2012
 
 @author: quandtan
 '''
-
-
 
 import os
 import sys
@@ -42,6 +40,7 @@ from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.proteowizard.msconvert import Mzxml2Mgf
 from applicake.applications.proteomics.searchengine.omssa import Omssa
+from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
 
 cwd = None
 
@@ -141,6 +140,14 @@ def tandem2xml(input_file_name, output_file_name):
 def xinteract_xtandem(input_file_name, output_file_name):
     wrap(Xinteract,input_file_name, output_file_name,['-n','xinteract_xtandem'])  
 
+@transform(dss, regex("dss.ini_"), "myrimatch.ini_")
+def myrimatch(input_file_name, output_file_name):
+    wrap(Myrimatch,input_file_name, output_file_name)
+
+@transform(myrimatch, regex("myrimatch.ini_"), "xinteract_myrimatch.ini_")
+def xinteract_myrimatch(input_file_name, output_file_name):
+    wrap(Xinteract,input_file_name, output_file_name,['-n','xinteract_myrimatch']) 
+
 @transform(dss, regex("dss.ini_"), "msconvert.ini_")
 def msconvert(input_file_name, output_file_name):
     wrap(Mzxml2Mgf,input_file_name, output_file_name,['-s','file','-l','DEBUG'])
@@ -153,9 +160,9 @@ def omssa(input_file_name, output_file_name):
 def xinteract_omssa(input_file_name, output_file_name):
     wrap(Xinteract,input_file_name, output_file_name,['-n','xinteract_omssa'])       
     
-@merge([xinteract_omssa,xinteract_xtandem], "collector.ini")
+@merge([xinteract_xtandem,xinteract_myrimatch,xinteract_omssa], "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'xinteract_omssa.ini', '--COLLECTORS', 'xinteract_xtandem.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'xinteract_xtandem.ini','--COLLECTORS', 'xinteract_myrimatch.ini','--COLLECTORS', 'xinteract_omssa.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
