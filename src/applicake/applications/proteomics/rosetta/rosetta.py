@@ -25,11 +25,6 @@ class Rosetta(IWrapper):
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info  
     
-    def get_template_handler(self):
-        """
-        return Template handler
-        """
-        return RosettaTemplate()    
     
     def prepare_run(self,info,log):
         """
@@ -44,7 +39,7 @@ class Rosetta(IWrapper):
         info['ROSETTAOUT'] = self._result_file  
         
         log.debug('get template handler')
-        th = self.get_template_handler()
+        th = RosettaTemplate()  
         log.debug('modify template')                
         mod_template,info = th.modify_template(info, log)        
         prefix,info = self.get_prefix(info,log)
@@ -70,6 +65,7 @@ class Rosetta(IWrapper):
             return run_code,info
         return 0,info  
 
+# FIXME: Why inheritance here? 
 class RosettaTemplate(BasicTemplateHandler):
     """
     Template handler for Xtandem.  

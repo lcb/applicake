@@ -22,7 +22,7 @@ from applicake.applications.proteomics.openswath.mrmanalyzer import MRMAnalyzer
 from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
 from applicake.applications.proteomics.openswath.FileMerger import FileMerger
 from applicake.applications.proteomics.openswath.KeySwitcher import KeySwitcher
-
+from applicake.applications.proteomics.openswath.SwathGenerator import SwathGenerator
 
 cwd = None
 
