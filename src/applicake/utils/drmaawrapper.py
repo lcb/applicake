@@ -3,9 +3,8 @@ Created on Aug 17, 2012
 
 @author: lorenz
 
-.bashrc
-export LSF_DRMAA_CONF=/cluster/apps/drmaa/1.0.3/etc/lsf_drmaa.conf
-export DRMAA_LIBRARY_PATH=/cluster/apps/drmaa/1.0.3/lib/libdrmaa.so.1.0.3
+ADD TO .bashrc
+module load drmaa
 export PYTHONPATH=/cluster/apps/imsbtools/stable/pythonlibs/python-drmaa:$PYTHONPATH
 '''
 
