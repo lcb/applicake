@@ -20,7 +20,7 @@ class DrmaaSubmitter(object):
         
     def run(self,specifications,executable,commandarray=[]):
         jt = self._session.createJobTemplate()
-        jt.nativeSpecification(specifications)
+        jt.nativeSpecification = specifications
         jt.remoteCommand = executable
         jt.args = commandarray
         
