@@ -24,7 +24,7 @@ class ChromatogramExtractor(IWrapper):
         """
         base = self.__class__.__name__
         self._template_file = '%s.tpl' % base # application specific config file
-        self._file_suffix = '_rtnorm.chrom.mzML'
+        #self._file_suffix = '_rtnorm.chrom.mzML'
 
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -42,6 +42,7 @@ class ChromatogramExtractor(IWrapper):
         """
         key = 'RTNORM_CHROM_MZML' #self._file_type.upper()
         infile = info['MZMLGZ']
+        self._file_suffix = info['OUTSUFFIX']
         self.outfile = infile.replace("mzML.gz",self._file_suffix)
         info[key] = self.outfile
         prefix,info = self.get_prefix(info,log)
@@ -65,6 +66,7 @@ class ChromatogramExtractor(IWrapper):
         args_handler.add_app_args(log, 'IRTTRAML', 'Path to the TraML file.')
         args_handler.add_app_args(log, 'MZMLGZ', 'Path to the gzipped mzML files.')
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', '')
+        args_handler.add_app_args(log, 'OUTSUFFIX', 'file ending of chrom files produced')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):

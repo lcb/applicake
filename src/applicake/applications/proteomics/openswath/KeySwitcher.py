@@ -4,11 +4,7 @@ Created on Aug 14, 2012
 @author: blum, wolski
 '''
 
-import os
 from applicake.framework.interfaces import IApplication
-from applicake.framework.templatehandler import BasicTemplateHandler
-from applicake.utils.fileutils import FileUtils
-from applicake.utils.xmlutils import XmlValidator
 
 class KeySwitcher(IApplication):
     '''
@@ -33,12 +29,19 @@ class KeySwitcher(IApplication):
         - If there is a result file, it is added with a specific key to the info object.
         """
         traml = info["TRAML"]
-        info["TRAML"] = info["TRAMLIRT"]
-        info["TRAMLIRT"] = traml
+        info["TRAML"] = info["IRTTRAML"]
+        info["IRTTRAML"] = traml
+        
+        outsuffix = info["OUTSUFFIX"]
+        info["OUTSUFFIX"] = info["IRTOUTSUFFIX"]
+        info["IRTOUTSUFFIX"] = outsuffix
+        
         return 0,info
 
     def set_args(self,log,args_handler):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, 'TRAML', '.') 
-        args_handler.add_app_args(log, 'TRAMLIRT', 'merged chrom.mzml file') 
+        args_handler.add_app_args(log, 'IRTTRAML', 'merged chrom.mzml file') 
+        args_handler.add_app_args(log, 'OUTSUFFIX', '.') 
+        args_handler.add_app_args(log, 'IRTOUTSUFFIX', 'merged chrom.mzml file') 
         
