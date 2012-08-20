@@ -24,11 +24,12 @@ class SwathGenerator(Generator):
         """ % (self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE)
         
         # prepare a basedic to produced input files for inner workflow
-        files = os.listdir(info["MZMLGZ"])
+        files = os.listdir(info["MZMLGZDIR"])
         mzmlgzfiles = []
         for file in files:
             if str(file).endswith("mzML.gz"):
-                mzmlgzfiles.append(file)
+                mzmlgzfiles.append(os.path.join(info["MZMLGZDIR"],file))
+        
         log.debug('create work copy of "info"')   
         basedic = info.copy()        
         #check if value DATASE_CODE is defined as list
@@ -40,9 +41,9 @@ class SwathGenerator(Generator):
             except:
                 log.debug('work copy did not have key [%s]' % key)            
 
-        
         # prepare first the product of a parameter combinations
-        escape_keys = ["MZMLGZ"]
+        basedic["MZMLGZ"] = mzmlgzfiles
+        escape_keys = [] #escape keys are NOT iterated!
         param_dicts = DictUtils.get_product_dicts(basedic, log, escape_keys,idx_key=self.PARAM_IDX)
         # write ini files
         self.write_files(info,log,param_dicts)
@@ -53,4 +54,6 @@ class SwathGenerator(Generator):
         See interface
         """        
         args_handler.add_app_args(log, "MZMLGZ", 'Files which are created by this application', action='append')       
-        return args_handler       
+        args_handler.add_app_args(log, "GENERATORS", 'Basename of generated inis', action='append')       
+        
+        return args_handler
