@@ -61,10 +61,10 @@ class FileMerger(IWrapper):
             return run_code,info
     #out_stream.seek(0)
     #err_stream.seek(0)
-        if not FileUtils.is_valid_file(log, self._outchrom):
-            log.critical('[%s] is not valid' %self._outchrom)
+        if not FileUtils.is_valid_file(log, self._result_file):
+            log.critical('[%s] is not valid'  %self._result_file)
             return 1,info
-        if not XmlValidator.is_wellformed(self._outchrom):
-            log.critical('[%s] is not well formed.'%self._outchrom)
+        if not XmlValidator.is_wellformed( self._result_file):
+            log.critical('[%s] is not well formed.'% self._result_file)
             return 1,info    
         return 0,info
