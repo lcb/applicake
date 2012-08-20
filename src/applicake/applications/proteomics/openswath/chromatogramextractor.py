@@ -42,8 +42,8 @@ class ChromatogramExtractor(IWrapper):
         """
         key = 'RTNORM_CHROM_MZML' #self._file_type.upper()
         infile = info['MZMLGZ']
-        outfile = infile.replace("mzML.gz",self._file_suffix)
-        info[key] = outfile
+        self.outfile = infile.replace("mzML.gz",self._file_suffix)
+        info[key] = self.outfile
         prefix,info = self.get_prefix(info,log)
         command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
                                                                                               info['MZMLGZ'],
@@ -75,10 +75,10 @@ class ChromatogramExtractor(IWrapper):
             return run_code,info
     #out_stream.seek(0)
     #err_stream.seek(0)
-        if not FileUtils.is_valid_file(log, self._result_file):
-            log.critical('[%s] is not valid' %self._result_file)
+        if not FileUtils.is_valid_file(log, self.outfile):
+            log.critical('[%s] is not valid' %self.outfile)
             return 1,info
-        if not XmlValidator.is_wellformed(self._result_file):
-            log.critical('[%s] is not well formed.' % self._result_file)
+        if not XmlValidator.is_wellformed(self.outfile):
+            log.critical('[%s] is not well formed.' % self.outfile)
             return 1,info    
         return 0,info
