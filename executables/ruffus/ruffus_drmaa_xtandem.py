@@ -43,7 +43,7 @@ WORKFLOW = ruffus_drmaa_xtandem
 """ )
  
  
-specifications = '-q pub.1h'        
+specifications = '-q pub.8h -R'        
 
 @follows(setup)
 @split("input.ini", "generate.ini_*")
