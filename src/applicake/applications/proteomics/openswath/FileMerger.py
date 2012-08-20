@@ -17,7 +17,7 @@ class FileMerger(IWrapper):
     _template_file = ''
     _result_file = 'FileMerger.rtnorm.chrom.mzML'
     _default_prefix = 'FileMerger'
-
+    _outchrom = "OUTCHROMMZML"
 
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -36,10 +36,8 @@ class FileMerger(IWrapper):
         wd = info['RTNORM_CHROM_MZML']
         wd = os.path.dirname(wd)
         infiles = os.path.join(wd, "*._rtnorm.chrom.mzML")
-        
-     
         self._result_file = os.path.join(wd,self._result_file)
-        info["OUTCHROMMZML"] = self._result_file
+        info[self._outchrom] = self._result_file
         prefix,info = self.get_prefix(info,log)
         command = '%s -in %s -out %s' % (prefix, infiles, info['OUTCHROMMZML'])
         return command,info
@@ -63,10 +61,10 @@ class FileMerger(IWrapper):
             return run_code,info
     #out_stream.seek(0)
     #err_stream.seek(0)
-        if not FileUtils.is_valid_file(log, info['OUTCHROMMZML']):
-            log.critical('[%s] is not valid' %info['OUTCHROMMZML'])
+        if not FileUtils.is_valid_file(log, self._outchrom):
+            log.critical('[%s] is not valid' %self._outchrom)
             return 1,info
-        if not XmlValidator.is_wellformed(info['OUTCHROMMZML']):
-            log.critical('[%s] is not well formed.' %info['OUTCHROMMZML'])
+        if not XmlValidator.is_wellformed(self._outchrom):
+            log.critical('[%s] is not well formed.'%self._outchrom)
             return 1,info    
         return 0,info

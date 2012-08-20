@@ -61,7 +61,7 @@ MIN_COVERAGE = 0.6
 """
 )       
         
-@follows(setup)
+#@follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini']
