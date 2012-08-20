@@ -66,9 +66,9 @@ def setup():
     with open("input.ini", 'w+') as f:
         f.write("""BASEDIR = /cluster/home/biol/wwolski/imsb/ruffus
 LOG_LEVEL = DEBUG
-STORAGE = file
+STORAGE = memmory_all
 THREADS = 8
-MZMLGZ = /cluster/scratch/malars/openswath/data/AQUA_fixed_water/split_napedro_L120224_001_SW-400AQUA_no_background_2ul_dilution_10
+MZMLGZDIR = /cluster/scratch/malars/openswath/data/AQUA_fixed_water/split_napedro_L120224_001_SW-400AQUA_no_background_2ul_dilution_10
 CHROMEXTRACTOR1.TRAML = "/cluster/scratch/malars/openswath/assays/iRT/DIA_iRT.TraML"
 CHROMEXTRACTOR2.TRAML = "/cluster/scratch/malars/openswath/assays/AQUA/AQUA4_sh.TraML"
 MIN_UPPER_EDGE_DIST = 1
