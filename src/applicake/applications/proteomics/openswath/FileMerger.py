@@ -33,11 +33,10 @@ class FileMerger(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        wd = info['CHROM_MZML']
+        wd = info['RTNORM_CHROM_MZML']
         wd = os.path.dirname(wd)
         wd = wd + "*._rtnorm.chrom.mzML"
         
-        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
         info["TRAFOXML"] = self._result_file
         prefix,info = self.get_prefix(info,log)
@@ -51,7 +50,7 @@ class FileMerger(IWrapper):
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
-        args_handler.add_app_args(log, 'CHROM_MZML', 'chrom.mzml files to merge.') 
+        args_handler.add_app_args(log, 'RTNORM_CHROM_MZML', 'chrom.mzml files to merge.') 
         
         return args_handler
 

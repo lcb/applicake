@@ -16,7 +16,6 @@ class ChromatogramExtractor(IWrapper):
     '''
 
     _template_file = ''
-    _result_file = ''
     _default_prefix = 'ChromatogramExtractor'
 
     def __init__(self):
@@ -25,7 +24,7 @@ class ChromatogramExtractor(IWrapper):
         """
         base = self.__class__.__name__
         self._template_file = '%s.tpl' % base # application specific config file
-        self._result_file = '%s.chrom.mzML' % base # result produced by the application
+        self._file_suffix = '_rtnorm.chrom.mzML'
 
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -41,18 +40,17 @@ class ChromatogramExtractor(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        key = 'CHROM_MZML' #self._file_type.upper()
-        wd = info[self.WORKDIR]
-        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._result_file = os.path.join(wd,self._result_file)
-        info[key] = self._result_file
+        key = 'RTNORM_CHROM_MZML' #self._file_type.upper()
+        infile = info['MZMLGZ']
+        outfile = infile.replace("mzML.gz",self._file_suffix)
+        info[key] = outfile
         prefix,info = self.get_prefix(info,log)
         command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
                                                                                               info['MZMLGZ'],
-                                                                                              info['TRAML'],
+                                                                                              info['IRTTRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
                                                                                               info['THREADS'],
-                                                                                              self._result_file)
+                                                                                              outfile)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -64,7 +62,7 @@ class ChromatogramExtractor(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.') 
-        args_handler.add_app_args(log, 'TRAML', 'Path to the TraML file.')
+        args_handler.add_app_args(log, 'IRTTRAML', 'Path to the TraML file.')
         args_handler.add_app_args(log, 'MZMLGZ', 'Path to the gzipped mzML files.')
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', '')
         return args_handler
