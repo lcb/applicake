@@ -50,7 +50,7 @@ class ChromatogramExtractor(IWrapper):
                                                                                               info['IRTTRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
                                                                                               info['THREADS'],
-                                                                                              outfile)
+                                                                                              self.outfile)
         return command,info
 
     def set_args(self,log,args_handler):
