@@ -52,7 +52,7 @@ def setup():
 LOG_LEVEL = DEBUG
 STORAGE = memory_all
 THREADS = 8
-MZMLGZDIR = /cluster/scratch/malars/loblum/openswathtest/datasets
+MZMLGZDIR = /cluster/scratch/malars/loblum/openswathtest/datasets/
 IRTTRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/DIA_iRT.TraML"
 TRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/AQUA4_sh_new.TraML"
 MIN_UPPER_EDGE_DIST = 1

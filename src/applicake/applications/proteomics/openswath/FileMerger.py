@@ -35,12 +35,13 @@ class FileMerger(IWrapper):
         """
         wd = info['RTNORM_CHROM_MZML']
         wd = os.path.dirname(wd)
-        wd = wd + "*._rtnorm.chrom.mzML"
+        infiles = os.path.join(wd, "*._rtnorm.chrom.mzML")
         
+     
         self._result_file = os.path.join(wd,self._result_file)
-        info["TRAFOXML"] = self._result_file
+        info["OUTCHROMMZML"] = self._result_file
         prefix,info = self.get_prefix(info,log)
-        command = '%s -in %s -out %s' % (prefix, wd, info['TRAFOXML'])
+        command = '%s -in %s -out %s' % (prefix, infiles, info['OUTCHROMMZML'])
         return command,info
 
     def set_args(self,log,args_handler):
