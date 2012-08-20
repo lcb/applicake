@@ -1,7 +1,7 @@
 '''
 Created on Aug 17, 2012
 
-@author: lorenz
+@author: lorenz,quandtan
 
 ADD TO .bashrc
 module load drmaa
@@ -24,9 +24,9 @@ class DrmaaSubmitter(object):
         
     def run(self,specifications,executable,commandarray=[]):
         jt = self._session.createJobTemplate()
-        jt.nativeSpecification = specifications
         jt.remoteCommand = executable
         jt.args = commandarray
+        jt.nativeSpecification = specifications        
         
         print 'Running ' + executable
         jobid = self._session.runJob(jt)
