@@ -10,7 +10,7 @@ export PYTHONPATH=/cluster/apps/imsbtools/stable/pythonlibs/python-drmaa:$PYTHON
 
 import drmaa
 
-class DrmaaWrapper(object):
+class DrmaaSubmitter(object):
     _session = None
     
     def __init__(self):
@@ -18,8 +18,9 @@ class DrmaaWrapper(object):
         self._session = drmaa.Session()
         self._session.initialize()
         
-    def run(self,executable,commandarray=[]):
+    def run(self,specifications,executable,commandarray=[]):
         jt = self._session.createJobTemplate()
+        jt.nativeSpecifications(specifications)
         jt.remoteCommand = executable
         jt.args = commandarray
         

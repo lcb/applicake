@@ -15,7 +15,7 @@ from subprocess import PIPE
 from applicake.framework.runner import IniFileRunner
 from applicake.framework.runner import CollectorRunner
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.openbis.generator import DatasetcodeGenerator
+from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.os.echo import Echo
 from applicake.applications.commons.collector import GuseCollector
 

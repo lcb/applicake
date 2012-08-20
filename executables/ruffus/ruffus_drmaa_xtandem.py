@@ -2,12 +2,12 @@
 '''
 Created on Aug 17, 2012
 
-@author: blum
+@author: blum, quandtan
 '''
 
 import subprocess
 from ruffus import *
-from applicake.utils.drmaawrapper import DrmaaWrapper
+from applicake.utils.drmaautils import DrmaaSubmitter
 
     
 def setup():
@@ -41,39 +41,41 @@ PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 WORKFLOW = ruffus_drmaa_xtandem
 """ )
-        
+ 
+ 
+specifications = "-q pub.1h"        
 
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    wrapper.run('run_guse_generator.py',['-i', input_file_name, '--GENERATORS', 'generate.ini'])
+    submitter.run(specifications,'run_guse_generator.py',['-i', input_file_name, '--GENERATORS', 'generate.ini'])
     
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):   
-    wrapper.run('run_dss.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'getmsdata'])
+    submitter.run(specifications,'run_dss.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'getmsdata'])
 
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-    wrapper.run('run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe'])
+    submitter.run(specifications,'run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe'])
 
 @transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
-    wrapper.run('run_tandem2xml.py', ['-i',  input_file_name,'-o', output_file_name])  
+    submitter.run(specifications,'run_tandem2xml.py', ['-i',  input_file_name,'-o', output_file_name])  
 
 @transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract.ini_")
 def xinteract(input_file_name, output_file_name):
-    wrapper.run('run_xinteract.py', ['-i',  input_file_name,'-o', output_file_name])  
+    submitter.run(specifications,'run_xinteract.py', ['-i',  input_file_name,'-o', output_file_name])  
 
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    wrapper.run('run_guse_collector.py', ['--COLLECTORS', 'xinteract.ini' ,'-o', output_file_name])    
+    submitter.run(specifications,'run_guse_collector.py', ['--COLLECTORS', 'xinteract.ini' ,'-o', output_file_name])    
 
 @follows(collector)
 def unifier():
-    wrapper.run('run_unify.py', ['-i', 'collector.ini','-o', 'unifier.ini' , '--UNIFIER_REDUCE'])  
+    submitter.run(specifications,'run_unify.py', ['-i', 'collector.ini','-o', 'unifier.ini' , '--UNIFIER_REDUCE'])  
 
         
 ### MAIN ###
-wrapper = DrmaaWrapper()
+submitter = DrmaaSubmitter()
 pipeline_run([unifier], multiprocess=5)
