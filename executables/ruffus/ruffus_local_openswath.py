@@ -53,14 +53,13 @@ LOG_LEVEL = DEBUG
 STORAGE = memory_all
 THREADS = 8
 MZMLGZDIR = /cluster/scratch/malars/loblum/openswathtest/datasets/
-IRTTRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/DIA_iRT.TraML"
-TRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/AQUA4_sh_new.TraML"
+TRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/DIA_iRT.TraML"
+IRTTRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/AQUA4_sh_new.TraML"
 MIN_UPPER_EDGE_DIST = 1
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
-OUTSUFFIX=.chrom.mzML
-IRTOUTSUFFIX=_rtnorm.chrom.mzML
-
+OUTSUFFIX=_rtnorm.chrom.mzML
+IRTOUTSUFFIX=.chrom.mzML
 """
 )       
         
