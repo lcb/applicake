@@ -26,6 +26,7 @@ class DrmaaSubmitter(object):
         jt = self._session.createJobTemplate()
         jt.remoteCommand = executable
         jt.args = commandarray
+        jt.jobCategory = 'default' 
         jt.nativeSpecification = specifications        
         
         print 'Running ' + executable
