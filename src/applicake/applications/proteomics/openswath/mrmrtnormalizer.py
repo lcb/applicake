@@ -38,7 +38,7 @@ class MRMRTNormalizer(IWrapper):
         See interface.
 
         - Define path to result file (depending on work directory)
-    - If a template is used, the template is read variables from the info object are used to set concretes.
+        - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
         key = 'TRAFOXML' #self._file_type.upper()

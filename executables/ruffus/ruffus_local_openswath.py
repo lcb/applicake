@@ -2,10 +2,8 @@
 '''
 Created on Jul 11, 2012
 
-@author: quandtan
+@author: wolski, blum
 '''
-
-
 
 import os
 import sys
@@ -13,15 +11,19 @@ import subprocess
 
 from ruffus import *
 
-from applicake.framework.runner import IniFileRunner2, ApplicationRunner, CollectorRunner, WrapperRunner, IniFileRunner
 from applicake.framework.interfaces import IApplication, IWrapper
+
+from applicake.framework.runner import ApplicationRunner, CollectorRunner, WrapperRunner, IniFileRunner, IniFileRunner2
+
 from applicake.applications.proteomics.openswath.chromatogramextractor import ChromatogramExtractor
 from applicake.applications.proteomics.openswath.mrmrtnormalizer import MRMRTNormalizer
 from applicake.applications.proteomics.openswath.mrmanalyzer import MRMAnalyzer
 from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
 from applicake.applications.proteomics.openswath.FileMerger import FileMerger
-from applicake.applications.proteomics.openswath.KeySwitcher import KeySwitcher
 from applicake.applications.proteomics.openswath.SwathGenerator import SwathGenerator
+from applicake.applications.proteomics.openswath.KeyExtract import KeyExtract
+from applicake.applications.commons.collector import GuseCollector
+from applicake.applications.commons.inifile import Unifier
 
 cwd = None
 
@@ -50,67 +52,78 @@ def setup():
     with open("input.ini", 'w+') as f:
         f.write("""BASEDIR = /cluster/scratch/malars/loblum/openswathtest/workflows
 LOG_LEVEL = DEBUG
-STORAGE = memory_all
+STORAGE = file
 THREADS = 8
-MZMLGZDIR = /cluster/scratch/malars/loblum/openswathtest/datasets/
-TRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/DIA_iRT.TraML"
-IRTTRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/AQUA4_sh_new.TraML"
+MZMLGZDIR = /cluster/scratch/malars/loblum/openswathtest/datasets3/
+LIBTRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/AQUA4_sh_new.TraML"
+IRTTRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/DIA_iRT.TraML"
 MIN_UPPER_EDGE_DIST = 1
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
-OUTSUFFIX=_rtnorm.chrom.mzML
-IRTOUTSUFFIX=.chrom.mzML
+IRTOUTSUFFIX = _rtnorm.chrom.mzML
+LIBOUTSUFFIX = .chrom.mzML
 """
 )       
         
 @follows(setup)
-@split("input.ini", "generate.ini_*")
+@split("input.ini", "generate*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini', '--GENERATORSIRT', 'generateirt.ini']
     runner = IniFileRunner()
     application = SwathGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 
+   
+################## iRT BRANCH #################################
 
+@transform(generator, regex("generateirt.ini_"), "chromatogramextractorirt.ini_")
+def chromatogramExtractorIRT(input_file_name, output_file_name):
+    wrap(ChromatogramExtractor, input_file_name, output_file_name,['-n','ChromatogramExtractoriRT']) 
 
-@transform(generator, regex("generate.ini_"), "chromatogramextractor.ini_")
-def chromatogramextractor(input_file_name, output_file_name):
-    wrap(ChromatogramExtractor, input_file_name, output_file_name) 
-
-
-@follows(chromatogramextractor)
+@merge(chromatogramExtractorIRT,'collector.ini')
+def collector(notused_input_file_names, output_file_name):
+    argv = ['', '--COLLECTORS', 'chromatogramextractorirt.ini', '-o', output_file_name,'-s','file']
+    runner = CollectorRunner()
+    application = GuseCollector()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("collector failed [%s]" % exit_code)
+    
+@follows(collector)
+def unifier():
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','-s','file']
+    runner = IniFileRunner2()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier failed [%s]" % exit_code)  
+    
+@follows(unifier)
 def filemerger():
-    wrap(FileMerger, 'chromatogramextractor.ini_0', 'filemerger.ini')
+    wrap(FileMerger, 'unifier.ini', 'filemerger.ini')
     
 @follows(filemerger)
 def mrmrtnormalizer():
-    wrap(MRMRTNormalizer, 'filemerger.ini', 'mrmrtnormalizer.ini', ['-p'])
+    wrap(MRMRTNormalizer, 'filemerger.ini', 'mrmrtnormalizer.ini')
 
-@follows(mrmrtnormalizer)
-def keyswitcher():
-    wrap(KeySwitcher, "mrmrtnormalizer.ini", "keyswitcher.ini")
+################## AQUA BRANCH, REQUIRES IRT IN KEYEXTRAT#####################
+  
+@transform(generator, regex("generate.ini_"), "cromatogramextractor.ini_")
+def chromatogramExtractor(input_file_name, output_file_name):
+    wrap(ChromatogramExtractor, input_file_name, output_file_name) 
 
-@follows(keyswitcher)
-@split("input.ini", "generate2.ini_*")
-def generator2(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
-    runner = IniFileRunner()
-    application = SwathGenerator()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("generator failed [%s]" % exit_code) 
+@transform([chromatogramExtractor,mrmrtnormalizer], regex("cromatogramextractor.ini_"), "keyextract.ini_")
+def keyextract(input_file_name, output_file_name):
+    wrap(KeyExtract, input_file_name, output_file_name, ['--KEYFILE','mrmrtnormalizer.ini','--KEYSTOEXTRACT','TRAFOXML','-p']) 
 
-@transform(generator2, regex("generate2.ini_"), "chromatogramextractor2.ini_")
-def chromatogramextractor2(input_file_name, output_file_name):
-    wrap(ChromatogramExtractor, input_file_name, output_file_name, ['-p']) 
-
-@transform(chromatogramextractor2, regex("chromatogramextractor2.ini_"), "mrmanalyzer.ini_")
-def mrmanalyzer(input_file_name, output_file_name):
-    wrap(MRMAnalyzer, input_file_name, output_file_name, ['-p']) 
+@transform([keyextract,], regex("keyextract.ini_"), "mrmanalyzer.ini_")
+def mrmanalyzer(input_file_name, output_file_name):  
+    wrap(MRMAnalyzer, input_file_name, output_file_name) 
 
 @transform(mrmanalyzer,regex("mrmanalyzer.ini_"), "featurexml2tsv.ini_")
 def featurexmltotsv(input_file_name, output_file_name):
-    wrap(FeatureXMLToTSV, input_file_name, output_file_name, ['-p']) 
+    wrap(FeatureXMLToTSV, input_file_name, output_file_name,['-p']) 
 
-pipeline_run([featurexmltotsv], multiprocess=4)
+    
+pipeline_run([featurexmltotsv],multiprocess=15,verbose=2)

@@ -40,10 +40,12 @@ class ChromatogramExtractor(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        key = 'RTNORM_CHROM_MZML' #self._file_type.upper()
-        infile = info['MZMLGZ']
+        key = 'CHROM_MZML' #self._file_type.upper()
+        outfolder = info[self.WORKDIR]
         self._file_suffix = info['OUTSUFFIX']
-        self.outfile = infile.replace("mzML.gz",self._file_suffix)
+        outfilename = os.path.basename(info['MZMLGZ'])
+        outfilename = outfilename.replace(".mzML.gz",self._file_suffix)
+        self.outfile = os.path.join(outfolder,outfilename)
         info[key] = self.outfile
         prefix,info = self.get_prefix(info,log)
         command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,

@@ -43,10 +43,25 @@ class SwathGenerator(Generator):
 
         # prepare first the product of a parameter combinations
         basedic["MZMLGZ"] = mzmlgzfiles
+        basedic["PARAM_IDX"] = 0
         escape_keys = [] #escape keys are NOT iterated!
-        param_dicts = DictUtils.get_product_dicts(basedic, log, escape_keys,idx_key=self.PARAM_IDX)
+    
+        #first the 'normal' FILES
+        basedic["TRAML"] = basedic["LIBTRAML"]
+        basedic["OUTSUFFIX"] = basedic["LIBOUTSUFFIX"]
+        param_dicts = DictUtils.get_product_dicts(basedic, log, escape_keys,idx_key=self.FILE_IDX)
         # write ini files
         self.write_files(info,log,param_dicts)
+    
+        #second the iRT files
+        basedic["TRAML"] = basedic["IRTTRAML"]
+        basedic["OUTSUFFIX"] = basedic["IRTOUTSUFFIX"]
+        basedic["GENERATORS"] = basedic["GENERATORSIRT"]
+
+        param_dicts = DictUtils.get_product_dicts(basedic, log, escape_keys,idx_key=self.FILE_IDX)
+        # write ini files
+        self.write_files(info,log,param_dicts)
+    
         return (0,info)   
     
     def set_args(self,log,args_handler):
@@ -55,5 +70,9 @@ class SwathGenerator(Generator):
         """        
         args_handler.add_app_args(log, "MZMLGZ", 'Files which are created by this application', action='append')       
         args_handler.add_app_args(log, "GENERATORS", 'Basename of generated inis', action='append')       
-        
+        args_handler.add_app_args(log, "GENERATORSIRT", 'Basename of generated inis FOR IRT', action='append')       
+        args_handler.add_app_args(log, "TRAML", 'Traml used by chromextract ', action='append')       
+        args_handler.add_app_args(log, "IRTTRAML", 'Traml used by chromextractIRT', action='append') 
+        args_handler.add_app_args(log, "OUTSUFFIX", 'Suffix used by chromextract', action='append') 
+        args_handler.add_app_args(log, "IRTOUTSUFFIX", 'Suffix used by chromextractIRT', action='append')         
         return args_handler
