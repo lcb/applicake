@@ -115,7 +115,7 @@ def chromatogramExtractor(input_file_name, output_file_name):
 
 @transform([chromatogramExtractor,mrmrtnormalizer], regex("cromatogramextractor.ini_"), "keyextract.ini_")
 def keyextract(input_file_name, output_file_name):
-    wrap(KeyExtract, input_file_name, output_file_name, ['--KEYFILE','mrmrtnormalizer.ini','--KEYSTOEXTRACT','TRAFOXML','-p']) 
+    wrap(KeyExtract, input_file_name, output_file_name, ['--KEYFILE','mrmrtnormalizer.ini','--KEYSTOEXTRACT','TRAFOXML']) 
 
 @transform([keyextract,], regex("keyextract.ini_"), "mrmanalyzer.ini_")
 def mrmanalyzer(input_file_name, output_file_name):  
