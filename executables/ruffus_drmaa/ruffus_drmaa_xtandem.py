@@ -71,7 +71,7 @@ def refreshparser(input_file_name, output_file_name):
 def peptideprophet(input_file_name, output_file_name):
     submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
     
-@merge(xinteract, "collector.ini")
+@merge(peptideprophet, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
     submitter.run('run_guse_collector.py', ['--COLLECTORS', 'xinteract.ini' ,'-o', output_file_name],lsfargs)    
 
