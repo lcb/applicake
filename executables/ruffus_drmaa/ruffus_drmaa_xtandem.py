@@ -33,7 +33,6 @@ ENZYME = Trypsin
 STATIC_MODS = Carbamidomethyl (C)
 THREADS = 4
 XTANDEM_SCORE = k-score
-XINTERACT_ARGS = -dDECOY_ -OAPdlIw
 IPROPHET_ARGS = MINPROB=0
 FDR=0.01
 SPACE = LOBLUM
@@ -41,41 +40,47 @@ PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 WORKFLOW = ruffus_drmaa_xtandem
 """ )
- 
- 
-specifications = '-q vip.1h -R nas'        
 
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    submitter.run(specifications,'run_guse_generator.py',['-i', input_file_name, '--GENERATORS', 'generate.ini'])
+    submitter.run('run_guse_generator.py',['-i', input_file_name, '--GENERATORS', 'generate.ini'],lsfargs)
     
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):   
-    submitter.run(specifications,'run_dss.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'getmsdata'])
+    submitter.run('run_dss.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'getmsdata'],lsfargs)
 
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-    submitter.run(specifications,'run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe'])
+    submitter.run('run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe'],lsfargs)
 
 @transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
-    submitter.run(specifications,'run_tandem2xml.py', ['-i',  input_file_name,'-o', output_file_name])  
+    submitter.run('run_tandem2xml.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)  
 
-@transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract.ini_")
-def xinteract(input_file_name, output_file_name):
-    submitter.run(specifications,'run_xinteract.py', ['-i',  input_file_name,'-o', output_file_name])  
+@transform(tandem2xml, regex("xtandem2xml.ini_"), "interactparser.ini_")
+def interactparser(input_file_name, output_file_name):
+    submitter.run('run_interactparser.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
 
+@transform(interactparser, regex("interactparser.ini_"), "refreshparser.ini_")
+def refreshparser(input_file_name, output_file_name):
+    submitter.run('run_refreshparser.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
+
+@transform(refreshparser, regex("refreshparser.ini_"), "peptideprophet.ini_")
+def peptideprophet(input_file_name, output_file_name):
+    submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
+    
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    submitter.run(specifications,'run_guse_collector.py', ['--COLLECTORS', 'xinteract.ini' ,'-o', output_file_name])    
+    submitter.run('run_guse_collector.py', ['--COLLECTORS', 'xinteract.ini' ,'-o', output_file_name],lsfargs)    
 
 @follows(collector)
 def unifier():
-    submitter.run(specifications,'run_unify.py', ['-i', 'collector.ini','-o', 'unifier.ini' , '--UNIFIER_REDUCE'])  
+    submitter.run('run_unify.py', ['-i', 'collector.ini','-o', 'unifier.ini' , '--UNIFIER_REDUCE'],lsfargs)  
 
         
 ### MAIN ###
+lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
 pipeline_run([unifier], multiprocess=5)

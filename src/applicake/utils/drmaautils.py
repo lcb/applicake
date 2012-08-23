@@ -24,7 +24,7 @@ class DrmaaSubmitter(object):
         print 'Supported DRMAA implementations: ' + str(self._session.drmaaImplementation)         
         self._session.initialize()
         
-    def run(self,lsfargs='',executable,commandarray=[]):
+    def run(self,executable,commandarray=[],lsfargs='',wdir='.'):
         #job template is kind of job container
         jt = self._session.createJobTemplate()
         jt.remoteCommand = executable
@@ -34,9 +34,9 @@ class DrmaaSubmitter(object):
         #force separate stdout stderr
         jt.joinFiles = False  
         #DRMAA spec requires ':' in path to separate optional host from filename
-        (handle,opath) = tempfile.mkstemp(prefix='drmaa',suffix='.out',dir='.')
+        (handle,opath) = tempfile.mkstemp(prefix='drmaa',suffix='.out',dir=wdir)
         jt.outputPath = ":" + opath
-        (handle,epath) = tempfile.mkstemp(prefix='drmaa',suffix='.err',dir='.')
+        (handle,epath) = tempfile.mkstemp(prefix='drmaa',suffix='.err',dir=wdir)
         jt.errorPath = ":" + epath
         
         print 'Running job ' + executable

@@ -4,7 +4,6 @@ Created on Jun 25, 2012
 @author: loblum
 '''
 
-import shutil
 import os
 from applicake.applications.proteomics.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
@@ -27,7 +26,13 @@ class InteractParser(SearchEngine):
         base = self.__class__.__name__
         self._template_file = '%s.tpl' % base # application specific config file
         self._result_file = '%s.pep.xml' % base # result produced by the application
-            
+    
+    def get_template_handler(self):
+        """
+        See interface
+        """
+        return InteractParserTemplate()
+    
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
             info[self.PREFIX] = self._default_prefix
@@ -43,7 +48,7 @@ class InteractParser(SearchEngine):
         wd = info[self.WORKDIR]
         self._template_file = os.path.join(wd,self._template_file)
         info['TEMPLATE'] = self._template_file
-        mod_template,info = InteractParserTemplate().modify_template(info, log)
+        mod_template,info = self.get_template_handler().modify_template(info, log)
         
         #output comes instead of input
         self._result_file = os.path.join(wd,self._result_file)
@@ -86,7 +91,7 @@ class InteractParserTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """-L7 -E$ENZYME -C -P 
+        template = """-L7 -E$ENZYME -C
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
