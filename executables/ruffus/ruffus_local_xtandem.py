@@ -21,6 +21,11 @@ from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
 from applicake.applications.proteomics.tpp.xinteract import Xinteract
 from applicake.applications.proteomics.tpp.interprophet import InterProphet
+
+from applicake.applications.proteomics.tpp.interactparser import InteractParser
+from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
+from applicake.applications.proteomics.tpp.peptideprophet import PeptideProphet
+
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 from applicake.applications.proteomics.openms.peptideproteinprocessing.falsediscoveryrate import FalseDiscoveryRate
 from applicake.applications.proteomics.openms.peptideproteinprocessing.peptideindexer import PeptideIndexer
@@ -78,7 +83,7 @@ def setup():
 #    execute('rm jobid.txt') 
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/home/biol/quandtan/test/workflows
+        f.write("""BASEDIR = /cluster/scratch/malars/workflows
 LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
@@ -101,7 +106,7 @@ FDR=0.01
 SPACE = QUANDTAN
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
-WORKFLOW=ruffus_local_xtandem
+WORKFLOW= ruffus_local_xtandem
 """ 
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
@@ -134,11 +139,19 @@ def tandem2xml(input_file_name, output_file_name):
     wrap(Tandem2Xml,input_file_name, output_file_name)  
 
 @transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract.ini_")
-def xinteract(input_file_name, output_file_name):
-    wrap(Xinteract,input_file_name, output_file_name)   
+def interactparser(input_file_name, output_file_name):
+    wrap(InteractParser,input_file_name, output_file_name)   
+
+@transform(interactparser, regex("xtandem2xml.ini_"), "xinteract.ini_")
+def refreshparser(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name) 
+
+@transform(refreshparser, regex("xtandem2xml.ini_"), "xinteract.ini_")
+def peptideprophet(input_file_name, output_file_name):
+    wrap(PeptideProphet,input_file_name, output_file_name) 
 
     
-@merge(xinteract, "collector.ini")
+@merge(peptideprophet, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
     argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file','-p']
     runner = CollectorRunner()
@@ -194,84 +207,5 @@ def copy2dropbox():
     if exit_code != 0:
         raise Exception("copy2dropbox [%s]" % exit_code)  
 
-##@follows()
-##def ():
-##    wrap(,'','') 
-##    @follows()
-##def ():
-##    wrap(,'','') 
-##    @follows()
-##def ():
-##    wrap(,'','')     
-#
-#
-#@transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
-#def pepxml2idxml(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = PepXml2IdXml()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('pepxml2idxml',exit_code)) 
-#
-#@transform(pepxml2idxml,regex('pepxml2idxml.ini'),'peptideindexer.ini')
-#def peptideindexer(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = PeptideIndexer()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('peptideindexer',exit_code))
-#
-#@transform(peptideindexer,regex('peptideindexer.ini'),'fdr.ini')
-#def fdr(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = FalseDiscoveryRate()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('fdr',exit_code)) 
-#    
-#@transform(fdr,regex('fdr.ini'),'idfilter.ini')
-#def idfilter(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = IdFilter()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('idfilter',exit_code)) 
-#    
-#@transform(idfilter,regex('idfilter.ini'),'mzxml2mzml.ini')
-#def mzxml2mzml(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-#    application = Mzxml2Mzml()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('mzxml2mzml',exit_code)) 
-#
-#@transform(mzxml2mzml,regex('mzxml2mzml.ini'),'peakpickerhighres.ini')
-#def peakpickerhighres(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name,'--SIGNAL_TO_NOISE','1']
-#    runner = WrapperRunner()
-#    application = PeakPickerHighRes()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('peakpickerhighres',exit_code)) 
-#         
-#@transform(peakpickerhighres,regex('peakpickerhighres.ini'),'featurefindercentroided.ini')
-#def featurefindercentroided(input_file_name, output_file_name):
-#    argv = ['', '-i', input_file_name, '-o', output_file_name]
-#    runner = WrapperRunner()
-##    application = FeatureFinderCentroided()
-#    application = OrbiLessStrict()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
-         
-
-#pipeline_run([featurefindercentroided])
 
 pipeline_run([copy2dropbox])
-
-#pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
