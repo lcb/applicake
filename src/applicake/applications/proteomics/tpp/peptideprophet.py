@@ -6,6 +6,7 @@ Created on Jun 18, 2012
 
 import os
 import sys
+import shutil
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
@@ -35,24 +36,24 @@ class PeptideProphet(IWrapper):
         return info[self.PREFIX],info
 
     def prepare_run(self,info,log):
-        #input
+        #original to copy
         if len(info['PEPXMLS']) >1:
             log.fatal('found > 1 pepxml files [%s].' % info['PEPXMLS'])
             sys.exit(1)
-        pepxml =  info['PEPXMLS'][0]
-        
-        #output
+        copyxml =  info['PEPXMLS'][0]
+        #target path
         wd = info[self.WORKDIR]
         self._result_file = os.path.join(wd,self._result_file)
-        
-        #template       
+        shutil.copy(copyxml, self._result_file)
         info['PEPXMLS'] = [self._result_file]
+                
+        #template       
         self._template_file = os.path.join(wd,self._template_file)
         info['TEMPLATE'] = self._template_file
         mod_template,info = PeptideProphetTemplate().modify_template(info, log)
          
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s %s' % (prefix,pepxml,mod_template)
+        command = '%s %s %s' % (prefix,self._result_file,mod_template)
         return command,info
 
     def set_args(self,log,args_handler):
