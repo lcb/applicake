@@ -9,6 +9,8 @@ export PYTHONPATH=/cluster/apps/imsbtools/stable/pythonlibs/python-drmaa:$PYTHON
 '''
 
 import drmaa
+import tempfile
+import os
 
 class DrmaaSubmitter(object):
     _session = None
@@ -22,21 +24,47 @@ class DrmaaSubmitter(object):
         print 'Supported DRMAA implementations: ' + str(self._session.drmaaImplementation)         
         self._session.initialize()
         
-    def run(self,specifications,executable,commandarray=[]):
+    def run(self,lsfargs='',executable,commandarray=[]):
+        #job template is kind of job container
         jt = self._session.createJobTemplate()
         jt.remoteCommand = executable
         jt.args = commandarray
-#        jt.jobCategory = 'default' 
-        jt.nativeSpecification = specifications        
+        #lsfargs is a string to define LSF options (queue, lustre...)
+        jt.nativeSpecification = lsfargs
+        #force separate stdout stderr
+        jt.joinFiles = False  
+        #DRMAA spec requires ':' in path to separate optional host from filename
+        (handle,opath) = tempfile.mkstemp(prefix='drmaa',suffix='.out',dir='.')
+        jt.outputPath = ":" + opath
+        (handle,epath) = tempfile.mkstemp(prefix='drmaa',suffix='.err',dir='.')
+        jt.errorPath = ":" + epath
         
-        print 'Running ' + executable
+        print 'Running job ' + executable
         jobid = self._session.runJob(jt)
-        retval = self._session.wait(jobid, drmaa.Session.TIMEOUT_WAIT_FOREVER)
-        retcode = retval.exitStatus
+        jobinfo = self._session.wait(jobid, drmaa.Session.TIMEOUT_WAIT_FOREVER)
         self._session.deleteJobTemplate(jt)
-        print 'Finished ' + executable + ' ' + jobid 
         
-        return retcode
+        exitStatus = int(jobinfo.exitStatus)
+        if jobinfo.hasExited:
+            if exitStatus == 0:
+                print "Job ran and finished sucessfully"
+            else:
+                print "Job ran but failed with exitcode %d" % exitStatus
+        else:
+            if jobinfo.hasSignal:
+                print "Job aborted with signal " + str(jobinfo.terminatedSignal) 
+            else:
+                print "Job aborted manually"
+
+        print "===stdout was==="
+        print open(opath, "r").read()
+        os.remove(opath)
+        print "===stderr was==="
+        print open(epath, "r").read()
+        os.remove(epath)
+        
+        return exitStatus
+    
     
     def __del__(self):
         print 'Stopping drmaa session'
