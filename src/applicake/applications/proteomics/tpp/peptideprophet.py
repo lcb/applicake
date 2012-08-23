@@ -46,7 +46,7 @@ class PeptideProphet(IWrapper):
         self._result_file = os.path.join(wd,self._result_file)
         
         #template       
-        info['PROTXML'] = self._result_file
+        info['PEPXMLS'] = [self._result_file]
         self._template_file = os.path.join(wd,self._template_file)
         info['TEMPLATE'] = self._template_file
         mod_template,info = PeptideProphetTemplate().modify_template(info, log)
