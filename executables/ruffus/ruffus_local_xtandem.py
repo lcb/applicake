@@ -138,22 +138,22 @@ def tandem(input_file_name, output_file_name):
 def tandem2xml(input_file_name, output_file_name):
     wrap(Tandem2Xml,input_file_name, output_file_name)  
 
-@transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract.ini_")
-def interactparser(input_file_name, output_file_name):
+@transform(tandem2xml, regex("xtandem2xml.ini_"), "interactparser.ini_")
+def interactparser(input_file_name, output_file_name,):
     wrap(InteractParser,input_file_name, output_file_name)   
 
-@transform(interactparser, regex("xtandem2xml.ini_"), "xinteract.ini_")
+@transform(interactparser, regex("interactparser.ini_"), "refreshparser.ini_")
 def refreshparser(input_file_name, output_file_name):
     wrap(RefreshParser,input_file_name, output_file_name) 
 
-@transform(refreshparser, regex("xtandem2xml.ini_"), "xinteract.ini_")
+@transform(refreshparser, regex("refreshparser.ini_"), "peptideprophet.ini_")
 def peptideprophet(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name) 
 
     
 @merge(peptideprophet, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file','-p']
+    argv = ['', '--COLLECTORS', 'peptideprophet.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -163,7 +163,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
     runner = IniFileRunner2()
     application = Unifier()
     exit_code = runner(argv, application)
@@ -172,7 +172,7 @@ def unifier():
 
 @follows(unifier)
 def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini',['-p'])    
+    wrap(InterProphet,'unifier.ini','interprophet.ini')    
 
 @follows(interprophet)
 def pepxml2csv():
@@ -208,4 +208,4 @@ def copy2dropbox():
         raise Exception("copy2dropbox [%s]" % exit_code)  
 
 
-pipeline_run([copy2dropbox])
+pipeline_run([copy2dropbox],multiprocess=2)

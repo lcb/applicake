@@ -4,10 +4,12 @@ Created on Jun 25, 2012
 @author: loblum
 '''
 
+import shutil
 import os
 from applicake.applications.proteomics.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
-import shutil
+from applicake.utils.fileutils import FileUtils
+from applicake.utils.xmlutils import XmlValidator
 
 class InteractParser(SearchEngine):
     '''
@@ -69,10 +71,12 @@ class InteractParser(SearchEngine):
         """
         See super class.
         """
-        if 0 != run_code:
-            return run_code,info
-    #out_stream.seek(0)
-    #err_stream.seek(0)
+        if not FileUtils.is_valid_file(log, self._result_file):
+            log.critical('[%s] is not valid' %self._result_file)
+            return 1,info
+        if not XmlValidator.is_wellformed(self._result_file):
+            log.critical('[%s] is not well formed.' % self._result_file)
+            return 1,info             
         return 0,info
 
 

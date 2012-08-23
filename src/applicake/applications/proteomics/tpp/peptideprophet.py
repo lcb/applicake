@@ -72,21 +72,7 @@ class PeptideProphet(IWrapper):
     def validate_run(self,info,log, run_code,out_stream, err_stream):
         """
         See super class.
-        """
-        #err_stream.seek(0)
-        out_stream.seek(0)
-        stdout = out_stream.read()
-        msg = 'No xml file specified; please use the -file option'
-        if msg in stdout:
-                log.debug('ProteinProphet ignore [%s] of protxml2html' % msg)               
-        for msg in ['did not find any InterProphet results in input data!',
-                    'no data - quitting',
-                    'WARNING: No database referenced']:
-            if msg in stdout:
-                log.error('ProteinProphet error [%s]' % msg)
-                return 1,info
-            else:
-                log.debug('ProteinProphet: passed check [%s]' % msg)
+        """        
         if not FileUtils.is_valid_file(log, self._result_file):
             log.critical('[%s] is not valid' %self._result_file)
             return 1,info
