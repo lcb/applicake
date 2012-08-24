@@ -42,8 +42,13 @@ class DrmaaSubmitter(object):
         jobid = self._session.runJob(jt)
         jobinfo = self._session.wait(jobid, drmaa.Session.TIMEOUT_WAIT_FOREVER)
         self._session.deleteJobTemplate(jt)
-        
         print 'Finished job ' + executable
+        
+#        return (jobinfo,opath,epath)
+#            
+#    def validated_run(self,executable,commandarray=[],lsfargs='',wdir='.'):
+#        (jobinfo,opath,epath) = self.run(executable, commandarray, lsfargs, wdir)
+        
         print "===stdout was==="
         print open(opath, "r").read()
         os.remove(opath)
@@ -51,17 +56,16 @@ class DrmaaSubmitter(object):
         print open(epath, "r").read()
         os.remove(epath)
         
-        exitStatus = int(jobinfo.exitStatus)
         if jobinfo.hasExited:
-            if exitStatus == 0:
+            if int(jobinfo.exitStatus) == 0:
                 print "Job ran and finished sucessfully"
                 return
         if jobinfo.hasExited:
-                print "Job ran but failed with exitcode %d" % exitStatus
+                print "Job ran but failed with exitcode %d" % jobinfo.exitStatus
                 raise
         else:
             if jobinfo.hasSignal:
-                print "Job aborted with signal " + str(jobinfo.terminatedSignal) 
+                print "Job aborted with signal %s" %  jobinfo.terminatedSignal 
                 raise
             else:
                 print "Job aborted manually"
