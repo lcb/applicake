@@ -95,11 +95,11 @@ def pepxml2csv(input_file_name, output_file_name):
     
 @transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
 def fdr2probability(input_file_name, output_file_name):
-    submitter.run('run_fdr2prop.py',['-i', input_file_name, '-o',output_file_name],lsfargs)           
+    submitter.run('run_fdr2prob.py',['-i', input_file_name, '-o',output_file_name],lsfargs)           
 
 @transform(fdr2probability, regex("fdr2probability.ini_"), "proteinprophet.ini_") 
 def proteinprophet(input_file_name, output_file_name):
-    submitter.run('run_ppropthet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
+    submitter.run('run_pprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
 
 @transform(proteinprophet, regex("proteinprophet.ini_"), "protxml2spectralcount.ini_") 
 def protxml2spectralcount(input_file_name, output_file_name):

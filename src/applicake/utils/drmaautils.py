@@ -61,14 +61,16 @@ class DrmaaSubmitter(object):
         
         return (jobinfo,opath,epath)
     
-    def _run_validate_silent(self,jobinfo,opath,epath):   
+    def _run_validate_silent(self,jobinfo,opath,epath):  
+        """Minimal validation method""" 
         os.remove(opath)  
         os.remove(epath)
         return jobinfo.hasExited and int(jobinfo.exitStatus) == 0
     
     def _run_validate_smart(self,jobinfo,opath,epath):
+        """Smart validation: Silent when successful, verbose when failed
+        """
         if jobinfo.hasExited and int(jobinfo.exitStatus) == 0:
-            print "Job ran and finished sucessfully"
             return True
         #if flow comes here something went wrong!!!    
         if jobinfo.hasExited:

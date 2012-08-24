@@ -7,6 +7,8 @@ Created on Jun 5, 2012
 
 import os
 import sys
+import multiprocessing
+
 from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
@@ -208,4 +210,4 @@ def copy2dropbox():
         raise Exception("copy2dropbox [%s]" % exit_code)  
 
 
-pipeline_run([copy2dropbox],multiprocess=2)
+pipeline_run([copy2dropbox],multiprocess=multiprocessing.cpu_count())
