@@ -22,8 +22,23 @@ class DrmaaSubmitter(object):
         print 'Supported DRM systems: ' + str(self._session.drmsInfo)
         print 'Supported DRMAA implementations: ' + str(self._session.drmaaImplementation)         
         self._session.initialize()
-        
+
     def run(self,executable,commandarray=[],lsfargs='',wdir='.'):
+        (jobinfo,opath,epath) = self._run_core(executable, commandarray, lsfargs, wdir)
+        success = self._run_validate_smart(jobinfo,opath,epath)
+        if not success:
+            raise
+        
+    def __del__(self):
+        print 'Stopping drmaa session'
+        self._session.exit()
+        
+    ##########################################################################
+        
+    def _run_core(self,executable,commandarray,lsfargs,wdir):
+        """
+        Core for job setup, execution and wait. validation outsourced
+        """
         #job template is kind of job container
         jt = self._session.createJobTemplate()
         jt.remoteCommand = executable
@@ -44,33 +59,31 @@ class DrmaaSubmitter(object):
         self._session.deleteJobTemplate(jt)
         print 'Finished job ' + executable
         
-#        return (jobinfo,opath,epath)
-#            
-#    def validated_run(self,executable,commandarray=[],lsfargs='',wdir='.'):
-#        (jobinfo,opath,epath) = self.run(executable, commandarray, lsfargs, wdir)
-        
-        print "===stdout was==="
-        print open(opath, "r").read()
-        os.remove(opath)
-        print "===stderr was==="
-        print open(epath, "r").read()
+        return (jobinfo,opath,epath)
+    
+    def _run_validate_silent(self,jobinfo,opath,epath):   
+        os.remove(opath)  
         os.remove(epath)
-        
-        if jobinfo.hasExited:
-            if int(jobinfo.exitStatus) == 0:
-                print "Job ran and finished sucessfully"
-                return
+        return jobinfo.hasExited and int(jobinfo.exitStatus) == 0
+    
+    def _run_validate_smart(self,jobinfo,opath,epath):
+        if jobinfo.hasExited and int(jobinfo.exitStatus) == 0:
+            print "Job ran and finished sucessfully"
+            return True
+        #if flow comes here something went wrong!!!    
         if jobinfo.hasExited:
                 print "Job ran but failed with exitcode %d" % jobinfo.exitStatus
-                raise
         else:
             if jobinfo.hasSignal:
                 print "Job aborted with signal %s" %  jobinfo.terminatedSignal 
-                raise
             else:
                 print "Job aborted manually"
-                raise  
+          
+        print "---stdout was---"
+        print open(opath, "r").read()
+        os.remove(opath)
+        print "---stderr was---"
+        print open(epath, "r").read()
+        os.remove(epath)
+        return False
     
-    def __del__(self):
-        print 'Stopping drmaa session'
-        self._session.exit()

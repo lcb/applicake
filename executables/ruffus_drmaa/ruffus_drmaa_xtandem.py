@@ -91,31 +91,31 @@ def interprophet(input_file_name, output_file_name):
 
 @transform(interprophet, regex("interprophet.ini_"), "pepxml2csv.ini_")
 def pepxml2csv(input_file_name, output_file_name):
-    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)   
+    submitter.run('run_pep2csv.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
     
 @transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
 def fdr2probability(input_file_name, output_file_name):
-    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)           
+    submitter.run('run_fdr2prop.py',['-i', input_file_name, '-o',output_file_name],lsfargs)           
 
 @transform(fdr2probability, regex("fdr2probability.ini_"), "proteinprophet.ini_") 
 def proteinprophet(input_file_name, output_file_name):
-    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)   
+    submitter.run('run_ppropthet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
 
 @transform(proteinprophet, regex("proteinprophet.ini_"), "protxml2spectralcount.ini_") 
 def protxml2spectralcount(input_file_name, output_file_name):
-    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)   
+    submitter.run('run_protxml2spc.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
 
 @transform(protxml2spectralcount, regex("protxml2spectralcount.ini_"), "protxml2modifications.ini_")
 def protxml2modifications(input_file_name, output_file_name):
-    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)       
+    submitter.run('run_protxml2mod.py',['-i', input_file_name, '-o',output_file_name],lsfargs)       
 
 @transform(protxml2modifications, regex("protxml2modifications.ini_"), "protxml2openbis.ini_")
 def protxml2openbis(input_file_name, output_file_name):
-    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)     
+    submitter.run('run_protxml2openbis.py',['-i', input_file_name, '-o',output_file_name],lsfargs)     
 
 @transform(protxml2openbis, regex("protxml2openbis.ini_"),"copy2dropbox.ini_")
 def copy2dropbox(input_file_name, output_file_name):
-    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)         
+    submitter.run('run_copy2identdropbox.py',['-i', input_file_name, '-o',output_file_name],lsfargs)         
         
 ### MAIN ###
 lsfargs = '-q vip.1h -R lustre' 
