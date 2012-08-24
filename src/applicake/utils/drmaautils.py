@@ -18,8 +18,7 @@ class DrmaaSubmitter(object):
     def __init__(self):       
         print 'Starting up drmaa session'        
         self._session = drmaa.Session()
-        print "Before init:"
-        print 'Supported contact strings: ' + self._session.contact
+        #print 'Supported contact strings: ' + self._session.contact
         print 'Supported DRM systems: ' + str(self._session.drmsInfo)
         print 'Supported DRMAA implementations: ' + str(self._session.drmaaImplementation)         
         self._session.initialize()
@@ -44,18 +43,7 @@ class DrmaaSubmitter(object):
         jobinfo = self._session.wait(jobid, drmaa.Session.TIMEOUT_WAIT_FOREVER)
         self._session.deleteJobTemplate(jt)
         
-        exitStatus = int(jobinfo.exitStatus)
-        if jobinfo.hasExited:
-            if exitStatus == 0:
-                print "Job ran and finished sucessfully"
-            else:
-                print "Job ran but failed with exitcode %d" % exitStatus
-        else:
-            if jobinfo.hasSignal:
-                print "Job aborted with signal " + str(jobinfo.terminatedSignal) 
-            else:
-                print "Job aborted manually"
-
+        print 'Finished job ' + executable
         print "===stdout was==="
         print open(opath, "r").read()
         os.remove(opath)
@@ -63,8 +51,21 @@ class DrmaaSubmitter(object):
         print open(epath, "r").read()
         os.remove(epath)
         
-        return exitStatus
-    
+        exitStatus = int(jobinfo.exitStatus)
+        if jobinfo.hasExited:
+            if exitStatus == 0:
+                print "Job ran and finished sucessfully"
+                return
+        if jobinfo.hasExited:
+                print "Job ran but failed with exitcode %d" % exitStatus
+                raise
+        else:
+            if jobinfo.hasSignal:
+                print "Job aborted with signal " + str(jobinfo.terminatedSignal) 
+                raise
+            else:
+                print "Job aborted manually"
+                raise  
     
     def __del__(self):
         print 'Stopping drmaa session'

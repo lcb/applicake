@@ -55,7 +55,7 @@ class InteractParser(SearchEngine):
         info[key] = [self._result_file]
         
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s %s %s' % (prefix,info[key],origpepxmls,mod_template)
+        command = '%s %s %s %s' % (prefix,self._result_file,origpepxmls,mod_template)
         return command,info  
 
     def set_args(self,log,args_handler):

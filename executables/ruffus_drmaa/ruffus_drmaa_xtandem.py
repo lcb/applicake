@@ -11,7 +11,7 @@ from applicake.utils.drmaautils import DrmaaSubmitter
 
     
 def setup():
-    subprocess.call("rm lsf.* *ini*",shell=True)
+    subprocess.call("rm *ini*",shell=True)
     with open("input.ini", 'w+') as f:
         f.write("""
 BASEDIR = /cluster/scratch/malars/workflows
@@ -73,14 +73,51 @@ def peptideprophet(input_file_name, output_file_name):
     
 @merge(peptideprophet, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    submitter.run('run_guse_collector.py', ['--COLLECTORS', 'xinteract.ini' ,'-o', output_file_name],lsfargs)    
+    submitter.run('run_guse_collector.py', ['--COLLECTORS', 'peptideprophet.ini' ,'-o', output_file_name],lsfargs)    
+
+#@follows(collector)
+#def unifier():
+#    submitter.run('run_unify.py', ['-i', 'collector.ini','-o', 'unifier.ini' , '--UNIFIER_REDUCE'],lsfargs)  
 
 @follows(collector)
-def unifier():
-    submitter.run('run_unify.py', ['-i', 'collector.ini','-o', 'unifier.ini' , '--UNIFIER_REDUCE'],lsfargs)  
+@split("collector.ini", "paramgenerate.ini_*")
+def paramgenerator(input_file_name, notused_output_file_names):
+    submitter.run('run_parameter_generator.py',['-i', input_file_name, '--GENERATORS','paramgenerate.ini'],lsfargs)
 
+@transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
+def interprophet(input_file_name, output_file_name):
+    submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+
+
+@transform(interprophet, regex("interprophet.ini_"), "pepxml2csv.ini_")
+def pepxml2csv(input_file_name, output_file_name):
+    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)   
+    
+@transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
+def fdr2probability(input_file_name, output_file_name):
+    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)           
+
+@transform(fdr2probability, regex("fdr2probability.ini_"), "proteinprophet.ini_") 
+def proteinprophet(input_file_name, output_file_name):
+    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)   
+
+@transform(proteinprophet, regex("proteinprophet.ini_"), "protxml2spectralcount.ini_") 
+def protxml2spectralcount(input_file_name, output_file_name):
+    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)   
+
+@transform(protxml2spectralcount, regex("protxml2spectralcount.ini_"), "protxml2modifications.ini_")
+def protxml2modifications(input_file_name, output_file_name):
+    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)       
+
+@transform(protxml2modifications, regex("protxml2modifications.ini_"), "protxml2openbis.ini_")
+def protxml2openbis(input_file_name, output_file_name):
+    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)     
+
+@transform(protxml2openbis, regex("protxml2openbis.ini_"),"copy2dropbox.ini_")
+def copy2dropbox(input_file_name, output_file_name):
+    submitter.run('',['-i', input_file_name, '-o',output_file_name],lsfargs)         
         
 ### MAIN ###
 lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
-pipeline_run([unifier], multiprocess=5)
+pipeline_run([copy2dropbox], multiprocess=3)
