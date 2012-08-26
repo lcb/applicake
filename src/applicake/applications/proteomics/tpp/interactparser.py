@@ -40,15 +40,18 @@ class InteractParser(SearchEngine):
         return info[self.PREFIX],info
     
     def prepare_run(self,info,log):
-        #input
-        key = 'PEPXMLS'
-        origpepxmls = ' '.join(info['PEPXMLS']) 
-        
         #template
         wd = info[self.WORKDIR]
         self._template_file = os.path.join(wd,self._template_file)
         info['TEMPLATE'] = self._template_file
-        mod_template,info = self.get_template_handler().modify_template(info, log)
+        #don't modify the original info with enzyme, use copy
+        infocopy = info.copy()
+        infocopy = self.define_enzyme(infocopy, log)  
+        mod_template,infocopy = self.get_template_handler().modify_template(infocopy, log)
+        
+        #input file(s)
+        key = 'PEPXMLS'
+        origpepxmls = ' '.join(info['PEPXMLS']) 
         
         #output comes instead of input
         self._result_file = os.path.join(wd,self._result_file)
