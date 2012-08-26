@@ -2,11 +2,13 @@
 '''
 Created on Aug 15, 2012
 
-@author: quandtan
+@author: quandtan, loblum
 '''
 
 import os
 import sys
+import subprocess
+
 from ruffus import *
 from cStringIO import StringIO
 from subprocess import Popen
@@ -42,6 +44,10 @@ from applicake.applications.proteomics.proteowizard.msconvert import Mzxml2Mgf
 from applicake.applications.proteomics.searchengine.omssa import Omssa
 from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
 
+from applicake.applications.proteomics.tpp.interactparser import InteractParser
+from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
+from applicake.applications.proteomics.tpp.peptideprophet import PeptideProphet
+
 cwd = None
 
 
@@ -63,30 +69,15 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
-def execute(command):
-    p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
-    output, error = p.communicate()                                                                                                                                                                            
-    out_stream = StringIO(output)
-    err_stream = StringIO(error) 
-
-
 def setup():
-    cwd = '.'
-    os.chdir(cwd)
-    execute("find . -type d -iname '[0-9]*' -exec rm -rf {} \;")
-    execute('rm *.err')
-    execute('rm *.out')
-    execute('rm *.log')
-    execute('rm *ini*')
-#    execute('rm jobid.txt') 
-    execute('rm flowchart.*')    
+    subprocess.call("rm *ini*",shell=True)    
     with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/home/biol/quandtan/test/workflows
+        f.write("""BASEDIR = /cluster/scratch/malars/workflows
 LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
 DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20120124102254267-296925,20120124121656335-296961
+DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
@@ -96,15 +87,15 @@ PRECMASSUNIT = ppm
 MISSEDCLEAVAGE = 0
 ENZYME = Trypsin
 STATIC_MODS = Carbamidomethyl (C)
+VARIABLE_MODS = Phospho (STY)
 THREADS = 4
 XTANDEM_SCORE = k-score
-XINTERACT_ARGS = -dDECOY_ -OAPdlIw
 IPROPHET_ARGS = MINPROB=0
 FDR=0.01
-SPACE = QUANDTAN
+SPACE = LOBLUM
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
-WORKFLOW=ruffus_local_xtom
+WORKFLOW= ruffus_local_ommyxt tina
 """ 
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
@@ -116,7 +107,7 @@ WORKFLOW=ruffus_local_xtom
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
     runner = IniFileRunner()
     application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
@@ -129,11 +120,11 @@ def dss(input_file_name, output_file_name):
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
 
 
-#########################################################################
+######################### TANDEM #########################################
         
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-    wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe','-s','file','-l','DEBUG'])
+    wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe'])
 
 @transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
@@ -151,7 +142,7 @@ def tandemrefresh(input_file_name, output_file_name):
 def tandemPepPro(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name,['-n','tandemppeppro']) 
 
-##########################################################################
+########################### OMSSA #######################################
 
 
 @transform(dss, regex("dss.ini_"), "myrimatch.ini_")
@@ -170,7 +161,7 @@ def myrirefresh(input_file_name, output_file_name):
 def myriPepPro(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name,['-n','myrippeppro']) 
     
-##########################################################################
+########################### MYRIMATCH ########################################
 
 @transform(dss, regex("dss.ini_"), "msconvert.ini_")
 def msconvert(input_file_name, output_file_name):
@@ -194,7 +185,7 @@ def omssaPepPro(input_file_name, output_file_name):
  
  
  
-#############################################################################   
+############################# TAIL: PARAMGENERATE ##################################   
 
 
 @merge([omssaPepPro,tandemPepPro,myriPepPro], "collector.ini")
@@ -246,7 +237,7 @@ def protxml2openbis(input_file_name, output_file_name):
 
 @transform(protxml2openbis, regex("protxml2openbis.ini_"),"copy2dropbox.ini_")
 def copy2dropbox(input_file_name, output_file_name):
-    argv = ["", "-i", input_file_name, "-o",output_file_name,"-p"]
+    argv = ["", "-i", input_file_name, "-o",output_file_name]
     runner = IniFileRunner()
     application = Copy2IdentDropbox()
     exit_code = runner(argv, application)
@@ -254,6 +245,8 @@ def copy2dropbox(input_file_name, output_file_name):
         raise Exception("copy2dropbox [%s]" % exit_code)  
 
 
-pipeline_run([copy2dropbox], multiprocess = 4)
 
+
+
+pipeline_run([copy2dropbox], multiprocess = 16)
 #pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
