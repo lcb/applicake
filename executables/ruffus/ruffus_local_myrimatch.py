@@ -41,6 +41,10 @@ from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
 
+from applicake.applications.proteomics.tpp.interactparser import InteractParser
+from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
+from applicake.applications.proteomics.tpp.peptideprophet import PeptideProphet
+
 cwd = None
 
 
@@ -127,10 +131,10 @@ def dss(input_file_name, output_file_name):
     
 @transform(dss, regex("dss.ini_"), "myrimatch.ini_")
 def myrimatch(input_file_name, output_file_name):
-    wrap(Myrimatch,input_file_name, output_file_name,['--PREFIX', 'myrimatch','-s','file','-l','DEBUG','-p'])
+    wrap(Myrimatch,input_file_name, output_file_name,['--PREFIX', 'myrimatch'])
 
 
-@transform(tandem2xml, regex("myrimatch.ini_"), "interactparser.ini_")
+@transform(myrimatch, regex("myrimatch.ini_"), "interactparser.ini_")
 def interactparser(input_file_name, output_file_name,):
     wrap(InteractParser,input_file_name, output_file_name)   
 
@@ -142,7 +146,7 @@ def refreshparser(input_file_name, output_file_name):
 def peptideprophet(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name) 
     
-@merge(xinteract, "collector.ini")
+@merge(peptideprophet, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
     argv = ['', '--COLLECTORS', 'peptideprophet.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
