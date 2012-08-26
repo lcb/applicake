@@ -36,7 +36,9 @@ from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
 from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXml2SpectralCount
 from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
 from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
-from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
+
+from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox,\
+    Copy2IdentDropbox
 from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
@@ -99,8 +101,7 @@ PRECMASSUNIT = ppm
 MISSEDCLEAVAGE = 0
 ENZYME = Trypsin
 STATIC_MODS = Carbamidomethyl (C)
-THREADS = 4
-XTANDEM_SCORE = k-score
+THREADS = 5
 IPROPHET_ARGS = MINPROB=0
 FDR=0.01
 SPACE = LOBLUM
@@ -117,7 +118,7 @@ DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
     runner = IniFileRunner()
     application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
@@ -148,7 +149,7 @@ def peptideprophet(input_file_name, output_file_name):
     
 @merge(peptideprophet, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'peptideprophet.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'peptideprophet.ini', '-o', output_file_name]
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -158,7 +159,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','-p','--UNIFIER_REDUCE']
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
     runner = IniFileRunner()
     application = Unifier()
     exit_code = runner(argv, application)
@@ -167,7 +168,7 @@ def unifier():
 
 @follows(unifier)
 def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini')    
+    wrap(InterProphet,'unifier.ini','interprophet.ini',['-s','file'])    
 
 @follows(interprophet)
 def pepxml2csv():
@@ -195,22 +196,14 @@ def protxml2openbis():
 
 @follows(protxml2openbis)
 def copy2dropbox():
-    wrap(Copy2Dropbox,'protxml2openbis.ini','copy2dropbox.ini') 
-
-#@follows()
-#def ():
-#    wrap(,'','') 
-#    @follows()
-#def ():
-#    wrap(,'','') 
-#    @follows()
-#def ():
-#    wrap(,'','')     
-
-
-
-
-pipeline_run([copy2dropbox],multiprocess=4)
+    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini']
+    runner = IniFileRunner()
+    application = Copy2IdentDropbox()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("copy2dropbox [%s]" % exit_code)  
+        
+pipeline_run([copy2dropbox],multiprocess=3)
 #pipeline_run([featurefindercentroided])
 
 

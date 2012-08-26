@@ -127,6 +127,9 @@ def generator(input_file_name, notused_output_file_names):
 @jobs_limit(1)
 def dss(input_file_name, output_file_name):   
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
+
+
+#########################################################################
         
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
@@ -136,17 +139,38 @@ def tandem(input_file_name, output_file_name):
 def tandem2xml(input_file_name, output_file_name):
     wrap(Tandem2Xml,input_file_name, output_file_name)  
 
-@transform(tandem2xml, regex("xtandem2xml.ini_"), "xinteract_xtandem.ini_")
-def xinteract_xtandem(input_file_name, output_file_name):
-    wrap(Xinteract,input_file_name, output_file_name,['-n','xinteract_xtandem'])  
+@transform(tandem2xml, regex("xtandem2xml.ini_"), "tandeminteract.ini_")
+def tandeminteract(input_file_name, output_file_name,):
+    wrap(InteractParser,input_file_name, output_file_name,['-n','tandeminteract'])   
+
+@transform(tandeminteract, regex("tandeminteract.ini_"), "tandemrefresh.ini_")
+def tandemrefresh(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name,['-n','tandemrefresh']) 
+
+@transform(tandemrefresh, regex("tandemrefresh.ini_"), "tandempeppro.ini_")
+def tandemPepPro(input_file_name, output_file_name):
+    wrap(PeptideProphet,input_file_name, output_file_name,['-n','tandemppeppro']) 
+
+##########################################################################
+
 
 @transform(dss, regex("dss.ini_"), "myrimatch.ini_")
 def myrimatch(input_file_name, output_file_name):
     wrap(Myrimatch,input_file_name, output_file_name)
 
-@transform(myrimatch, regex("myrimatch.ini_"), "xinteract_myrimatch.ini_")
-def xinteract_myrimatch(input_file_name, output_file_name):
-    wrap(Xinteract,input_file_name, output_file_name,['-n','xinteract_myrimatch']) 
+@transform(myrimatch, regex("myrimatch.ini_"), "myriinteract.ini_")
+def myriinteract(input_file_name, output_file_name,):
+    wrap(InteractParser,input_file_name, output_file_name,['-n','myriinteract'])   
+
+@transform(myriinteract, regex("myriinteract.ini_"), "myrirefresh.ini_")
+def myrirefresh(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh']) 
+
+@transform(myrirefresh, regex("myrirefresh.ini_"), "myripeppro.ini_")
+def myriPepPro(input_file_name, output_file_name):
+    wrap(PeptideProphet,input_file_name, output_file_name,['-n','myrippeppro']) 
+    
+##########################################################################
 
 @transform(dss, regex("dss.ini_"), "msconvert.ini_")
 def msconvert(input_file_name, output_file_name):
@@ -156,13 +180,26 @@ def msconvert(input_file_name, output_file_name):
 def omssa(input_file_name, output_file_name):
     wrap(Omssa,input_file_name, output_file_name)
 
-@transform(omssa, regex("omssa.ini_"), "xinteract_omssa.ini_")
-def xinteract_omssa(input_file_name, output_file_name):
-    wrap(Xinteract,input_file_name, output_file_name,['-n','xinteract_omssa'])       
-    
-@merge([xinteract_xtandem,xinteract_myrimatch,xinteract_omssa], "collector.ini")
+@transform(omssa, regex("omssa.ini_"), "omssainteract.ini_")
+def omssainteract(input_file_name, output_file_name,):
+    wrap(InteractParser,input_file_name, output_file_name,['-n','omssainteract'])   
+
+@transform(omssainteract, regex("omssainteract.ini_"), "omssarefresh.ini_")
+def omssarefresh(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name,['-n','omssarefresh']) 
+
+@transform(omssarefresh, regex("omssarefresh.ini_"), "omssapeppro.ini_")
+def omssaPepPro(input_file_name, output_file_name):
+    wrap(PeptideProphet,input_file_name, output_file_name,['-n','omssappeppro'])  
+ 
+ 
+ 
+#############################################################################   
+
+
+@merge([omssaPepPro,tandemPepPro,myriPepPro], "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'xinteract_xtandem.ini','--COLLECTORS', 'xinteract_myrimatch.ini','--COLLECTORS', 'xinteract_omssa.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'omssapeppro.ini','--COLLECTORS', 'tandempeppro.ini','--COLLECTORS', 'myripeppro.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
