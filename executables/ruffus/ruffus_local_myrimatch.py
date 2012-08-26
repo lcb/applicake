@@ -85,7 +85,7 @@ LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
 DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20120124102254267-296925,
+DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
@@ -97,10 +97,9 @@ ENZYME = Trypsin
 STATIC_MODS = Carbamidomethyl (C)
 THREADS = 4
 XTANDEM_SCORE = k-score
-XINTERACT_ARGS = -dDECOY_ -OAPdlIw
 IPROPHET_ARGS = MINPROB=0
 FDR=0.01
-SPACE = QUANDTAN
+SPACE = LOBLUM
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 """ 
@@ -131,14 +130,21 @@ def myrimatch(input_file_name, output_file_name):
     wrap(Myrimatch,input_file_name, output_file_name,['--PREFIX', 'myrimatch','-s','file','-l','DEBUG','-p'])
 
 
-@transform(myrimatch, regex("myrimatch.ini_"), "xinteract.ini_")
-def xinteract(input_file_name, output_file_name):
-    wrap(Xinteract,input_file_name, output_file_name)   
+@transform(tandem2xml, regex("myrimatch.ini_"), "interactparser.ini_")
+def interactparser(input_file_name, output_file_name,):
+    wrap(InteractParser,input_file_name, output_file_name)   
 
+@transform(interactparser, regex("interactparser.ini_"), "refreshparser.ini_")
+def refreshparser(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name) 
+
+@transform(refreshparser, regex("refreshparser.ini_"), "peptideprophet.ini_")
+def peptideprophet(input_file_name, output_file_name):
+    wrap(PeptideProphet,input_file_name, output_file_name) 
     
 @merge(xinteract, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'peptideprophet.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -200,7 +206,7 @@ def copy2dropbox():
 
 
 
-pipeline_run([copy2dropbox])
+pipeline_run([copy2dropbox],multiprocess=4)
 #pipeline_run([featurefindercentroided])
 
 
