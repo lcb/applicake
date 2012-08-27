@@ -1,7 +1,7 @@
 '''
 Created on Jun 25, 2012
 
-@author: loblum
+@author: loblum,quandtan
 '''
 
 import os
@@ -86,6 +86,18 @@ class InteractParser(SearchEngine):
             log.critical('[%s] is not well formed.' % self._result_file)
             return 1,info             
         return 0,info
+    
+
+class InteractParserOMSSA(InteractParser):
+    """
+    InteractParser specific for the search engine OMSSA
+    """
+    
+    def get_template_handler(self):
+        """
+        See super class
+        """
+        return InteractParserOMSSATemplate()    
 
 
 class InteractParserTemplate(BasicTemplateHandler):
@@ -97,4 +109,17 @@ class InteractParserTemplate(BasicTemplateHandler):
         template = """-L7 -E$ENZYME -C
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
+        return template,info
+
+
+class InteractParserOMSSATemplate(BasicTemplateHandler):
+    """
+    Template for InteractParser to specifically parse results from OMSSA
+    """
+    def read_template(self, info, log):
+        """
+        See super class.
+        """            
+        template = """-L7 -E$ENZYME -C -P 
+"""
         return template,info
