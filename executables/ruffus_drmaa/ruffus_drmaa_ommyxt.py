@@ -54,7 +54,8 @@ FDR=0.01
 SPACE = LOBLUM
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
-WORKFLOW= ruffus_local_ommyxt tina
+WORKFLOW= ruffus_drmaa_ommyxt
+COMMENT = ruffus_drmaa_ommyxt tinasset
 """)       
         
 
