@@ -10,7 +10,6 @@ export PYTHONPATH=/cluster/apps/imsbtools/stable/pythonlibs/python-drmaa:$PYTHON
 
 import drmaa
 import tempfile
-import os
 
 class DrmaaSubmitter(object):
     _session = None
@@ -24,8 +23,10 @@ class DrmaaSubmitter(object):
         self._session.initialize()
 
     def run(self,executable,commandarray=[],lsfargs='',wdir='.'):
-        (jobinfo,opath,epath) = self._run_core(executable, commandarray, lsfargs, wdir)
-        success = self._run_validate_smart(jobinfo,opath,epath)
+        opath = self._prepare_outfile('.out', wdir)
+        epath = self._prepare_outfile('.err', wdir)
+        jobinfo = self._runjob(executable, commandarray, lsfargs, opath, epath)
+        success = self._validate(jobinfo,opath,epath)
         if not success:
             raise
         
@@ -34,8 +35,12 @@ class DrmaaSubmitter(object):
         self._session.exit()
         
     ##########################################################################
-        
-    def _run_core(self,executable,commandarray,lsfargs,wdir):
+    
+    def _prepare_outfile(self,sfx,wdir):
+        (handle,path) = tempfile.mkstemp(prefix='drmaa',suffix=sfx,dir=wdir)
+        return path
+    
+    def _runjob(self,executable,commandarray,lsfargs,opath,epath):
         """
         Core for job setup, execution and wait. validation outsourced
         """
@@ -48,10 +53,8 @@ class DrmaaSubmitter(object):
         #force separate stdout stderr
         jt.joinFiles = False  
         #DRMAA spec requires ':' in path to separate optional host from filename
-        (handle,opath) = tempfile.mkstemp(prefix='drmaa',suffix='.out',dir=wdir)
-        jt.outputPath = ":" + opath
-        (handle,epath) = tempfile.mkstemp(prefix='drmaa',suffix='.err',dir=wdir)
-        jt.errorPath = ":" + epath
+        jt.outputPath = ':' + opath
+        jt.errorPath = ':' + epath
         
         print 'Running job ' + executable
         jobid = self._session.runJob(jt)
@@ -59,22 +62,18 @@ class DrmaaSubmitter(object):
         self._session.deleteJobTemplate(jt)
         print 'Finished job ' + executable
         
-        return (jobinfo,opath,epath)
+        return jobinfo
     
-    def _run_validate_silent(self,jobinfo,opath,epath):  
-        """Minimal validation method""" 
-        os.remove(opath)  
-        os.remove(epath)
-        return jobinfo.hasExited and int(jobinfo.exitStatus) == 0
-    
-    def _run_validate_smart(self,jobinfo,opath,epath):
-        """Smart validation: Silent when successful, verbose when failed
-        """
-        if jobinfo.hasExited and int(jobinfo.exitStatus) == 0:
-            return True
-        #if flow comes here something went wrong!!!    
-        if jobinfo.hasExited:
-                print "Job ran but failed with exitcode %d" % jobinfo.exitStatus
+    def _validate(self,jobinfo,opath,epath):
+        success = False
+        if jobinfo.hasExited: 
+            if int(jobinfo.exitStatus) == 0:
+                print "Job finished sucessfully"
+                success = True
+                #TRICK: if sucessful no debug output
+                return True
+            else:
+                print "Job ran but failed with exitcode %d" % int(jobinfo.exitStatus)
         else:
             if jobinfo.hasSignal:
                 print "Job aborted with signal %s" %  jobinfo.terminatedSignal 
@@ -83,9 +82,8 @@ class DrmaaSubmitter(object):
           
         print "---stdout was---"
         print open(opath, "r").read()
-        os.remove(opath)
         print "---stderr was---"
         print open(epath, "r").read()
-        os.remove(epath)
-        return False
+        
+        return success
     
