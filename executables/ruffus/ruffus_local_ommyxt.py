@@ -213,13 +213,13 @@ def unifyEngines(input_file_name, output_file_name):
     if exit_code != 0:
         raise Exception("unifier failed [%s]" % exit_code)  
 
-@transform(mergeEngines, regex("unifyengines.ini_"), "interprophetengines.ini_")
-def interprophetengines():
+@transform(unifyEngines, regex("unifyengines.ini_"), "interprophetengines.ini_")
+def interprophetengines(input_file_name, output_file_name):
     wrap(InterProphet,input_file_name, output_file_name)
     
 ############################# TAIL: PARAMGENERATE ##################################   
 
-@merge(mergeEngines, "collector.ini")
+@merge(interprophetengines, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
     argv = ['', '--COLLECTORS', 'interprophetengines.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
