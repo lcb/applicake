@@ -73,23 +73,23 @@ def dss(input_file_name, output_file_name):
         
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-    wrap(Xtandem,input_file_name, output_file_name,['--PREFIX', 'tandem.exe'])
+   submitter.run('run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe'],lsfargs)
 
 @transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
-    submitter.run('run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe'],lsfargs)
+    submitter.run('run_tandem2xml.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)  
 
 @transform(tandem2xml, regex("xtandem2xml.ini_"), "tandeminteract.ini_")
 def tandeminteract(input_file_name, output_file_name,):
-    submitter.run('run_tandem2xml.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandeminteract'],lsfargs)  
+     submitter.run('run_interactparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandeminteract'],lsfargs)
 
 @transform(tandeminteract, regex("tandeminteract.ini_"), "tandemrefresh.ini_")
 def tandemrefresh(input_file_name, output_file_name):
-    submitter.run('run_interactparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandemrefresh'],lsfargs)
+   submitter.run('run_refreshparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandemrefresh'],lsfargs)
 
 @transform(tandemrefresh, regex("tandemrefresh.ini_"), "tandempeppro.ini_")
 def tandemPepPro(input_file_name, output_file_name):
-    submitter.run('run_refreshparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandempeppro'],lsfargs)
+    submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandempeppro'],lsfargs)
 
 ########################### OMSSA #######################################
 
