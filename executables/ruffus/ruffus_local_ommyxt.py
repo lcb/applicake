@@ -104,7 +104,7 @@ WORKFLOW= ruffus_local_ommyxt tina
 )       
         
 
-@follows(setup)
+#@follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
@@ -153,7 +153,7 @@ def myrimatch(input_file_name, output_file_name):
 def myrirefresh(input_file_name, output_file_name):
     wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh']) 
 
-@transform(myrirefresh, regex("myrimatch.ini_"), "myriinteract.ini_")
+@transform(myrirefresh, regex("myrirefresh.ini_"), "myriinteract.ini_")
 def myriinteract(input_file_name, output_file_name,):
     wrap(InteractParser,input_file_name, output_file_name,['-n','myriinteract'])   
 
@@ -161,7 +161,7 @@ def myriinteract(input_file_name, output_file_name,):
 def myrirefresh2(input_file_name, output_file_name):
     wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh2']) 
 
-@transform(myrirefresh2, regex("myrirefresh.ini_"), "myripeppro.ini_")
+@transform(myrirefresh2, regex("myrirefresh2.ini_"), "myripeppro.ini_")
 def myriPepPro(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name,['-n','myrippeppro']) 
     
@@ -196,7 +196,7 @@ def mergeEngines(input_file_names, output_file_name):
         argv.append('--COLLECTORS')
         argv.append(f)
     argv.append('-o')
-    argv.append(output_file)
+    argv.append(output_file_name)
     
     runner = CollectorRunner()
     application = GuseCollector()
@@ -221,7 +221,7 @@ def interprophetengines():
 
 @merge(mergeEngines, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'omssapeppro.ini','--COLLECTORS', 'tandempeppro.ini','--COLLECTORS', 'myripeppro.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'interprophetengines.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
