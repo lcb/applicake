@@ -96,8 +96,16 @@ class BasicCollector(IApplication):
         """
         
         raise NotImplementedError("get_collector_pattern() is not implemented.")  
-    
 
+    
+class SimpleCollector(BasicCollector):
+    """
+    Does not extend anything
+    """
+    def get_collector_pattern(self, filename):
+        return "%s" % filename
+
+    
 class GuseCollector(BasicCollector):
     """
     Basic collector for the gUSE workflow manager

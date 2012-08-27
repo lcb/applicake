@@ -2,53 +2,12 @@
 '''
 Created on Aug 15, 2012
 
-@author: quandtan, loblum
+@author: loblum
 '''
 
-import os
-import sys
 import subprocess
-
 from ruffus import *
-from cStringIO import StringIO
-from subprocess import Popen
-from subprocess import PIPE
-from applicake.framework.runner import IniFileRunner2, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
-from applicake.applications.commons.generator import DatasetcodeGenerator,\
-    ParametersetGenerator
-from applicake.applications.os.echo import Echo
-from applicake.applications.commons.collector import GuseCollector, SimpleCollector
-from applicake.applications.proteomics.searchengine.xtandem import Xtandem
-from applicake.applications.proteomics.openbis.dss import Dss
-from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
-from applicake.applications.proteomics.tpp.xinteract import Xinteract
-from applicake.applications.proteomics.tpp.interprophet import InterProphet
-from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
-from applicake.applications.proteomics.openms.peptideproteinprocessing.falsediscoveryrate import FalseDiscoveryRate
-from applicake.applications.proteomics.openms.peptideproteinprocessing.peptideindexer import PeptideIndexer
-from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
-from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mzml
-from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
-from applicake.applications.proteomics.openms.quantification.featurefindercentroided import OrbiLessStrict
-from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
-from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
-from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
-from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXml2SpectralCount
-from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
-from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
-from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox,\
-    Copy2IdentDropbox
-from applicake.applications.commons.inifile import Unifier
-from applicake.framework.interfaces import IApplication, IWrapper
-from applicake.applications.proteomics.proteowizard.msconvert import Mzxml2Mgf
-from applicake.applications.proteomics.searchengine.omssa import Omssa
-from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
-
-from applicake.applications.proteomics.tpp.interactparser import InteractParser
-from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
-from applicake.applications.proteomics.tpp.peptideprophet import PeptideProphet
-
-cwd = None
+from applicake.utils.drmaautils import DrmaaSubmitter
 
 
 #helper function
@@ -96,29 +55,18 @@ SPACE = LOBLUM
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 WORKFLOW= ruffus_local_ommyxt tina
-""" 
-#,20120603165413998-510432,
-# 20120606045538225-517638 -> b10-01219.p.mzxml
-# 20120603160111752-510155 -> b10-01219.c.mzxml 
-# 20120124102254267-296925,20120124121656335-296961 -> orbi silac hela from petri
-)       
+""")       
         
 
-#@follows(setup)
+@follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
-    runner = IniFileRunner()
-    application = DatasetcodeGenerator()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("generator failed [%s]" % exit_code) 
+    submitter.run('run_guse_generator.py',['-i', input_file_name, '--GENERATORS', 'generate.ini'],lsfargs)
+    
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
-@jobs_limit(1)
 def dss(input_file_name, output_file_name):   
-    wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
-
+    submitter.run('run_dss.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'getmsdata'],lsfargs)
 
 ######################### TANDEM #########################################
         
@@ -128,19 +76,19 @@ def tandem(input_file_name, output_file_name):
 
 @transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
-    wrap(Tandem2Xml,input_file_name, output_file_name)  
+    submitter.run('run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe'],lsfargs)
 
 @transform(tandem2xml, regex("xtandem2xml.ini_"), "tandeminteract.ini_")
 def tandeminteract(input_file_name, output_file_name,):
-    wrap(InteractParser,input_file_name, output_file_name,['-n','tandeminteract'])   
+    submitter.run('run_tandem2xml.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)  
 
 @transform(tandeminteract, regex("tandeminteract.ini_"), "tandemrefresh.ini_")
 def tandemrefresh(input_file_name, output_file_name):
-    wrap(RefreshParser,input_file_name, output_file_name,['-n','tandemrefresh']) 
+    submitter.run('run_interactparser.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
 
 @transform(tandemrefresh, regex("tandemrefresh.ini_"), "tandempeppro.ini_")
 def tandemPepPro(input_file_name, output_file_name):
-    wrap(PeptideProphet,input_file_name, output_file_name,['-n','tandemppeppro']) 
+    submitter.run('run_refreshparser.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
 
 ########################### OMSSA #######################################
 
@@ -153,7 +101,7 @@ def myrimatch(input_file_name, output_file_name):
 def myrirefresh(input_file_name, output_file_name):
     wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh']) 
 
-@transform(myrirefresh, regex("myrirefresh.ini_"), "myriinteract.ini_")
+@transform(myrirefresh, regex("myrimatch.ini_"), "myriinteract.ini_")
 def myriinteract(input_file_name, output_file_name,):
     wrap(InteractParser,input_file_name, output_file_name,['-n','myriinteract'])   
 
@@ -161,7 +109,7 @@ def myriinteract(input_file_name, output_file_name,):
 def myrirefresh2(input_file_name, output_file_name):
     wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh2']) 
 
-@transform(myrirefresh2, regex("myrirefresh2.ini_"), "myripeppro.ini_")
+@transform(myrirefresh2, regex("myrirefresh.ini_"), "myripeppro.ini_")
 def myriPepPro(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name,['-n','myrippeppro']) 
     
@@ -196,10 +144,10 @@ def mergeEngines(input_file_names, output_file_name):
         argv.append('--COLLECTORS')
         argv.append(f)
     argv.append('-o')
-    argv.append(output_file_name)
+    argv.append(output_file)
     
     runner = CollectorRunner()
-    application = SimpleCollector()
+    application = GuseCollector()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("collector failed [%s]" % exit_code) 
@@ -221,12 +169,8 @@ def interprophetengines():
 
 @merge(mergeEngines, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'interprophetengines.ini', '-o', output_file_name,'-s','file']
-    runner = CollectorRunner()
-    application = GuseCollector()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
+    submitter.run('run_guse_collector.py', ['--COLLECTORS', 'peptideprophet.ini' ,'-o', output_file_name],lsfargs)    
+    
 
 @follows(collector)
 @split("collector.ini", "paramgenerate.ini_*")
