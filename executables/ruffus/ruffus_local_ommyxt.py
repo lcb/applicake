@@ -231,7 +231,7 @@ def collector(notused_input_file_names, output_file_name):
 @follows(collector)
 @split("collector.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-s','file']
     runner = IniFileRunner()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
@@ -274,9 +274,6 @@ def copy2dropbox(input_file_name, output_file_name):
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("copy2dropbox [%s]" % exit_code)  
-
-
-
 
 
 pipeline_run([copy2dropbox], multiprocess = 16)
