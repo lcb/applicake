@@ -28,7 +28,7 @@ class DrmaaSubmitter(object):
         jobinfo = self._runjob(executable, commandarray, lsfargs, opath, epath)
         success = self._validate(jobinfo,opath,epath)
         if not success:
-            raise
+            raise Exception('DRMAA job failed')
         
     def __del__(self):
         print 'Stopping drmaa session'
