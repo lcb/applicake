@@ -149,15 +149,19 @@ def tandemPepPro(input_file_name, output_file_name):
 def myrimatch(input_file_name, output_file_name):
     wrap(Myrimatch,input_file_name, output_file_name)
 
-@transform(myrimatch, regex("myrimatch.ini_"), "myriinteract.ini_")
-def myriinteract(input_file_name, output_file_name,):
-    wrap(InteractParser,input_file_name, output_file_name,['-n','myriinteract'])   
-
-@transform(myriinteract, regex("myriinteract.ini_"), "myrirefresh.ini_")
+@transform(myrimatch, regex("myrimatch.ini_"), "myrirefresh.ini_")
 def myrirefresh(input_file_name, output_file_name):
     wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh']) 
 
-@transform(myrirefresh, regex("myrirefresh.ini_"), "myripeppro.ini_")
+@transform(myrirefresh, regex("myrimatch.ini_"), "myriinteract.ini_")
+def myriinteract(input_file_name, output_file_name,):
+    wrap(InteractParser,input_file_name, output_file_name,['-n','myriinteract'])   
+
+@transform(myriinteract, regex("myriinteract.ini_"), "myrirefresh2.ini_")
+def myrirefresh2(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh2']) 
+
+@transform(myrirefresh2, regex("myrirefresh.ini_"), "myripeppro.ini_")
 def myriPepPro(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name,['-n','myrippeppro']) 
     
@@ -172,7 +176,7 @@ def omssa(input_file_name, output_file_name):
     wrap(Omssa,input_file_name, output_file_name)
 
 @transform(omssa, regex("omssa.ini_"), "omssainteract.ini_")
-def omssainteract(input_file_name, output_file_name,):
+def omssainteract(input_file_name, output_file_name):
     wrap(InteractParser,input_file_name, output_file_name,['-n','omssainteract'])   
 
 @transform(omssainteract, regex("omssainteract.ini_"), "omssarefresh.ini_")
@@ -183,12 +187,39 @@ def omssarefresh(input_file_name, output_file_name):
 def omssaPepPro(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name,['-n','omssappeppro'])  
  
- 
- 
+############################# MERGE SEARCH ENGINE RESULTS ##################################   
+
+@collate([omssaPepPro,tandemPepPro,myriPepPro],regex(r".*_(.+)$"),  r'mergeengines.ini_\1')
+def mergeEngines(input_file_names, output_file_name):
+    argv = ['']
+    for f in input_file_names:
+        argv.append('--COLLECTORS')
+        argv.append(f)
+    argv.append('-o')
+    argv.append(output_file)
+    
+    runner = CollectorRunner()
+    application = GuseCollector()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("collector failed [%s]" % exit_code) 
+
+@transform(mergeEngines, regex("mergeengines.ini_"), "unifyengines.ini_")
+def unifyEngines(input_file_name, output_file_name):
+    argv = ['', '-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE']
+    runner = IniFileRunner()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier failed [%s]" % exit_code)  
+
+@transform(mergeEngines, regex("unifyengines.ini_"), "interprophetengines.ini_")
+def interprophetengines():
+    wrap(InterProphet,input_file_name, output_file_name)
+    
 ############################# TAIL: PARAMGENERATE ##################################   
 
-
-@merge([omssaPepPro,tandemPepPro,myriPepPro], "collector.ini")
+@merge(mergeEngines, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
     argv = ['', '--COLLECTORS', 'omssapeppro.ini','--COLLECTORS', 'tandempeppro.ini','--COLLECTORS', 'myripeppro.ini', '-o', output_file_name,'-s','file']
     runner = CollectorRunner()
