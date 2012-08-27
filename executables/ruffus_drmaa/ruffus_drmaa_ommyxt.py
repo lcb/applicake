@@ -4,32 +4,12 @@ Created on Aug 15, 2012
 
 @author: loblum
 '''
-
 import subprocess
 from ruffus import *
 from applicake.utils.drmaautils import DrmaaSubmitter
 
-
-#helper function
-def wrap(applic,  input_file_name, output_file_name,opts=None):
-    argv = ['', '-i', input_file_name, '-o', output_file_name]
-    if opts is not None:
-        argv.extend(opts)
-    application = applic()
-    if isinstance(application, IApplication):
-        runner = ApplicationRunner()
-        print 'use application runner'
-    elif isinstance(application, IWrapper):
-        runner = WrapperRunner()
-    else:
-        raise Exception('could not identfy [%s]' % applic.__name__)    
-    application = applic()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
-
 def setup():
-    subprocess.call("rm *ini*",shell=True)    
+    subprocess.call("rm *ini* *.err *.out",shell=True)    
     with open("input.ini", 'w+') as f:
         f.write("""BASEDIR = /cluster/scratch/malars/workflows
 LOG_LEVEL = DEBUG
@@ -63,13 +43,14 @@ COMMENT = ruffus_drmaa_ommyxt tinasset
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     submitter.run('run_guse_generator.py',['-i', input_file_name, '--GENERATORS', 'generate.ini'],lsfargs)
-    
-    
+       
 @transform(generator, regex("generate.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):   
     submitter.run('run_dss.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'getmsdata'],lsfargs)
 
+
 ######################### TANDEM #########################################
+
         
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
@@ -90,6 +71,7 @@ def tandemrefresh(input_file_name, output_file_name):
 @transform(tandemrefresh, regex("tandemrefresh.ini_"), "tandempeppro.ini_")
 def tandemPepPro(input_file_name, output_file_name):
     submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandempeppro'],lsfargs)
+
 
 ########################### OMSSA #######################################
 
@@ -117,6 +99,7 @@ def myriPepPro(input_file_name, output_file_name):
     
 ########################### MYRIMATCH ########################################
 
+
 @transform(dss, regex("dss.ini_"), "msconvert.ini_")
 def msconvert(input_file_name, output_file_name):
     submitter.run('run_mzxml2mgf.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
@@ -136,6 +119,7 @@ def omssarefresh(input_file_name, output_file_name):
 @transform(omssarefresh, regex("omssarefresh.ini_"), "omssapeppro.ini_")
 def omssaPepPro(input_file_name, output_file_name):
     submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name,'-n','omssapeppro'],lsfargs)
+
 
 ############################# MERGE SEARCH ENGINE RESULTS ################################## 
 
@@ -161,14 +145,10 @@ def interprophetengines(input_file_name, output_file_name):
 
 ############################# TAIL: PARAMGENERATE ##################################   
 
+
 @merge(interprophetengines, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'interprophetengines.ini', '-o', output_file_name]
-    runner = CollectorRunner()
-    application = GuseCollector()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
+    submitter.run('run_collector.py',['--COLLECTORS', 'interprophetengines.ini', '-o',output_file_name],lsfargs) 
 
 @follows(collector)
 @split("collector.ini", "paramgenerate.ini_*")
@@ -212,4 +192,4 @@ def copy2dropbox(input_file_name, output_file_name):
 ### MAIN ###
 lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
-pipeline_run([copy2dropbox], multiprocess=3)
+pipeline_run([copy2dropbox], multiprocess=10)
