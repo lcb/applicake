@@ -38,7 +38,7 @@ from applicake.applications.proteomics.sybit.protxml2modifications import ProtXm
 from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox,\
     Copy2IdentDropbox
-from applicake.applications.commons.inifile import Unifier
+from applicake.applications.commons.unifier2 import Unifier2
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.proteowizard.msconvert import Mzxml2Mgf
 from applicake.applications.proteomics.searchengine.omssa import Omssa
@@ -207,8 +207,8 @@ def mergeEngines(input_file_names, output_file_name):
 @transform(mergeEngines, regex("mergeengines.ini_"), "unifyengines.ini_")
 def unifyEngines(input_file_name, output_file_name):
     argv = ['', '-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE']
-    runner = IniFileRunner()
-    application = Unifier()
+    runner = IniFileRunner2()
+    application = Unifier2()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("unifier failed [%s]" % exit_code)  
@@ -221,7 +221,7 @@ def interprophetengines(input_file_name, output_file_name):
 
 @merge(interprophetengines, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'interprophetengines.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'interprophetengines.ini', '-o', output_file_name]
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -232,7 +232,7 @@ def collector(notused_input_file_names, output_file_name):
 @split("collector.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
-    runner = IniFileRunner2()
+    runner = IniFileRunner()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
