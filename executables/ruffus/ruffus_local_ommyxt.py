@@ -188,8 +188,9 @@ def omssarefresh(input_file_name, output_file_name):
 def omssaPepPro(input_file_name, output_file_name):
     wrap(PeptideProphet,input_file_name, output_file_name,['-n','omssappeppro'])  
  
-############################# MERGE SEARCH ENGINE RESULTS ##################################   
-
+############################# MERGE SEARCH ENGINE RESULTS ################################## 
+#.*_(.+)$ = any char any no. times, underscore, "group" with at least one char, end of line  
+#"groups" are acessible with \n afterwards (.* is not a group!)
 @collate([omssaPepPro,tandemPepPro,myriPepPro],regex(r".*_(.+)$"),  r'mergeengines.ini_\1')
 def mergeEngines(input_file_names, output_file_name):
     argv = ['']
