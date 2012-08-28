@@ -14,10 +14,11 @@ def setup():
         f.write("""BASEDIR = /cluster/scratch/malars/workflows
 LOG_LEVEL = DEBUG
 STORAGE = file
-TEMPLATE = template.tpl
+
 DATASET_DIR = /cluster/scratch/malars/datasets
 DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
+
 DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
 FRAGMASSUNIT = Da
@@ -192,4 +193,4 @@ def copy2dropbox(input_file_name, output_file_name):
 ### MAIN ###
 lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
-pipeline_run([copy2dropbox], multiprocess=10)
+pipeline_run([copy2dropbox], multiprocess=3)
