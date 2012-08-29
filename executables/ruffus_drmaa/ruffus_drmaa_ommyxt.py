@@ -154,7 +154,7 @@ def interprophetengines(input_file_name, output_file_name):
 
 @merge(interprophetengines, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    submitter.run('run_collector.py',['--COLLECTORS', 'interprophetengines.ini', '-o',output_file_name],lsfargs) 
+    submitter.run('run_guse_collector.py',['--COLLECTORS', 'interprophetengines.ini', '-o',output_file_name],lsfargs) 
 
 @follows(collector)
 @split("collector.ini", "paramgenerate.ini_*")

@@ -27,29 +27,30 @@ class Test(unittest.TestCase):
         handler = ArgsHandler()         
         sys.argv = ['test.py','-i','in1.ini','-o','out.ini',
                     '-n','my name','-s','file','-l','DEBUG']      
-        pargs = handler.get_parsed_arguments(self.log)
+        pargs = handler.get_parsed_arguments(self.log,sys.argv)
         expected = {'INPUTS': ['in1.ini'], 
                     'LOG_LEVEL': 'DEBUG', 
                     'NAME': 'my name', 
                     'STORAGE': 'file', 
+                    'PRINT_LOG': False,
                     'OUTPUT': 'out.ini'}
         self.assertDictEqual(pargs, expected)
         handler.add_app_args(self.log, 'template', 'test template')
         sys.argv.extend(['--TEMPLATE','my.tpl'])
-        pargs = handler.get_parsed_arguments(self.log)
+        pargs = handler.get_parsed_arguments(self.log,sys.argv)
         expected['TEMPLATE'] = 'my.tpl'
         self.assertDictEqual(pargs, expected)
         try:
             sys.argv = sys.argv[:-2]
             sys.argv.extend(['--template','my.tpl'])            
-            pargs = handler.get_parsed_arguments(self.log)
+            pargs = handler.get_parsed_arguments(self.log,sys.argv)
             self.assertTrue(False, 'Method call should fail')
         except:
             assert True
         try:
             sys.argv = sys.argv[:-2]
             sys.argv.extend(['--TEMPLATE','my.tpl'])          
-            pargs = handler.get_parsed_arguments(self.log)
+            pargs = handler.get_parsed_arguments(self.log,sys.argv)
             assert True          
         except:
             self.assertTrue(False, 'Method call should NOT fail')
