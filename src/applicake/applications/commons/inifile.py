@@ -24,12 +24,14 @@ class Unifier(IApplication):
         """
         info = info.copy()
         del info[self.INPUT]        
-        check_keys = [self.PARAM_IDX,self.FILE_IDX]
+        check_keys = info['LISTS_TO_REMOVE']
+        del info['LISTS_TO_REMOVE']
         for key in check_keys:
             if isinstance(info[key],list):
                 log.debug('remove key [%s] because value [%s] is list' % (key,info[key]))
                 del info[key]        
         reduce = info['UNIFIER_REDUCE']
+        del info['UNIFIER_REDUCE']
         if isinstance(reduce, list):
             if len(reduce)>1:
                 log.error('found ambigious value [%s] for key [%s]'% (reduce,'UNIFIER_REDUCE'))
@@ -49,4 +51,6 @@ class Unifier(IApplication):
         args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')
         args_handler.add_app_args(log,'UNIFIER_REDUCE',"If set, lists with a single element are reduced to that element.",
                                   action="store_true",default=False)  
+        args_handler.add_app_args(log,'LISTS_TO_REMOVE',"Keys which are removed from info if a list (double unifier)",
+                                  action='append',default=[]) 
         return args_handler

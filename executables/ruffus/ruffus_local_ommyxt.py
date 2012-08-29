@@ -38,7 +38,7 @@ from applicake.applications.proteomics.sybit.protxml2modifications import ProtXm
 from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox,\
     Copy2IdentDropbox
-from applicake.applications.commons.unifier2 import Unifier2
+from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.proteowizard.msconvert import Mzxml2Mgf
 from applicake.applications.proteomics.searchengine.omssa import Omssa
@@ -210,7 +210,7 @@ def mergeEngines(input_file_names, output_file_name):
 def unifyEngines(input_file_name, output_file_name):
     argv = ['', '-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE']
     runner = IniFileRunner2()
-    application = Unifier2()
+    application = Unifier()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("unifier failed [%s]" % exit_code)  

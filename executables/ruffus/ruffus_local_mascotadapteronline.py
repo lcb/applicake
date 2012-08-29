@@ -152,7 +152,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','--LISTS_TO_REMOVE','PARAM_IDX','--LISTS_TO_REMOVE','FILE_IDX']
     runner = IniFileRunner2()
     application = Unifier()
     exit_code = runner(argv, application)

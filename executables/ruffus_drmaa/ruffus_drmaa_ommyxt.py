@@ -4,16 +4,18 @@ Created on Aug 15, 2012
 
 @author: loblum
 '''
+import sys
 import subprocess
 from ruffus import *
 from applicake.utils.drmaautils import DrmaaSubmitter
 
 def setup():
-    subprocess.call("rm *ini* *.err *.out",shell=True)    
-    with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/scratch/malars/workflows
+    if len(sys.argv) > 1 and sys.argv[1] == 'restart':
+        subprocess.call("rm *ini* *.err *.out",shell=True)    
+        with open("input.ini", 'w+') as f:
+            f.write("""BASEDIR = /cluster/scratch/malars/workflows
 LOG_LEVEL = DEBUG
-STORAGE = file
+STORAGE = memory_all
 
 DATASET_DIR = /cluster/scratch/malars/datasets
 DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
@@ -37,7 +39,9 @@ PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 WORKFLOW= ruffus_drmaa_ommyxt
 COMMENT = ruffus_drmaa_ommyxt tinasset
-""")       
+""")
+    else:
+        print 'Continuing'
         
 
 @follows(setup)
@@ -46,6 +50,7 @@ def generator(input_file_name, notused_output_file_names):
     submitter.run('run_guse_generator.py',['-i', input_file_name, '--GENERATORS', 'generate.ini'],lsfargs)
        
 @transform(generator, regex("generate.ini_"), "dss.ini_")
+@jobs_limit(1)
 def dss(input_file_name, output_file_name):   
     submitter.run('run_dss.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'getmsdata'],lsfargs)
 
@@ -74,7 +79,7 @@ def tandemPepPro(input_file_name, output_file_name):
     submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandempeppro'],lsfargs)
 
 
-########################### OMSSA #######################################
+########################### MYRI #######################################
 
 
 @transform(dss, regex("dss.ini_"), "myrimatch.ini_")
@@ -98,7 +103,7 @@ def myriPepPro(input_file_name, output_file_name):
     submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name,'-n','myripeppro'],lsfargs)
 
     
-########################### MYRIMATCH ########################################
+########################### OMSSA ########################################
 
 
 @transform(dss, regex("dss.ini_"), "msconvert.ini_")
@@ -137,7 +142,7 @@ def mergeEngines(input_file_names, output_file_name):
     
 @transform(mergeEngines, regex("mergeengines.ini_"), "unifyengines.ini_")
 def unifyEngines(input_file_name, output_file_name):
-    submitter.run('run_unifer2.py', ['-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE'] ,lsfargs)
+    submitter.run('run_unify.py', ['-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE'] ,lsfargs)
 
 @transform(unifyEngines, regex("unifyengines.ini_"), "interprophetengines.ini_")
 def interprophetengines(input_file_name, output_file_name):
@@ -193,4 +198,4 @@ def copy2dropbox(input_file_name, output_file_name):
 ### MAIN ###
 lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
-pipeline_run([copy2dropbox], multiprocess=3)
+pipeline_run([copy2dropbox], multiprocess=12)
