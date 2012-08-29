@@ -77,12 +77,6 @@ class Xtandem(SearchEngine):
             info[self.XTANDEM_SEMI_CLEAVAGE] = 'no'
         return info
     
-    def get_template_handler(self):
-        """
-        See interface
-        """
-        return XtandemTemplate()
-    
     def prepare_run(self,info,log):
         """
         See interface.
@@ -104,9 +98,7 @@ class Xtandem(SearchEngine):
         log.debug('add key [XTANDEM_RESULT] to info') 
         info['XTANDEM_RESULT'] = self._result_file    
 #        info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend([self._taxonomy_file,self._input_file,self._result_file])        
-        log.debug('get template handler')
-        th = self.get_template_handler()
-        log.debug('define score value')
+
         # need to create a working copy to prevent replacement or generic definitions
         # with app specific definitions
         app_info = info.copy()
@@ -114,7 +106,11 @@ class Xtandem(SearchEngine):
         log.debug('define modifications')
         app_info = self.define_mods(app_info, log)
         log.debug('define enzyme')
-        app_info = self.define_enzyme(app_info, log)         
+        app_info = self.define_enzyme(app_info, log)    
+        
+        log.debug('get template handler')
+        th = XtandemTemplate()
+        log.debug('define score value')     
         log.debug('modify template')                
         mod_template,app_info = th.modify_template(app_info, log)
         log.debug('write input files')        
