@@ -107,7 +107,6 @@ class Xtandem(SearchEngine):
         app_info = self.define_mods(app_info, log)
         log.debug('define enzyme')
         app_info = self.define_enzyme(app_info, log)    
-        
         log.debug('get template handler')
         th = XtandemTemplate()
         log.debug('define score value')     
