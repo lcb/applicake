@@ -96,7 +96,7 @@ class ITemplateHandler(KeyEnum):
         """    
         raise NotImplementedError("read_template() is not implemented")    
     
-    def replace_vars(self,info,log,template):    
+    def modify_template(self, info, log):    
         """
         Replace possible variables in the template string with values from the info object.
         
@@ -112,24 +112,6 @@ class ITemplateHandler(KeyEnum):
         """        
         
         raise NotImplementedError("replace_vars() is not implemented")  
-        
-    def write_template(self,info,log,template):
-        """
-        Write a template string to a destination defined in the info object.
-        
-        @precondition: info object need the key [%s]
-        @type info: dict         
-        @param info: Dictionary object with information needed by the class
-        @type log: Logger 
-        @param log: Logger to store log messages
-        @type template: string
-        @param template: Write template string to a destination
-        
-        @rtype: dict
-        @return: The (modified) info object.       
-        """ % self.TEMPLATE
-        
-        raise NotImplementedError("write_template() is not implemented") 
         
     
 class IWrapper(KeyEnum):   
