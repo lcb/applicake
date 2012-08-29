@@ -40,14 +40,14 @@ class BasicTemplateHandler(ITemplateHandler):
         template = fh.read()         
         return (template,info)
     
-    def replace_vars(self, info, log, template):
+    def _replace_vars(self, info, log, template):
         """
         See super class.
         """ 
         mod_template = Template(template).safe_substitute(info)
         return (mod_template,info)
     
-    def write_template(self, info, log, template):
+    def _write_template(self, info, log, template):
         """
         Write template string to a file location that is defined in
         the info object.
@@ -87,8 +87,8 @@ class BasicTemplateHandler(ITemplateHandler):
         """ % (self.COPY_TO_WD,self.TEMPLATE)
         
         template,info = self.read_template(info, log)
-        mod_template,info = self.replace_vars(info, log, template)
-        info = self.write_template(info, log, mod_template)
+        mod_template,info = self._replace_vars(info, log, template)
+        info = self._write_template(info, log, mod_template)
         return mod_template,info
         
              
