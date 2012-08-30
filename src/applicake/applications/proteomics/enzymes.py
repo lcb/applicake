@@ -12,7 +12,7 @@ class EnzymeDb(object):
     Access to enzymes
     '''
 
-    _applications = ['Xtandem','Omssa','Myrimatch','Mascot','InteractParser']
+    _applications = ['Xtandem','Omssa','Myrimatch','Mascot','InteractParser','InteractParserOMSSA']
 
     _enzymes={
            'Trypsin':{
@@ -20,8 +20,8 @@ class EnzymeDb(object):
                                   _applications[1]: '0',
                                   _applications[2]: 'Trypsin/P:2',  #The number after the ':' is the number of MinTerminiCleavages
                                   _applications[3]: 'Trypsin',
-                                  _applications[4]: 'Trypsin'
-               
+                                  _applications[4]: 'Trypsin',
+                                  _applications[5]: 'Trypsin'
                                   },
            'Semi-Tryptic':{
                             _applications[0]: '[RK]{P}:2', #does not exist and therefore has to be parsed in xtandem class
@@ -29,6 +29,7 @@ class EnzymeDb(object):
                             _applications[2]: 'Trypsin/P:1',
                             _applications[3]: 'semiTrypsin',
                             _applications[4]: 'semiTrypsin',
+                            _applications[5]: 'semiTrypsin',
                             },
               
            }           
