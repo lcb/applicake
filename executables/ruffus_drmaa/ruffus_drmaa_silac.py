@@ -38,7 +38,7 @@ SPACE = QUANDTAN
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 WORKFLOW= ruffus_drmaa_ommyxt
-COMMENT = yancheng silac test
+COMMENT = yancheng silac
 """)
     else:
         print 'Continuing'
