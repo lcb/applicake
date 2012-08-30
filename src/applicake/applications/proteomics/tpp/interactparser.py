@@ -27,7 +27,11 @@ class InteractParser(SearchEngine):
         self._template_file = '%s.tpl' % base # application specific config file
         self._result_file = '%s.pep.xml' % base # result produced by the application
     
-    
+    def get_template_handler(self):
+        """
+        See interface
+        """
+        return InteractParserTemplate()
     
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -43,7 +47,7 @@ class InteractParser(SearchEngine):
         #don't modify the original info with enzyme, use copy
         infocopy = info.copy()
         infocopy = self.define_enzyme(infocopy, log)  
-        mod_template,infocopy = InteractParserTemplate().modify_template(infocopy, log)
+        mod_template,infocopy = self.get_template_handler().modify_template(infocopy, log)
         
         #input file(s)
         key = 'PEPXMLS'
