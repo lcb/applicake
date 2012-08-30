@@ -93,4 +93,19 @@ class BasicTemplateHandler(ITemplateHandler):
         
              
 
+def modify_template(template, info):
+    mod_template =  Template(template).safe_substitute(info)
+    return mod_template
         
+def write_template(path, info, log, template):
+    fh = open(path,'w+')
+    fh.write(template)
+    fh.close()
+    FileUtils.is_valid_file(log, path) 
+    return log
+
+def read_template(path, info, log):
+    FileUtils.is_valid_file(log, path)
+    fh = open(path,'r+')
+    template = fh.read()         
+    return (template,info)       
