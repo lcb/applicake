@@ -20,7 +20,6 @@ STORAGE = file
 DATASET_DIR = /cluster/scratch/malars/datasets
 DATASET_CODE = 20111212003510002-282406,20111212212548508-282587
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
-
 DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
 FRAGMASSUNIT = Da
@@ -168,7 +167,7 @@ def proteinprophet(input_file_name, output_file_name):
 def mzxml2mzml(input_file_name, output_file_name):
     submitter.run('run_mzxml2mzml.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
     
-@transform(mzxml2mzml,regex('mzxml2mzml.ini_'),'mzxml2mzml.ini_')
+@transform(mzxml2mzml,regex('mzxml2mzml.ini_'),'silacanalyzer.ini_')
 def silacanalyzer(input_file_name, output_file_name):
     submitter.run('run_silacanalyzer.py',['-i', input_file_name, '-o',output_file_name],'-q vip.8h -R lustre')        
     
@@ -176,7 +175,7 @@ def silacanalyzer(input_file_name, output_file_name):
 def pepxml2idxml(input_file_name, output_file_name):
     submitter.run('run_pepxml2idxml.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
 
-@collate([silacanalyzer,pepxml2idxml],regex(r".*_(.+)$"),  r'idmapper.ini_\1')    
+@collate([silacanalyzer,pepxml2idxml],regex(r".*_(.+)$"), r'idmapper.ini_\1')    
 def idmapper(input_file_names, output_file_name):
     submitter.run('run_idmapper.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name],lsfargs)
 
