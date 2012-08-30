@@ -35,7 +35,7 @@ class IdMapper(OpenMs):
         """
         See interface
         """
-        return OrbiLessStrict()
+        return IdMapperTemplate()
 
     def prepare_run(self,info,log):
         """
@@ -45,6 +45,7 @@ class IdMapper(OpenMs):
         - Tool is executed using the pattern: [PREFIX] -ini [TEMPLATE].
         - If there is a result file, it is added with a specific key to the info object.
         """
+        log.debug(info)
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._input_file = os.path.join(wd,self._input_file)
