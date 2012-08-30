@@ -47,6 +47,7 @@ from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
 from applicake.applications.proteomics.tpp.interactparser import InteractParser
 from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
 from applicake.applications.proteomics.tpp.peptideprophet import PeptideProphet
+from applicake.applications.proteomics.sybit.addSID2pepxml import AddSID2pepxml
 
 cwd = None
 
@@ -150,7 +151,11 @@ def tandemPepPro(input_file_name, output_file_name):
 def myrimatch(input_file_name, output_file_name):
     wrap(Myrimatch,input_file_name, output_file_name)
 
-@transform(myrimatch, regex("myrimatch.ini_"), "myrirefresh.ini_")
+@transform(myrimatch, regex("myrimatch.ini_"), "myriattr.ini_")
+def myriaddr(input_file_name, output_file_name):
+    wrap(AddSID2pepxml,input_file_name,output_file_name)
+ 
+@transform(myriaddr, regex("myriattr.ini_"), "myrirefresh.ini_")
 def myrirefresh(input_file_name, output_file_name):
     wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh']) 
 

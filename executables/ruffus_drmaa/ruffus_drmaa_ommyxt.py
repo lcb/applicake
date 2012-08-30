@@ -86,7 +86,11 @@ def tandemPepPro(input_file_name, output_file_name):
 def myrimatch(input_file_name, output_file_name):
     submitter.run('run_myrimatch.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
 
-@transform(myrimatch, regex("myrimatch.ini_"), "myrirefresh.ini_")
+@transform(myrimatch, regex("myrimatch.ini_"), "myriattr.ini_")
+def myriaddr(input_file_name, output_file_name):
+    submitter.run('run_addSID2pepxml.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
+    
+@transform(myriaddr, regex("myriattr.ini_"), "myrirefresh.ini_")
 def myrirefresh(input_file_name, output_file_name):
      submitter.run('run_refreshparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','myrirefresh'],lsfargs)
 
