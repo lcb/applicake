@@ -147,55 +147,98 @@ def unifyEngines(input_file_name, output_file_name):
 @transform(unifyEngines, regex("unifyengines.ini_"), "interprophetengines.ini_")
 def interprophetengines(input_file_name, output_file_name):
     submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
-
-
-############################# TAIL: PARAMGENERATE ##################################   
-
-
-@merge(interprophetengines, "collector.ini")
-def collector(notused_input_file_names, output_file_name):
-    submitter.run('run_guse_collector.py',['--COLLECTORS', 'interprophetengines.ini', '-o',output_file_name],lsfargs) 
-
-@follows(collector)
-@split("collector.ini", "paramgenerate.ini_*")
-def paramgenerator(input_file_name, notused_output_file_names):
-    submitter.run('run_parameter_generator.py',['-i', input_file_name, '--GENERATORS','paramgenerate.ini','-s','file'],lsfargs)
-
-@transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
-def interprophet(input_file_name, output_file_name):
-    submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
-
-@transform(interprophet, regex("interprophet.ini_"), "pepxml2csv.ini_")
-def pepxml2csv(input_file_name, output_file_name):
-    submitter.run('run_pep2csv.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
     
-@transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
-def fdr2probability(input_file_name, output_file_name):
-    submitter.run('run_fdr2prob.py',['-i', input_file_name, '-o',output_file_name],lsfargs)           
 
-@transform(fdr2probability, regex("fdr2probability.ini_"), "proteinprophet.ini_") 
-def proteinprophet(input_file_name, output_file_name):
-    submitter.run('run_pprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
-
-@transform(proteinprophet, regex("proteinprophet.ini_"), "protxml2spectralcount.ini_") 
-def protxml2spectralcount(input_file_name, output_file_name):
-    submitter.run('run_protxml2spc.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
-
-@transform(protxml2spectralcount, regex("protxml2spectralcount.ini_"), "protxml2modifications.ini_")
-def protxml2modifications(input_file_name, output_file_name):
-    submitter.run('run_protxml2mod.py',['-i', input_file_name, '-o',output_file_name],lsfargs)       
-
-@transform(protxml2modifications, regex("protxml2modifications.ini_"), "protxml2openbis.ini_")
-def protxml2openbis(input_file_name, output_file_name):
-    submitter.run('run_protxml2openbis.py',['-i', input_file_name, '-o',output_file_name],lsfargs)     
-
-@transform(protxml2openbis, regex("protxml2openbis.ini_"),"copy2dropbox.ini_")
-def copy2dropbox(input_file_name, output_file_name):
-    submitter.run('run_copy2identdropbox.py',['-i', input_file_name, '-o',output_file_name],lsfargs)         
+############################# SILAC ##################################
     
+
+@transform(dss,regex('dss.ini_'),'mzxml2mzml.ini_')
+def mzxml2mzml(input_file_name, output_file_name):
+    submitter.run('run_mzxml2mzml.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+    
+@transform(mzxml2mzml,regex('mzxml2mzml.ini_'),'mzxml2mzml.ini_')
+def silacanalyzer(input_file_name, output_file_name):
+    submitter.run('run_silacanalyzer.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+    
+@transform(interprophetengines,regex('interprophetengines.ini_'),'pepxml2idxml.ini_')
+def pepxml2idxml(input_file_name, output_file_name):
+    submitter.run('run_pepxml2idxml.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+
+@collate([silacanalyzer,pepxml2idxml],regex(r".*_(.+)$"),  r'idmapper.ini_\1')    
+def idmapper(input_file_names, output_file_name):
+    submitter.run('run_idmapper.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name],lsfargs)
+
     
         
 ### MAIN ###
 lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
-pipeline_run([copy2dropbox], multiprocess=12)
+pipeline_run([idmapper], multiprocess=12)
+
+
+
+
+#@transform(interprophet,regex('interprophet.ini'),'pepxml2idxml.ini')
+#def pepxml2idxml(input_file_name, output_file_name):
+#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = PepXml2IdXml()
+#    exit_code = runner(sys.argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('pepxml2idxml',exit_code)) 
+#
+#@transform(pepxml2idxml,regex('pepxml2idxml.ini'),'peptideindexer.ini')
+#def peptideindexer(input_file_name, output_file_name):
+#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = PeptideIndexer()
+#    exit_code = runner(sys.argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('peptideindexer',exit_code))
+#
+#@transform(peptideindexer,regex('peptideindexer.ini'),'fdr.ini')
+#def fdr(input_file_name, output_file_name):
+#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = FalseDiscoveryRate()
+#    exit_code = runner(sys.argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('fdr',exit_code)) 
+#    
+#@transform(fdr,regex('fdr.ini'),'idfilter.ini')
+#def idfilter(input_file_name, output_file_name):
+#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = IdFilter()
+#    exit_code = runner(sys.argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('idfilter',exit_code)) 
+#    
+#@transform(idfilter,regex('idfilter.ini'),'mzxml2mzml.ini')
+#def mzxml2mzml(input_file_name, output_file_name):
+#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+#    application = MzXml2MzMl()
+#    exit_code = runner(sys.argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('mzxml2mzml',exit_code)) 
+#
+#@transform(mzxml2mzml,regex('mzxml2mzml.ini'),'peakpickerhighres.ini')
+#def peakpickerhighres(input_file_name, output_file_name):
+#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name,'--SIGNAL_TO_NOISE','1']
+#    runner = WrapperRunner()
+#    application = PeakPickerHighRes()
+#    exit_code = runner(sys.argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('peakpickerhighres',exit_code)) 
+#         
+#@transform(peakpickerhighres,regex('peakpickerhighres.ini'),'featurefindercentroided.ini')
+#def featurefindercentroided(input_file_name, output_file_name):
+#    sys.argv = ['', '-i', input_file_name, '-o', output_file_name]
+#    runner = WrapperRunner()
+##    application = FeatureFinderCentroided()
+#    application = OrbiLessStrict()
+#    exit_code = runner(sys.argv, application)
+#    if exit_code != 0:
+#        raise Exception("[%s] failed [%s]" % ('featurefindercentroided',exit_code)) 
+#         

@@ -209,4 +209,73 @@ class IdXml2PepXmlTemplate(BasicTemplateHandler):
   </NODE>
 </PARAMETERS>
 """
-        return template,info    
+        return template,info  
+    
+    
+#class ProtXml2IdXml(OpenMs):
+#    """
+#    Specific implementation if the IdFileConverter class to convert files in protXML to idXML format.
+#    """
+#      
+#    _template_file = ''
+#    _result_file = ''
+#      
+#    def __init__(self):
+#        """
+#        Constructor
+#        """
+#        base = self.__class__.__name__
+#        self._template_file = '%s.ini' % base # application specific config file
+#        self._result_file = '%s.idXML' % base # result produced by the application    
+#    
+#    def get_prefix(self,info,log):
+#            if not info.has_key(self.PREFIX):
+#                info[self.PREFIX] = 'IDFileConverter'
+#                log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
+#            return info[self.PREFIX],info
+#    
+#    def get_template_handler(self):
+#        """
+#        See interface
+#        """
+#        return PepXml2IdXmlTemplate()    
+#    
+#    def prepare_run(self,info,log):
+#        """
+#        See interface.
+#
+#        - Read the a specific template and replaces variables from the info object.
+#        - Tool is executed using the pattern: [PREFIX] -ini [TEMPLATE].
+#        - If there is a result file, it is added with a specific key to the info object.
+#        """
+#        if len(info['PEPXMLS']) != 1:
+#            log.fatal('Only the use of 1 pepXML file is currently supported. Found [%s]' % info['PEPXMLS'])
+#            sys.exit(1)        
+#        wd = info[self.WORKDIR]
+#        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
+#        self._template_file = os.path.join(wd,self._template_file)
+#        info[self.TEMPLATE] = self._template_file
+#        self._result_file = os.path.join(wd,self._result_file)
+#        info['IDXML'] = self._result_file
+#        log.debug('get template handler')
+#        th = self.get_template_handler()
+#        log.debug('modify template')
+#        #need to convert PEPXMLS from list to a string (1st element)
+#        # because program only handles single pepxmls
+#        pepxmls = info['PEPXMLS']
+#        info['PEPXMLS'] = pepxmls[0]
+#        mod_template,info = th.modify_template(info, log)
+#        # reset PEPXMLS to original value
+#        info['PEPXMLS'] = pepxmls
+#        prefix,info = self.get_prefix(info,log)
+#        command = '%s -ini %s' % (prefix,self._template_file)
+#        return command,info      
+#
+#    def set_args(self,log,args_handler):
+#        """
+#        See interface
+#        """
+#        args_handler = super(PepXml2IdXml, self).set_args(log,args_handler)
+#        args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
+#        args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')  
+#        return args_handler  

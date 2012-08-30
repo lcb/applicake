@@ -38,7 +38,7 @@ class ModificationDb(object):
                             _applications[0]: '8.014199@K',
                             _applications[1]: '181',
                             _applications[2]: 'K & 8.014199',
-                            _applications[3]: '<LISTITEM value="13C(6)15(N)(2) (K)"/>'
+                            _applications[3]: '<LISTITEM value="13C(6)15(N)(2) (K)"/>'                          
                             },
            '13C(6)15(N)(4) (R)':{
                             _applications[0]: '10.008269@R',
