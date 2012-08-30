@@ -70,7 +70,7 @@ class IdMapper(OpenMs):
         See interface
         """
         args_handler = super(IdMapper, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, 'FEATUREXML', 'The featureXML input file')
+        args_handler.add_app_args(log, 'FEATUREXML', 'The featureXML input file'),
         args_handler.add_app_args(log, 'IDXML', 'The idXML input file')
         return args_handler
     
