@@ -147,9 +147,21 @@ def unifyEngines(input_file_name, output_file_name):
 @transform(unifyEngines, regex("unifyengines.ini_"), "interprophetengines.ini_")
 def interprophetengines(input_file_name, output_file_name):
     submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+
+@transform(interprophetengines, regex("interprophetengines.ini_"), "pepxml2csv.ini_")
+def pepxml2csv(input_file_name, output_file_name):
+    submitter.run('run_pep2csv.py',['-i', input_file_name, '-o',output_file_name],lsfargs)        
     
+@transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
+def fdr2probability(input_file_name, output_file_name):
+    submitter.run('run_fdr2prob.py',['-i', input_file_name, '-o',output_file_name],lsfargs)      
+
+@transform(fdr2probability, regex("fdr2probability.ini_"), "proteinprophet.ini_") 
+def proteinprophet(input_file_name, output_file_name):
+    submitter.run('run_pprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs) 
 
 ############################# SILAC ##################################
+    
     
 
 @transform(dss,regex('dss.ini_'),'mzxml2mzml.ini_')
@@ -158,7 +170,7 @@ def mzxml2mzml(input_file_name, output_file_name):
     
 @transform(mzxml2mzml,regex('mzxml2mzml.ini_'),'mzxml2mzml.ini_')
 def silacanalyzer(input_file_name, output_file_name):
-    submitter.run('run_silacanalyzer.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+    submitter.run('run_silacanalyzer.py',['-i', input_file_name, '-o',output_file_name],lsfargs)        
     
 @transform(interprophetengines,regex('interprophetengines.ini_'),'pepxml2idxml.ini_')
 def pepxml2idxml(input_file_name, output_file_name):
@@ -168,6 +180,9 @@ def pepxml2idxml(input_file_name, output_file_name):
 def idmapper(input_file_names, output_file_name):
     submitter.run('run_idmapper.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name],lsfargs)
 
+@transform(proteinprophet,regex('proteinprophet.ini_'),'prot2idxml.ini_')
+def protxml2idxml(input_file_name, output_file_name):
+    submitter.run('run_protxml2idxml.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
     
         
 ### MAIN ###
