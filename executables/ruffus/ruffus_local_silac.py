@@ -70,7 +70,8 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
 def setup():
-    subprocess.call("rm *ini*",shell=True)    
+    if len(sys.argv) > 1 and sys.argv[1] == 'restart':
+        subprocess.call("rm *ini* *.err *.out",shell=True)     
     with open("input.ini", 'w+') as f:
         f.write("""BASEDIR = /cluster/scratch/malars/workflows
 LOG_LEVEL = DEBUG
