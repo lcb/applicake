@@ -170,7 +170,7 @@ def mzxml2mzml(input_file_name, output_file_name):
     
 @transform(mzxml2mzml,regex('mzxml2mzml.ini_'),'mzxml2mzml.ini_')
 def silacanalyzer(input_file_name, output_file_name):
-    submitter.run('run_silacanalyzer.py',['-i', input_file_name, '-o',output_file_name],lsfargs)        
+    submitter.run('run_silacanalyzer.py',['-i', input_file_name, '-o',output_file_name],'-q vip.8h -R lustre')        
     
 @transform(interprophetengines,regex('interprophetengines.ini_'),'pepxml2idxml.ini_')
 def pepxml2idxml(input_file_name, output_file_name):
