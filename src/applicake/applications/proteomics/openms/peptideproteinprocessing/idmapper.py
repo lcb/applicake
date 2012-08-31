@@ -10,7 +10,7 @@ from applicake.framework.templatehandler import BasicTemplateHandler
 
 class IdMapper(OpenMs):
     """
-    Wrapper for OpenMS tool IDMapper (only support for CONSENSUSXML)
+    Wrapper for OpenMS tool IDMapper (only support for consensusXML)
     """
 
     _xml_type = ''
@@ -22,13 +22,13 @@ class IdMapper(OpenMs):
         base = self.__class__.__name__
         self._default_prefix = 'IDMapper'
         self._input_file = '%s.ini' % base # application specific config file
-        self._result_file = '%s.CONSENSUSXML' % base # result produced by the application
+        self._result_file = '%s.consensusXML' % base # result produced by the application
 
     def get_template_handler(self):
         """
         See interface
         """
-        return IdMapperTemplate()
+        return OrbiLessStrict()
 
     def prepare_run(self,info,log):
         """
@@ -43,7 +43,7 @@ class IdMapper(OpenMs):
         self._input_file = os.path.join(wd,self._input_file)
         info['TEMPLATE'] = self._input_file
         # have to temporarily set a key in info to store the original CONSENSUSXML        
-        info['ORGFEATUREXML'] = info['CONSENSUSXML']
+        info['ORGCONSENSUSXML'] = info['CONSENSUSXML']
         self._result_file = os.path.join(wd,self._result_file)
         info['CONSENSUSXML'] = self._result_file
         log.debug('get template handler')
@@ -51,7 +51,7 @@ class IdMapper(OpenMs):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         # can delete temporary key as it is not longer needed
-        del info['ORGFEATUREXML']
+        del info['ORGCONSENSUSXML']
         prefix,info = self.get_prefix(info,log)
         command = '%s -ini %s' % (prefix,self._input_file)
         
@@ -62,7 +62,7 @@ class IdMapper(OpenMs):
         See interface
         """
         args_handler = super(IdMapper, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, 'CONSENSUSXML', 'The CONSENSUSXML input file'),
+        args_handler.add_app_args(log, 'CONSENSUSXML', 'The consensusXML input file'),
         args_handler.add_app_args(log, 'IDXML', 'The idXML input file')
         return args_handler
     
@@ -82,7 +82,7 @@ class IdMapperTemplate(BasicTemplateHandler):
     <ITEM name="version" value="1.9.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;IDMapper&apos;">
       <ITEM name="id" value="$IDXML" type="string" description="Protein/peptide identifications file" tags="input file,required" restrictions="*.idXML" />
-      <ITEM name="in" value="$ORGFEATUREXML" type="string" description="Feature map/consensus map file" tags="input file,required" restrictions="*.CONSENSUSXML,*.consensusXML" />
+      <ITEM name="in" value="$ORGCONSENSUSXML" type="string" description="Feature map/consensus map file" tags="input file,required" restrictions="*.CONSENSUSXML,*.consensusXML" />
       <ITEM name="out" value="$CONSENSUSXML" type="string" description="Output file (the format depends on the input file format)." tags="output file,required" restrictions="*.CONSENSUSXML,*.consensusXML" />
       <ITEM name="rt_tolerance" value="60" type="float" description="RT tolerance (in seconds) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
       <ITEM name="mz_tolerance" value="10" type="float" description="m/z tolerance (in ppm or Da) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
@@ -119,7 +119,7 @@ class OrbiLessStrict(BasicTemplateHandler):
     <ITEM name="version" value="1.8.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;IDMapper&apos;">
       <ITEM name="id" value="$IDXML" type="string" description="Protein/peptide identifications file" tags="input file,required" restrictions="*.idXML" />
-      <ITEM name="in" value="$ORGFEATUREXML" type="string" description="Feature map/consensus map file" tags="input file,required" restrictions="*.CONSENSUSXML,*.consensusXML" />
+      <ITEM name="in" value="$ORGCONSENSUSXML" type="string" description="Feature map/consensus map file" tags="input file,required" restrictions="*.CONSENSUSXML,*.consensusXML" />
       <ITEM name="out" value="$CONSENSUSXML" type="string" description="Output file (the format depends on the input file format)." tags="output file,required" restrictions="*.featureXML,*.consensusXML" />
        <ITEM name="rt_tolerance" value="5" type="float" description="RT tolerance (in seconds) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
       <ITEM name="mz_tolerance" value="40" type="float" description="m/z tolerance (in ppm or Da) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
