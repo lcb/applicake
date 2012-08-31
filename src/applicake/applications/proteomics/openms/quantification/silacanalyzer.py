@@ -67,7 +67,7 @@ class SilacAnalyzer(OpenMs):
         args_handler.add_app_args(log, 'MZML', 'The input mzML file '),
 #        args_handler.add_app_args(log, 'FEATUREXML', 'The output featureXML file '),
         args_handler.add_app_args(log, 'CONSENSUSXML', 'The output featureXML file ')
-        #args_handler.add_app_args(log, '', '')
+        args_handler.add_app_args(log, 'MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages')
         return args_handler
 
 
@@ -124,7 +124,7 @@ class SilacAnalyzerTemplate(BasicTemplateHandler):
       <NODE name="sample" description="Parameters describing the sample and its labels.">
         <ITEM name="labels" value="[Lys8,Arg10]" type="string" description="Labels used for labelling the sample. [...] specifies the labels for a single sample. For example, [Lys4,Arg6][Lys8,Arg10] describes a mixtures of three samples. One of them unlabelled, one labelled with Lys4 and Arg6 and a third one with Lys8 and Arg10. For permitted labels see &apos;advanced parameters&apos;, section &apos;labels&apos;. If left empty the tool identifies singlets, i.e. acts as peptide feature finder." />
         <ITEM name="charge" value="1:5" type="string" description="Range of charge states in the sample, i.e. min charge : max charge." />
-        <ITEM name="missed_cleavages" value="2" type="int" description="Maximum number of missed cleavages." restrictions="0:" />
+        <ITEM name="missed_cleavages" value="$MISSEDCLEAVAGE" type="int" description="Maximum number of missed cleavages." restrictions="0:" />
         <ITEM name="peaks_per_peptide" value="3:6" type="string" description="Range of peaks per peptide in the sample, i.e. min peaks per peptide : max peaks per peptide. For example 3:6, if isotopic peptide patterns in the sample consist of either three, four, five or six isotopic peaks. " tags="advanced" />
       </NODE>
     </NODE>
