@@ -267,7 +267,7 @@ class ProtXml2IdXml(OpenMs):
         """
         See interface
         """
-        args_handler = super(PepXml2IdXml, self).set_args(log,args_handler)
+        args_handler = super(ProtXml2IdXml, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'PROTXML', 'Protein identifications in protXML format')
         args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')  
         return args_handler  
