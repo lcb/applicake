@@ -21,7 +21,7 @@ class ProteinQuantifier(OpenMs):
         Constructor
         """
         base = self.__class__.__name__
-        self._input_file = '%s.ini' % base # application specific config file
+        self._template_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application
         self._result_file2 = 'proteins.txt'
         self._result_file3 = 'peptides.txt'
