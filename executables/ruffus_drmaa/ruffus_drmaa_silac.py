@@ -177,7 +177,7 @@ def pepxml2idxml(input_file_name, output_file_name):
 
 @collate([silacanalyzer,pepxml2idxml],regex(r".*_(.+)$"), r'idmapper.ini_\1')    
 def idmapper(input_file_names, output_file_name):
-    submitter.run('run_idmapper.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name],lsfargs)
+    submitter.run('run_idmapper.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name,'-s' 'memory_all'],lsfargs)
 
 @transform(proteinprophet,regex('proteinprophet.ini_'),'prot2idxml.ini_')
 def protxml2idxml(input_file_name, output_file_name):
