@@ -39,7 +39,7 @@ class ProteinQuantifier(OpenMs):
         - Tool is executed using the pattern: [PREFIX] -ini [TEMPLATE].
         - If there is a result file, it is added with a specific key to the info object.
         """
-        key = 'IDXML'
+        key = 'IDXML_PROTXML'
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._template_file = os.path.join(wd,self._template_file)
@@ -65,7 +65,7 @@ class ProteinQuantifier(OpenMs):
         See interface
         """
         args_handler = super(ProteinQuantifier, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, 'IDXML', 'The input idXML file')
+        args_handler.add_app_args(log, 'IDXML_PROTXML', 'The input idXML file (created from a protXML file).')
         args_handler.add_app_args(log, 'CONSENSUSXML', 'The input featureXML file ')        
         return args_handler
 
@@ -85,10 +85,10 @@ class ProteinQuantifierTemplate(BasicTemplateHandler):
     <ITEM name="version" value="1.9.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;ProteinQuantifier&apos;">
       <ITEM name="in" value="$CONSENSUSXML" type="string" description="Input file" tags="input file,required" restrictions="*.featureXML,*.consensusXML" />
-      <ITEM name="protxml" value="$ORGIDXML" type="string" description="ProteinProphet results (protXML converted to idXML) for the identification runs that were used to annotate the input.#br#Information about indistinguishable proteins will be used for protein quantification." tags="input file" restrictions="*.idXML" />
+      <ITEM name="protxml" value="$ORGIDXML_PROTXML" type="string" description="ProteinProphet results (protXML converted to idXML) for the identification runs that were used to annotate the input.#br#Information about indistinguishable proteins will be used for protein quantification." tags="input file" restrictions="*.idXML" />
       <ITEM name="out" value="$PROTABUNDANCETXT" type="string" description="Output file for protein abundances" tags="output file" />
       <ITEM name="peptide_out" value="$PEPABUNDANCETXT" type="string" description="Output file for peptide abundances" tags="output file" />
-      <ITEM name="id_out" value="$IDXML" type="string" description="Output file for peptide and protein abundances (annotated idXML) - suitable for export to mzTab.#br#Either &apos;out&apos;, &apos;peptide_out&apos;, or &apos;id_out&apos; are required. They can be used together." tags="output file" restrictions="*.idXML" />
+      <ITEM name="id_out" value="$IDXML_PROTXML" type="string" description="Output file for peptide and protein abundances (annotated idXML) - suitable for export to mzTab.#br#Either &apos;out&apos;, &apos;peptide_out&apos;, or &apos;id_out&apos; are required. They can be used together." tags="output file" restrictions="*.idXML" />
       <ITEM name="top" value="1" type="int" description="Calculate protein abundance from this number of proteotypic peptides (most abundant first; &apos;0&apos; for all)" restrictions="0:" />
       <ITEM name="average" value="median" type="string" description="Averaging method used to compute protein abundances from peptide abundances" restrictions="median,mean,sum" />
       <ITEM name="include_all" value="false" type="string" description="Include results for proteins with fewer proteotypic peptides than indicated by &apos;top&apos; (no effect if &apos;top&apos; is 0 or 1)" restrictions="true,false" />

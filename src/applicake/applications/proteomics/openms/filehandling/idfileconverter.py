@@ -15,22 +15,14 @@ class PepXml2IdXml(OpenMs):
     Specific implementation if the IdFileConverter class to convert files in pepXML to idXML format.
     """
       
-    _template_file = ''
-    _result_file = ''
-      
     def __init__(self):
         """
         Constructor
         """
         base = self.__class__.__name__
+        self._default_prefix = 'IDFileConverter' 
         self._template_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application    
-    
-    def get_prefix(self,info,log):
-            if not info.has_key(self.PREFIX):
-                info[self.PREFIX] = 'IDFileConverter'
-                log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-            return info[self.PREFIX],info
     
     def get_template_handler(self):
         """
@@ -119,22 +111,14 @@ class IdXml2PepXml(OpenMs):
     Specific implementation if the IdFileConverter class to convert files in idXML to pepXML format.
     """
       
-    _template_file = ''
-    _result_file = ''
-      
     def __init__(self):
         """
         Constructor
         """
         base = self.__class__.__name__
+        self._default_prefix = 'IDFileConverter'
         self._template_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.pepXML' % base # result produced by the application    
-    
-    def get_prefix(self,info,log):
-            if not info.has_key(self.PREFIX):
-                info[self.PREFIX] = 'IDFileConverter'
-                log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-            return info[self.PREFIX],info
     
     def get_template_handler(self):
         """
@@ -217,22 +201,14 @@ class ProtXml2IdXml(OpenMs):
     Specific implementation if the IdFileConverter class to convert files in protXML to idXML format.
     """
       
-    _template_file = ''
-    _result_file = ''
-      
     def __init__(self):
         """
         Constructor
         """
         base = self.__class__.__name__
+        self._default_prefix = 'IDFileConverter'
         self._template_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application    
-    
-    def get_prefix(self,info,log):
-            if not info.has_key(self.PREFIX):
-                info[self.PREFIX] = 'IDFileConverter'
-                log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-            return info[self.PREFIX],info
     
     def get_template_handler(self):
         """
@@ -253,7 +229,7 @@ class ProtXml2IdXml(OpenMs):
         self._template_file = os.path.join(wd,self._template_file)
         info[self.TEMPLATE] = self._template_file
         self._result_file = os.path.join(wd,self._result_file)
-        info['IDXML'] = self._result_file
+        info['IDXML_PROTXML'] = self._result_file
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')

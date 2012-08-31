@@ -13,8 +13,6 @@ class IdMapper(OpenMs):
     Wrapper for OpenMS tool IDMapper (only support for CONSENSUSXML)
     """
 
-    _input_file = ''
-    _result_file = ''
     _xml_type = ''
 
     def __init__(self):
@@ -22,14 +20,9 @@ class IdMapper(OpenMs):
         Constructor
         """
         base = self.__class__.__name__
+        self._default_prefix = 'IDMapper'
         self._input_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.CONSENSUSXML' % base # result produced by the application
-
-    def _get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = 'IDMapper'
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
 
     def get_template_handler(self):
         """
