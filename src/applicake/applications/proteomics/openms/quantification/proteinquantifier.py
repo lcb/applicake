@@ -13,24 +13,17 @@ class ProteinQuantifier(OpenMs):
     Wrapper for the OpenMS tools ProteinQuanifier.
     """
 
-    _input_file = ''
-    _result_file = ''
-
     def __init__(self):
         """
         Constructor
         """
         base = self.__class__.__name__
+        self._default_prefix = 'ProteinQuantifer' 
         self._template_file = '%s.ini' % base # application specific config file
         self._result_file = '%s.idXML' % base # result produced by the application
         self._result_file2 = 'proteins.txt'
         self._result_file3 = 'peptides.txt'
 
-    def _get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = 'ProteinQuantifier'
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
 
     def get_template_handler(self):
         """
