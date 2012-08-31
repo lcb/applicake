@@ -187,7 +187,7 @@ def protxml2idxml(input_file_name, output_file_name):
 ### MAIN ###
 lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
-pipeline_run([idmapper], multiprocess=12)
+pipeline_run([protxml2idxml], multiprocess=12)
 
 
 
