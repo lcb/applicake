@@ -72,7 +72,7 @@ class ProteinQuantifier(OpenMs):
         See interface
         """
         args_handler = super(ProteinQuantifier, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, 'IDXML', 'The input %s file' % self._file_type)
+        args_handler.add_app_args(log, 'IDXML', 'The input idXML file')
         args_handler.add_app_args(log, 'CONSENSUSXML', 'The input featureXML file ')        
         return args_handler
 
