@@ -119,7 +119,7 @@ class OrbiLessStrict(BasicTemplateHandler):
     <ITEM name="version" value="1.8.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;IDMapper&apos;">
       <ITEM name="id" value="$IDXML" type="string" description="Protein/peptide identifications file" tags="input file,required" restrictions="*.idXML" />
-      <ITEM name="in" value="$ORGCONSENSUSXML" type="string" description="Feature map/consensus map file" tags="input file,required" restrictions="*.CONSENSUSXML,*.consensusXML" />
+      <ITEM name="in" value="$ORGCONSENSUSXML" type="string" description="Feature map/consensus map file" tags="input file,required" restrictions="*.featureXML,*.consensusXML" />
       <ITEM name="out" value="$CONSENSUSXML" type="string" description="Output file (the format depends on the input file format)." tags="output file,required" restrictions="*.featureXML,*.consensusXML" />
        <ITEM name="rt_tolerance" value="5" type="float" description="RT tolerance (in seconds) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
       <ITEM name="mz_tolerance" value="40" type="float" description="m/z tolerance (in ppm or Da) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
