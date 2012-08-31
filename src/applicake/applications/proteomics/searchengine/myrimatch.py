@@ -36,7 +36,20 @@ class Myrimatch(SearchEngine):
         log.debug('enzyme info: [%s]'% enzyme_info)
         info[self.ENZYME] = enzyme_info[0]
         info[self.MYRIMATCH_MINTERMINICLEAVAGES] = enzyme_info[1]
-        return info        
+        return info    
+    
+    def define_mods(self,info,log):
+        """
+        Convert generic static/variable modifications into the myrimatch-specific format
+        """
+        info = super(Myrimatch,self).define_mods(info,log)
+        if info.has_key(self.STATIC_MODS):
+            info[self.STATIC_MODS] = info[self.STATIC_MODS].replace(',',' ')
+        if info.has_key(self.VARIABLE_MODS):
+            info[self.VARIABLE_MODS] = info[self.VARIABLE_MODS].replace(' ',' * ')
+            info[self.VARIABLE_MODS] = info[self.VARIABLE_MODS].replace(',',' ')             
+        return info    
+        
 
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
