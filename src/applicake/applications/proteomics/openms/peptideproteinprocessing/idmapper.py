@@ -52,7 +52,7 @@ class IdMapper(OpenMs):
         mod_template,info = th.modify_template(info, log)
         # can delete temporary key as it is not longer needed
         del info['ORGFEATUREXML']
-        prefix,info = self._get_prefix(info,log)
+        prefix,info = self.get_prefix(info,log)
         command = '%s -ini %s' % (prefix,self._input_file)
         
         return command,info
