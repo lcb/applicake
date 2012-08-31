@@ -160,8 +160,6 @@ def proteinprophet(input_file_name, output_file_name):
     submitter.run('run_pprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs) 
 
 ############################# SILAC ##################################
-    
-    
 
 @transform(dss,regex('dss.ini_'),'mzxml2mzml.ini_')
 def mzxml2mzml(input_file_name, output_file_name):
@@ -182,12 +180,16 @@ def idmapper(input_file_names, output_file_name):
 @transform(proteinprophet,regex('proteinprophet.ini_'),'prot2idxml.ini_')
 def protxml2idxml(input_file_name, output_file_name):
     submitter.run('run_protxml2idxml.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+
+@collate([idmapper,protxml2idxml],regex(r".*_(.+)$"), r'proteinquantifier.ini_\1')    
+def proteinquantifier(input_file_names, output_file_name):
+    submitter.run('run_proteinquantifier.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name,'-s' 'memory_all'],lsfargs)
     
         
 ### MAIN ###
 lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
-pipeline_run([protxml2idxml], multiprocess=12)
+pipeline_run([proteinquantifier], multiprocess=12)
 
 
 

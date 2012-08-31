@@ -22,7 +22,9 @@ class ProteinQuantifier(OpenMs):
         """
         base = self.__class__.__name__
         self._input_file = '%s.ini' % base # application specific config file
-        self._result_file = '%s.result' % base # result produced by the application
+        self._result_file = '%s.idXML' % base # result produced by the application
+        self._result_file2 = 'proteins.txt'
+        self._result_file3 = 'peptides.txt'
 
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -53,6 +55,8 @@ class ProteinQuantifier(OpenMs):
         # have to temporarily set a key in info to store the original IDXML
         info['ORG%s'% key] = info[key]
         info[key] = self._result_file
+        info['PROTABUNDANCETXT'] = os.path.join(wd,self._result_file2)
+        info['PEPABUNDANCETXT'] = os.path.join(wd,self._result_file3)
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
@@ -69,7 +73,7 @@ class ProteinQuantifier(OpenMs):
         """
         args_handler = super(ProteinQuantifier, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'IDXML', 'The input %s file' % self._file_type)
-        args_handler.add_app_args(log, 'CONSENSUSXML', 'The input featureXML file ')
+        args_handler.add_app_args(log, 'CONSENSUSXML', 'The input featureXML file ')        
         return args_handler
 
 
@@ -89,8 +93,8 @@ class ProteinQuantifierTemplate(BasicTemplateHandler):
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;ProteinQuantifier&apos;">
       <ITEM name="in" value="$CONSENSUSXML" type="string" description="Input file" tags="input file,required" restrictions="*.featureXML,*.consensusXML" />
       <ITEM name="protxml" value="$ORGIDXML" type="string" description="ProteinProphet results (protXML converted to idXML) for the identification runs that were used to annotate the input.#br#Information about indistinguishable proteins will be used for protein quantification." tags="input file" restrictions="*.idXML" />
-      <ITEM name="out" value="proteins.txt" type="string" description="Output file for protein abundances" tags="output file" />
-      <ITEM name="peptide_out" value="peptides.txt" type="string" description="Output file for peptide abundances" tags="output file" />
+      <ITEM name="out" value="$PROTABUNDANCETXT" type="string" description="Output file for protein abundances" tags="output file" />
+      <ITEM name="peptide_out" value="$PEPABUNDANCETXT" type="string" description="Output file for peptide abundances" tags="output file" />
       <ITEM name="id_out" value="$IDXML" type="string" description="Output file for peptide and protein abundances (annotated idXML) - suitable for export to mzTab.#br#Either &apos;out&apos;, &apos;peptide_out&apos;, or &apos;id_out&apos; are required. They can be used together." tags="output file" restrictions="*.idXML" />
       <ITEM name="top" value="1" type="int" description="Calculate protein abundance from this number of proteotypic peptides (most abundant first; &apos;0&apos; for all)" restrictions="0:" />
       <ITEM name="average" value="median" type="string" description="Averaging method used to compute protein abundances from peptide abundances" restrictions="median,mean,sum" />
@@ -98,7 +102,7 @@ class ProteinQuantifierTemplate(BasicTemplateHandler):
       <ITEM name="filter_charge" value="false" type="string" description="Distinguish between charge states of a peptide. For peptides, abundances will be reported separately for each charge;#br#for proteins, abundances will be computed based only on the most prevalent charge of each peptide.#br#By default, abundances are summed over all charge states." restrictions="true,false" />
       <ITEM name="log" value="" type="string" description="Name of log file (created only when specified)" tags="advanced" />
       <ITEM name="debug" value="0" type="int" description="Sets the debug level" tags="advanced" />
-      <ITEM name="threads" value="1" type="int" description="Sets the number of threads allowed to be used by the TOPP tool" />
+      <ITEM name="threads" value="$THREADS" type="int" description="Sets the number of threads allowed to be used by the TOPP tool" />
       <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
       <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
       <NODE name="consensus" description="Additional options for consensus maps">
