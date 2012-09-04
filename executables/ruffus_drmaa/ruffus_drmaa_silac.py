@@ -13,11 +13,11 @@ def setup():
     if len(sys.argv) > 1 and sys.argv[1] == 'restart':
         subprocess.call("rm *ini* *.err *.out",shell=True)    
         with open("input.ini", 'w+') as f:
-            f.write("""BASEDIR = /cluster/scratch/malars/workflows
+            f.write("""BASEDIR = /cluster/scratch_xl/shareholder/malars/quandtan/workflows
 LOG_LEVEL = DEBUG
 STORAGE = file
 
-DATASET_DIR = /cluster/scratch/malars/datasets
+DATASET_DIR = /cluster/scratch_xl/malars/datasets
 DATASET_CODE = 20111212191446823-282564,20111212235632734-282668
 DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
@@ -172,7 +172,21 @@ def silacanalyzer(input_file_name, output_file_name):
 def pepxml2idxml(input_file_name, output_file_name):
     submitter.run('run_pepxml2idxml.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
 
-@collate([silacanalyzer,pepxml2idxml],regex(r".*_(.+)$"), r'idmapper.ini_\1')    
+
+@transform(pepxml2idxml,regex('pepxml2idxml.ini_'),'peptideindexer.ini_')
+def peptideindexer(input_file_name, output_file_name):
+        submitter.run('run_peptideindexer.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+        
+@transform(peptideindexer,regex('peptideindexer.ini_'),'fdr.ini_')
+def fdr(input_file_name, output_file_name):
+    submitter.run('run_fdr.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+
+@transform(fdr,regex('fdr.ini_'),'idfilter.ini_')
+def idfilter(input_file_name, output_file_name):
+    submitter.run('run_idfilter.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+
+
+@collate([silacanalyzer,idfilter],regex(r".*_(.+)$"), r'idmapper.ini_\1')    
 def idmapper(input_file_names, output_file_name):
     submitter.run('run_idmapper.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name,'-s' 'memory_all'],lsfargs)
 
