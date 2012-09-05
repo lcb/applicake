@@ -65,6 +65,7 @@ class PeptideProphet(IWrapper):
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
+        args_handler.add_app_args(log, 'DECOY_STRING', 'String used to annotate decoys')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
         return args_handler
@@ -93,7 +94,7 @@ class PeptideProphetTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """DECOY=DECOY_ MINPROB=0 PI ACCMASS LEAVE NONPARAM Pd
+        template = """DECOY=$DECOY_STRING MINPROB=0 PI ACCMASS LEAVE NONPARAM Pd
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
