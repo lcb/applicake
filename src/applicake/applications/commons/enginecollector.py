@@ -4,7 +4,7 @@ Created on Apr 14, 2012
 @author: loblum
 '''
 
-import glob
+import os
 from applicake.framework.interfaces import IApplication
 from applicake.framework.confighandler import ConfigHandler
 from applicake.utils.dictutils import DictUtils
@@ -35,14 +35,18 @@ class GuseEngineCollector(IApplication):
         used_engines = []
         for engine in available_engines:
             key = 'RUN' + engine.upper()
-            if key in info and info[key]:
+            if key in info and info[key] == 'True':
                 used_engines.append(engine)
         
         log.debug("Expected search engine inis: %s" % used_engines)
         
         runs = 1
-        for key,value in info.items():
+        infocopy = info.copy()
+        del infocopy['ENGINES']
+        del infocopy['COPY_TO_WD']
+        for key,value in infocopy.items():
             if isinstance(value, list):
+                print "%s %d" % (key,len(value))
                 runs = runs * len(value)
                 
         log.debug("Expected number of inis: %d" % runs)
@@ -50,11 +54,13 @@ class GuseEngineCollector(IApplication):
         for i in range(runs):
             collector_config = {}
             for engine in used_engines:
-                path = engine + '.ini_' + i
+                path = "%s.ini_%d" % (engine, i)
+                if not os.path.exists(path):
+                    raise Exception("Required inifile not found "+path)
                 config = ConfigHandler().read(log,path)
                 collector_config = DictUtils.merge(log,collector_config, config,priority='append')
             
-            collector_path = 'output.ini_' + i       
+            collector_path = "output.ini_%d" % i       
             ConfigHandler().write(collector_config, collector_path)
             log.debug('Wrote outfile '+collector_path)
 
@@ -66,5 +72,4 @@ class GuseEngineCollector(IApplication):
         """        
         args_handler.add_app_args(log, 'ENGINES', 'Engines available for doing search',action='append')
         return args_handler
-
 
