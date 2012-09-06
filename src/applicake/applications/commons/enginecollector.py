@@ -43,7 +43,6 @@ class GuseEngineCollector(IApplication):
         runs = 1
         infocopy = info.copy()
         del infocopy['ENGINES']
-        del infocopy['COPY_TO_WD']
         for key,value in infocopy.items():
             if isinstance(value, list):
                 print "%s %d" % (key,len(value))
