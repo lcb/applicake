@@ -32,6 +32,7 @@ class GuseEngineCollector(IApplication):
         """ 
         
         available_engines = info['ENGINES']
+        log.debug("Available engines: %s" % available_engines)
         used_engines = []
         for engine in available_engines:
             key = 'RUN' + engine.upper()
@@ -43,6 +44,7 @@ class GuseEngineCollector(IApplication):
         runs = 1
         infocopy = info.copy()
         del infocopy['ENGINES']
+        del infocopy[self.COPY_TO_WD]
         for key,value in infocopy.items():
             if isinstance(value, list):
                 print "%s %d" % (key,len(value))
