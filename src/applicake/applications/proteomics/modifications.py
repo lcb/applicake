@@ -31,7 +31,7 @@ class ModificationDb(object):
            'Phospho (STY)':{
                             _applications[0]: '79.966331@S,79.966331@T,79.966331@Y',
                             _applications[1]: '6,7,8,132,133',
-                            _applications[2]: '[STY]  79.966',
+                            _applications[2]: '[STY] 79.966',
                             _applications[3]: '<LISTITEM value="Phospho (STY)"/>'
                             },
            '13C(6)15(N)(2) (K)':{
