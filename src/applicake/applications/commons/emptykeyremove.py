@@ -13,6 +13,7 @@ class EmptyKeyRemover(IApplication):
 
         for key,value in info.items():
             if value == None or value == "":
+                log.debug("Removing empty key %s" % key)
                 del info[key]
 
         return (0,info)
