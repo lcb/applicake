@@ -41,6 +41,11 @@ class Unifier(IApplication):
         for key in info.keys():
             if isinstance(info[key], list):
                 info[key] = SequenceUtils.unify(info[key], reduce = reduce)
+                
+        if 'PEPXMLS' in info and not isinstance(info['PEPXMLS'],list):
+            log.debug('value [%s] of key [%s] was no list, converting' % ( info['PEPXMLS'],'PEPXMLS'))
+            info['PEPXMLS'] = [info['PEPXMLS']]
+            
         return 0,info
         
         
