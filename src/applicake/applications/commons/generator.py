@@ -135,9 +135,8 @@ class ParametersetGenerator(Generator):
         """ 
         
         if not isinstance(info[self.PARAM_IDX],list):
-            log.debug('value [%s] of key [%s] was no list' % (self.PARAM_IDX, info[self.PARAM_IDX]))
-            info[self.PARAM_IDX] = [info[self.PARAM_IDX]]
-
+            log.error('value [%s] of key [%s] was no list' % (self.PARAM_IDX, info[self.PARAM_IDX]))
+            return 1,info
         
         #remove file_idx as it is not longer needed
         basedic = info.copy()
@@ -174,13 +173,8 @@ class ParametersetGenerator(Generator):
                     else:                
                         values = [value[pos] for pos in positions]
                         param_dict[key] = SequenceUtils.unify(values,reduce=True)
-                
-                if 'PEPXMLS' in param_dict and not isinstance(param_dict['PEPXMLS'],list):
-                    log.debug('value [%s] of key [%s] was no list, converting' % ( param_dict['PEPXMLS'],'PEPXMLS'))
-                    param_dict['PEPXMLS'] = [param_dict['PEPXMLS']]        
                 log.debug('param idx [%s] created dict [%s]' % (param_idx,param_dict))
                 param_dicts.append(param_dict)    
-                
         # write ini files
         info = self.write_files(basedic,log,param_dicts)
         return (0,info)           
