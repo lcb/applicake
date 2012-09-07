@@ -54,3 +54,14 @@ class Unifier(IApplication):
         args_handler.add_app_args(log,'LISTS_TO_REMOVE',"Keys which are removed from info if a list (double unifier)",
                                   action='append',default=[]) 
         return args_handler
+
+    
+class PepxmlToList(IApplication):
+    def main(self,info,log):
+        if not isinstance(info['PEPXMLS'],list):
+            log.debug('Found only one pepxml! Converting to list!')
+            info['PEPXMLS'] = [info['PEPXMLS']]
+            
+    def set_args(self,log,args_handler):       
+        args_handler.add_app_args(log, 'PEPXMLS', 'Pepxmls key to check', action='append')
+        return args_handler
