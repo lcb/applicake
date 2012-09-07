@@ -12,7 +12,7 @@ class EmptyKeyRemover(IApplication):
     def main(self,info,log):
 
         for key,value in info.items():
-            if value == None:
+            if value == None or value == "":
                 del info[key]
 
         return (0,info)
