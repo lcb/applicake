@@ -6,9 +6,9 @@ Created on May 24, 2012
 '''
 
 import sys
-from applicake.framework.runner import IniFileRunner2
+from applicake.framework.runner import IniFileRunner
 from applicake.applications.commons.emptykeyremove import EmptyKeyRemover
-runner = IniFileRunner2()
+runner = IniFileRunner()
 application = EmptyKeyRemover()
 exit_code = runner(sys.argv,application)
 print exit_code
