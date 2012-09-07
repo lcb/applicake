@@ -68,42 +68,40 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
 
-setupfile = ''
+setupfile = sys.argv[1] if len(sys.argv) > 1 else ''
+
 def setup():
-    if len(sys.argv) < 2:
-        print "Usage: %s start.ini" % sys.argv[0]
-        sys.exit(1)
-    setupfile = sys.argv[1]
     if not os.path.exists(setupfile):
-        print "Setupfile %s not found" % sys.argv[1]
-        sys.exit(1)
-        '''
-        BASEDIR = /cluster/scratch_xl/shareholder/imsb_raworkflows
-        LOG_LEVEL = DEBUG
-        STORAGE = file
-        TEMPLATE = template.tpl
-        DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_radatasets
-        DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
-        DBASE = /cluster/scratch_xl/shareholder/imsb_rabiodb/ex_sp/current/decoy/ex_sp_9606.fasta
-        DECOY_STRING = DECOY_ 
-        FRAGMASSERR = 0.4
-        FRAGMASSUNIT = Da
-        PRECMASSERR = 15,25
-        PRECMASSUNIT = ppm
-        MISSEDCLEAVAGE = 0
-        ENZYME = Trypsin
-        STATIC_MODS = Carbamidomethyl (C)
-        VARIABLE_MODS = Phospho (STY)
-        THREADS = 4
-        XTANDEM_SCORE = k-score
-        IPROPHET_ARGS = MINPROB=0
-        FDR=0.01
-        SPACE = LOBLUM
-        PROJECT = TEST
-        DROPBOX = /cluster/scratch_xl/shareholder/imsb_radrop-box_prot_ident
-        WORKFLOW= ruffus_local_ommyxt
-        COMMENT = ruffus_local_ommyxt tinasset
-        '''    
+        print "Usage: %s setupfile" % sys.argv[0]
+        print "Setupfile [%s] not found" % setupfile
+        sys.exit(0)
+    '''Example:
+    BASEDIR = /cluster/scratch_xl/shareholder/imsb_raworkflows
+    LOG_LEVEL = DEBUG
+    STORAGE = file
+    TEMPLATE = template.tpl
+    DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_radatasets
+    DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
+    DBASE = /cluster/scratch_xl/shareholder/imsb_rabiodb/ex_sp/current/decoy/ex_sp_9606.fasta
+    DECOY_STRING = DECOY_ 
+    FRAGMASSERR = 0.4
+    FRAGMASSUNIT = Da
+    PRECMASSERR = 15,25
+    PRECMASSUNIT = ppm
+    MISSEDCLEAVAGE = 0
+    ENZYME = Trypsin
+    STATIC_MODS = Carbamidomethyl (C)
+    VARIABLE_MODS = Phospho (STY)
+    THREADS = 4
+    XTANDEM_SCORE = k-score
+    IPROPHET_ARGS = MINPROB=0
+    FDR=0.01
+    SPACE = LOBLUM
+    PROJECT = TEST
+    DROPBOX = /cluster/scratch_xl/shareholder/imsb_radrop-box_prot_ident
+    WORKFLOW= ruffus_local_ommyxt
+    COMMENT = ruffus_local_ommyxt tinasset
+    '''    
            
 @follows(setup)
 @split(setupfile, "generate.ini_*")

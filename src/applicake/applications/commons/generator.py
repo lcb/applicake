@@ -67,8 +67,8 @@ class DatasetcodeGenerator(Generator):
         #check if value DATASE_CODE is defined as list
         dsc = basedic[self.DATASET_CODE]
         if not isinstance(dsc,list):
-            log.fatal('found value of [%s] not to be a list [%s]' % (self.DATASET_CODE,dsc))
-            return(1,info) 
+            log.debug('found value of [%s] not to be a list [%s], converting it' % (self.DATASET_CODE,dsc))
+            basedic[self.DATASET_CODE] = [dsc]
         log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
         remove_keys = [self.COPY_TO_WD,self.NAME]        
         for key in remove_keys:
