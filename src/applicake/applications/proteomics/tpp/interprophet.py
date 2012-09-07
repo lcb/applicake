@@ -35,9 +35,6 @@ class InterProphet(IWrapper):
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
-        if not isinstance(info['PEPXMLS'],list):
-            log.debug('Found only one pepxml! Converting to list!')
-            info['PEPXMLS'] = [info['PEPXMLS']]
         old = info['PEPXMLS']
         new = self._result_file
         log.debug('replace value of [PEPXMLS] [%s] with [%s]' %(old,new))     
