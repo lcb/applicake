@@ -79,17 +79,17 @@ def setup():
 #    execute('rm jobid.txt') 
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/home/biol/quandtan/test/workflows
+        f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 LOG_LEVEL = DEBUG
 STORAGE = file
 TEMPLATE = template.tpl
-DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20120124102254267-296925,20120124121656335-296961
-DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
+DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
+DATASET_CODE = 20110721073234274-201170
+DBASE = /cluster/scratch_xl/shareholder/imsb_ra/bin/biodb/data/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
 DECOY_STRING = DECOY_ 
 FRAGMASSERR = 0.4
 FRAGMASSUNIT = Da
-PRECMASSERR = 15,25
+PRECMASSERR = 15
 PRECMASSUNIT = ppm
 MISSEDCLEAVAGE = 0
 ENZYME = Trypsin
@@ -103,6 +103,7 @@ SPACE = QUANDTAN
 PROJECT = TEST
 DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
 WORKFLOW=ruffus_local_xtandem
+
 """ 
 #,20120603165413998-510432,
 # 20120606045538225-517638 -> b10-01219.p.mzxml
