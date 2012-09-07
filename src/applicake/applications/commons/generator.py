@@ -176,8 +176,8 @@ class ParametersetGenerator(Generator):
                         param_dict[key] = SequenceUtils.unify(values,reduce=True)
                 
                 if 'PEPXMLS' in param_dict and not isinstance(param_dict['PEPXMLS'],list):
-                    log.debug('value [%s] of key [%s] was no list, converting' % ( info['PEPXMLS'],'PEPXMLS'))
-                    info['PEPXMLS'] = [info['PEPXMLS']]        
+                    log.debug('value [%s] of key [%s] was no list, converting' % ( param_dict['PEPXMLS'],'PEPXMLS'))
+                    param_dict['PEPXMLS'] = [param_dict['PEPXMLS']]        
                 log.debug('param idx [%s] created dict [%s]' % (param_idx,param_dict))
                 param_dicts.append(param_dict)    
                 
