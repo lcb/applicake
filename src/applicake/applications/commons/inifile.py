@@ -61,6 +61,7 @@ class PepxmlToList(IApplication):
         if not isinstance(info['PEPXMLS'],list):
             log.debug('Found only one pepxml! Converting to list!')
             info['PEPXMLS'] = [info['PEPXMLS']]
+        return 0,info
             
     def set_args(self,log,args_handler):       
         args_handler.add_app_args(log, 'PEPXMLS', 'Pepxmls key to check', action='append')
