@@ -76,13 +76,13 @@ def setup():
         print "Usage: %s start.ini" % sys.argv[0]
         sys.exit(1)
         '''
-        BASEDIR = /cluster/scratch/malars/workflows
+        BASEDIR = /cluster/scratch_xl/shareholder/imsb_raworkflows
         LOG_LEVEL = DEBUG
         STORAGE = file
         TEMPLATE = template.tpl
-        DATASET_DIR = /cluster/scratch/malars/datasets
+        DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_radatasets
         DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
-        DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
+        DBASE = /cluster/scratch_xl/shareholder/imsb_rabiodb/ex_sp/current/decoy/ex_sp_9606.fasta
         DECOY_STRING = DECOY_ 
         FRAGMASSERR = 0.4
         FRAGMASSUNIT = Da
@@ -98,7 +98,7 @@ def setup():
         FDR=0.01
         SPACE = LOBLUM
         PROJECT = TEST
-        DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
+        DROPBOX = /cluster/scratch_xl/shareholder/imsb_radrop-box_prot_ident
         WORKFLOW= ruffus_local_ommyxt
         COMMENT = ruffus_local_ommyxt tinasset
         '''    
