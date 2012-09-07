@@ -58,7 +58,7 @@ def dss(input_file_name, output_file_name):
         
 @transform(dss, regex("dss.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-   submitter.run('run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe'],lsfargs)
+   submitter.run('run_xtandem.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'tandem.exe','-s','file','-l','DEBUG'],lsfargs)
 
 @transform(tandem, regex("xtandem.ini_"), "xtandem2xml.ini_")
 def tandem2xml(input_file_name, output_file_name):
@@ -82,7 +82,7 @@ def tandemPepPro(input_file_name, output_file_name):
 
 @transform(dss, regex("dss.ini_"), "myrimatch.ini_")
 def myrimatch(input_file_name, output_file_name):
-    submitter.run('run_myrimatch.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
+    submitter.run('run_myrimatch.py', ['-i',  input_file_name,'-o', output_file_name,'-s','file','-l','DEBUG','-p'],lsfargs)
 
 @transform(myrimatch, regex("myrimatch.ini_"), "myrirefresh.ini_")
 def myrirefresh(input_file_name, output_file_name):
@@ -106,7 +106,7 @@ def myriPepPro(input_file_name, output_file_name):
 
 @transform(dss, regex("dss.ini_"), "msconvert.ini_")
 def msconvert(input_file_name, output_file_name):
-    submitter.run('run_mzxml2mgf.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
+    submitter.run('run_mzxml2mgf.py', ['-i',  input_file_name,'-o', output_file_name,'-s','file','-l','DEBUG','-p'],lsfargs)
     
 @transform(msconvert, regex("msconvert.ini_"), "omssa.ini_")
 def omssa(input_file_name, output_file_name):
@@ -188,7 +188,7 @@ def idfilter(input_file_name, output_file_name):
 
 @collate([silacanalyzer,idfilter],regex(r".*_(.+)$"), r'idmapper.ini_\1')    
 def idmapper(input_file_names, output_file_name):
-    submitter.run('run_idmapper.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name,'-s' 'memory_all'],lsfargs)
+    submitter.run('run_idmapper.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name],lsfargs)
 
 @transform(proteinprophet,regex('proteinprophet.ini_'),'prot2idxml.ini_')
 def protxml2idxml(input_file_name, output_file_name):
@@ -196,13 +196,14 @@ def protxml2idxml(input_file_name, output_file_name):
 
 @collate([idmapper,protxml2idxml],regex(r".*_(.+)$"), r'proteinquantifier.ini_\1')    
 def proteinquantifier(input_file_names, output_file_name):
-    submitter.run('run_proteinquantifier.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name,'-s' 'memory_all'],lsfargs)
+    submitter.run('run_proteinquantifier.py',['-i', input_file_names[0],'-i', input_file_names[1], '-o',output_file_name],lsfargs)
     
         
 ### MAIN ###
 lsfargs = '-m single -q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
-pipeline_run([proteinquantifier], multiprocess=12)
+#pipeline_run([proteinquantifier], multiprocess=4)
+pipeline_printout_graph ('~/flowchart.png','png',[proteinquantifier],no_key_legend = False) #svg
 
 
 
