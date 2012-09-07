@@ -70,10 +70,12 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
 
 setupfile = ''
 def setup():
+    if len(sys.argv) < 2:
+        print "Usage: %s start.ini" % sys.argv[0]
+        sys.exit(1)
     setupfile = sys.argv[1]
     if not os.path.exists(setupfile):
-        print "Setupfile %s not found" %sys.argv[1]
-        print "Usage: %s start.ini" % sys.argv[0]
+        print "Setupfile %s not found" % sys.argv[1]
         sys.exit(1)
         '''
         BASEDIR = /cluster/scratch_xl/shareholder/imsb_raworkflows
