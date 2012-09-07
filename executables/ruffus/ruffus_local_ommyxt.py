@@ -49,9 +49,6 @@ from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
 from applicake.applications.proteomics.tpp.peptideprophet import PeptideProphet
 from applicake.applications.proteomics.sybit.addSID2pepxml import AddSID2pepxml
 
-cwd = None
-
-
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
     argv = ['', '-i', input_file_name, '-o', output_file_name]
@@ -70,44 +67,44 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
-def setup():
-    subprocess.call("rm *ini*",shell=True)    
-    with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/scratch/malars/workflows
-LOG_LEVEL = DEBUG
-STORAGE = file
-TEMPLATE = template.tpl
-DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
-DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
-DECOY_STRING = DECOY_ 
-FRAGMASSERR = 0.4
-FRAGMASSUNIT = Da
-PRECMASSERR = 15,25
-PRECMASSUNIT = ppm
-MISSEDCLEAVAGE = 0
-ENZYME = Trypsin
-STATIC_MODS = Carbamidomethyl (C)
-VARIABLE_MODS = Phospho (STY)
-THREADS = 4
-XTANDEM_SCORE = k-score
-IPROPHET_ARGS = MINPROB=0
-FDR=0.01
-SPACE = LOBLUM
-PROJECT = TEST
-DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
-WORKFLOW= ruffus_local_ommyxt
-COMMENT = ruffus_local_ommyxt tinasset
-""" 
-#,20120603165413998-510432,
-# 20120606045538225-517638 -> b10-01219.p.mzxml
-# 20120603160111752-510155 -> b10-01219.c.mzxml 
-# 20120124102254267-296925,20120124121656335-296961 -> orbi silac hela from petri
-)       
-        
 
+setupfile = ''
+def setup():
+    setupfile = sys.argv[1]
+    if not os.path.exists(setupfile):
+        print "Setupfile %s not found" %sys.argv[1]
+        print "Usage: %s start.ini" % sys.argv[0]
+        sys.exit(1)
+        '''
+        BASEDIR = /cluster/scratch/malars/workflows
+        LOG_LEVEL = DEBUG
+        STORAGE = file
+        TEMPLATE = template.tpl
+        DATASET_DIR = /cluster/scratch/malars/datasets
+        DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
+        DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
+        DECOY_STRING = DECOY_ 
+        FRAGMASSERR = 0.4
+        FRAGMASSUNIT = Da
+        PRECMASSERR = 15,25
+        PRECMASSUNIT = ppm
+        MISSEDCLEAVAGE = 0
+        ENZYME = Trypsin
+        STATIC_MODS = Carbamidomethyl (C)
+        VARIABLE_MODS = Phospho (STY)
+        THREADS = 4
+        XTANDEM_SCORE = k-score
+        IPROPHET_ARGS = MINPROB=0
+        FDR=0.01
+        SPACE = LOBLUM
+        PROJECT = TEST
+        DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
+        WORKFLOW= ruffus_local_ommyxt
+        COMMENT = ruffus_local_ommyxt tinasset
+        '''    
+           
 @follows(setup)
-@split("input.ini", "generate.ini_*")
+@split(setupfile, "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
     runner = IniFileRunner()
