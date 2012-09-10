@@ -22,7 +22,7 @@ class Omssa(SearchEngine):
         """
         super(Omssa,self).__init__()
         base = self.__class__.__name__
-        self._result_file = '%s.pepXML' % base # result produced by the application
+        self._result_file = '%s.pep.xml' % base # result produced by the application
         
     def _get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
