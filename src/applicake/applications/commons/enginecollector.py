@@ -47,7 +47,7 @@ class GuseEngineCollector(IApplication):
         del infocopy[self.COPY_TO_WD]
         for key,value in infocopy.items():
             if isinstance(value, list):
-                print "%s %d" % (key,len(value))
+                log.debug("Runs: %d times %d (key %s)" % (runs,len(value),key))
                 runs = runs * len(value)
                 
         log.debug("Expected number of inis: %d" % runs)
