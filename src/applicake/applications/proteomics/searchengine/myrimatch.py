@@ -139,8 +139,8 @@ class MyrimatchTemplate(BasicTemplateHandler):
         See super class.
         """
         template = """DecoyPrefix = ""
-MonoPrecursorMzTolerance = "$PRECMASSERR $PRECMASSUNIT"
-FragmentMzTolerance = "$FRAGMASSERR $FRAGMASSUNIT"
+MonoPrecursorMzTolerance = $PRECMASSERR $PRECMASSUNIT
+FragmentMzTolerance = $FRAGMASSERR $FRAGMASSUNIT
 
 PrecursorMzToleranceRule = "mono"
 FragmentationRule= "cid"
