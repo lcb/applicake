@@ -7,10 +7,10 @@ Created on May 24, 2012
 
 import sys
 from applicake.framework.runner import IniFileRunner
-from applicake.applications.commons.inifile import PepxmlToList
+from applicake.applications.commons.inifile import KeysToList
 
 runner = IniFileRunner()
-application = PepxmlToList()
+application = KeysToList()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

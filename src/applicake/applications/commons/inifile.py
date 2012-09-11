@@ -56,13 +56,16 @@ class Unifier(IApplication):
         return args_handler
 
     
-class PepxmlToList(IApplication):
+class KeysToList(IApplication):
     def main(self,info,log):
-        if not isinstance(info['PEPXMLS'],list):
-            log.debug('Found only one pepxml! Converting to list!')
-            info['PEPXMLS'] = [info['PEPXMLS']]
+        items = info['KEYSTOLIST']        
+        for item in items:
+            if not isinstance(info[item],list):
+                log.debug('Key %s is not list, converting!' % item)
+                info[item] = [info[item]]
+        del info['KEYSTOLIST']
         return 0,info
             
     def set_args(self,log,args_handler):       
-        args_handler.add_app_args(log, 'PEPXMLS', 'Pepxmls key to check', action='append')
+        args_handler.add_app_args(log, 'KEYSTOLIST', 'keys to check and to convert to a list if necessary', action='append', default=[])
         return args_handler
