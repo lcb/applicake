@@ -200,7 +200,7 @@ def proteinquantifier(input_file_names, output_file_name):
     
         
 ### MAIN ###
-lsfargs = '-m single -q vip.1h -R lustre' 
+lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
 pipeline_run([proteinquantifier], multiprocess=12)
 
