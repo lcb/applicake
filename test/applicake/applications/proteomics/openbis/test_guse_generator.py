@@ -9,7 +9,7 @@ import shutil
 import sys
 from applicake.framework.logger import Logger
 from applicake.framework.runner import IniFileRunner
-from applicake.applications.proteomics.openbis.generator import GuseDatasetcodeGenerator
+from applicake.applications.commons.generator import DatasetcodeGenerator
 from StringIO import StringIO
 
 class Test(unittest.TestCase):
@@ -41,7 +41,7 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
 
     def test_guse_generator__1(self):
         runner = IniFileRunner()
-        app = GuseDatasetcodeGenerator()
+        app = DatasetcodeGenerator()
         sys.argv = ['', '-i', self.input, '--%s' % runner.GENERATOR,self.output]
         exit_code = runner(sys.argv,app)        
         assert 0 == exit_code
@@ -51,7 +51,7 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
         
     def test_guse_generator__2(self):
         '''test failing if dataset code is not a list'''
-        app = GuseDatasetcodeGenerator()
+        app = DatasetcodeGenerator()
         info = {
                 'DATASET_CODE':'20120320164249179-361885'
                 }
