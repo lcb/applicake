@@ -10,7 +10,7 @@ import re
 from applicake.framework.interfaces import IApplication
 
 
-class AnnotXmlFromCsv(IApplication):
+class AnnotProtxmlFromCsv(IApplication):
     
     def main(self,info,log):
         """
@@ -18,13 +18,8 @@ class AnnotXmlFromCsv(IApplication):
         put abundances back to original protXML file.
         """
         #annotate_protxml(protein_path, protxml_input, export_path)
-        if info['PROTXML']:
-            pti = 'protein'
-            xml_in = info['PROTXML']
-        else: 
-            pti = 'peptide'
-            xml_in = info['PEPXML']
-        xml_out = os.path.join(self.WORKDIR,os.path.basename(xml_in))
+        xml_in = info['PROTXML']
+        xml_out = os.path.join(info[self.WORKDIR],os.path.basename(xml_in))
         csv_in = info['CSV']
         indent = info['INDENT']
         
@@ -40,7 +35,7 @@ class AnnotXmlFromCsv(IApplication):
             # read data:
             for entry in csv.DictReader(source, header):
                 abundances = [entry["abundance_" + str(n)] for n in range(n_samples)]
-                proteins = entry[pti].split("/")
+                proteins = entry['protein'].split("/")
                 for protein in proteins:
                     result[protein] = abundances
     
@@ -53,12 +48,12 @@ class AnnotXmlFromCsv(IApplication):
         with open(xml_in) as source:
             with open(xml_out, "w") as sink:
                 for line in source:
-                    if line.strip().startswith("<%s "%pti ):
-                        protein = self._get_attribute_value(line, "%s_name"%pti)
+                    if line.strip().startswith("<protein " ):
+                        protein = self._get_attribute_value(line, "protein_name")
                         base_indent = line[:line.index("<")]
                         if len(indent) <= len(base_indent):
                             indent = base_indent + indent
-                    elif line.strip() == ("</%s>"%pti): # insert abundances here
+                    elif line.strip() == ("</protein>"): # insert abundances here
                         abundances = result.get(protein, [])
                         for file_id, abundance in zip(file_ids, abundances):
                             if abundance != "0":
@@ -76,11 +71,7 @@ class AnnotXmlFromCsv(IApplication):
         del info['CSV']
         del info['INDENT']
         del info['DELIM']  
-        if info['PROTXML']:
-            info['PROTXML'] = xml_out 
-        else: 
-            info['PEPXML'] = xml_out
-                      
+        info['PROTXML'] = xml_out 
         return 0,info
     
     def _get_attribute_value(self,line, attribute):
@@ -91,9 +82,9 @@ class AnnotXmlFromCsv(IApplication):
         return line[pos1:pos2]   
 
     def set_args(self,log,args_handler):
+        args_handler.add_app_args(log, self.WORKDIR , 'Current WD')
         args_handler.add_app_args(log, 'CSV' , 'Path to CSV input file containing abundances')
-        args_handler.add_app_args(log, 'PEPXML' , 'Path to pepXML input file', default=None)
-        args_handler.add_app_args(log, 'PROTXML' , 'Path to protXML input file', default=None)
+        args_handler.add_app_args(log, 'PROTXML' , 'Path to protXML input file')
         args_handler.add_app_args(log, 'DELIM', 'Field delimiter used in CSV input', default=',')
         args_handler.add_app_args(log, 'INDENT', 'Additional indentation for abundance entries in the protXML output', default='   ')
         
