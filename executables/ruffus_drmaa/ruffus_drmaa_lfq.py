@@ -11,6 +11,7 @@ from applicake.utils.drmaautils import DrmaaSubmitter
 
 def setup():
     if len(sys.argv) > 1 and sys.argv[1] == 'restart':
+        print 'Starting from scratch by creating new input.ini'
         subprocess.call("rm *ini* *.err *.out",shell=True)    
         with open("input.ini", 'w+') as f:
             f.write("""
@@ -109,25 +110,25 @@ ProteinQuantifier.format__replacement = _
 SeedListGenerator.use_peptide_mass = true
 """)
     else:
-        print 'Continuing'
+        print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
         
 
 @follows(setup)
 def getexperiment():
-    submitter.run('run_dss.py', ['-i',  'input.ini','-o', 'getexperiment.ini','--PREFIX', 'getexperiment','--DSSKEYS','EXPERIMENTFILES'],lsfargs)
+    submitter.run('run_dss.py', '-i input.ini -o getexperiment.ini --PREFIX getexperiment --DSSKEYS EXPERIMENTFILES'.split(),lsfargs)
 
 @follows(getexperiment)
 def processexperiment():
-    submitter.run('run_processexperiment.py', ['-i',  'getexperiment.ini','-o', 'processexperiment.ini'],lsfargs)
+    submitter.run('run_processexperiment.py', '-i getexperiment.ini -o processexperiment.ini'.split(),lsfargs)
 
 @follows(processexperiment)    
 @split("processexperiment.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    submitter.run('run_guse_generator.py',['-i', input_file_name, '--GENERATORS', 'generate.ini'],lsfargs)
+    submitter.run('run_guse_generator.py','-i input_file_name --GENERATORS generate.ini'.split(),lsfargs)
        
 @transform(generator, regex("generate.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):   
-    submitter.run('run_dss.py', ['-i',  input_file_name,'-o', output_file_name,'--PREFIX', 'getmsdata'],lsfargs)
+    submitter.run('run_dss.py','-i input_file_name -o output_file_name --PREFIX getmsdata'.split(),lsfargs)
 
         
 ### MAIN ###
