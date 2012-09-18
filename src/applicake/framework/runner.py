@@ -246,16 +246,19 @@ class Runner(KeyEnum):
             log.debug('found base dir [%s]' % dirname)
             filename = os.path.join(dirname, 'jobid.txt')
             locker = FileLocker()
-            if (os.path.exists(filename)):            
-                fh = open(filename,'r') 
-                locker.lock(fh,locker.LOCK_EX) 
-                jobid= int(fh.read())   
-                log.debug('previous job id [%s]' % jobid)
-                jobid += 1         
-                log.debug('current job id [%s]' % jobid)
-            fh = open(filename,'w')    
-            fh.write(str(jobid))
-            locker.unlock(fh)            
+            try:
+                if (os.path.exists(filename)):            
+                    fh = open(filename,'r') 
+                    locker.lock(fh,locker.LOCK_EX) 
+                    jobid= int(fh.read())   
+                    log.debug('previous job id [%s]' % jobid)
+                    jobid += 1         
+                    log.debug('current job id [%s]' % jobid)
+                fh = open(filename,'w')    
+                fh.write(str(jobid))
+            except:
+                log.error("Problem with g/set jobid, forcing unlock of jobid.txt")
+                locker.unlock(fh)            
             info[self.JOB_IDX]=jobid    
             log.debug("added key [%s] to info object" % self.JOB_IDX)
         
