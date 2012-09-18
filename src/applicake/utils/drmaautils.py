@@ -18,8 +18,8 @@ class DrmaaSubmitter(object):
         print 'Starting up drmaa session'        
         self._session = drmaa.Session()
         #print 'Supported contact strings: ' + self._session.contact
-        print 'Supported DRM systems: ' + str(self._session.drmsInfo)
-        print 'Supported DRMAA implementations: ' + str(self._session.drmaaImplementation)         
+        #print 'Supported DRM systems: ' + str(self._session.drmsInfo)
+        #print 'Supported DRMAA implementations: ' + str(self._session.drmaaImplementation)         
         self._session.initialize()
 
     def run(self,executable,commandarray=[],lsfargs='',wdir='.'):

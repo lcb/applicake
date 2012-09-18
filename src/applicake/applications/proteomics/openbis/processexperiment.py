@@ -8,12 +8,12 @@ Created on Mar 28, 2012
 from applicake.framework.interfaces import IApplication
 
 class ProcessExperiment(IApplication):
-    
-    def set_args(self,log,args_handler):  
+
+    def set_args(self,log,args_handler):
         args_handler.add_app_args(log, 'EXPERIMENTFILES', 'Experiment to donwload and get datasets from')
         args_handler.add_app_args(log, 'MSFILES', 'MS data used for next dss')
         return args_handler
-    
+
     def main(self,info,log):
         for entry in info['EXPERIMENTFILES']:
             if entry.lower().endswith('.pep.xml'):
@@ -21,15 +21,16 @@ class ProcessExperiment(IApplication):
             if entry.lower().endswith('.prot.xml'):
                 info["PROTXML_FILE"] = entry
 
-        run_code = 0                    
+        run_code = 0
         if not "PEPXML_FILE" in info:
             log.fatal("No pep xml file was found")
             run_code = 1
         if not "PROTXML_FILE" in info:
             log.fatal("No prot xml file was found")
             run_code = 1
-        
+
         info[self.DATASET_CODE] = info['MSFILES']
 
-        del info['EXPERIMENTFILES']
-        return (run_code,info) 
+        info['EXPERIMENTFILES'] = None
+        info['MSFILES'] = None
+        return (run_code,info)
