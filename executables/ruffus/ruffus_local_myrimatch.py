@@ -1,54 +1,45 @@
 #!/usr/bin/env python
 '''
-Created on Jun 24, 2012
+Created on Aug 15, 2012
 
-@author: quandtan
+@author: quandtan, loblum
 '''
-
 
 import os
 import sys
+import subprocess
+
 from ruffus import *
-from cStringIO import StringIO
-from subprocess import Popen
-from subprocess import PIPE
-from applicake.framework.runner import IniFileRunner, ApplicationRunner
-from applicake.framework.runner import CollectorRunner
-from applicake.framework.runner import WrapperRunner
-from applicake.applications.commons.generator import DatasetcodeGenerator
-from applicake.applications.os.echo import Echo
-from applicake.applications.commons.collector import GuseCollector
-from applicake.applications.proteomics.searchengine.xtandem import Xtandem
+from applicake.framework.runner import IniFileRunner2, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
+from applicake.applications.commons.generator import DatasetcodeGenerator,\
+    ParametersetGenerator
+from applicake.applications.commons.collector import GuseCollector, SimpleCollector
+
 from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
-from applicake.applications.proteomics.tpp.xinteract import Xinteract
 from applicake.applications.proteomics.tpp.interprophet import InterProphet
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 from applicake.applications.proteomics.openms.peptideproteinprocessing.falsediscoveryrate import FalseDiscoveryRate
 from applicake.applications.proteomics.openms.peptideproteinprocessing.peptideindexer import PeptideIndexer
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
 from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mzml
-from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
-from applicake.applications.proteomics.openms.quantification.featurefindercentroided import OrbiLessStrict
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
 from applicake.applications.proteomics.tpp.proteinprophet import ProteinProphet
 from applicake.applications.proteomics.sybit.protxml2spectralcount import ProtXml2SpectralCount
 from applicake.applications.proteomics.sybit.protxml2modifications import ProtXml2Modifications
 from applicake.applications.proteomics.sybit.protxml2openbis import ProtXml2Openbis
-
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox,\
     Copy2IdentDropbox
 from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
+
 from applicake.applications.proteomics.searchengine.myrimatch import Myrimatch
 
 from applicake.applications.proteomics.tpp.interactparser import InteractParser
 from applicake.applications.proteomics.tpp.refreshparser import RefreshParser
 from applicake.applications.proteomics.tpp.peptideprophet import PeptideProphet
-
-cwd = None
-
+from applicake.applications.proteomics.sybit.addSID2pepxml import AddSID2pepxml
 
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -68,53 +59,42 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
-def execute(command):
-    p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
-    output, error = p.communicate()                                                                                                                                                                            
-    out_stream = StringIO(output)
-    err_stream = StringIO(error) 
-
-
 def setup():
-    cwd = '.'
-    os.chdir(cwd)
-    execute("find . -type d -iname '[0-9]*' -exec rm -rf {} \;")
-    execute('rm *.err')
-    execute('rm *.out')
-    execute('rm *.log')
-    execute('rm *ini*')
-#    execute('rm jobid.txt') 
-    execute('rm flowchart.*')    
-    with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/scratch/malars/workflows
-LOG_LEVEL = DEBUG
-STORAGE = file
-TEMPLATE = template.tpl
-DATASET_DIR = /cluster/scratch/malars/datasets
-DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
-DBASE = /cluster/scratch/malars/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
-DECOY_STRING = DECOY_ 
-FRAGMASSERR = 0.4
-FRAGMASSUNIT = Da
-PRECMASSERR = 15
-PRECMASSUNIT = ppm
-MISSEDCLEAVAGE = 0
-ENZYME = Trypsin
-STATIC_MODS = Carbamidomethyl (C)
-THREADS = 5
-IPROPHET_ARGS = MINPROB=0
-FDR=0.01
-SPACE = LOBLUM
-PROJECT = TEST
-DROPBOX = /cluster/scratch/malars/drop-box_prot_ident
-""" 
-#,20120603165413998-510432,
-# 20120606045538225-517638 -> b10-01219.p.mzxml
-# 20120603160111752-510155 -> b10-01219.c.mzxml 
-# 20120124102254267-296925,20120124121656335-296961 -> orbi silac hela from petri
-)       
-        
-
+    if len(sys.argv) > 1 and sys.argv[1] == 'restart':
+        print 'Starting from scratch by creating new input.ini'
+        subprocess.call("rm *ini* *.err *.out",shell=True)    
+        with open("input.ini", 'w+') as f:
+            f.write("""
+    BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
+    LOG_LEVEL = DEBUG
+    STORAGE = memory_all
+    TEMPLATE = template.tpl
+    DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets/
+    DATASET_CODE = 20110721073234274-201170, 20110721054532782-201128, 20110721034730308-201103
+    DBASE = /cluster/scratch_xl/shareholder/imsb_ra/biodb/ex_sp/current/decoy/ex_sp_9606.fasta
+    DECOY_STRING = DECOY_ 
+    FRAGMASSERR = 0.4
+    FRAGMASSUNIT = Da
+    PRECMASSERR = 15,25
+    PRECMASSUNIT = ppm
+    MISSEDCLEAVAGE = 0
+    ENZYME = Trypsin
+    STATIC_MODS = Carbamidomethyl (C)
+    VARIABLE_MODS = Phospho (STY)
+    THREADS = 4
+    XTANDEM_SCORE = k-score
+    IPROPHET_ARGS = MINPROB=0
+    FDR=0.01
+    SPACE = LOBLUM
+    PROJECT = TEST
+    DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_ident/
+    WORKFLOW= ruffus_local_ommyxt
+    COMMENT = ruffus_local_ommyxt tinasset
+    """)
+    else:
+        print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
+           
+           
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
@@ -126,85 +106,124 @@ def generator(input_file_name, notused_output_file_names):
         raise Exception("generator failed [%s]" % exit_code) 
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
+@jobs_limit(1)
 def dss(input_file_name, output_file_name):   
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
 
-    
+
+######################### MYRIMATCH #########################################
+
 @transform(dss, regex("dss.ini_"), "myrimatch.ini_")
 def myrimatch(input_file_name, output_file_name):
-    wrap(Myrimatch,input_file_name, output_file_name,['--PREFIX', 'myrimatch'])
+    wrap(Myrimatch,input_file_name, output_file_name)
 
+@transform(myrimatch, regex("myrimatch.ini_"), "myriattr.ini_")
+def myriaddr(input_file_name, output_file_name):
+    wrap(AddSID2pepxml,input_file_name,output_file_name)
+ 
+@transform(myriaddr, regex("myriattr.ini_"), "myrirefresh.ini_")
+def myrirefresh(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh']) 
 
-@transform(myrimatch, regex("myrimatch.ini_"), "interactparser.ini_")
-def interactparser(input_file_name, output_file_name,):
-    wrap(InteractParser,input_file_name, output_file_name)   
+@transform(myrirefresh, regex("myrirefresh.ini_"), "myriinteract.ini_")
+def myriinteract(input_file_name, output_file_name,):
+    wrap(InteractParser,input_file_name, output_file_name,['-n','myriinteract'])   
 
-@transform(interactparser, regex("interactparser.ini_"), "refreshparser.ini_")
-def refreshparser(input_file_name, output_file_name):
-    wrap(RefreshParser,input_file_name, output_file_name) 
+@transform(myriinteract, regex("myriinteract.ini_"), "myrirefresh2.ini_")
+def myrirefresh2(input_file_name, output_file_name):
+    wrap(RefreshParser,input_file_name, output_file_name,['-n','myrirefresh2']) 
 
-@transform(refreshparser, regex("refreshparser.ini_"), "peptideprophet.ini_")
-def peptideprophet(input_file_name, output_file_name):
-    wrap(PeptideProphet,input_file_name, output_file_name) 
+@transform(myrirefresh2, regex("myrirefresh2.ini_"), "myripeppro.ini_")
+def myriPepPro(input_file_name, output_file_name):
+    wrap(PeptideProphet,input_file_name, output_file_name,['-n','myrippeppro']) 
+       
+############################# MERGE SEARCH ENGINE RESULTS ################################## 
+@collate(myriPepPro,regex(r".*_(.+)$"),  r'mergeengines.ini_\1')
+def mergeEngines(input_file_names, output_file_name):
+    argv = ['']
+    for f in input_file_names:
+        argv.append('--COLLECTORS')
+        argv.append(f)
+    argv.append('-o')
+    argv.append(output_file_name)
     
-@merge(peptideprophet, "collector.ini")
+    runner = CollectorRunner()
+    application = SimpleCollector()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("collector failed [%s]" % exit_code) 
+
+@transform(mergeEngines, regex("mergeengines.ini_"), "unifyengines.ini_")
+def unifyEngines(input_file_name, output_file_name):
+    argv = ['', '-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE']
+    runner = IniFileRunner2()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier failed [%s]" % exit_code)  
+
+@transform(unifyEngines, regex("unifyengines.ini_"), "interprophetengines.ini_")
+def interprophetengines(input_file_name, output_file_name):
+    wrap(InterProphet,input_file_name, output_file_name)
+    
+############################# TAIL: PARAMGENERATE ##################################   
+
+@merge(interprophetengines, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'peptideprophet.ini', '-o', output_file_name]
+    argv = ['', '--COLLECTORS', 'interprophetengines.ini', '-o', output_file_name]
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
-
 @follows(collector)
-def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','--LISTS_TO_REMOVE','PARAM_IDX','--LISTS_TO_REMOVE','FILE_IDX']
+@split("collector.ini", "paramgenerate.ini_*")
+def paramgenerator(input_file_name, notused_output_file_names):
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-s','file']
     runner = IniFileRunner()
-    application = Unifier()
+    application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
-        raise Exception("unifier [%s]" % exit_code)  
+        raise Exception("paramgenerator [%s]" % exit_code)  
 
-@follows(unifier)
-def interprophet():
-    wrap(InterProphet,'unifier.ini','interprophet.ini',['-s','file'])    
+@transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
+def interprophet(input_file_name, output_file_name):
+    wrap(InterProphet,input_file_name, output_file_name)
 
-@follows(interprophet)
-def pepxml2csv():
-    wrap(Pepxml2Csv,'interprophet.ini','pepxml2csv.ini')   
+@transform(interprophet, regex("interprophet.ini_"), "pepxml2csv.ini_")
+def pepxml2csv(input_file_name, output_file_name):
+    wrap(Pepxml2Csv,input_file_name, output_file_name)          
     
-@follows(pepxml2csv)
-def fdr2probability():
-    wrap(Fdr2Probability,'pepxml2csv.ini','fdr2probability.ini')         
+@transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
+def fdr2probability(input_file_name, output_file_name):
+    wrap(Fdr2Probability,input_file_name, output_file_name)        
 
-@follows(fdr2probability)
-def proteinprophet():
-    wrap(ProteinProphet,'fdr2probability.ini','proteinprophet.ini') 
+@transform(fdr2probability, regex("fdr2probability.ini_"), "proteinprophet.ini_") 
+def proteinprophet(input_file_name, output_file_name):
+    wrap(ProteinProphet,input_file_name, output_file_name)
 
-@follows(proteinprophet)
-def protxml2spectralcount():
-    wrap(ProtXml2SpectralCount,'proteinprophet.ini','protxml2spectralcount.ini') 
+@transform(proteinprophet, regex("proteinprophet.ini_"), "protxml2spectralcount.ini_") 
+def protxml2spectralcount(input_file_name, output_file_name):
+    wrap(ProtXml2SpectralCount,input_file_name, output_file_name)
 
-@follows(protxml2spectralcount)
-def protxml2modifications():
-    wrap(ProtXml2Modifications,'protxml2spectralcount.ini','protxml2modifications.ini') 
+@transform(protxml2spectralcount, regex("protxml2spectralcount.ini_"), "protxml2modifications.ini_")
+def protxml2modifications(input_file_name, output_file_name):
+    wrap(ProtXml2Modifications,input_file_name, output_file_name)
 
-@follows(protxml2modifications)
-def protxml2openbis():
-    wrap(ProtXml2Openbis,'protxml2modifications.ini','protxml2openbis.ini') 
+@transform(protxml2modifications, regex("protxml2modifications.ini_"), "protxml2openbis.ini_")
+def protxml2openbis(input_file_name, output_file_name):
+    wrap(ProtXml2Openbis,input_file_name, output_file_name)
 
-@follows(protxml2openbis)
-def copy2dropbox():
-    argv = ['', '-i', 'protxml2openbis.ini', '-o','copy2dropbox.ini']
+@transform(protxml2openbis, regex("protxml2openbis.ini_"),"copy2dropbox.ini_")
+def copy2dropbox(input_file_name, output_file_name):
+    argv = ["", "-i", input_file_name, "-o",output_file_name]
     runner = IniFileRunner()
     application = Copy2IdentDropbox()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("copy2dropbox [%s]" % exit_code)  
-        
-pipeline_run([copy2dropbox],multiprocess=3)
-#pipeline_run([featurefindercentroided])
 
 
-#pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
+pipeline_run([interprophetengines], multiprocess = 16)
+#pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
