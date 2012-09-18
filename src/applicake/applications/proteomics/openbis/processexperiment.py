@@ -29,6 +29,6 @@ class ProcessExperiment(IApplication):
             log.fatal("No prot xml file was found")
             run_code = 1
         
-        info[self.DATASET_CODE] = info['MSFILE']
+        info[self.DATASET_CODE] = info['MSFILES']
 
         return (run_code,info) 
