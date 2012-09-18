@@ -114,7 +114,7 @@ SeedListGenerator.use_peptide_mass = true
 
 @follows(setup)
 def getexperiment():
-    submitter.run('run_dss.py', ['-i',  'input.ini','-o', 'getexperiment.ini','--PREFIX', 'getexperiment'],lsfargs)
+    submitter.run('run_dss.py', ['-i',  'input.ini','-o', 'getexperiment.ini','--PREFIX', 'getexperiment','--DSSKEYS','EXPERIMENTFILES'],lsfargs)
 
 @follows(getexperiment)
 def processexperiment():

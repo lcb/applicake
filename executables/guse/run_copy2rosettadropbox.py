@@ -13,3 +13,4 @@ runner = IniFileRunner()
 application = Copy2RosettaDropbox()
 exit_code = runner(sys.argv,application)
 print exit_code
+sys.exit(exit_code)

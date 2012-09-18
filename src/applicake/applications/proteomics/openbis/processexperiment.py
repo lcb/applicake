@@ -10,12 +10,12 @@ from applicake.framework.interfaces import IApplication
 class ProcessExperiment(IApplication):
     
     def set_args(self,log,args_handler):  
-        args_handler.add_app_args(log, 'SEARCH', 'Experiment to donwload and get datasets from')
+        args_handler.add_app_args(log, 'EXPERIMENTFILES', 'Experiment to donwload and get datasets from')
         args_handler.add_app_args(log, 'MSFILES', 'MS data used for next dss')
         return args_handler
     
     def main(self,info,log):
-        for entry in info['SEARCH']:
+        for entry in info['EXPERIMENTFILES']:
             if entry.lower().endswith('.pep.xml'):
                 info["PEPXML_FILE"] = entry
             if entry.lower().endswith('.prot.xml'):
@@ -31,4 +31,5 @@ class ProcessExperiment(IApplication):
         
         info[self.DATASET_CODE] = info['MSFILES']
 
+        del info['EXPERIMENTFILES']
         return (run_code,info) 
