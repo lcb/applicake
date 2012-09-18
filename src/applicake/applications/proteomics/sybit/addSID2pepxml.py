@@ -11,7 +11,9 @@ from applicake.framework.interfaces import IApplication
 class AddSID2pepxml(IApplication):
     
     def main(self,info,log):
-        
+        '''
+        Used after myrimatch to correct xml (LFQ compatible)
+        '''
         outfiles = []
         for infile in info['PEPXMLS']:
             path,ext = os.path.splitext(infile)

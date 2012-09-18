@@ -17,33 +17,44 @@ class AnnotProtxmlFromCsv(IApplication):
         After ProteinQuantifier puts abundances from consensusXML to csv,
         put abundances back to original protXML file.
         """
-        #annotate_protxml(protein_path, protxml_input, export_path)
         xml_in = info['PROTXML']
         xml_out = os.path.join(info[self.WORKDIR],os.path.basename(xml_in))
         csv_in = info['CSV']
         indent = info['INDENT']
+
+        #this code is copied from hendriks annotate_protxml(protein_path, protxml_input, export_path)
+        prot_abundances = self._read_csv(csv_in)
+        self._annotate_protxml(xml_in,xml_out,prot_abundances,indent)
         
-        result = {}
+        del info['CSV']
+        del info['INDENT']
+        del info['DELIM']  
+        info['PROTXML'] = xml_out 
+        return 0,info
+    
+    def _read_csv(self,csv_in):
+        prot_abundances = {}      
         with open(csv_in, "rb") as source:
-            comments = []
-            line = source.readline().strip()
-            while line and line.startswith("#"): # comment line
-                comments.append(line)
-                line = source.readline().strip()
+            line = '#'
+            while line.startswith('#'):
+                comment = line
+                line = source.readline()
+            sample_ids = re.compile("[0-9]+: '([^']+)'").findall(comment)
+            n_samples = len(sample_ids)
             header = csv.reader([line]).next()
-            n_samples = sum([item.startswith("abundance_") for item in header])
+
             # read data:
             for entry in csv.DictReader(source, header):
-                abundances = [entry["abundance_" + str(n)] for n in range(n_samples)]
+                abundances = {}
+                for n in range(n_samples):
+                    abundances[sample_ids[n]] = entry["abundance_%d" % n]   
                 proteins = entry['protein'].split("/")
                 for protein in proteins:
-                    result[protein] = abundances
+                    prot_abundances[protein] = abundances
+                           
+        return prot_abundances
     
-        # get file IDs associated with abundance values:
-        regexp = re.compile("[0-9]+: '([^']+)'")
-        matches = regexp.findall(comments[-1])
-        file_ids = [os.path.basename(match).split(".")[0] for match in matches]
-    
+    def _annotate_protxml(self,xml_in,xml_out,prot_abundances,indent):
         # annotate protXML file:
         with open(xml_in) as source:
             with open(xml_out, "w") as sink:
@@ -54,8 +65,8 @@ class AnnotProtxmlFromCsv(IApplication):
                         if len(indent) <= len(base_indent):
                             indent = base_indent + indent
                     elif line.strip() == ("</protein>"): # insert abundances here
-                        abundances = result.get(protein, [])
-                        for file_id, abundance in zip(file_ids, abundances):
+                        abundances = prot_abundances.get(protein, {})
+                        for file_id, abundance in abundances.items():
                             if abundance != "0":
                                 sink.write('%s<parameter name="%s" value="%s" '
                                            'type="abundance"/>\n' % 
@@ -67,13 +78,7 @@ class AnnotProtxmlFromCsv(IApplication):
                         except ValueError: # different "parameter" element
                             pass
                     sink.write(line)
-        
-        del info['CSV']
-        del info['INDENT']
-        del info['DELIM']  
-        info['PROTXML'] = xml_out 
-        return 0,info
-    
+                    
     def _get_attribute_value(self,line, attribute):
         """Get the value of an attribute from the XML element contained in 'line'"""
         pos0 = line.index(attribute + '="')
