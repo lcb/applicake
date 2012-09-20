@@ -16,6 +16,7 @@ class ProcessExperiment(IApplication):
 
     def main(self,info,log):
         for entry in info['EXPERIMENTFILES']:
+            #ask emanuel for regex!!!
             if entry.lower().endswith('.pep.xml'):
                 info["PEPXML_FILE"] = entry
             if entry.lower().endswith('.prot.xml'):

@@ -135,8 +135,9 @@ class ParametersetGenerator(Generator):
         """ 
         
         if not isinstance(info[self.PARAM_IDX],list):
-            log.error('value [%s] of key [%s] was no list' % (self.PARAM_IDX, info[self.PARAM_IDX]))
-            return 1,info
+            log.info('value [%s] of key [%s] was no list, converting' % (info[self.PARAM_IDX],self.PARAM_IDX))
+            info[self.PARAM_IDX] = [info[self.PARAM_IDX]]
+            #return 1,info
         
         #remove file_idx as it is not longer needed
         basedic = info.copy()
