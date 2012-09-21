@@ -27,7 +27,7 @@ class AddSID2pepxml(IApplication):
             for line in fin:
                 if not_found:
                     if '<search_summary' in line:
-                        line = line.replace('>', 'search_id="1">')
+                        line = line.replace('>', ' search_id="1">')
                         #line = '%s search_id="1">\n' % re.sub('>$', '', line)
                         not_found = False
                 fout.write(line)
