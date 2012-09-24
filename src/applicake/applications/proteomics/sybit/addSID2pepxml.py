@@ -1,30 +1,29 @@
 '''
 Created on Jul 5, 2012
 
-@author: lorenz
+@author: quandtan, lorenz
 '''
+import cStringIO
 import os
-import re
 from applicake.framework.interfaces import IApplication
 
 
-class AddSID2pepxml(IApplication):
-    
+class AddSID2pepxml(IApplication): 
+    # transfer of addSearchIdAttr2pepxml from applicake 0.10 to new applicake base
     def main(self,info,log):
         '''
         Used after myrimatch to correct xml (LFQ compatible)
         '''
+        
         outfiles = []
         for infile in info['PEPXMLS']:
             path,ext = os.path.splitext(infile)
             filename,ext = os.path.splitext(os.path.basename(infile))
             outfile = os.path.join(info[self.WORKDIR], filename + '_corrected' + ext)
-            
-            
             fin = open(infile)
             fout = open(outfile,'wb')
             not_found = True
-            for line in fin:
+            for line in cStringIO.StringIO(fin):
                 if not_found:
                     if '<search_summary' in line:
                         line = line.replace('>', ' search_id="1">')

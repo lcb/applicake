@@ -203,3 +203,5 @@ def copy2dropbox(input_file_name, output_file_name):
 lsfargs = '-q vip.1h -R lustre' 
 submitter = DrmaaSubmitter()
 pipeline_run([copy2dropbox], multiprocess=12)
+
+#pipeline_printout_graph ('misc/ruffus_drmaa_ommyxt.png','png',[copy2dropbox],no_key_legend = True) #svg
