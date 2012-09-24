@@ -25,7 +25,7 @@ class SequestInitiator(Generator):
         ##First read the info and add the additional entries from sequest.params
         #copy params file from sorcerer
         sorcAddr = 'sorcerer@imsb-ra-sorcerer' + info['SEQUESTHOST'] + '.ethz.ch'
-        sorcPath = '/home/sorcerer/output/' + info['SEQUESTJOBID'] + '/original/'
+        sorcPath = '/home/sorcerer/output/' + info['SEQUESTRESULTPATH'] + '/original/'
         
         info = self.addParamsToInfo(sorcAddr+":"+ sorcPath, info)
         info = self.cpAndCheckDB(sorcAddr, info,log)
