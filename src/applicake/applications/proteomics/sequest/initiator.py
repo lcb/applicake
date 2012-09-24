@@ -18,6 +18,7 @@ class SequestInitiator(Generator):
     def set_args(self,log,args_handler):
         args_handler.add_app_args(log, 'SEQUESTHOST' , 'Sequest host (1 or 2)')
         args_handler.add_app_args(log, 'SEQUESTRESULTPATH' , 'Sequest result path (/home/sorcerer/output/????)')
+        args_handler.add_app_args(log, 'GENERATORS' , 'Basename for output inis') 
         args_handler.add_app_args(log, self.WORKDIR, 'Workdir') 
         return args_handler
     
@@ -34,14 +35,16 @@ class SequestInitiator(Generator):
         return 0,info
      
     def addParamsToInfo(self,sorcpath,info):
-        paramfile = os.path.join(self.WORKDIR, 'sequest.params')
-        #put in a method
+        paramfile = os.path.join(info[self.WORKDIR], 'sequest.params')
         try:
             subprocess.check_call(['rsync', '-vrtz', sorcpath + 'sequest.params', paramfile])
         except:
             raise Exception("Cannot get params from sorcerer. Did you check passwordless SSH? Does file exist?")
         
         #transform sorcerer params to info.ini & write out
+        info["FRAGMASSUNIT"] = 'NA'
+        info["FRAGMASSERR"] = 'NA'  
+        info['ENZYME'] = 'Trypsin'
         for line in open(paramfile).readlines():
             if 'peptide_mass_tolerance' in line:
                 info["PRECMASSERR"] = line.split()[2]
@@ -51,16 +54,16 @@ class SequestInitiator(Generator):
                 sequestunits = {"0":"amu", "1":"mmu", "2":"ppm" }
                 info["PRECMASSUNIT"] = sequestunits[line.split()[2]]
             if line.startswith('database_name'):
-                sorcDB = line.split()[2]
-                info["DBASE"] = os.path.join(info[self.WORKDIR], os.path.basename(sorcDB))
-        info["FRAGMASSUNIT"] = 'NA'
-        info["FRAGMASSERR"] = 'NA'   
+                info['SEQUESTDBASE'] = line.split()[2]
+            if line.startswith('num_enzyme_termini = 2'):
+                info['ENZYME'] = 'Semi-Tryptic'  
         return info
     
     def cpAndCheckDB(self,sorcAddr,info,log):
-        dbfile = os.path.join(self.WORKDIR, os.path.basename(info['DBASE']))
+        info['DBASE'] = os.path.join(info[self.WORKDIR], os.path.basename(info['SEQUESTDBASE']))
+        print 
         try:
-            subprocess.check_call(['rsync', '-vrtz', sorcAddr + ':' + info['DBASE'], dbfile])
+            subprocess.check_call(['rsync', '-vrtz', sorcAddr + ':' + info['SEQUESTDBASE'], info['DBASE']])
         except:
             raise Exception("Couldnt copy fasta dbase from sorcerer")
         hasDecoys = False;
@@ -71,7 +74,6 @@ class SequestInitiator(Generator):
         if not hasDecoys:
             log.critical("No DECOY_s in fasta found!")
             sys.exit(1)
-        info['DBASE'] = dbfile
         return info
     
     def convertSeq2Pepxml(self,info,log,sorcAddr,sorcPath):
@@ -94,7 +96,7 @@ class SequestInitiator(Generator):
                 raise Exception("Couldnt convert pepxml: " + pepxmldir)
             
             copyin = sorcAddr + ':' + sorcPath + pepxmldir + '.pep.xml'
-            copyout = os.path.join(self.WORKDIR, info['PARAM_IDX'], info['SPECTRA_IDX'], 'copier')
+            copyout = os.path.join(info[self.WORKDIR])
             dict[self.SOURCE] = copyin+" "+copyout
             
             ###################################################
@@ -103,9 +105,11 @@ class SequestInitiator(Generator):
             except:
                 raise Exception("Failed matching mzxml to samplecode")
             
-            (samplecode, datasetcode) = str(scdc).split(':')
+            (samplecode, datasetcode) = scdc.split(':')
+            samplecode = samplecode.strip()
+            datasetcode = datasetcode.strip()
             dict['NEWBASENAME'] = samplecode + '~' + datasetcode
-            parentcodes.append(datasetcode.strip())
+            parentcodes.append(datasetcode)
             dicts.append(dict)
         
         for dict in dicts:

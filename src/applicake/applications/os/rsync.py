@@ -13,6 +13,11 @@ class Rsync(IWrapper):
     key with a list of copied files (absolute paths) when sucessful. Needs passwordless SSH for network copies 
     (prevents hangup). Does parameter optimization for local copies.   
     """
+    
+    def set_args(self,log,args_handler):
+        args_handler.add_app_args(log, self.SOURCE, '')
+        return args_handler
+    
     def prepare_run(self, info, log):
         """
         See super class.

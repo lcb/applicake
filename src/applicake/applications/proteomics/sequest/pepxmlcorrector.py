@@ -15,6 +15,7 @@ class SequestPepxmlCorrector(IApplication):
     
     def set_args(self,log,args_handler):
         args_handler.add_app_args(log, 'NEWBASENAME' , 'New styple base name')
+        args_handler.add_app_args(log, self.DESTINATION, 'Former rsync destination')
         args_handler.add_app_args(log, self.WORKDIR, 'Workdir')
         
         return args_handler
@@ -28,9 +29,9 @@ class SequestPepxmlCorrector(IApplication):
         cleanpepxmldir = info[self.WORKDIR]
         cleanpepxmlname = os.path.basename(copiedpepxml)
         cleanpepxml = os.path.join(cleanpepxmldir, cleanpepxmlname)
-        info['PEPXMLS'] = cleanpepxml  
+        info['PEPXMLS'] = [cleanpepxml]  
         
-        self.log.debug("CREATING CLEANPEPXML " + cleanpepxml)
+        log.debug("CREATING CLEANPEPXML " + cleanpepxml)
         r = open(copiedpepxml)
         oldbasename = ''
         for line in r.readlines():
@@ -40,10 +41,10 @@ class SequestPepxmlCorrector(IApplication):
         r.close()
         
         if oldbasename == '':
-            self.log.fatal("No base_name found in " + copiedpepxml);
+            log.fatal("No base_name found in " + copiedpepxml);
             sys.exit(1)
         else:
-            self.log.debug("Oldbasename " + oldbasename+" being replaced with " + newbasename)
+            log.debug("Oldbasename " + oldbasename+" being replaced with " + newbasename)
             
         r = open(copiedpepxml)
         w = open(cleanpepxml, "w")
