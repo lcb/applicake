@@ -2,19 +2,16 @@
 '''
 Created on Jul 11, 2012
 
-@author: wolski, blum
+@author: quandtan, wolski, blum
 '''
 
 import os
 import sys
 import subprocess
-
 from ruffus import *
 
 from applicake.framework.interfaces import IApplication, IWrapper
-
 from applicake.framework.runner import ApplicationRunner, CollectorRunner, WrapperRunner, IniFileRunner, IniFileRunner2
-
 from applicake.applications.proteomics.openswath.chromatogramextractor import ChromatogramExtractor
 from applicake.applications.proteomics.openswath.mrmrtnormalizer import MRMRTNormalizer
 from applicake.applications.proteomics.openswath.mrmanalyzer import MRMAnalyzer
@@ -50,13 +47,13 @@ def wrap(applic, input_file_name, output_file_name, opts=None):
 def setup():
     subprocess.call("rm *ini* *.err *.out *.log ",shell=True)
     with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/scratch/malars/loblum/openswathtest/workflows
+        f.write("""BASEDIR = /cluster/scratch_xl/shareholder/malars/workflows
 LOG_LEVEL = DEBUG
 STORAGE = file
 THREADS = 8
-MZMLGZDIR = /cluster/scratch/malars/loblum/openswathtest/datasets3/
-LIBTRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/AQUA4_sh_new.TraML"
-IRTTRAML = "/cluster/scratch/malars/loblum/openswathtest/tramls/DIA_iRT.TraML"
+MZMLGZDIR = /cluster/scratch_xl/shareholder/malars/quandtan/openswathtest/datasets3/
+LIBTRAML = "/cluster/scratch_xl/shareholder/malars/quandtan/openswathtest/tramls/AQUA4_sh_new.TraML"
+IRTTRAML = "/cluster/scratch_xl/shareholder/malars/quandtan/openswathtest/tramls/DIA_iRT.TraML"
 MIN_UPPER_EDGE_DIST = 1
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
