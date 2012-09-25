@@ -109,10 +109,11 @@ class SequestInitiator(Generator):
             samplecode = samplecode.strip()
             datasetcode = datasetcode.strip()
             dict['NEWBASENAME'] = samplecode + '~' + datasetcode
-            parentcodes.append(datasetcode)
+            dict['DATASET_CODE'] = datasetcode
+            #parentcodes.append(datasetcode)
             dicts.append(dict)
         
-        for dict in dicts:
-            dict['PARENT-DATA-SET-CODES'] = parentcodes
+        #for dict in dicts:
+        #    dict['PARENT-DATA-SET-CODES'] = parentcodes
             
         return dicts
