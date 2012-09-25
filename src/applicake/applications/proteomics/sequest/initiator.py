@@ -43,7 +43,9 @@ class SequestInitiator(Generator):
         
         #transform sorcerer params to info.ini & write out
         info["FRAGMASSUNIT"] = 'NA'
-        info["FRAGMASSERR"] = 'NA'  
+        info["FRAGMASSERR"] = 'NA'
+        info["STATIC_MODS"] = 'NA'
+        info["VARIABLE_MODS"] = 'NA'
         info['ENZYME'] = 'Trypsin'
         for line in open(paramfile).readlines():
             if 'peptide_mass_tolerance' in line:
