@@ -16,11 +16,12 @@ class ProcessExperiment(IApplication):
 
     def main(self,info,log):
         for entry in info['EXPERIMENTFILES']:
-            #ask emanuel for regex!!!
-            if entry.lower().endswith('.pep.xml'):
-                info["PEPXML_FILE"] = entry
-            if entry.lower().endswith('.prot.xml'):
+            #official 'regex' from ch/systemsx/cisd/openbis/etlserver/proteomics/ProtXMLUploader.java
+            #no starting dot, all lowercase
+            if entry.endswith('prot.xml'):
                 info["PROTXML_FILE"] = entry
+            if entry.endswith('pep.xml'):
+                info["PEPXML_FILE"] = entry
 
         run_code = 0
         if not "PEPXML_FILE" in info:
