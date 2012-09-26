@@ -24,7 +24,7 @@ class KeyEnum(object):
     LOG_LEVEL = 'LOG_LEVEL'
     MZML = 'MZML'
     MZXML = 'MZXML'
-    MZXML_CODE = 'MZXML_CODES'
+    MZXML_CODE = 'MZXML_CODE'
     PROTXML = 'PROTXML'
     PEPXML = 'PEPXML'
     SEARCH = 'SEARCH'
