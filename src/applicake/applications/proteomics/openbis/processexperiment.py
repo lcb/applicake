@@ -11,7 +11,7 @@ class ProcessExperiment(IApplication):
 
     def set_args(self,log,args_handler):
         args_handler.add_app_args(log, self.SEARCH, 'Key where containing files of downloaded experiment')
-        args_handler.add_app_args(log, self.MZXML_CODES, 'MS dataset codes used for next dss')
+        args_handler.add_app_args(log, self.MZXML_CODE, 'MS dataset codes used for next dss')
         return args_handler
 
     def main(self,info,log):
