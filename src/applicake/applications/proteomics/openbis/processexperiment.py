@@ -37,4 +37,5 @@ class ProcessExperiment(IApplication):
         #remove these guys to prevent parameter sweep
         info[self.SEARCH] = None
         info[self.MZXML_CODE] = None
+        info[self.DSSOUTPUT] = None
         return (run_code,info)
