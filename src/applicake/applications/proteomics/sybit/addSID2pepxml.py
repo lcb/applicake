@@ -23,7 +23,7 @@ class AddSID2pepxml(IApplication):
             fin = open(infile)
             fout = open(outfile,'wb')
             not_found = True
-            for line in cStringIO.StringIO(fin):
+            for line in fin: #cStringIO.StringIO(fin):
                 if not_found:
                     if '<search_summary' in line:
                         line = line.replace('>', ' search_id="1">')
