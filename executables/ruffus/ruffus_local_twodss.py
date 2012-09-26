@@ -6,6 +6,7 @@ Created on Aug 15, 2012
 '''
 import sys
 import subprocess
+import tempfile
 from ruffus import *
 from applicake.applications.proteomics.openbis.processexperiment import ProcessExperiment
 from applicake.applications.proteomics.openbis.dss import Dss
@@ -41,18 +42,18 @@ def setup():
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
-STORAGE = file
+STORAGE = memory_all
 WORKFLOW = twodss
 
 DATASET_CODE = E286812
-MS_CODES = 20110722014852343-201543, 20110722033454238-201588
+MSFILES = 20110722014852343-201543, 20110722033454238-201588
 """)
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
     
 @follows(setup)
 def getexperiment():
-     wrap(Dss,'input.ini','getexperiment.ini',['--PREFIX', 'getexperiment','--DSSKEYS','EXPERIMENTFILES'])
+     wrap(Dss,'input.ini','getexperiment.ini',['--PREFIX', 'getexperiment'])
 
 @follows(getexperiment)
 def processexperiment():
@@ -69,8 +70,8 @@ def generator(input_file_name, notused_output_file_names):
         raise Exception("generator failed [%s]" % exit_code) 
     
 @transform(generator, regex("generate.ini_"), "dss.ini_")
-@jobs_limit(1)
-def dss(input_file_name, output_file_name):   
-    wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata'])
+def dss(input_file_name, output_file_name):
+    thandle, tfile = tempfile.mkstemp(suffix='.out', prefix='getmsdata',dir='.')   
+    wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata','--RESULT_FILE',tfile])
     
-pipeline_run([dss], multiprocess=12)
+pipeline_run([dss], multiprocess=3)
