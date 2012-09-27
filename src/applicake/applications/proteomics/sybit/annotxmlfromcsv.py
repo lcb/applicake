@@ -33,25 +33,26 @@ class AnnotProtxmlFromCsv(IApplication):
         return 0,info
     
     def _read_csv(self,csv_in):
-        prot_abundances = {}      
+        #prot_abundances[PROTEINS][SAMPLE_ID] = abundance  
+        prot_abundances = {}     
         with open(csv_in, "rb") as source:
-            line = '#'
-            while line.startswith('#'):
-                comment = line
-                line = source.readline()
-            sample_ids = re.compile("[0-9]+: '([^']+)'").findall(comment)
+            #the line containing the sampleids is the line before the data starts (with a '"')
+            for line in source:
+                if line.startswith('"'):
+                    break
+                sampleline = line
+            sample_ids = re.compile("[0-9]+: '([^']+)'").findall(sampleline)
             n_samples = len(sample_ids)
+            
+            #the header is the first line starting with '"'. parse with csv.reader.next
             header = csv.reader([line]).next()
-
-            # read data:
             for entry in csv.DictReader(source, header):
                 abundances = {}
                 for n in range(n_samples):
                     abundances[sample_ids[n]] = entry["abundance_%d" % n]   
                 proteins = entry['protein'].split("/")
                 for protein in proteins:
-                    prot_abundances[protein] = abundances
-                           
+                    prot_abundances[protein] = abundances                 
         return prot_abundances
     
     def _annotate_protxml(self,xml_in,xml_out,prot_abundances,indent):
@@ -94,5 +95,3 @@ class AnnotProtxmlFromCsv(IApplication):
         args_handler.add_app_args(log, 'INDENT', 'Additional indentation for abundance entries in the protXML output', default='   ')
         
         return args_handler
-
-    
