@@ -8,8 +8,9 @@ Modified on Mar 26, 2012 by quandtan, key naming -> 0.1.3
 Modified on Apr 3, 2012 by schmide, default: change name, stop on failure; key naming parameterized + defaults -> 0.1.4
 Modified on May 10, 2012 by schmide, new applicake version -> 0.2.0
 Modified on May 18, 2012 by schmide, new interface, contains set_args() -> 0.2.1
+Modified on Sep 27, 2012 by schmide, allow both EXPERIMENT and DATASET_CODE as download keys for getexperiment -> 0.2.2
 @author: quandtan, behullar, schmide
-@version: 0.2.1
+@version: 0.2.2
 '''
 
 import os,sys
@@ -20,6 +21,7 @@ class NoDataSetFound(Exception):
     pass
 
 class Dss(IWrapper):
+    EXP_CODE = 'EXPERIMENT'
     DEFAULT_KEYS = {'getmsdata':'MZXML', 'getexperiment':'SEARCH'}
     ALLOWED_PREFIXES = ['getdataset', 'gettransitions', 'getmsdata', 'getexperiment']
     
@@ -58,14 +60,20 @@ class Dss(IWrapper):
             try: self.outkeys.append(Dss.DEFAULT_KEYS[prefix])
             except: pass
         
-        dataset_codes = info[self.DATASET_CODE]
-        if type(dataset_codes) is str:
-            self._codes = [code.strip() for code in dataset_codes.split(',')]
-        elif type(dataset_codes) is list:
-            self._codes = dataset_codes
-        else:
-            log.error("%s (%s) must be either str or list" % (self.DATASET_CODE, self.info[self.DATASET_CODE]))
-            sys.exit(3)
+        self._codes = set()
+        dscode_keys = [self.DATASET_CODE]
+        if self.PREFIX == 'getexperiment':
+            dscode_keys.append(self.EXP_CODE)
+        for dsck in dscode_keys:
+            if info.has_key(dsck):
+                dataset_codes = info[dsck]
+                if type(dataset_codes) is str:
+                    self._codes.update([code.strip() for code in dataset_codes.split(',')])
+                elif type(dataset_codes) is list:
+                    self._codes.update(dataset_codes)
+                else:
+                    log.error("%s (%s) must be either str or list" % (self.DATASET_CODE, self.info[self.DATASET_CODE]))
+                    sys.exit(3)
         
         outdir = info[self.DATASET_DIR]
         if not os.path.isdir(outdir):
@@ -79,7 +87,6 @@ class Dss(IWrapper):
             voption = '-v '
         
         if prefix == 'getmsdata' and not info['KEEP_NAME'].upper() in TRUES:
-            print 'change name on'
             koption = '-c '
         else:
             koption = ''
@@ -100,6 +107,7 @@ class Dss(IWrapper):
         """
         args_handler.add_app_args(log, self.DATASET_DIR, 'download directory')
         args_handler.add_app_args(log, self.DATASET_CODE, 'data set code')
+        args_handler.add_app_args(log, self.EXP_CODE, 'experiment code')
         args_handler.add_app_args(log, self.DSSKEYS, "controls the output. results are values of these keys. "+
                                                      "the default is 'DSSOUTPUT' plus potentially a prefix depending key", default='')
         args_handler.add_app_args(log, self.PREFIX, "one of these executables: %s" % self.ALLOWED_PREFIXES, choices=self.ALLOWED_PREFIXES)
