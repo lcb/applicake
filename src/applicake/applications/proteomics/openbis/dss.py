@@ -60,26 +60,29 @@ class Dss(IWrapper):
             try: self.outkeys.append(Dss.DEFAULT_KEYS[prefix])
             except: pass
         
+        if self.PREFIX == 'getexperiment' and info.has_key(self.EXP_CODE):
+            dscode_key = self.EXP_CODE
+        else:
+            dscode_key = self.DATASET_CODE
+        if not info.has_key(dscode_key):
+            log.error("%s (or %s) must be set in ini file" % (self.DATATSET_CODE, self.EXP_CODE))
+            sys.exit(3)
+
         self._codes = set()
-        dscode_keys = [self.DATASET_CODE]
-        if self.PREFIX == 'getexperiment':
-            dscode_keys.append(self.EXP_CODE)
-        for dsck in dscode_keys:
-            if info.has_key(dsck):
-                dataset_codes = info[dsck]
-                if type(dataset_codes) is str:
-                    self._codes.update([code.strip() for code in dataset_codes.split(',')])
-                elif type(dataset_codes) is list:
-                    self._codes.update(dataset_codes)
-                else:
-                    log.error("%s (%s) must be either str or list" % (self.DATASET_CODE, self.info[self.DATASET_CODE]))
-                    sys.exit(3)
+        dataset_codes = info[dscode_key]
+        if type(dataset_codes) is str:
+            self._codes.update([code.strip() for code in dataset_codes.split(',')])
+        elif type(dataset_codes) is list:
+            self._codes.update(dataset_codes)
+        else:
+            log.error("%s (%s) must be either str or list" % (dscode_key, self.info[dscode_key]))
+            sys.exit(4)
         
         outdir = info[self.DATASET_DIR]
         if not os.path.isdir(outdir):
             if os.system("test -d %s" % outdir):
                 log.error("value [%s] of key [%s] is not a directory" % (outdir,self.DATASET_DIR))
-                sys.exit(4)
+                sys.exit(5)
         
         if info['QUIET'].upper() in TRUES:
             voption = ''
@@ -107,7 +110,7 @@ class Dss(IWrapper):
         """
         args_handler.add_app_args(log, self.DATASET_DIR, 'download directory')
         args_handler.add_app_args(log, self.DATASET_CODE, 'data set code')
-        args_handler.add_app_args(log, self.EXP_CODE, 'experiment code')
+        args_handler.add_app_args(log, self.EXP_CODE, 'experiment code, can be used for getexperiment in lieu of %s (and to distinguish from the latter)' % self.DATASET_CODE)
         args_handler.add_app_args(log, self.DSSKEYS, "controls the output. results are values of these keys. "+
                                                      "the default is 'DSSOUTPUT' plus potentially a prefix depending key", default='')
         args_handler.add_app_args(log, self.PREFIX, "one of these executables: %s" % self.ALLOWED_PREFIXES, choices=self.ALLOWED_PREFIXES)
@@ -146,7 +149,7 @@ class Dss(IWrapper):
                             log.error("No data set found for %s" % downloaded)
             # for single code requests: either add single file or array
             if len(self._codes) == 1:
-                fstdsfls = dsfls.get(self._codes[0])
+                fstdsfls = dsfls.get(self._codes.pop())
                 if None != fstdsfls and len(fstdsfls) == 1:
                     dssoutput = fstdsfls[0]
                 else:
