@@ -67,7 +67,7 @@ class Dss(IWrapper):
         if not info.has_key(dscode_key):
             log.error("%s (or %s) must be set in ini file" % (self.DATATSET_CODE, self.EXP_CODE))
             sys.exit(3)
-
+        
         self._codes = set()
         dataset_codes = info[dscode_key]
         if type(dataset_codes) is str:
@@ -121,7 +121,7 @@ class Dss(IWrapper):
                                                        "(otherwise it will be changed to samplecode~dscode.mzXXML)", default='False')
         args_handler.add_app_args(log, 'FAILURE_TOLERANT', "exits with 0 in cases where no data set was found if to true", default='False')
         return args_handler
-        
+    
     def validate_run(self, info, log, run_code, out_stream, err_stream):
         """
         See interface
