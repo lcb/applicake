@@ -60,7 +60,7 @@ class Dss(IWrapper):
             try: self.outkeys.append(Dss.DEFAULT_KEYS[prefix])
             except: pass
         
-        if self.PREFIX == 'getexperiment' and info.has_key(self.EXP_CODE):
+        if info[self.PREFIX] == 'getexperiment' and info.has_key(self.EXP_CODE):
             dscode_key = self.EXP_CODE
         else:
             dscode_key = self.DATASET_CODE
