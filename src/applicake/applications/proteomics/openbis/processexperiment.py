@@ -11,7 +11,6 @@ class ProcessExperiment(IApplication):
 
     def set_args(self,log,args_handler):
         args_handler.add_app_args(log, self.SEARCH, 'Key where containing files of downloaded experiment')
-        args_handler.add_app_args(log, self.MZXML_CODE, 'MS dataset codes used for next dss')
         return args_handler
 
     def main(self,info,log):
@@ -31,11 +30,7 @@ class ProcessExperiment(IApplication):
             log.fatal("No pep xml file was found")
             run_code = 1
         
-        #for next DSS the MZXML_CODES (from gUSE) have to be set as DSCODES to download
-        info[self.DATASET_CODE] = info[self.MZXML_CODE]
-
         #remove these guys to prevent parameter sweep
         info[self.SEARCH] = None
-        info[self.MZXML_CODE] = None
         info[self.DSSOUTPUT] = None
         return (run_code,info)

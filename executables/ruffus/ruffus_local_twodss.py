@@ -45,8 +45,8 @@ LOG_LEVEL = DEBUG
 STORAGE = memory_all
 WORKFLOW = twodss
 
-DATASET_CODE = E286812
-MZXML_CODE = 20110722014852343-201543, 20110722033454238-201588
+EXPERIMENT = E286812
+DATASET_CODE = 20110722014852343-201543, 20110722033454238-201588
 """)
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
