@@ -128,38 +128,38 @@ class Xtandem(SearchEngine):
         args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')   
         args_handler.add_app_args(log, 'XTANDEM_SCORE', 'Scoring algorithm used in the search.',choices=['default','k-score','c-score','hrk-score'])        
         
-        args_handler.add_app_args(log, "XTandemSPECPMMIE", " Spectrum, parent monoisotopic mass isotope")
-        args_handler.add_app_args(log, "XTandemSPECUSECON", " Spectrum, use")
-        args_handler.add_app_args(log, "XTandemSPECFMT", " Spectrum, fragment mass")
-        args_handler.add_app_args(log, "XTandemSPECDR", " Spectrum, dynamic")
-        args_handler.add_app_args(log, "XTandemSPECTP", " Spectrum, total")
-        args_handler.add_app_args(log, "XTandemSPECMPCH", " Spectrum, maximum parent")
-        args_handler.add_app_args(log, "XTandemSPECUNS", " Spectrum, use noise")
-        args_handler.add_app_args(log, "XTandemSPECMPMPH", " Spectrum, minimum parent")
-        args_handler.add_app_args(log, "XTandemSPECMAPMPH", " Spectrum, maximum parent")
-        args_handler.add_app_args(log, "XTandemSPECMIFMZ", " Spectrum, minimum fragment")
-        args_handler.add_app_args(log, "XTandemSPECMIP", " Spectrum, minimum")
-        args_handler.add_app_args(log, "XTandemPROCS", " Protein, cleavage")
-        args_handler.add_app_args(log, "XTandemPRONTRMM", " Protein, N-terminal residue modification")
-        args_handler.add_app_args(log, "XTandemPROCTRMM", " Protein, C-terminal residue modification")
-        args_handler.add_app_args(log, "XTandemPROHM", " Protein, homolog")
-        args_handler.add_app_args(log, "XTandemSCOXI", " Scoring, x")
-        args_handler.add_app_args(log, "XTandemSCOYI", " Scoring, y")
-        args_handler.add_app_args(log, "XTandemSCOZI", " Scoring, z")
-        args_handler.add_app_args(log, "XTandemSCOAI", " Scoring, a")
-        args_handler.add_app_args(log, "XTandemSCOBI", " Scoring, b")
-        args_handler.add_app_args(log, "XTandemSCOCI", " Scoring, c")
-        args_handler.add_app_args(log, "XTandemSCOCP", " Scoring, cyclic")
-        args_handler.add_app_args(log, "XTandemSCOIR", " Scoring, include")
-        args_handler.add_app_args(log, "XTandemSCMINICOUNT", " Scoring, minimum ion")
-        args_handler.add_app_args(log, "XTandemREFINE", "")
-        args_handler.add_app_args(log, "XTandemREFSS", " Refine, spectrum")
-        args_handler.add_app_args(log, "XTandemREFMVEV", " Refine, maximum valid expectation")
-        args_handler.add_app_args(log, "XTandemREFUC", " Refine, unanticipated")
-        args_handler.add_app_args(log, "XTandemREFCS", " Refine, cleavage")
-        args_handler.add_app_args(log, "XTandemREFPM", " Refine, point")
-        args_handler.add_app_args(log, "XTandemREFUPMFFR", " Refine, use potential modifications for full")
-        args_handler.add_app_args(log, "XTandemREFMM", " Refine, modification")
+        args_handler.add_app_args(log, "XTANDEMSPECPMMIE", " Spectrum, parent monoisotopic mass isotope")
+        args_handler.add_app_args(log, "XTANDEMSPECUSECON", " Spectrum, use")
+        args_handler.add_app_args(log, "XTANDEMSPECFMT", " Spectrum, fragment mass")
+        args_handler.add_app_args(log, "XTANDEMSPECDR", " Spectrum, dynamic")
+        args_handler.add_app_args(log, "XTANDEMSPECTP", " Spectrum, total")
+        args_handler.add_app_args(log, "XTANDEMSPECMPCH", " Spectrum, maximum parent")
+        args_handler.add_app_args(log, "XTANDEMSPECUNS", " Spectrum, use noise")
+        args_handler.add_app_args(log, "XTANDEMSPECMPMPH", " Spectrum, minimum parent")
+        args_handler.add_app_args(log, "XTANDEMSPECMAPMPH", " Spectrum, maximum parent")
+        args_handler.add_app_args(log, "XTANDEMSPECMIFMZ", " Spectrum, minimum fragment")
+        args_handler.add_app_args(log, "XTANDEMSPECMIP", " Spectrum, minimum")
+        args_handler.add_app_args(log, "XTANDEMPROCS", " Protein, cleavage")
+        args_handler.add_app_args(log, "XTANDEMPRONTRMM", " Protein, N-terminal residue modification")
+        args_handler.add_app_args(log, "XTANDEMPROCTRMM", " Protein, C-terminal residue modification")
+        args_handler.add_app_args(log, "XTANDEMPROHM", " Protein, homolog")
+        args_handler.add_app_args(log, "XTANDEMSCOXI", " Scoring, x")
+        args_handler.add_app_args(log, "XTANDEMSCOYI", " Scoring, y")
+        args_handler.add_app_args(log, "XTANDEMSCOZI", " Scoring, z")
+        args_handler.add_app_args(log, "XTANDEMSCOAI", " Scoring, a")
+        args_handler.add_app_args(log, "XTANDEMSCOBI", " Scoring, b")
+        args_handler.add_app_args(log, "XTANDEMSCOCI", " Scoring, c")
+        args_handler.add_app_args(log, "XTANDEMSCOCP", " Scoring, cyclic")
+        args_handler.add_app_args(log, "XTANDEMSCOIR", " Scoring, include")
+        args_handler.add_app_args(log, "XTANDEMSCMINICOUNT", " Scoring, minimum ion")
+        args_handler.add_app_args(log, "XTANDEMREFINE", "")
+        args_handler.add_app_args(log, "XTANDEMREFSS", " Refine, spectrum")
+        args_handler.add_app_args(log, "XTANDEMREFMVEV", " Refine, maximum valid expectation")
+        args_handler.add_app_args(log, "XTANDEMREFUC", " Refine, unanticipated")
+        args_handler.add_app_args(log, "XTANDEMREFCS", " Refine, cleavage")
+        args_handler.add_app_args(log, "XTANDEMREFPM", " Refine, point")
+        args_handler.add_app_args(log, "XTANDEMREFUPMFFR", " Refine, use potential modifications for full")
+        args_handler.add_app_args(log, "XTANDEMREFMM", " Refine, modification")
         return args_handler
     
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -208,28 +208,28 @@ class XtandemTemplate(BasicTemplateHandler):
 <note type="heading">Spectrum general</note>    
     <note type="input" label="spectrum, fragment monoisotopic mass error">$FRAGMASSERR</note>
     <note type="input" label="spectrum, fragment monoisotopic mass error units">$FRAGMASSUNIT</note>
-    <note type="input" label="spectrum, parent monoisotopic mass isotope error">$XTandemSPECPMMIE</note>
+    <note type="input" label="spectrum, parent monoisotopic mass isotope error">$XTANDEMSPECPMMIE</note>
     <note type="input" label="spectrum, parent monoisotopic mass error plus">$PRECMASSERR</note>
     <note type="input" label="spectrum, parent monoisotopic mass error minus">$PRECMASSERR</note>
     <note type="input" label="spectrum, parent monoisotopic mass error units">$PRECMASSUNIT</note>
 
 <note type="heading">Spectrum conditioning</note>
-    <note type="input" label="sepctrum, use conditioning">$XTandemSPECUSECON</note>
-    <note type="input" label="spectrum, fragment mass type">$XTandemSPECFMT</note>
-    <note type="input" label="spectrum, dynamic range">$XTandemSPECDR</note>
+    <note type="input" label="sepctrum, use conditioning">$XTANDEMSPECUSECON</note>
+    <note type="input" label="spectrum, fragment mass type">$XTANDEMSPECFMT</note>
+    <note type="input" label="spectrum, dynamic range">$XTANDEMSPECDR</note>
     <note>
         This parameter is used to normalize the intensity values of fragment ions, from spectrum to spectrum.
         For example, if Drange = 100.0, then the intensity of the most intense peak in a spectrum is set to 100, and all
         of the other intensities are linearly scaled to that intensity. Any peak with a scaled intensity of less than 1 is rejected
         as being outside of the dynamic range. Therefore, in addition to normalizing the spectra, it sets an effective relative threshold for peaks.
     </note>
-    <note type="input" label="spectrum, total peaks">$XTandemSPECTP</note>
-    <note type="input" label="spectrum, maximum parent charge">$XTandemSPECMPCH</note>
-    <note type="input" label="spectrum, use noise suppression">$XTandemSPECUNS</note>
-    <note type="input" label="spectrum, minimum parent m+h">$XTandemSPECMPMPH</note>
-    <note type="input" label="spectrum, maximum parent m+h">$XTandemSPECMAPMPH</note>
-    <note type="input" label="spectrum, minimum fragment mz">$XTandemSPECMIFMZ</note>
-    <note type="input" label="spectrum, minimum peaks">$XTandemSPECMIP</note>
+    <note type="input" label="spectrum, total peaks">$XTANDEMSPECTP</note>
+    <note type="input" label="spectrum, maximum parent charge">$XTANDEMSPECMPCH</note>
+    <note type="input" label="spectrum, use noise suppression">$XTANDEMSPECUNS</note>
+    <note type="input" label="spectrum, minimum parent m+h">$XTANDEMSPECMPMPH</note>
+    <note type="input" label="spectrum, maximum parent m+h">$XTANDEMSPECMAPMPH</note>
+    <note type="input" label="spectrum, minimum fragment mz">$XTANDEMSPECMIFMZ</note>
+    <note type="input" label="spectrum, minimum peaks">$XTANDEMSPECMIP</note>
     <note type="input" label="spectrum, threads">$THREADS</note>
 
 <note type="heading">Residue modification</note>
@@ -243,37 +243,37 @@ class XtandemTemplate(BasicTemplateHandler):
     <note type="input" label="protein, cleavage semi">$XTANDEM_SEMI_CLEAVAGE</note>
     <note type="input" label="protein, cleavage C-terminal mass change">+17.00305</note>
     <note type="input" label="protein, cleavage N-terminal mass change">+1.00794</note>    
-    <note type="input" label="protein, N-terminal residue modification mass">$XTandemPRONTRMM</note>
-    <note type="input" label="protein, C-terminal residue modification mass">$XTandemPROCTRMM</note>
-    <note type="input" label="protein, homolog management">$XTandemPROHM</note>
+    <note type="input" label="protein, N-terminal residue modification mass">$XTANDEMPRONTRMM</note>
+    <note type="input" label="protein, C-terminal residue modification mass">$XTANDEMPROCTRMM</note>
+    <note type="input" label="protein, homolog management">$XTANDEMPROHM</note>
     <note type="input" label="protein, quick acetyl">yes</note>
     <note>When this parameter is yes, these common modifications are checked for the peptides generated from the protein's N-terminus, at all stages of analysis.</note>
     <note type="input" label="protein, stP bias">yes</note>
 
 <note type="heading">Scoring</note>
     <note type="input" label="scoring, maximum missed cleavage sites">$MISSEDCLEAVAGE</note>
-    <note type="input" label="scoring, x ions">$XTandemSCOXI</note>
-    <note type="input" label="scoring, y ions">$XTandemSCOYI</note>
-    <note type="input" label="scoring, z ions">$XTandemSCOZI</note>
-    <note type="input" label="scoring, a ions">$XTandemSCOAI</note>
-    <note type="input" label="scoring, b ions">$XTandemSCOBI</note>
-    <note type="input" label="scoring, c ions">$XTandemSCOCI</note>
-    <note type="input" label="scoring, cyclic permutation">$XTandemSCOCP</note>
-    <note type="input" label="scoring, include reverse">$XTandemSCOIR</note>
+    <note type="input" label="scoring, x ions">$XTANDEMSCOXI</note>
+    <note type="input" label="scoring, y ions">$XTANDEMSCOYI</note>
+    <note type="input" label="scoring, z ions">$XTANDEMSCOZI</note>
+    <note type="input" label="scoring, a ions">$XTANDEMSCOAI</note>
+    <note type="input" label="scoring, b ions">$XTANDEMSCOBI</note>
+    <note type="input" label="scoring, c ions">$XTANDEMSCOCI</note>
+    <note type="input" label="scoring, cyclic permutation">$XTANDEMSCOCP</note>
+    <note type="input" label="scoring, include reverse">$XTANDEMSCOIR</note>
     $XTANDEM_SCORE
-    <note type="input" label="scoring, minimum ion count">$XTandemSCMINICOUNT</note>
+    <note type="input" label="scoring, minimum ion count">$XTANDEMSCMINICOUNT</note>
 
                 
 <note type="heading">model refinement paramters</note>
-    <note type="input" label="refine">$XTandemREFINE</note>
-    <note type="input" label="refine, spectrum synthesis">$XTandemREFSS</note>
-    <note type="input" label="refine, maximum valid expectation value">$XTandemREFMVEV</note>
+    <note type="input" label="refine">$XTANDEMREFINE</note>
+    <note type="input" label="refine, spectrum synthesis">$XTANDEMREFSS</note>
+    <note type="input" label="refine, maximum valid expectation value">$XTANDEMREFMVEV</note>
     <note type="input" label="refine, potential C-terminus modifications"></note>
-    <note type="input" label="refine, unanticipated cleavage">$XTandemREFUC</note>
-    <note type="input" label="refine, cleavage semi">$XTandemREFCS</note>
-    <note type="input" label="refine, modification mass">$XTandemREFMM</note>
-    <note type="input" label="refine, point mutations">$XTandemREFPM</note>
-    <note type="input" label="refine, use potential modifications for full refinement">$XTandemREFUPMFFR</note>
+    <note type="input" label="refine, unanticipated cleavage">$XTANDEMREFUC</note>
+    <note type="input" label="refine, cleavage semi">$XTANDEMREFCS</note>
+    <note type="input" label="refine, modification mass">$XTANDEMREFMM</note>
+    <note type="input" label="refine, point mutations">$XTANDEMREFPM</note>
+    <note type="input" label="refine, use potential modifications for full refinement">$XTANDEMREFUPMFFR</note>
     <note type="input" label="refine, potential modification motif"></note>
 
 <note type="heading">Output</note>
