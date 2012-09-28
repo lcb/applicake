@@ -196,8 +196,7 @@ class XtandemTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """
-<?xml version="1.0"?>
+        template = """<?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="tandem-input-style.xsl"?>
 <bioml>
 
