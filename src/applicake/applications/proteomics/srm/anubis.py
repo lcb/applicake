@@ -41,7 +41,7 @@ class Anubis(IWrapper):
         if self.REFERENCE_FILE not in info:
             log.fatal('did not find the required %s key' % self.REFERENCE_FILE)
             return ''
-        cmd += '%s ' % info[REFERENCE_FILE]
+        cmd += '%s ' % info['REFERENCE_FILE']
         
         if self.PEAK_MIN_WIDTH in info:
             cmd += "%d " % info[self.PEAK_MIN_WIDTH]
@@ -52,12 +52,12 @@ class Anubis(IWrapper):
         if self.OUTPUT not in info:
             log.fatal('did not find the required %s key' % self.OUTPUT)
             return ''
-        cmd += '%s ' % info[OUTPUT]
+        cmd += '%s ' % info['OUTPUT']
             
         if self.MZML not in info:
             log.fatal('did not find the required %s key' % self.MZML)
             return ''
-        cmd += '%s ' % info[MZML]
+        cmd += '%s ' % info['MZML']
         
         return (cmd, info)
     
@@ -87,7 +87,7 @@ class Anubis(IWrapper):
             exit_code = run_code
         else:
             try:
-                f = open(info[OUTPUT], 'r')
+                f = open(info['OUTPUT'], 'r')
                 f.close()
                 exit_code = 0
             except:
