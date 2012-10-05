@@ -100,7 +100,7 @@ def unifier():
     
 @follows(unifier)
 def filemerger():
-    wrap(FileMerger, 'unifier.ini', 'filemerger.ini')
+    wrap(FileMerger, 'unifier.ini', 'filemerger.ini','-s','memory_all')
     
 @follows(filemerger)
 def mrmrtnormalizer():
