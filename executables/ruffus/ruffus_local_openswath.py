@@ -42,6 +42,7 @@ def wrap(applic, input_file_name, output_file_name, opts=None):
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
+    
 
 
 def setup():
@@ -100,7 +101,7 @@ def unifier():
     
 @follows(unifier)
 def filemerger():
-    wrap(FileMerger, 'unifier.ini', 'filemerger.ini','-s','memory_all')
+    wrap(FileMerger, 'unifier.ini', 'filemerger.ini',['-s','memory_all'])
     
 @follows(filemerger)
 def mrmrtnormalizer():
