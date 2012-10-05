@@ -45,9 +45,10 @@ def wrap(applic, input_file_name, output_file_name, opts=None):
 
 
 def setup():
-    subprocess.call("rm *ini* *.err *.out *.log ",shell=True)
-    with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/scratch_xl/shareholder/malars/workflows
+    if len(sys.argv) > 1 and sys.argv[1] == 'restart':
+        subprocess.call("rm *ini* *.err *.out",shell=True)    
+        with open("input.ini", 'w+') as f:
+            f.write("""BASEDIR = /cluster/scratch_xl/shareholder/malars/workflows
 LOG_LEVEL = DEBUG
 STORAGE = file
 THREADS = 8
@@ -59,8 +60,9 @@ MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
 IRTOUTSUFFIX = _rtnorm.chrom.mzML
 LIBOUTSUFFIX = .chrom.mzML
-"""
-)       
+""")
+    else:
+        print 'Continuing'       
         
 @follows(setup)
 @split("input.ini", "generate*")
