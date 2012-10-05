@@ -1,7 +1,7 @@
 '''
 Created on Aug 14, 2012
 
-@author: blum, wolski
+@author: quandtan,blum, wolski
 '''
 
 import os
@@ -35,6 +35,7 @@ class FileMerger(IWrapper):
         """
         wd = info[self.WORKDIR]
         wd = os.path.dirname(wd)
+        ###!!!! need to change workdir up to parent!!!!!######
         self._result_file = os.path.join(wd,self._result_file)
         info[self._outchrom] = self._result_file
         prefix,info = self.get_prefix(info,log)
