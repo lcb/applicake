@@ -38,7 +38,7 @@ class FileMerger(IWrapper):
         self._result_file = os.path.join(wd,self._result_file)
         info[self._outchrom] = self._result_file
         prefix,info = self.get_prefix(info,log)
-        command = '%s -in %s -out %s' % (prefix, ' '.join(info['CHROM_MZML']), info['OUTCHROMMZML'])
+        command = '%s -in %s -out %s' % (prefix, ' '.join(info['CHROM_MZML']), info[self._outchrom])
         return command,info
 
     def set_args(self,log,args_handler):
