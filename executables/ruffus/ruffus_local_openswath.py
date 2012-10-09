@@ -93,23 +93,33 @@ def collector(notused_input_file_names, output_file_name):
     
 @follows(collector)
 def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','-s','file','--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
     runner = IniFileRunner2()
     application = Unifier()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("unifier failed [%s]" % exit_code)  
     
-    
-    
 @follows(unifier)
 def filemerger():
-    wrap(FileMerger, 'unifier.ini', 'filemerger.ini',['-s','memory_all'])
+#    wrap(FileMerger, 'unifier.ini', 'filemerger.ini',['-s','file'])
+    argv = ['', '-i', 'unifier.ini', '-o','merger.ini','--UNIFIER_REDUCE','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
+    runner = IniFileRunner2()
+    application = FileMerger()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("filemerger failed [%s]" % exit_code)  
+     
     
 @follows(filemerger)
 def mrmrtnormalizer():
-    wrap(MRMRTNormalizer, 'filemerger.ini', 'mrmrtnormalizer.ini')
-
+    #wrap(MRMRTNormalizer, 'filemerger.ini', 'mrmrtnormalizer.ini')
+    argv = ['', '-i', 'unifier.ini', '-o','merger.ini','--UNIFIER_REDUCE','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
+    runner = IniFileRunner2()
+    application = MRMRTNormalizer()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("mrmrtnormalizer failed [%s]" % exit_code) 
 ################## AQUA BRANCH, REQUIRES IRT IN KEYEXTRAT#####################
   
 @transform(generator, regex("generate.ini_"), "cromatogramextractor.ini_")
