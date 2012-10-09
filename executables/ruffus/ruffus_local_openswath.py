@@ -103,7 +103,7 @@ def unifier():
 @follows(unifier)
 def filemerger():
 #    wrap(FileMerger, 'unifier.ini', 'filemerger.ini',['-s','file'])
-    argv = ['', '-i', 'unifier.ini', '-o','merger.ini','--UNIFIER_REDUCE','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
+    argv = ['', '-i', 'unifier.ini', '-o','merger.ini','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
     runner = IniFileRunner2()
     application = FileMerger()
     exit_code = runner(argv, application)
@@ -114,7 +114,7 @@ def filemerger():
 @follows(filemerger)
 def mrmrtnormalizer():
     #wrap(MRMRTNormalizer, 'filemerger.ini', 'mrmrtnormalizer.ini')
-    argv = ['', '-i', 'unifier.ini', '-o','merger.ini','--UNIFIER_REDUCE','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
+    argv = ['', '-i', 'unifier.ini', '-o','merger.ini','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
     runner = IniFileRunner2()
     application = MRMRTNormalizer()
     exit_code = runner(argv, application)
