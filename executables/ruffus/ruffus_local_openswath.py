@@ -21,6 +21,7 @@ from applicake.applications.proteomics.openswath.SwathGenerator import SwathGene
 from applicake.applications.proteomics.openswath.KeyExtract import KeyExtract
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.commons.inifile import Unifier
+from applicake.framework.enums import KeyEnum
 
 cwd = None
 
@@ -92,12 +93,14 @@ def collector(notused_input_file_names, output_file_name):
     
 @follows(collector)
 def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','-s','file']
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','-s','file','--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
     runner = IniFileRunner2()
     application = Unifier()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("unifier failed [%s]" % exit_code)  
+    
+    
     
 @follows(unifier)
 def filemerger():
