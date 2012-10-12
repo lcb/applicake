@@ -49,9 +49,15 @@ class LibraryCreator(IWrapper):
         - If there is a result file, it is added with a specific key to the info object.
         """
         # needs to run as first because of the possible overwriting of key values.
-        suffix = self.get_suffix(info, log)
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
+        # need to make old values accessible if existing
+        self._orig_splib = None
+        self.orig_sptxt  = None
+        if info.has_key(self.SPLIB):
+            self._orig_splib = info[self.SPLIB]
+        if info.has_key(self.SPTXT):
+            self._orig_sptxt = info[self.SPTXT]                
         self._result_file1 = os.path.join(wd,self._result_file1)
         info[self.SPLIB] = self._result_file1
         self._result_file2 = os.path.join(wd,self._result_file2)
@@ -64,6 +70,7 @@ class LibraryCreator(IWrapper):
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
         spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
+        suffix = self.get_suffix(info, log)
         command = '%s -cF%s -V -L%s %s ' % (prefix,self._template_file,spectrast_log,suffix)
         return command,info
 
@@ -109,8 +116,7 @@ class RawLibrary(LibraryCreator):
 class NoDecoyLibrary(LibraryCreator):
     
     def get_suffix(self,info,log):
-        root = os.path.splitext(self._result_file1)[0] 
-        return "-cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (root,info[self.SPLIB])
+        return "-cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (self._orig_splib,info[self.SPLIB])
 
     def set_args(self,log,args_handler):
         """
