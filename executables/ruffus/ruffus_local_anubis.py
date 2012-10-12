@@ -89,7 +89,7 @@ def setup():
 ##        ini += "%s = %s\n" % (Anubis.OUTPUT_RESULT_FILE,  "ruffus_local.anubis")
 #        ini += "%s = %s\n" % (KeyEnum.MZML,               "101112_JT_pl2_03.mzML")
 #        ini += "%s = %s\n" % (Anubis.TRAML,               "final_method.ref")
-        f.write(ini)       
+    f.write(ini)       
 
 
 
