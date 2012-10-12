@@ -116,7 +116,7 @@ class NoDecoyLibrary(LibraryCreator):
         """
         See interface
         """
-        args_handler = super(RawLibrary, self).set_args(log,args_handler)
+        args_handler = super(NoDecoyLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
 
