@@ -46,7 +46,7 @@ def setup():
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
-STORAGE = memory_all
+STORAGE = file
 WORKFLOW = spectrast_create
 EXPERIMENT = E286955
 DATASET_CODE = 20110722014852343-201543,
@@ -81,7 +81,12 @@ def dss(input_file_name, output_file_name):
     
 @transform(dss, regex("dss.ini_"), "pepxmlskey2list.ini_")
 def pepxmlskey2list(input_file_name, output_file_name):
-    wrap(KeysToList,input_file_name, output_file_name,['--KEYSTOLIST','PEPXMLS'])
+    argv = ['', '-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS']
+    runner = IniFileRunner2()
+    application = ParametersetGenerator()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("paramgenerator [%s]" % exit_code)      
 
 @transform(pepxmlskey2list, regex("pepxmlskey2list.ini_"), "pepxml2csv.ini_")
 def pepxml2csv(input_file_name, output_file_name):
