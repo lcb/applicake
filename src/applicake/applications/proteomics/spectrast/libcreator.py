@@ -110,7 +110,7 @@ class NoDecoyLibrary(LibraryCreator):
     def get_suffix(self,info,log):
         spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
         
-        return '-V -L%s -cfProtein !~ REV_  &  Protein !~ DECOY_ -cN%s' % (spectrast_log,info[self.SPLIB])
+        return "-V -L%s -cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s" % (spectrast_log,info[self.SPLIB])
 
     def set_args(self,log,args_handler):
         """
