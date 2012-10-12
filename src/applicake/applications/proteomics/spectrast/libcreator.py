@@ -61,7 +61,7 @@ class LibraryCreator(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        suffix = self.get_prefix(info, log)
+        suffix = self.get_suffix(info, log)
         command = '%s -cF%s %s' % (prefix,info['TEMPLATE'],suffix)
         return command,info
 
