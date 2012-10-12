@@ -136,7 +136,7 @@ class Anubis(IWrapper):
             'anubis version to use (default: version of anubis.jar)')
             
         args_handler.add_app_args(log, self.JVM, 
-            'the jvm to use (default: /usr/bin/java')
+            'the jvm to use (default: java')
             
         args_handler.add_app_args(log, self.MAX_HEAP_SIZE, 
             'jvm max heap size 124m = 124 Mb, 1g = 1 Gb (default: 1g)')
