@@ -82,7 +82,7 @@ def dss(input_file_name, output_file_name):
     
 @transform(dss, regex("dss.ini_"), "pepxmlskey2list.ini_")
 def pepxmlskey2list(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS','-s','memory_all']
+    argv = ['', '-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS']
     runner = IniFileRunner()
     application = KeysToList()
     exit_code = runner(argv, application)
@@ -99,6 +99,6 @@ def fdr2probability(input_file_name, output_file_name):
     
 @transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
 def rawlibcreator(input_file_name, output_file_name):
-    wrap(RawLibraryCreator,input_file_name, output_file_name)   
+    wrap(RawLibraryCreator,input_file_name, output_file_name,['-s','memory_all'])   
     
 pipeline_run([rawlibcreator], multiprocess=3)

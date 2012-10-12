@@ -80,7 +80,7 @@ class ProteinProphet(IWrapper):
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
-        args_handler.add_app_args(log, 'Probability', 'Probabilty cutoff value that has to be matched')
+        args_handler.add_app_args(log, self.PROBABILITY, 'Probabilty cutoff value that has to be matched')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):

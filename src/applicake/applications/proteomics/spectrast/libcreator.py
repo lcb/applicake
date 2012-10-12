@@ -101,7 +101,8 @@ class RawLibraryCreator(LibraryCreator):
         See interface
         """
         args_handler = super(RawLibraryCreator, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append') 
+        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, self.PROBABILITY, 'Probabilty cutoff value that has to be matched') 
         return args_handler
 
 class LibraryCreatorTemplate(BasicTemplateHandler):
