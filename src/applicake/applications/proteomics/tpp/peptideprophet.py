@@ -37,15 +37,15 @@ class PeptideProphet(IWrapper):
 
     def prepare_run(self,info,log):
         #original to copy
-        if len(info['PEPXMLS']) >1:
-            log.fatal('found > 1 pepxml files [%s].' % info['PEPXMLS'])
+        if len(info[self.PEPXMLS]) >1:
+            log.fatal('found > 1 pepxml files [%s].' % info[self.PEPXMLS])
             sys.exit(1)
-        copyxml =  info['PEPXMLS'][0]
+        copyxml =  info[self.PEPXMLS][0]
         #target path
         wd = info[self.WORKDIR]
         self._result_file = os.path.join(wd,self._result_file)
         shutil.copy(copyxml, self._result_file)
-        info['PEPXMLS'] = [self._result_file]
+        info[self.PEPXMLS] = [self._result_file]
                 
         #template       
         self._template_file = os.path.join(wd,self._template_file)
@@ -65,9 +65,9 @@ class PeptideProphet(IWrapper):
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
-        args_handler.add_app_args(log, 'DECOY_STRING', 'String used to annotate decoys')
+        args_handler.add_app_args(log, self.DECOY_STRING, 'String used to annotate decoys')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
-        args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -94,7 +94,7 @@ class PeptideProphetTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """DECOY=$DECOY_STRING MINPROB=0 PI ACCMASS LEAVE NONPARAM Pd
-"""
+        template = """DECOY=$%s MINPROB=0 PI ACCMASS LEAVE NONPARAM Pd
+""" % (self.DECOY_STRING)
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info

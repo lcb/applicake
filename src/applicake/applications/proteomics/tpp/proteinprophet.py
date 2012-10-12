@@ -63,7 +63,7 @@ class ProteinProphet(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         # revert temporary key
-        info['PEPXMLS'] = info['ORGPEPXMLS']
+        info[self.PEPXMLS] = info['ORGPEPXMLS']
         del info['ORGPEPXMLS'] 
         prefix,info = self.get_prefix(info,log)
         command = '%s %s' % (prefix,mod_template)
@@ -79,7 +79,7 @@ class ProteinProphet(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
-        args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, 'Probability', 'Probabilty cutoff value that has to be matched')
         return args_handler
 

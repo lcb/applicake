@@ -45,7 +45,7 @@ class Xinteract(IWrapper):
         - replace list of PEPXMLs with output of the application
         - create command
         """
-        key = 'PEPXMLS'
+        key = self.PEPXMLS
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._template_file = os.path.join(wd,self._template_file)
@@ -66,7 +66,7 @@ class Xinteract(IWrapper):
 #        wd = info[self.WORKDIR]
 #        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
 #        self._result_file = os.path.join(wd,self._result_file)
-#        old = info['PEPXMLS']
+#        old = info[self.PEPXMLS]
 #        new = self._result_file
 #        log.debug('replace value of [PEPXMLS] [%s] with [%s]' %(old,new))
 #        
@@ -77,7 +77,7 @@ class Xinteract(IWrapper):
 #        prefix,info = self._get_prefix(info,log)
 #        command = '%s -ini %s' % (prefix,self._template_file)
 #                     
-#        info['PEPXMLS'] = [new]
+#        info[self.PEPXMLS] = [new]
 #        prefix,info = self.get_prefix(info,log)
 #        command = '%s -N%s %s %s' % (prefix,self._result_file,info['XINTERACT_ARGS'],','.join(old))
 #        return command,info
@@ -89,7 +89,7 @@ class Xinteract(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')       
-        args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, 'XINTERACT_ARGS', 'Arguments for xinteract')
         args_handler.add_app_args(log, 'DBASE', 'Sequence database file with target/decoy entries')
         return args_handler

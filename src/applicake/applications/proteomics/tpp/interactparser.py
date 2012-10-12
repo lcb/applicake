@@ -50,8 +50,8 @@ class InteractParser(SearchEngine):
         mod_template,infocopy = self.get_template_handler().modify_template(infocopy, log)
         
         #input file(s)
-        key = 'PEPXMLS'
-        origpepxmls = ' '.join(info['PEPXMLS']) 
+        key = self.PEPXMLS
+        origpepxmls = ' '.join(info[key]) 
         
         #output comes instead of input
         self._result_file = os.path.join(wd,self._result_file)
@@ -71,7 +71,7 @@ class InteractParser(SearchEngine):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
-        args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, 'ENZYME', 'Enzyme used for digest')
         return args_handler
 

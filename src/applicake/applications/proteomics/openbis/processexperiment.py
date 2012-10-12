@@ -2,7 +2,7 @@
 '''
 Created on Mar 28, 2012
 
-@author: loblum
+@author: loblum, quandtan
 '''
 
 from applicake.framework.interfaces import IApplication
@@ -20,13 +20,13 @@ class ProcessExperiment(IApplication):
             if entry.endswith('prot.xml'):
                 info[self.PROTXML] = entry
             if entry.endswith('pep.xml'):
-                info[self.PEPXML] = entry
+                info[self.PEPXMLS] = [entry]
 
         run_code = 0
         if not self.PROTXML in info:
             log.fatal("No prot xml file was found")
             run_code = 1
-        if not self.PEPXML in info:
+        if not self.PEPXMLS in info:
             log.fatal("No pep xml file was found")
             run_code = 1
         

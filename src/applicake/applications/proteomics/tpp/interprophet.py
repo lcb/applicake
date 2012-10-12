@@ -35,10 +35,10 @@ class InterProphet(IWrapper):
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
-        old = info['PEPXMLS']
+        old = info[self.PEPXMLS]
         new = self._result_file
-        log.debug('replace value of [PEPXMLS] [%s] with [%s]' %(old,new))     
-        info['PEPXMLS'] = [new]
+        log.debug('replace value of [%s] [%s] with [%s]' %(self.PEPXMLS,old,new))     
+        info[self.PEPXMLS] = [new]
         prefix,info = self.get_prefix(info,log)
         command = '%s %s %s %s' % (prefix,info['IPROPHET_ARGS'],' '.join(old),new)    
         return command,info
@@ -50,7 +50,7 @@ class InterProphet(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files') 
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
-        args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, 'IPROPHET_ARGS', 'Arguments for InterProphetParser')
         return args_handler
 
