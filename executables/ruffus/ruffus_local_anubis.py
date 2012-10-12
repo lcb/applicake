@@ -73,7 +73,7 @@ def setup():
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    sys.argv    = [IGNORED_PROC_NAME, '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','CRITICAL']
+    sys.argv    = [IGNORED_PROC_NAME, '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','DEBUG']
     runner      = IniFileRunner()
     application = DatasetcodeGenerator()
     exit_code   = runner(sys.argv, application)
