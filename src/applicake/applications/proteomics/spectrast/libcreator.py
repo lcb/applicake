@@ -116,7 +116,8 @@ class RawLibrary(LibraryCreator):
 class NoDecoyLibrary(LibraryCreator):
     
     def get_suffix(self,info,log):
-        return "-cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (self._orig_splib,info[self.SPLIB])
+        root = os.path.splitext(self._result_file1)[0] 
+        return "-cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (self._orig_splib,root)
 
     def set_args(self,log,args_handler):
         """
