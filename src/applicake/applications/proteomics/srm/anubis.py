@@ -5,16 +5,24 @@ Created on Oct 3, 2012
 @author: johant,quandtan
 '''
 
-import subprocess
-import shlex
+import os
 import re
+import shlex
+import subprocess
+
+
 
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.argshandler import ArgsHandler
+from applicake.utils.xmlutils import XmlUtils
+from applicake.utils.fileutils import FileUtils
+from applicake.utils import XmlValidator
 
 class AnubisException(Exception):
     def __init__(self, mess):
         self.mess = mess
+        base = self.__class__.__name__
+        self._result_file = '%s.anubis.xml' % base # result produced by the application
 
 class Anubis(IWrapper):
     """
@@ -77,8 +85,10 @@ class Anubis(IWrapper):
                         return fatal('could not extract anubis version from %s/anubis.jar output' % self.DEFAULT_ANUBIS_DIR)
                 except:
                     return fatal('could not run %s/anubis.jar' % cmd + self.DEFAULT_ANUBIS_DIR)
-                    
-
+            
+            if not info.haskey(self.OUTPUT_RESULT_FILE):
+                wd = info[self.WORKDIR]
+                info[self.OUTPUT_RESULT_FILE] = os.path.join(wd,self._result_file)          
 
             cmd += "--null-dist=%i "            % int(get(self.NULL_DIST_SIZE, 1000))
             cmd += "--trans-limit=%i "          % int(get(self.MAX_NUM_TRANSITIONS, 6))
@@ -142,15 +152,15 @@ class Anubis(IWrapper):
         """
         See interface
         """
+        result_file = info[self.OUTPUT_RESULT_FILE]
         if run_code != 0:
             exit_code = run_code
         else:
-            try:
-                f = open(info[self.OUTPUT_RESULT_FILE], 'r')
-                f.close()
-                exit_code = 0
-            except:
-                log.error('No output file was created. check key [%s]' % self.OUTPUT_RESULT_FILE)
-                exit_code = 1
+            if not FileUtils.is_valid_file(log, result_file):
+                log.critical('[%s] is not valid' %result_file)
+                return 1,info
+            if not XmlValidator.is_wellformed(result_file):
+                log.critical('[%s] is not well formed.' % result_file)
+                return 1,info
                 
         return (exit_code, info)
