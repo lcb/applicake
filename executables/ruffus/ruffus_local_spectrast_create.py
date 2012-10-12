@@ -17,6 +17,7 @@ from applicake.applications.commons.generator import DatasetcodeGenerator,\
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
+from applicake.applications.commons.inifile import KeysToList
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -48,7 +49,7 @@ LOG_LEVEL = DEBUG
 STORAGE = memory_all
 WORKFLOW = spectrast_create
 EXPERIMENT = E286955
-DATASET_CODE = 20110722014852343-201543
+DATASET_CODE = 20110722014852343-201543,
 FDR=0.01
 """)
             #, 20110722033454238-201588
@@ -77,9 +78,12 @@ def generator(input_file_name, notused_output_file_names):
 def dss(input_file_name, output_file_name):
     thandle, tfile = tempfile.mkstemp(suffix='.out', prefix='getmsdata',dir='.')   
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata','--RESULT_FILE',tfile])
+    
+@transform(dss, regex("dss.ini_"), "pepxmlskey2list.ini_")
+def pepxmlskey2list(input_file_name, output_file_name):
+    wrap(KeysToList,input_file_name, output_file_name,['--KEYSTOLIST','PEPXMLS'])
 
-
-@transform(dss, regex("dss.ini_"), "pepxml2csv.ini_")
+@transform(pepxmlskey2list, regex("pepxmlskey2list.ini_"), "pepxml2csv.ini_")
 def pepxml2csv(input_file_name, output_file_name):
     wrap(Pepxml2Csv,input_file_name, output_file_name)          
     
