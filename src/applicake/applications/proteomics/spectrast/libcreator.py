@@ -102,7 +102,7 @@ class RawLibrary(LibraryCreator):
             log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
             sys.exit(1)              
         root = os.path.splitext(self._result_file1)[0]    
-        return '-cP%s -cN%s %s ' % (info[self.PROBABILITY],root,self.PEPXMLS[0])
+        return '-cP%s -cN%s %s ' % (info[self.PROBABILITY],root,info[self.PEPXMLS][0])
 
     def set_args(self,log,args_handler):
         """
@@ -132,7 +132,7 @@ class ConsensusLibrary(LibraryCreator):
     
     def get_suffix(self,info,log):
         root = os.path.splitext(self._result_file1)[0] 
-        return "-cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (root,self._orig_splib)
+        return "-cAC -cN%s %s" % (root,self._orig_splib)
 
     def set_args(self,log,args_handler):
         """
