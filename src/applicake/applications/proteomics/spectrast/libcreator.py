@@ -96,6 +96,13 @@ class RawLibraryCreator(LibraryCreator):
         (root,ext) = os.path.splitext(info[self.SPLIB])    
         return '-V -L%s -cP%s -cN %s ' % (spectrast_log,info[self.PROBABILITY],root,self.PEPXMLS[0])
 
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """
+        args_handler = super(RawLibraryCreator, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append') 
+        return args_handler
 
 class LibraryCreatorTemplate(BasicTemplateHandler):
     """
