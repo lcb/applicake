@@ -51,7 +51,7 @@ DATASET_CODE = 20120320164249179-361885,20120320164249179-361886,201203201642491
 def generator(input_file_name, notused_output_file_names):
     sys.argv = ['IGNORED', '-i', input_file_name, '--GENERATORS', 'generate.ini' ,'-l','CRITICAL']
     runner = IniFileRunner()
-    application = GuseDatasetcodeGenerator()
+    application = DatasetcodeGenerator()
     exit_code = runner(sys.argv, application)
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 
@@ -75,5 +75,6 @@ def collector(notused_input_file_names, output_file_name):
         raise Exception("collector failed [%s]" % exit_code)    
 
 pipeline_run([collector])
+#pipeline_printout(sys.stdout, [collector], verbose=5)
 
 #pipeline_printout_graph ('flowchart.png','png',[collector],no_key_legend = False) #svg
