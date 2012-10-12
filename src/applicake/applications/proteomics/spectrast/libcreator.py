@@ -86,7 +86,7 @@ class LibraryCreator(IWrapper):
     #err_stream.seek(0)
         return 0,info
 
-class RawLibraryCreator(LibraryCreator):
+class RawLibrary(LibraryCreator):
     
     def get_suffix(self,info,log):
         spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
@@ -100,10 +100,27 @@ class RawLibraryCreator(LibraryCreator):
         """
         See interface
         """
-        args_handler = super(RawLibraryCreator, self).set_args(log,args_handler)
+        args_handler = super(RawLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, self.PROBABILITY, 'Probabilty cutoff value that has to be matched') 
         return args_handler
+
+class NoDecoyLibrary(LibraryCreator):
+    
+    def get_suffix(self,info,log):
+        spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
+        
+        return '-V -L%s -cfProtein !~ REV_  &  Protein !~ DECOY_ -cN%s' % (spectrast_log,info[self.SPLIB])
+
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """
+        args_handler = super(RawLibrary, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
+        return args_handler
+
+#spectrast -cf'Protein !~ REV_  &  Protein !~ DECOY_' -cNdecoy_removed raw.splib >spectrast_decoyremoved.log
 
 class LibraryCreatorTemplate(BasicTemplateHandler):
     """
