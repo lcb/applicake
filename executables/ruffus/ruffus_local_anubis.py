@@ -57,7 +57,7 @@ def setup():
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
         ini = "DATASET_CODE = 20120320164249179-361885\n"
-        ini += "BASEDIR = /cluster/scratch/malars/workflows\n"
+        ini += "BASEDIR = /cluster/scratch_xl/shareholder/malars/workflows\n"
         ini += "BASEDIR = LOG_LEVEL = DEBUG\n"
         ini += "BASEDIR = STORAGE = memory_all\n"
         ini += "BASEDIR = WORKFLOW = anubis\n"        
