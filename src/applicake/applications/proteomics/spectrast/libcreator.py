@@ -48,6 +48,8 @@ class LibraryCreator(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
+        # needs to run as first because of the possible overwriting of key values.
+        suffix = self.get_suffix(info, log)
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file1 = os.path.join(wd,self._result_file1)
@@ -61,7 +63,6 @@ class LibraryCreator(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        suffix = self.get_suffix(info, log)
         command = '%s %s' % (prefix,suffix)
         return command,info
 
@@ -93,7 +94,7 @@ class RawLibrary(LibraryCreator):
         if len(info[self.PEPXMLS]) >1:
             log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
             sys.exit(1)              
-        (root,ext) = os.path.splitext(info[self.SPLIB])    
+        root = os.path.splitext(self._result_file1)[0]    
         return '-cF%s -V -L%s -cP%s -cN%s %s ' % (info['TEMPLATE'],spectrast_log,info[self.PROBABILITY],root,self.PEPXMLS[0])
 
     def set_args(self,log,args_handler):
@@ -109,8 +110,8 @@ class NoDecoyLibrary(LibraryCreator):
     
     def get_suffix(self,info,log):
         spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
-        
-        return "-V -L%s -cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s" % (spectrast_log,info[self.SPLIB])
+        root = os.path.splitext(self._result_file1)[0] 
+        return "-V -L%s -cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (spectrast_log,root,info[self.SPLIB])
 
     def set_args(self,log,args_handler):
         """
