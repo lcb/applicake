@@ -63,7 +63,8 @@ class LibraryCreator(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s' % (prefix,suffix)
+        spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
+        command = '%s -cF%s -V -L%s %s ' % (prefix,self._template_file,spectrast_log,suffix)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -90,12 +91,11 @@ class LibraryCreator(IWrapper):
 class RawLibrary(LibraryCreator):
     
     def get_suffix(self,info,log):
-        spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
         if len(info[self.PEPXMLS]) >1:
             log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
             sys.exit(1)              
         root = os.path.splitext(self._result_file1)[0]    
-        return '-cF%s -V -L%s -cP%s -cN%s %s ' % (self._template_file,spectrast_log,info[self.PROBABILITY],root,self.PEPXMLS[0])
+        return '-cP%s -cN%s %s ' % (info[self.PROBABILITY],root,self.PEPXMLS[0])
 
     def set_args(self,log,args_handler):
         """
@@ -109,9 +109,8 @@ class RawLibrary(LibraryCreator):
 class NoDecoyLibrary(LibraryCreator):
     
     def get_suffix(self,info,log):
-        spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
         root = os.path.splitext(self._result_file1)[0] 
-        return "-V -L%s -cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (spectrast_log,root,info[self.SPLIB])
+        return "-cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (root,info[self.SPLIB])
 
     def set_args(self,log,args_handler):
         """
