@@ -82,7 +82,7 @@ def setup():
         ini += "STORAGE = memory_all\n"
         ini += "WORKFLOW = anubis\n"        
         ini += "%s = %i\n" % (Anubis.NULL_DIST_SIZE,      1000)
-        ini += "%s = %i\n" % (Anubis.MAX_NUM_TRANSITIONS, 6)
+        ini += "%s = %i\n" % (Anubis.MAX_NUM_TRANSITIONS, 6,8)
         ini += "%s = %f\n" % (Anubis.PEAK_MIN_WIDTH,      0.1)
         ini += "%s = %s\n" % (Anubis.SINGLE_ANSWER,       "True")
         ini += "%s = %f\n" % (Anubis.P_VALUE_TOLERANCE,   0.01)
@@ -95,7 +95,7 @@ def setup():
 
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
     runner = IniFileRunner()
     application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
