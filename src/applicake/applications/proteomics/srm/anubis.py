@@ -14,9 +14,8 @@ import subprocess
 
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.argshandler import ArgsHandler
-from applicake.utils.xmlutils import XmlUtils
+from applicake.utils.xmlutils import XmlUtils, XmlValidator
 from applicake.utils.fileutils import FileUtils
-from applicake.utils import XmlValidator
 
 class AnubisException(Exception):
     def __init__(self, mess):
