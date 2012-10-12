@@ -3,7 +3,7 @@
 
 Created on Oct 12, 2012
 
-@author: johant
+@author: johant,quandtan
 
 This is simply a shallow conversion of the ruffus_local_echotest 
 pipeline. It seems to work but likely some things can be made in
@@ -88,21 +88,10 @@ def anubis(input_file_name, output_file_name):
     wrapper     = Anubis()
     exit_code   = runner(sys.argv, wrapper)
     if exit_code != 0:
-        raise Exception("anubis failed [%s]" % exit_code)   
+        raise Exception("anubis failed [%s]" % exit_code)       
 
 
 
-@merge(anubis, "output.ini")
-def collector(notused_input_file_names, output_file_name):
-    sys.argv    = [IGNORED_PROC_NAME, '--COLLECTORS', 'anubis-out.ini', '-o', output_file_name,'-s','file']
-    runner      = CollectorRunner()
-    application = GuseCollector()
-    exit_code   = runner(sys.argv, application)
-    if exit_code != 0:
-        raise Exception("collector failed [%s]" % exit_code)    
-
-
-
-pipeline_run([collector])
+pipeline_run([anubis])
 #pipeline_printout(sys.stdout, [collector], verbose=5)
 #pipeline_printout_graph ('flowchart.png', 'png', [collector], no_key_legend = False) #svg
