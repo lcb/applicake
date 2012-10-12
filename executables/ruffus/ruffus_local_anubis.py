@@ -45,6 +45,24 @@ def execute(command):
     err_stream = StringIO(error) 
 
 
+#helper function
+def wrap(applic,  input_file_name, output_file_name,opts=None):
+    argv = ['', '-i', input_file_name, '-o', output_file_name]
+    if opts is not None:
+        argv.extend(opts)
+    application = applic()
+    if isinstance(application, IApplication):
+        runner = ApplicationRunner()
+        print 'use application runner'
+    elif isinstance(application, IWrapper):
+        runner = WrapperRunner()
+    else:
+        raise Exception('could not identfy [%s]' % applic.__name__)    
+    application = applic()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
+
 
 def setup():
     cwd = '.'
@@ -73,28 +91,19 @@ def setup():
 
 
 
-@follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    sys.argv    = [IGNORED_PROC_NAME, '-i', input_file_name, '--GENERATORS', 'generate.ini']
-    runner      = IniFileRunner()
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']
+    runner = IniFileRunner()
     application = DatasetcodeGenerator()
-    exit_code   = runner(sys.argv, application)
+    exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 
 
-
-
 @transform(generator, regex("generate.ini_"), "anubis-out.ini_")
 def anubis(input_file_name, output_file_name):
-    sys.argv    = [IGNORED_PROC_NAME, '-i', input_file_name, '-o', output_file_name, '-l','DEBUG', '-p']
-    runner      = WrapperRunner()
-    wrapper     = Anubis()
-    exit_code   = runner(sys.argv, wrapper)
-    if exit_code != 0:
-        raise Exception("anubis failed [%s]" % exit_code)       
-
-
+    wrap(Anubis,input_file_name, output_file_name,[IGNORED_PROC_NAME, '-i', input_file_name, '-o', output_file_name, '-l','DEBUG', '-p'])
+      
 
 pipeline_run([anubis])
 #pipeline_printout(sys.stdout, [collector], verbose=5)
