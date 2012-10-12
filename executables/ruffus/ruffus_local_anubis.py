@@ -81,11 +81,11 @@ def setup():
         ini += "LOG_LEVEL = DEBUG\n"
         ini += "STORAGE = memory_all\n"
         ini += "WORKFLOW = anubis\n"        
-        ini += "%s = %i\n" % (Anubis.NULL_DIST_SIZE,      1000)
-        ini += "%s = %i\n" % (Anubis.MAX_NUM_TRANSITIONS, 6,8)
-        ini += "%s = %f\n" % (Anubis.PEAK_MIN_WIDTH,      0.1)
+        ini += "%s = %s\n" % (Anubis.NULL_DIST_SIZE,      '1000')
+        ini += "%s = %s\n" % (Anubis.MAX_NUM_TRANSITIONS, '6,8')
+        ini += "%s = %s\n" % (Anubis.PEAK_MIN_WIDTH,      '0.1')
         ini += "%s = %s\n" % (Anubis.SINGLE_ANSWER,       "True")
-        ini += "%s = %f\n" % (Anubis.P_VALUE_TOLERANCE,   0.01)
+        ini += "%s = %s\n" % (Anubis.P_VALUE_TOLERANCE,   '0.01')
 #        ini += "%s = %s\n" % (Anubis.OUTPUT_RESULT_FILE,  "ruffus_local.anubis")
         ini += "%s = %s\n" % (KeyEnum.MZML,               "101112_JT_pl2_03.mzML")
         ini += "%s = %s\n" % (Anubis.TRAML,               "final_method.ref")
