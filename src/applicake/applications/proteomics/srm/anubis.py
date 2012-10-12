@@ -2,7 +2,7 @@
 '''
 Created on Oct 3, 2012
 
-@author: johant
+@author: johant,quandtan
 '''
 
 import subprocess
@@ -33,7 +33,7 @@ class Anubis(IWrapper):
     OUTPUT_RESULT_FILE  = 'ANUBIS_OUTPUT'
     TRAML               = 'TRAML'
     
-    DEFAULT_JVM         = '/usr/bin/java'
+    DEFAULT_JVM         = 'java'
     DEFAULT_ANUBIS_DIR  = '.'
     #DEFAULT_ANUBIS_JAR  = '/media/storage/code/anubis_workspace/Anubis/target/Anubis-1.1.0-jar-with-dependencies.jar'
     
