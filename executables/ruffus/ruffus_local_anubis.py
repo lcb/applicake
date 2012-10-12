@@ -104,7 +104,7 @@ def generator(input_file_name, notused_output_file_names):
 
 @transform(generator, regex("generate.ini_"), "anubis-out.ini_")
 def anubis(input_file_name, output_file_name):
-    wrap(Anubis,input_file_name, output_file_name,[IGNORED_PROC_NAME, '-i', input_file_name, '-o', output_file_name, '-l','DEBUG', '-p'])
+    wrap(Anubis,input_file_name, output_file_name,['-i', input_file_name, '-o', output_file_name, '-l','DEBUG', '-p'])
       
 
 pipeline_run([anubis])
