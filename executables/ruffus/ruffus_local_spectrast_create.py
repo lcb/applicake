@@ -18,7 +18,7 @@ from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
 from applicake.applications.commons.inifile import KeysToList
-from applicake.applications.proteomics.spectrast.libcreator import RawLibraryCreator
+from applicake.applications.proteomics.spectrast.libcreator import RawLibraryCreator 
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
