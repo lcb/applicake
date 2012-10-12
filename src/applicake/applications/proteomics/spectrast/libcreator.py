@@ -5,6 +5,7 @@ Created on Sep 29, 2012
 '''
 
 import os
+import sys
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 
@@ -23,7 +24,15 @@ class LibraryCreator(IWrapper):
         """
         base = self.__class__.__name__
         self._template_file = '%s.tpl' % base # application specific config file
-        self._result_file = '%s.splib' % base # result produced by the application
+        self._result_file1 = '%s.splib' % base # result produced by the application
+        self._result_file2 = '%s.sptxt' % base # result produced by the application
+
+
+    def get_suffix(self,info,log):
+        """
+        add command line arguments specific to the library creation step.
+        """
+        raise NotImplementedError("get_suffix() is not implemented") 
 
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -39,11 +48,12 @@ class LibraryCreator(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        key = self._file_type.upper()
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._result_file = os.path.join(wd,self._result_file)
-        info[key] = self._result_file
+        self._result_file1 = os.path.join(wd,self._result_file1)
+        info[self.SPLIB] = self._result_file1
+        self._result_file2 = os.path.join(wd,self._result_file2)
+        info[self.SPTXT] = self._result_file2
         self._template_file = os.path.join(wd,self._template_file)
         info['TEMPLATE'] = self._template_file
         log.debug('get template handler')
@@ -51,7 +61,8 @@ class LibraryCreator(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        command = '%s ' % (prefix)
+        suffix = self.get_prefix(info, log)
+        command = '%s -cF%s %s' % (prefix,info['TEMPLATE'],suffix)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -74,6 +85,16 @@ class LibraryCreator(IWrapper):
     #out_stream.seek(0)
     #err_stream.seek(0)
         return 0,info
+
+class RawLibraryCreator(LibraryCreator):
+    
+    def get_suffix(self,info,log):
+        spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
+        if len(info[self.PEPXMLS]) >1:
+            log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
+            sys.exit(1)              
+        (root,ext) = os.path.splitext(info[self.SPLIB])    
+        return '-V -L%s -cP%s -cN %s ' % (spectrast_log,info[self.PROBABILITY],root,self.PEPXMLS[0])
 
 
 class LibraryCreatorTemplate(BasicTemplateHandler):

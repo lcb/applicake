@@ -18,6 +18,7 @@ from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
 from applicake.applications.commons.inifile import KeysToList
+from applicake.applications.proteomics.spectrast.libcreator import RawLibraryCreator
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -96,4 +97,8 @@ def pepxml2csv(input_file_name, output_file_name):
 def fdr2probability(input_file_name, output_file_name):
     wrap(Fdr2Probability,input_file_name, output_file_name) 
     
-pipeline_run([fdr2probability], multiprocess=3)
+@transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
+def rawlibcreator(input_file_name, output_file_name):
+    wrap(RawLibraryCreator,input_file_name, output_file_name)   
+    
+pipeline_run([rawlibcreator], multiprocess=3)
