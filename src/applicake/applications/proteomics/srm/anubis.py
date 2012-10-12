@@ -20,8 +20,6 @@ from applicake.utils.fileutils import FileUtils
 class AnubisException(Exception):
     def __init__(self, mess):
         self.mess = mess
-        base = self.__class__.__name__
-        self._result_file = '%s.anubis.xml' % base # result produced by the application
 
 class Anubis(IWrapper):
     """
@@ -44,6 +42,12 @@ class Anubis(IWrapper):
     DEFAULT_ANUBIS_DIR  = '.'
     #DEFAULT_ANUBIS_JAR  = '/media/storage/code/anubis_workspace/Anubis/target/Anubis-1.1.0-jar-with-dependencies.jar'
     
+    def __init__(self):
+        '''
+        Constructor
+        '''            
+        base = self.__class__.__name__
+        self._result_file = '%s.anubis.xml' % base # result produced by the application    
     
     def prepare_run(self,info,log):
         """
