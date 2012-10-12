@@ -37,7 +37,7 @@ class Anubis(IWrapper):
     JVM                 = 'ANUBIS_JVM'
     JVM_VERSION         = 'ANUBIS_JVM_VERSION'
     MAX_HEAP_SIZE       = 'ANUBIS_MAX_HEAP_SIZE'
-    OUTPUT_RESULT_FILE  = 'ANUBIS_OUTPUT'
+#    OUTPUT_RESULT_FILE  = 'ANUBIS_OUTPUT'
     TRAML               = 'TRAML'
     
     DEFAULT_JVM         = 'java'
@@ -84,9 +84,8 @@ class Anubis(IWrapper):
                         return fatal('could not extract anubis version from %s/anubis.jar output' % self.DEFAULT_ANUBIS_DIR)
                 except:
                     return fatal('could not run %s/anubis.jar' % cmd + self.DEFAULT_ANUBIS_DIR)
-            if not info.has_key(self.OUTPUT_RESULT_FILE):
-                wd = info[self.WORKDIR]
-                info[self.OUTPUT_RESULT_FILE] = os.path.join(wd,self._result_file)          
+            wd = info[self.WORKDIR]
+            self._result_file = os.path.join(wd,self._result_file)          
 
             cmd += "--null-dist=%i "            % int(get(self.NULL_DIST_SIZE, 1000))
             cmd += "--trans-limit=%i "          % int(get(self.MAX_NUM_TRANSITIONS, 6))
@@ -107,7 +106,9 @@ class Anubis(IWrapper):
     def set_args(self,log,args_handler):
         """
         See interface
-        """        
+        """       
+        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')         
+         
         args_handler.add_app_args(log, self.NULL_DIST_SIZE, 
             'size of null distrubution for each chromatogram ( > 0, default: 1000)')
             
@@ -136,8 +137,8 @@ class Anubis(IWrapper):
         args_handler.add_app_args(log, self.MAX_HEAP_SIZE, 
             'jvm max heap size 124m = 124 Mb, 1g = 1 Gb (default: 1g)')
             
-        args_handler.add_app_args(log, self.OUTPUT_RESULT_FILE, 
-            'the anubis result file')
+#        args_handler.add_app_args(log, self.OUTPUT_RESULT_FILE, 
+#            'the anubis result file')
             
         args_handler.add_app_args(log, self.MZML, 
             'the MzML file to analyze')
@@ -150,15 +151,14 @@ class Anubis(IWrapper):
         """
         See interface
         """
-        result_file = info[self.OUTPUT_RESULT_FILE]
         if run_code != 0:
             exit_code = run_code
         else:
-            if not FileUtils.is_valid_file(log, result_file):
-                log.critical('[%s] is not valid' %result_file)
+            if not FileUtils.is_valid_file(log, self._result_file):
+                log.critical('[%s] is not valid' %self._result_file)
                 return 1,info
-            if not XmlValidator.is_wellformed(result_file):
-                log.critical('[%s] is not well formed.' % result_file)
+            if not XmlValidator.is_wellformed(self._result_file):
+                log.critical('[%s] is not well formed.' % self._result_file)
                 return 1,info
                 
         return (exit_code, info)
