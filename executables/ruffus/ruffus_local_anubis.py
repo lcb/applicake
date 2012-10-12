@@ -76,9 +76,9 @@ def setup():
     with open("input.ini", 'w+') as f:
         ini = "DATASET_CODE = 20120320164249179-361885\n"
         ini += "BASEDIR = /cluster/scratch_xl/shareholder/malars/workflows\n"
-        ini += "BASEDIR = LOG_LEVEL = DEBUG\n"
-        ini += "BASEDIR = STORAGE = memory_all\n"
-        ini += "BASEDIR = WORKFLOW = anubis\n"        
+        ini += "LOG_LEVEL = DEBUG\n"
+        ini += "STORAGE = memory_all\n"
+        ini += "WORKFLOW = anubis\n"        
         ini += "%s = %i\n" % (Anubis.NULL_DIST_SIZE,      1000)
         ini += "%s = %i\n" % (Anubis.MAX_NUM_TRANSITIONS, 6)
         ini += "%s = %f\n" % (Anubis.PEAK_MIN_WIDTH,      0.1)
