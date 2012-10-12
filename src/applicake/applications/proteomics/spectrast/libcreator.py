@@ -62,7 +62,7 @@ class LibraryCreator(IWrapper):
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
         suffix = self.get_suffix(info, log)
-        command = '%s -cF%s %s' % (prefix,info['TEMPLATE'],suffix)
+        command = '%s %s' % (prefix,suffix)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -94,7 +94,7 @@ class RawLibrary(LibraryCreator):
             log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
             sys.exit(1)              
         (root,ext) = os.path.splitext(info[self.SPLIB])    
-        return '-V -L%s -cP%s -cN%s %s ' % (spectrast_log,info[self.PROBABILITY],root,self.PEPXMLS[0])
+        return '-cF%s -V -L%s -cP%s -cN%s %s ' % (info['TEMPLATE'],spectrast_log,info[self.PROBABILITY],root,self.PEPXMLS[0])
 
     def set_args(self,log,args_handler):
         """
