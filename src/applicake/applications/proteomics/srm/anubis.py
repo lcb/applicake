@@ -97,7 +97,7 @@ class Anubis(IWrapper):
             cmd += "--p-value-tolerance=%f "    % float(get(self.P_VALUE_TOLERANCE, 0.01))
             cmd += '%s ' % require( self.TRAML)
             cmd += "%f " % float(get(     self.PEAK_MIN_WIDTH, 0.1))
-            cmd += '%s ' % require( self.OUTPUT_RESULT_FILE)
+            cmd += '%s ' % self._result_file
             cmd += '%s'  % require( self.MZML)
             
             return (cmd, info)
