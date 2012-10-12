@@ -57,7 +57,7 @@ def setup():
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
         ini = "DATASET_CODE = 20120320164249179-361885\n"
-        ini += "BASEDIR = /cluster/scratch/malars/workflows"
+        ini += "BASEDIR = /cluster/scratch/malars/workflows\n"
         ini += "%s = %i\n" % (Anubis.NULL_DIST_SIZE,      1000)
         ini += "%s = %i\n" % (Anubis.MAX_NUM_TRANSITIONS, 6)
         ini += "%s = %f\n" % (Anubis.PEAK_MIN_WIDTH,      0.1)
