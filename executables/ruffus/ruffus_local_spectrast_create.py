@@ -100,7 +100,7 @@ def fdr2probability(input_file_name, output_file_name):
     
 @transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
 def rawlib(input_file_name, output_file_name):
-    wrap(RawLibrary,input_file_name, output_file_name,['-s','memory_all'])
+    wrap(RawLibrary,input_file_name, output_file_name)
     
 @transform(rawlib,regex('rawlibcreator.ini_'),'nodecoylib.ini_')
 def nodecoylib(input_file_name, output_file_name):
