@@ -26,16 +26,16 @@ class Anubis(IWrapper):
     PEAK_MIN_WIDTH      = 'ANUBIS_PEAK_MIN_WIDTH'
     SINGLE_ANSWER       = 'ANUBIS_SINGLE_ANSWER'
     P_VALUE_TOLERANCE   = 'ANUBIS_P_VALUE_TOLERANCE'
-    REFERENCE_FILE      = 'TRAML'
     VERSION             = 'ANUBIS_VERSION'
     JVM                 = 'ANUBIS_JVM'
     JVM_VERSION         = 'ANUBIS_JVM_VERSION'
     MAX_HEAP_SIZE       = 'ANUBIS_MAX_HEAP_SIZE'
     OUTPUT_RESULT_FILE  = 'ANUBIS_OUTPUT'
-    INPUT_MZML_FILE     = 'MZML'
+    TRAML               = 'TRAML'
     
     DEFAULT_JVM         = '/usr/bin/java'
-    DEFAULT_ANUBIS_JAR  = '/media/storage/code/anubis_workspace/Anubis/target/Anubis-1.1.0-jar-with-dependencies.jar'
+    DEFAULT_ANUBIS_DIR  = '.'
+    #DEFAULT_ANUBIS_JAR  = '/media/storage/code/anubis_workspace/Anubis/target/Anubis-1.1.0-jar-with-dependencies.jar'
     
     
     def prepare_run(self,info,log):
@@ -66,17 +66,17 @@ class Anubis(IWrapper):
                 cmd += "anubis-%s.jar " % info[self.VERSION]
             else:
                 try:
-                    anubisCmd = cmd + self.DEFAULT_ANUBIS_JAR
+                    anubisCmd = cmd + self.DEFAULT_ANUBIS_DIR + "/anubis.jar"
                     p = subprocess.Popen(shlex.split(anubisCmd), stdout=subprocess.PIPE)
                     output = p.communicate()[0]
                     m = re.search('(?<=anubis-)[^ ]*(?=.jar)', output)
                     if m != None:
                         info[self.VERSION] = m.group(0)
-                        cmd += "%s " % self.DEFAULT_ANUBIS_JAR
+                        cmd += "%s/anubis.jar " % (self.DEFAULT_ANUBIS_DIR)
                     else:
-                        return fatal('could not extract anubis version from %s output' % self.DEFAULT_ANUBIS_JAR)
+                        return fatal('could not extract anubis version from %s/anubis.jar output' % self.DEFAULT_ANUBIS_DIR)
                 except:
-                    return fatal('could not run %s' % cmd + self.DEFAULT_ANUBIS_JAR)
+                    return fatal('could not run %s/anubis.jar' % cmd + self.DEFAULT_ANUBIS_DIR)
                     
 
 
@@ -84,10 +84,10 @@ class Anubis(IWrapper):
             cmd += "--trans-limit=%i "          % int(get(self.MAX_NUM_TRANSITIONS, 6))
             cmd += "--single-answer=%s "        % get(self.SINGLE_ANSWER, "true")
             cmd += "--p-value-tolerance=%f "    % float(get(self.P_VALUE_TOLERANCE, 0.01))
-            cmd += '%s ' % require( self.REFERENCE_FILE)
+            cmd += '%s ' % require( self.TRAML)
             cmd += "%f " % float(get(     self.PEAK_MIN_WIDTH, 0.1))
             cmd += '%s ' % require( self.OUTPUT_RESULT_FILE)
-            cmd += '%s'  % require( self.INPUT_MZML_FILE)
+            cmd += '%s'  % require( self.MZML)
             
             return (cmd, info)
             
@@ -116,7 +116,7 @@ class Anubis(IWrapper):
         args_handler.add_app_args(log, self.PEAK_MIN_WIDTH, 
             'minimum expected peak width in minutes ( > 0.0, default: 0.1)')
             
-        args_handler.add_app_args(log, self.REFERENCE_FILE, 
+        args_handler.add_app_args(log, self.TRAML, 
             'traml file with reference transition intensities')
             
         args_handler.add_app_args(log, self.VERSION, 
@@ -131,7 +131,7 @@ class Anubis(IWrapper):
         args_handler.add_app_args(log, self.OUTPUT_RESULT_FILE, 
             'the anubis result file')
             
-        args_handler.add_app_args(log, self.INPUT_MZML_FILE, 
+        args_handler.add_app_args(log, self.MZML, 
             'the MzML file to analyze')
             
         return args_handler
