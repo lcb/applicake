@@ -84,8 +84,7 @@ class Anubis(IWrapper):
                         return fatal('could not extract anubis version from %s/anubis.jar output' % self.DEFAULT_ANUBIS_DIR)
                 except:
                     return fatal('could not run %s/anubis.jar' % cmd + self.DEFAULT_ANUBIS_DIR)
-            
-            if not info.haskey(self.OUTPUT_RESULT_FILE):
+            if not info.has_key(self.OUTPUT_RESULT_FILE):
                 wd = info[self.WORKDIR]
                 info[self.OUTPUT_RESULT_FILE] = os.path.join(wd,self._result_file)          
 
