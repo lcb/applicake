@@ -94,7 +94,7 @@ class RawLibraryCreator(LibraryCreator):
             log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
             sys.exit(1)              
         (root,ext) = os.path.splitext(info[self.SPLIB])    
-        return '-V -L%s -cP%s -cN %s ' % (spectrast_log,info[self.PROBABILITY],root,self.PEPXMLS[0])
+        return '-V -L%s -cP%s -cN%s %s ' % (spectrast_log,info[self.PROBABILITY],root,self.PEPXMLS[0])
 
     def set_args(self,log,args_handler):
         """
