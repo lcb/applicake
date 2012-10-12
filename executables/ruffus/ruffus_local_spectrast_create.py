@@ -45,12 +45,13 @@ def setup():
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
-STORAGE = file
+STORAGE = memory_all
 WORKFLOW = spectrast_create
 EXPERIMENT = E286955
-DATASET_CODE = 20110722014852343-201543, 20110722033454238-201588
+DATASET_CODE = 20110722014852343-201543
 FDR=0.01
 """)
+            #, 20110722033454238-201588
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
     
