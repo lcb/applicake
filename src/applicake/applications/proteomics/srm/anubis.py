@@ -164,5 +164,5 @@ class Anubis(IWrapper):
             if not XmlValidator.is_wellformed(self._result_file):
                 log.critical('[%s] is not well formed.' % self._result_file)
                 return 1,info
-                
+            exit_code = 0    
         return (exit_code, info)
