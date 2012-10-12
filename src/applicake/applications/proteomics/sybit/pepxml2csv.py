@@ -46,8 +46,8 @@ class Pepxml2Csv(IWrapper):
     - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        if len(info['PEPXMLS']) >1:
-            log.fatal('found > 1 pepxml files [%s].' % info['PEPXMLS'])
+        if len(info[self.PEPXMLS]) >1:
+            log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
             sys.exit(1)    
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
@@ -60,7 +60,7 @@ class Pepxml2Csv(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s %s' % (prefix,mod_template, info['PEPXMLS'][0])
+        command = '%s %s %s' % (prefix,mod_template, info[self.PEPXMLS][0])
         return command,info
 
     def set_args(self,log,args_handler):
@@ -72,7 +72,7 @@ class Pepxml2Csv(IWrapper):
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         #args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
-        args_handler.add_app_args(log, 'PEPXMLS', 'List of pepXML files',action='append')
+        args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         return args_handler
 
