@@ -50,7 +50,7 @@ DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
 STORAGE = memory_all
 WORKFLOW = spectrast_create
-EXPERIMENT = E286955
+EXPERIMENT = E286966
 DATASET_CODE = 20120928124818478-704737,
 FDR=0.01
 """)
