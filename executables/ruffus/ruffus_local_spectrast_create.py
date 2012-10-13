@@ -48,7 +48,7 @@ def setup():
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
-STORAGE = memory-all
+STORAGE = memory_all
 WORKFLOW = spectrast_create
 EXPERIMENT = E286955
 DATASET_CODE = 20120928124818478-704737,
