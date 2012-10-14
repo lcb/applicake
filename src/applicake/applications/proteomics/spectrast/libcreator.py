@@ -106,7 +106,7 @@ class RawLibrary(LibraryCreator):
         symlink_files = info[self.PEPXMLS]
         symlink_files.extend(info[self.MZXML])
         for i,f in enumerate(symlink_files):
-            dest = os.path.join(root,os.path.basename(f))
+            dest = os.path.join(os.path.dirname(self._result_file1),os.path.basename(f))
             log.debug('create symlink [%s] -> [%s]' % (f,dest))
             os.symlink(f, dest)
             symlink_files[i] = dest                
