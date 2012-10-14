@@ -103,7 +103,8 @@ class RawLibrary(LibraryCreator):
             sys.exit(1)           
         #have to symlink the pepxml and mzxml files first into a single directory
         root = os.path.splitext(self._result_file1)[0]
-        symlink_files = info[self.PEPXMLS].extend(info[self.MZXML])
+        symlink_files = info[self.PEPXMLS]
+        symlink_files.extend(info[self.MZXML])
         for i,f in enumerate(symlink_files):
             basename = os.path.splitext(f)[1]
             dest = os.path.join(root,basename)
@@ -118,7 +119,7 @@ class RawLibrary(LibraryCreator):
         """
         args_handler = super(RawLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
-        args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format',action='append')
+        args_handler.add_app_args(log, self.MZXML, 'Peak list file in mzXML format',action='append')
         args_handler.add_app_args(log, self.PROBABILITY, 'Probabilty cutoff value that has to be matched') 
         return args_handler
 
