@@ -17,7 +17,7 @@ from applicake.applications.commons.generator import DatasetcodeGenerator,\
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
-from applicake.applications.commons.inifile import KeysToList
+from applicake.applications.commons.inifile import KeysToList, Unifier
 from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
     NoDecoyLibrary
 from applicake.applications.commons.collector import GuseCollector
@@ -89,7 +89,7 @@ def dss(input_file_name, output_file_name):
 
 @merge(dss, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,'-s','memory_all']
+    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name]
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -97,7 +97,16 @@ def collector(notused_input_file_names, output_file_name):
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
 @follows(collector)
-@split("collector.ini", "paramgenerate.ini_*")
+def unifier():
+    argv = ['','-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','-s','memory_all']
+    runner = IniFileRunner2()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('unifier',exit_code))  
+
+@follows(unifier)
+@split("unifier.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
     runner = IniFileRunner2()
