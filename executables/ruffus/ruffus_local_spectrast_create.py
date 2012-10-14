@@ -20,6 +20,7 @@ from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probabil
 from applicake.applications.commons.inifile import KeysToList
 from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
     NoDecoyLibrary
+from applicake.applications.commons.collector import GuseCollector
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -85,8 +86,28 @@ def generator(input_file_name, notused_output_file_names):
 def dss(input_file_name, output_file_name):
     thandle, tfile = tempfile.mkstemp(suffix='.out', prefix='getmsdata',dir='.')   
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata','--RESULT_FILE',tfile])
+
+@merge(dss, "collector.ini")
+def collector(notused_input_file_names, output_file_name):
+    argv = ['', '--COLLECTORS', 'xinteract.ini', '-o', output_file_name,'-s','file']
+    runner = CollectorRunner()
+    application = GuseCollector()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
+
+@follows(collector)
+@split("collector.ini", "paramgenerate.ini_*")
+def paramgenerator(input_file_name, notused_output_file_names):
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
+    runner = IniFileRunner2()
+    application = ParametersetGenerator()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("paramgenerator [%s]" % exit_code)  
     
-@transform(dss, regex("dss.ini_"), "pepxmlskey2list.ini_")
+    
+@transform(paramgenerator, regex("paramgenerate.ini_"), "pepxmlskey2list.ini_")
 def pepxmlskey2list(input_file_name, output_file_name):
     argv = ['', '-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS']
     runner = IniFileRunner()
