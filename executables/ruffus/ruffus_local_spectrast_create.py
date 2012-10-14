@@ -19,7 +19,7 @@ from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
 from applicake.applications.commons.inifile import KeysToList, Unifier
 from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
-    NoDecoyLibrary
+    NoDecoyLibrary, ConsensusLibrary
 from applicake.applications.commons.collector import GuseCollector
     
 #helper function
@@ -89,7 +89,7 @@ def dss(input_file_name, output_file_name):
 
 @merge(dss, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name]
+    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,['-s','file']]
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -135,10 +135,14 @@ def fdr2probability(input_file_name, output_file_name):
     
 @transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
 def rawlib(input_file_name, output_file_name):
-    wrap(RawLibrary,input_file_name, output_file_name,['-s','memory_all'])
+    wrap(RawLibrary,input_file_name, output_file_name,['-s','file'])
     
 @transform(rawlib,regex('rawlibcreator.ini_'),'nodecoylib.ini_')
 def nodecoylib(input_file_name, output_file_name):
     wrap(NoDecoyLibrary,input_file_name, output_file_name)         
+
+@transform(nodecoylib,regex('nodecoylib.ini_'),'consensuslib.ini_')
+def consensuslib(input_file_name, output_file_name):
+    wrap(ConsensusLibrary,input_file_name, output_file_name) 
     
-pipeline_run([nodecoylib], multiprocess=3)
+pipeline_run([consensuslib], multiprocess=3)
