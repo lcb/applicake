@@ -135,7 +135,7 @@ def fdr2probability(input_file_name, output_file_name):
     
 @transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
 def rawlib(input_file_name, output_file_name):
-    wrap(RawLibrary,input_file_name, output_file_name,['-s','file'])
+    wrap(RawLibrary,input_file_name, output_file_name)
     
 @transform(rawlib,regex('rawlibcreator.ini_'),'nodecoylib.ini_')
 def nodecoylib(input_file_name, output_file_name):
@@ -143,6 +143,6 @@ def nodecoylib(input_file_name, output_file_name):
 
 @transform(nodecoylib,regex('nodecoylib.ini_'),'consensuslib.ini_')
 def consensuslib(input_file_name, output_file_name):
-    wrap(ConsensusLibrary,input_file_name, output_file_name) 
+    wrap(ConsensusLibrary,input_file_name, output_file_name,['-s','memory_all']) 
     
 pipeline_run([consensuslib], multiprocess=3)
