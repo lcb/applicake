@@ -89,7 +89,7 @@ def dss(input_file_name, output_file_name):
 
 @merge(dss, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,'-s','memory_all']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
