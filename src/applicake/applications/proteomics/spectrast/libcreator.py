@@ -103,8 +103,8 @@ class RawLibrary(LibraryCreator):
             sys.exit(1)           
         #have to symlink the pepxml and mzxml files first into a single directory
         root = os.path.splitext(self._result_file1)[0]
-        symlink_files = info[self.PEPXMLS]
-        symlink_files.extend(info[self.MZXML])
+        symlink_files = info[self.PEPXMLS].copy()
+        symlink_files.extend(info[self.MZXML].copy())
         for i,f in enumerate(symlink_files):
             dest = os.path.join(os.path.dirname(self._result_file1),os.path.basename(f))
             log.debug('create symlink [%s] -> [%s]' % (f,dest))
