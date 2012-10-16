@@ -7,7 +7,7 @@ Created on Jul 6, 2012
 
 import sys
 from applicake.framework.runner import ApplicationRunner
-from applicake.applications.proteomics.sybit.addSID2pepxml import AddSID2pepxml
+from applicake.applications.proteomics.searchengine.addSID2pepxml import AddSID2pepxml
 
 runner = ApplicationRunner()
 application = AddSID2pepxml()
