@@ -5,6 +5,10 @@ Created on Jun 18, 2012
 '''
 
 import os
+import sys
+import tabular as tb
+import time
+from applicake.framework.interfaces import IApplication
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 
@@ -74,9 +78,9 @@ class Fdr2Probability(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
-        args_handler.add_app_args(log, 'PEPCSV', 'CSV file originated from a file in pepXML format.')
-        args_handler.add_app_args(log, 'DECOY_STRING', 'Prefix to indicate decoy entries in a Protein sequence database.')
-        args_handler.add_app_args(log, 'FDR', 'FDR cutoff value that has to be matched')
+        args_handler.add_app_args(log, self.PEPCSV, 'CSV file originated from a file in pepXML format.')
+        args_handler.add_app_args(log, self.DECOY_STRING, 'Prefix to indicate decoy entries in a Protein sequence database.')
+        args_handler.add_app_args(log, self.FDR, 'FDR cutoff value that has to be matched')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -105,3 +109,145 @@ class Fdr2ProbabilityTemplate(BasicTemplateHandler):
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
+    
+    
+class Fdr2ProbabilityPython(IApplication):
+    # version of the same tool developed as fdr2probabilitydb.py in 0.11 of applicake
+    '''
+    Stand-alone python version of the Fdr2probability tool including more options to control the calculation.
+    
+    Added features:
+    - minimal reported cutoff is 0.001 to cut off the mainly false positives for a probability of 0.
+    - choice of the fdr level  
+    '''
+    def _get_probability(self,log,fdr_col,prob_col):
+        cutoff_limit = 0.001
+        num_limit = 100
+        prob = None       
+        data_cutoff = self._data[self._data[fdr_col]<=self._cutoff]
+        num = len(data_cutoff)
+        if num < num_limit :
+            self.log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,self._cutoff,num_limit))
+            sys.exit(1)  
+        else:
+            self.log.debug('number of PSMs [%s] matching the probability [%s] with FDR cutoff [%s]' % (num,prob_col,self._cutoff))
+        # need to sort by fdr_col and prob_col. otherwise the num of peps differ for the the fdr-cutoff and the prob-cutoff 
+        data_cutoff.sort(order=[prob_col])
+        prob = data_cutoff[prob_col][0]
+        if prob < cutoff_limit: 
+            self.log.debug('probability [%s] is below the cutoff limit [%s]. therefore cutoff limit is applied.' % (prob,cutoff_limit))
+            prob = cutoff_limit        
+        else:
+            self.log.debug('probability [%s] matches FDR [%s].' % (prob,data_cutoff[fdr_col][0]))        
+        log.debug('num of peptides >= probability[%s] [%s]' % (prob,len(data_cutoff[data_cutoff[prob_col]>=prob]))) 
+        return prob               
+    #
+    def _preprocessing(self,log):
+        log.debug('read [%s]' % self._input_filename)
+        self._data = tb.tabarray(SVfile=self._input_filename)
+        peptides = self._data['peptide'].tolist()
+        log.debug('num of peptides [%s]' % len(peptides))      
+        uniq_peptides = list(set(peptides)) 
+        log.debug('num of unique peptide sequences [%s]' % len(uniq_peptides))        
+        #
+    def _calc_fdr_psm(self, log,dict):
+        for k in dict.keys():
+            self._data.sort(order=[dict[k]])
+            proteins = self._data['protein']
+            fdr_vals = []
+            t = 0
+            f = 0  
+            fdr_val = None      
+            # data have to be reversed because the previous sorting is low -> high
+            # we need however high ->
+            for e in proteins[::-1]:
+                if self._decoy in e: f +=1
+                else: t +=1
+                fdr_val = float(f) / (float(t) + float(f))
+                fdr_vals.append(fdr_val)
+            # add re-reversed values that the order matches again what is in the data object
+            self._data = self._data.addcols([fdr_vals[::-1]],names=[k]) 
+            log.debug('finished calculating fdr for [%s]' % k)                              
+                
+    def _cal_fdr_peptide(self,log,dict):            
+        for k in dict.keys():      
+            self._data.sort(order=[dict[k]])
+#            data = self._data[['protein','peptide']]
+            proteins = self._data['protein']
+            proteins = proteins[::-1]
+            peptides = self._data['peptide']
+            peptides = peptides[::-1]
+            mod_peptides = self._data['modified_peptide']
+            mod_peptides = mod_peptides[::-1]
+            
+            peptides_nomods_noD = [e['peptide'] for e in self._data[['protein','peptide']] if 'DECOY_' not in e['protein']]
+            peptides_mods_noD = [e['modified_peptide'] for e in self._data[['protein','modified_peptide']] if 'DECOY_' not in e['protein']] 
+            all_peptides_noD = reduce(lambda x, y: x+y, [peptides_nomods_noD + peptides_mods_noD])
+            log.debug(len(all_peptides_noD))
+            uniq_peptides_noD = list(set(all_peptides_noD))
+            uniq_peptides_noD.remove('NA')
+            log.debug(len(uniq_peptides_noD))
+            found_pep_ions = []
+            log.debug('finished data')
+            fdr_vals = []
+            t = 0
+            f = 0  
+            fdr_val = None      
+            
+            log.debug('finished uniq_peptides') 
+            # data have to be reversed because the previous sorting is low -> high
+            # we need however high ->
+            counter = 0
+            chunk = 1000
+            tic = time.clock()
+            for i,protein in enumerate(proteins):
+                if self._decoy in protein: 
+                    f +=1
+                    fdr_val = float(f) / (float(t) + float(f))
+                else:
+                    ion = None
+                    if mod_peptides[i] == 'NA':
+                        ion = peptides[i]
+                    else:
+                        ion = mod_peptides[i]
+                    if ion not in  found_pep_ions:
+                        found_pep_ions.append(ion)               
+                        t +=1
+                        fdr_val = float(f) / (float(t) + float(f))                   
+                fdr_vals.append(fdr_val)
+                counter +=1
+                if counter == chunk:
+                    chunk += counter
+                    print counter
+                    print time.clock() - tic     
+            # add re-reversed values that the order matches again what is in the data object
+            self._data = self._data.addcols([fdr_vals[::-1]],names=[k]) 
+            log.debug(len(found_pep_ions))
+            log.debug('finished calculating fdr for [%s]' % k)    
+    
+    def set_args(self,log,args_handler):    
+        """ See super class"""
+        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files') 
+        args_handler.add_app_args(log, self.PEPCSV, 'CSV file originated from a file in pepXML format.')
+        args_handler.add_app_args(log, self.DECOY_STRING, 'Prefix to indicate decoy entries in a Protein sequence database.')
+        args_handler.add_app_args(log, self.FDR, 'FDR cutoff value that has to be matched')
+        args_handler.add_app_args(log, self.PROPHET, 'Prophet type used for the calculation. [IProphet|PeptideProphet]')
+        args_handler.add_app_args(log, self.FDR_LEVEL, 'Level used for the calculation: [psm|peptide]')
+
+    def main(self,info,log):
+        dict = {'FDR_PPROPHET':'probability_pp','FDR_IPROPHET':'probability_ip'}
+        idx = None
+        if self._prophet == 'PeptideProphet': idx = 0
+        else: idx =1 
+        if self._level == 'psm':
+            self._calc_fdr_psm(dict)
+        else:
+            self._cal_fdr_peptide(dict) 
+        self._input_filename = info[self.PEPCSV]
+        fn = os.path.dirname(info[self.WORKDIR]) + '.csv'
+        self._ouput_filename = os.path.join(info[self.WORKDIR],fn) 
+        info[self.PEPCSV] = self._ouput_filename  
+        self._data.saveSV(self._output_filename,delimiter=self.sep)                     
+        log.debug(self._get_probability(dict.keys()[idx],dict.values()[idx]))        
+
+    

@@ -16,7 +16,8 @@ from applicake.applications.commons.generator import DatasetcodeGenerator,\
     ParametersetGenerator
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
-from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability
+from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability,\
+    Fdr2ProbabilityPython
 from applicake.applications.commons.inifile import KeysToList, Unifier
 from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
     NoDecoyLibrary, ConsensusLibrary
@@ -54,6 +55,9 @@ WORKFLOW = spectrast_create
 EXPERIMENT = E286955
 DATASET_CODE = 20110721034730308-201103,20110721054532782-201128,20110721073234274-201170,20110721173145616-201355,20110721210947748-201441,20110721233250123-201503,20110722014852343-201543,20110722033454238-201588
 FDR=0.01
+FDR_LEVEL = psm
+PROPHET_TYPE = IProphet
+DECOY_STRING = DECOY_
 """)
             #E286966
             #20120928124818478-704737,
@@ -131,7 +135,8 @@ def pepxml2csv(input_file_name, output_file_name):
     
 @transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
 def fdr2probability(input_file_name, output_file_name):
-    wrap(Fdr2Probability,input_file_name, output_file_name) 
+    #wrap(Fdr2Probability,input_file_name, output_file_name)
+    wrap(Fdr2ProbabilityPython,input_file_name, output_file_name) 
     
 @transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
 def rawlib(input_file_name, output_file_name):

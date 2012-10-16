@@ -52,7 +52,7 @@ class Pepxml2Csv(IWrapper):
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
-        info['PEPCSV'] = self._result_file
+        info[self.PEPCSV] = self._result_file
         self._template_file = os.path.join(wd,self._template_file)
         info['TEMPLATE'] = self._template_file
         log.debug('get template handler')
