@@ -238,9 +238,9 @@ class Fdr2ProbabilityPython(IApplication):
     def main(self,info,log):
         dict = {'FDR_PPROPHET':'probability_pp','FDR_IPROPHET':'probability_ip'}
         idx = None
-        if self._prophet == 'PeptideProphet': idx = 0
+        if info[self.PROPHET] == 'PeptideProphet': idx = 0
         else: idx =1 
-        if self._level == 'psm':
+        if info[self.FDR_LEVEL] == 'psm':
             self._calc_fdr_psm(dict)
         else:
             self._cal_fdr_peptide(dict) 
