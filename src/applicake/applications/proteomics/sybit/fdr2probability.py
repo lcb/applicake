@@ -233,6 +233,7 @@ class Fdr2ProbabilityPython(IApplication):
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff value that has to be matched')
         args_handler.add_app_args(log, self.PROPHET, 'Prophet type used for the calculation. [IProphet|PeptideProphet]')
         args_handler.add_app_args(log, self.FDR_LEVEL, 'Level used for the calculation: [psm|peptide]')
+        return args_handler
 
     def main(self,info,log):
         dict = {'FDR_PPROPHET':'probability_pp','FDR_IPROPHET':'probability_ip'}
