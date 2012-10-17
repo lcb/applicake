@@ -150,7 +150,7 @@ class Fdr2ProbabilityPython(IApplication):
 #        uniq_peptides = list(set(peptides)) 
 #        log.debug('num of unique peptide sequences [%s]' % len(uniq_peptides))        
         #
-    def _calc_fdr_psm(self, log,dict):
+    def _calc_fdr_psm(self,info, log,dict):
         for k in dict.keys():
             self._data.sort(order=[dict[k]])
             proteins = self._data['protein']
@@ -161,7 +161,7 @@ class Fdr2ProbabilityPython(IApplication):
             # data have to be reversed because the previous sorting is low -> high
             # we need however high ->
             for e in proteins[::-1]:
-                if self._decoy in e: f +=1
+                if info[self.DECOY_STRING] in e: f +=1
                 else: t +=1
                 fdr_val = float(f) / (float(t) + float(f))
                 fdr_vals.append(fdr_val)
@@ -169,7 +169,7 @@ class Fdr2ProbabilityPython(IApplication):
             self._data = self._data.addcols([fdr_vals[::-1]],names=[k]) 
             log.debug('finished calculating fdr for [%s]' % k)                              
                 
-    def _cal_fdr_peptide(self,log,dict):            
+    def _cal_fdr_peptide(self,info,log,dict):            
         for k in dict.keys():      
             self._data.sort(order=[dict[k]])
 #            data = self._data[['protein','peptide']]
@@ -201,7 +201,7 @@ class Fdr2ProbabilityPython(IApplication):
             chunk = 1000
             tic = time.clock()
             for i,protein in enumerate(proteins):
-                if self._decoy in protein: 
+                if info[self.DECOY_STRING] in protein: 
                     f +=1
                     fdr_val = float(f) / (float(t) + float(f))
                 else:
@@ -253,9 +253,9 @@ class Fdr2ProbabilityPython(IApplication):
         if info[self.PROPHET] == 'PeptideProphet': idx = 0
         else: idx =1 
         if info[self.FDR_LEVEL] == 'psm':
-            self._calc_fdr_psm(log,dict)
+            self._calc_fdr_psm(info,log,dict)
         else:
-            self._cal_fdr_peptide(log,dict)   
+            self._cal_fdr_peptide(info,log,dict)   
         self._data.saveSV(self._output_filename,delimiter=self.sep)                     
         log.debug(self._get_probability(dict.keys()[idx],dict.values()[idx]))        
 
