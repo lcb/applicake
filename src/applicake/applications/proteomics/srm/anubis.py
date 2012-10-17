@@ -35,19 +35,22 @@ class Anubis(IWrapper):
     JVM                 = 'ANUBIS_JVM'
     JVM_VERSION         = 'ANUBIS_JVM_VERSION'
     MAX_HEAP_SIZE       = 'ANUBIS_MAX_HEAP_SIZE'
+#    LOG_DIR             = 'ANUBIS_LOG_DIR'
 #    OUTPUT_RESULT_FILE  = 'ANUBIS_OUTPUT'
     TRAML               = 'TRAML'
     
     DEFAULT_JVM         = 'java'
     DEFAULT_ANUBIS_DIR  = '.'
-    #DEFAULT_ANUBIS_JAR  = '/media/storage/code/anubis_workspace/Anubis/target/Anubis-1.1.0-jar-with-dependencies.jar'
+#    DEFAULT_LOG_DIR     = './log'
+#    DEFAULT_ANUBIS_JAR  = '/media/storage/code/anubis_workspace/Anubis/target/Anubis-1.1.0-jar-with-dependencies.jar'
     
     def __init__(self):
         '''
         Constructor
         '''            
         base = self.__class__.__name__
-        self._result_file = '%s.anubis.xml' % base # result produced by the application    
+        self._result_file   = '%s.anubis.xml' % base # result produced by the application
+        self._log_dir       = 'log' # dir where log files are stored
     
     def prepare_run(self,info,log):
         """
@@ -67,7 +70,14 @@ class Anubis(IWrapper):
             log.fatal(mess)
             print mess
             return ('', info)
-                
+        
+        def extractAnubisVersion():
+            result = ''
+            
+            return result
+        
+        
+        
         
         try:
             cmd = get(self.JVM, self.DEFAULT_JVM)
@@ -76,25 +86,37 @@ class Anubis(IWrapper):
             if self.VERSION in info:
                 cmd += "anubis-%s.jar " % info[self.VERSION]
             else:
+                mess = ''
                 try:
                     anubisCmd = cmd + self.DEFAULT_ANUBIS_DIR + "/anubis.jar"
-                    p = subprocess.Popen(shlex.split(anubisCmd), stdout=subprocess.PIPE)
+                    p = subprocess.Popen(shlex.split(anubisCmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     output = p.communicate()[0]
                     m = re.search('(?<=anubis-)[^ ]*(?=.jar)', output)
                     if m != None:
                         info[self.VERSION] = m.group(0)
                         cmd += "%s/anubis.jar " % (self.DEFAULT_ANUBIS_DIR)
                     else:
-                        return fatal('could not extract anubis version from %s/anubis.jar output' % self.DEFAULT_ANUBIS_DIR)
+                        mess = 'could not extract anubis version from %s/anubis.jar output' % self.DEFAULT_ANUBIS_DIR
                 except:
-                    return fatal('could not run %s/anubis.jar' % cmd + self.DEFAULT_ANUBIS_DIR)
+                    mess = 'could not run %s/anubis.jar' % (cmd + self.DEFAULT_ANUBIS_DIR)
+                finally:
+                    try:
+                        p = subprocess.Popen(shlex.split("rm -r log"), stdout=subprocess.PIPE, stderr=subprocess.PIPE)            
+                        output, error = p.communicate()
+                    except Exception, e:
+                        log.warning("could not delete log directory after extracting anubis version: %s" % e)
+                if mess != '':
+                    return fatal(mess)
+            
             wd = info[self.WORKDIR]
-            self._result_file = os.path.join(wd,self._result_file)          
+            self._result_file   = os.path.join(wd, self._result_file)  
+            self._log_dir       = os.path.join(wd, self._log_dir)          
 
             cmd += "--null-dist=%i "            % int(get(self.NULL_DIST_SIZE, 1000))
             cmd += "--trans-limit=%i "          % int(get(self.MAX_NUM_TRANSITIONS, 6))
             cmd += "--single-answer=%s "        % get(self.SINGLE_ANSWER, "true")
             cmd += "--p-value-tolerance=%f "    % float(get(self.P_VALUE_TOLERANCE, 0.01))
+            cmd += "--log-dir=%s "              % self._log_dir
             cmd += '%s ' % require( self.TRAML)
             cmd += "%f " % float(get(     self.PEAK_MIN_WIDTH, 0.1))
             cmd += '%s ' % self._result_file
@@ -111,7 +133,8 @@ class Anubis(IWrapper):
         """
         See interface
         """       
-        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')         
+        args_handler.add_app_args(log, self.WORKDIR, 
+            'Directory to store files')         
          
         args_handler.add_app_args(log, self.NULL_DIST_SIZE, 
             'size of null distrubution for each chromatogram ( > 0, default: 1000)')
