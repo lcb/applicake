@@ -37,7 +37,7 @@ from applicake.framework.interfaces import IApplication, IWrapper
 
 cwd = None
 IGNORED_PROC_NAME = "IGNORED_PROC_NAME"
-
+WORKFLOW = "WORKFLOW"
 
 def execute(command):
     p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)            
@@ -75,12 +75,13 @@ def setup():
     execute('rm *.ini*')
     execute('rm flowchart.*')    
     with open("input.ini", 'w+') as f:
-        ini = "DATASET_CODE = 20120320164249179-361885\n"
-        ini += "DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets\n"
-        ini += "BASEDIR = /cluster/scratch_xl/shareholder/malars/workflows\n"
-        ini += "LOG_LEVEL = DEBUG\n"
-        ini += "STORAGE = file\n"
-        ini += "WORKFLOW = anubis\n"        
+        ini = ""
+        ini += "%s = %s\n" % (KeyEnum.DATASET_CODE, '20120320164249179-361885')
+        ini += "%s = %s\n" % (KeyEnum.DATASET_DIR,  './')
+        ini += "%s = %s\n" % (KeyEnum.BASEDIR,      './')
+        ini += "%s = %s\n" % (KeyEnum.LOG_LEVEL,    'DEBUG')
+        ini += "%s = %s\n" % (KeyEnum.STORAGE,      'file')
+        ini += "%s = %s\n" % (WORKFLOW,             'anubis')
         ini += "%s = %s\n" % (Anubis.NULL_DIST_SIZE,      '1000')
         ini += "%s = %s\n" % (Anubis.MAX_NUM_TRANSITIONS, '6,8')
         ini += "%s = %s\n" % (Anubis.PEAK_MIN_WIDTH,      '0.1')
@@ -89,6 +90,7 @@ def setup():
 #        ini += "%s = %s\n" % (Anubis.OUTPUT_RESULT_FILE,  "ruffus_local.anubis")
         ini += "%s = %s\n" % (KeyEnum.MZML,               "101112_JT_pl2_03.mzML")
         ini += "%s = %s\n" % (Anubis.TRAML,               "final_method.ref")
+#        ini += "%s = %s\n" % (Anubis.LOG_DIR,             "./0/1/0/Anubis/log")
         f.write(ini)       
 
 
@@ -104,7 +106,7 @@ def generator(input_file_name, notused_output_file_names):
 
 @transform(generator, regex("generate.ini_"), "anubis-out.ini_")
 def anubis(input_file_name, output_file_name):
-    wrap(Anubis,input_file_name, output_file_name,['-i', input_file_name, '-o', output_file_name, '-l','DEBUG', '-p'])
+    wrap(Anubis,input_file_name, output_file_name,['-i', input_file_name, '-o', output_file_name, '-l','WARNING', "-p"])
       
 
 pipeline_run([anubis])
