@@ -241,9 +241,9 @@ class Fdr2ProbabilityPython(IApplication):
         if info[self.PROPHET] == 'PeptideProphet': idx = 0
         else: idx =1 
         if info[self.FDR_LEVEL] == 'psm':
-            self._calc_fdr_psm(dict)
+            self._calc_fdr_psm(log,dict)
         else:
-            self._cal_fdr_peptide(dict) 
+            self._cal_fdr_peptide(log,dict) 
         self._input_filename = info[self.PEPCSV]
         fn = os.path.dirname(info[self.WORKDIR]) + '.csv'
         self._ouput_filename = os.path.join(info[self.WORKDIR],fn) 
