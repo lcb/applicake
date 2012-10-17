@@ -142,13 +142,13 @@ class Fdr2ProbabilityPython(IApplication):
         log.debug('num of peptides >= probability[%s] [%s]' % (prob,len(data_cutoff[data_cutoff[prob_col]>=prob]))) 
         return prob               
     #
-    def _preprocessing(self,log):
-        log.debug('read [%s]' % self._input_filename)
-        self._data = tb.tabarray(SVfile=self._input_filename)
-        peptides = self._data['peptide'].tolist()
-        log.debug('num of peptides [%s]' % len(peptides))      
-        uniq_peptides = list(set(peptides)) 
-        log.debug('num of unique peptide sequences [%s]' % len(uniq_peptides))        
+#    def _preprocessing(self,log):
+#        log.debug('read [%s]' % self._input_filename)
+#        self._data = tb.tabarray(SVfile=self._input_filename)
+#        peptides = self._data['peptide'].tolist()
+#        log.debug('num of peptides [%s]' % len(peptides))      
+#        uniq_peptides = list(set(peptides)) 
+#        log.debug('num of unique peptide sequences [%s]' % len(uniq_peptides))        
         #
     def _calc_fdr_psm(self, log,dict):
         for k in dict.keys():
@@ -236,6 +236,18 @@ class Fdr2ProbabilityPython(IApplication):
         return args_handler
 
     def main(self,info,log):
+        self._input_filename = info[self.PEPCSV]
+        fn = os.path.dirname(info[self.WORKDIR]) + '.csv'
+        self._ouput_filename = os.path.join(info[self.WORKDIR],fn) 
+        info[self.PEPCSV] = self._ouput_filename
+        
+        log.debug('read [%s]' % self._input_filename)
+        self._data = tb.tabarray(SVfile=self._input_filename)
+        peptides = self._data['peptide'].tolist()
+        log.debug('num of peptides [%s]' % len(peptides))      
+        uniq_peptides = list(set(peptides)) 
+        log.debug('num of unique peptide sequences [%s]' % len(uniq_peptides))                  
+        
         dict = {'FDR_PPROPHET':'probability_pp','FDR_IPROPHET':'probability_ip'}
         idx = None
         if info[self.PROPHET] == 'PeptideProphet': idx = 0
@@ -243,11 +255,7 @@ class Fdr2ProbabilityPython(IApplication):
         if info[self.FDR_LEVEL] == 'psm':
             self._calc_fdr_psm(log,dict)
         else:
-            self._cal_fdr_peptide(log,dict) 
-        self._input_filename = info[self.PEPCSV]
-        fn = os.path.dirname(info[self.WORKDIR]) + '.csv'
-        self._ouput_filename = os.path.join(info[self.WORKDIR],fn) 
-        info[self.PEPCSV] = self._ouput_filename  
+            self._cal_fdr_peptide(log,dict)   
         self._data.saveSV(self._output_filename,delimiter=self.sep)                     
         log.debug(self._get_probability(dict.keys()[idx],dict.values()[idx]))        
 
