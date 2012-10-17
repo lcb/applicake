@@ -136,7 +136,7 @@ def pepxml2csv(input_file_name, output_file_name):
 @transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
 def fdr2probability(input_file_name, output_file_name):
     #wrap(Fdr2Probability,input_file_name, output_file_name)
-    wrap(Fdr2ProbabilityPython,input_file_name, output_file_name) 
+    wrap(Fdr2ProbabilityPython,input_file_name, output_file_name,['-s','memory_all']) 
     
 @transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
 def rawlib(input_file_name, output_file_name):
