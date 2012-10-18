@@ -124,7 +124,7 @@ class Fdr2ProbabilityPython(IApplication):
         # this is the minimal probability value that is returned.
         prob = None 
             
-        self._data.sort(order=[prob_col])  
+#        self._data.sort(order=[prob_col])  
         
         data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
@@ -242,6 +242,7 @@ class Fdr2ProbabilityPython(IApplication):
         # setting default values
         info[self.NUM_LIMIT] = int(info[self.NUM_LIMIT])
         info[self.MIN_PROB] = float(info[self.MIN_PROB])
+        info[self.FDR] = float(info[self.FDR])
         
          
         self._input_filename = info[self.PEPCSV]
