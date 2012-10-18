@@ -141,15 +141,7 @@ class Fdr2ProbabilityPython(IApplication):
             self.log.debug('probability [%s] matches FDR [%s].' % (prob,data_cutoff[fdr_col][0]))        
         log.debug('num of peptides >= probability[%s] [%s]' % (prob,len(data_cutoff[data_cutoff[prob_col]>=prob]))) 
         return prob               
-    #
-#    def _preprocessing(self,log):
-#        log.debug('read [%s]' % self._input_filename)
-#        self._data = tb.tabarray(SVfile=self._input_filename)
-#        peptides = self._data['peptide'].tolist()
-#        log.debug('num of peptides [%s]' % len(peptides))      
-#        uniq_peptides = list(set(peptides)) 
-#        log.debug('num of unique peptide sequences [%s]' % len(uniq_peptides))        
-        #
+
     def _calc_fdr_psm(self,info, log,dict):
         for k in dict.keys():
             self._data.sort(order=[dict[k]])
@@ -256,7 +248,7 @@ class Fdr2ProbabilityPython(IApplication):
             self._calc_fdr_psm(info,log,dict)
         else:
             self._cal_fdr_peptide(info,log,dict)   
-        self._data.saveSV(self._output_filename,delimiter=self.sep)                     
+        self._data.saveSV(self._output_filename,delimiter="\t")                     
         log.debug(self._get_probability(dict.keys()[idx],dict.values()[idx]))        
 
     
