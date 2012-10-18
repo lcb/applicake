@@ -126,7 +126,7 @@ class Fdr2ProbabilityPython(IApplication):
         data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
         if num < info[self.NUM_LIMIT] :
-            log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,
+            log.fatal('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,
                                                                                                                        info[self.FDR],
                                                                                                                        info[self.NUM_LIMIT]))
             sys.exit(1)  
@@ -232,9 +232,9 @@ class Fdr2ProbabilityPython(IApplication):
 
     def main(self,info,log):
         # setting default values
-        if not info.has_key(self.FDR_LEVEL): info[self.FDR_LEVEL] = 'psm'
-        if not info.has_key(self.NUM_LIMIT): info[self.NUM_LIMIT] = 100
-        if not info.has_key(self.MIN_PROB): info[self.MIN_PROB] = 0.001
+        info[self.NUM_LIMIT] = int(info[self.NUM_LIMIT])
+        info[self.MIN_PROB] = float(info[self.MIN_PROB])
+        
          
         self._input_filename = info[self.PEPCSV]
         fn = os.path.dirname(info[self.WORKDIR]) + '.csv'
