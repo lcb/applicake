@@ -123,9 +123,6 @@ class Fdr2ProbabilityPython(IApplication):
     def _get_probability(self,info, log,fdr_col,prob_col):
         # this is the minimal probability value that is returned.
         prob = None 
-            
-#        self._data.sort(order=[prob_col])  
-        
         data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
         if num < info[self.NUM_LIMIT] :
@@ -137,10 +134,6 @@ class Fdr2ProbabilityPython(IApplication):
             log.debug('number of matches [%s] below the cutoff  (probability [%s], FDR [%s])' % (num,prob_col,info[self.FDR]))
         # need to sort by fdr_col and prob_col. otherwise the num of peps differ for the the fdr-cutoff and the prob-cutoff 
         data_cutoff.sort(order=[prob_col])
-        log.debug(prob_col)
-        log.debug(data_cutoff)
-        log.debug(data_cutoff[prob_col])
-        
         log.debug(data_cutoff[prob_col][0])
         prob = data_cutoff[prob_col][0]
         if prob < info[self.MIN_PROB]: 
@@ -239,7 +232,7 @@ class Fdr2ProbabilityPython(IApplication):
         return args_handler
 
     def main(self,info,log):
-        # setting default values
+        # in order to use the values below with tabular, they have to be transformed into int/float
         info[self.NUM_LIMIT] = int(info[self.NUM_LIMIT])
         info[self.MIN_PROB] = float(info[self.MIN_PROB])
         info[self.FDR] = float(info[self.FDR])
@@ -266,5 +259,5 @@ class Fdr2ProbabilityPython(IApplication):
             self._cal_fdr_peptide(info,log,dict)   
         self._data.saveSV(self._output_filename,delimiter="\t")                     
         log.debug(self._get_probability(info,log,dict.keys()[idx],dict.values()[idx]))        
-
+        return 0,info
     
