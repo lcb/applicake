@@ -25,6 +25,7 @@ class KeyEnum(object):
     INPUT = 'INPUTS'
     JOB_IDX = 'JOB_IDX' 
     LOG_LEVEL = 'LOG_LEVEL'
+    MIN_PROB = 'MIN_PROB'
     MZML = 'MZML'
     MZXML = 'MZXML'
     MZXML_CODE = 'MZXML_CODE'

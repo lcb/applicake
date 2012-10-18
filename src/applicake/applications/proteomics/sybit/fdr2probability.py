@@ -121,11 +121,11 @@ class Fdr2ProbabilityPython(IApplication):
     - choice of the fdr level  
     '''
     def _get_probability(self,info, log,fdr_col,prob_col):
-        cutoff_limit = 0.001
+        # this is the minimal probability value that is returned.
         prob = None       
         data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
-        if num < self.info[self.NUM_LIMIT] :
+        if num < info[self.NUM_LIMIT] :
             log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,
                                                                                                                        info[self.FDR],
                                                                                                                        info[self.NUM_LIMIT]))
@@ -135,9 +135,9 @@ class Fdr2ProbabilityPython(IApplication):
         # need to sort by fdr_col and prob_col. otherwise the num of peps differ for the the fdr-cutoff and the prob-cutoff 
         data_cutoff.sort(order=[prob_col])
         prob = data_cutoff[prob_col][0]
-        if prob < cutoff_limit: 
-            log.debug('probability [%s] is below the cutoff limit [%s]. therefore cutoff limit is applied.' % (prob,cutoff_limit))
-            prob = cutoff_limit        
+        if prob < info[self.MIN_PROB]: 
+            log.debug('probability [%s] is below the cutoff limit [%s]. therefore cutoff limit is applied.' % (prob,info[self.MIN_PROB]))
+            prob = info[self.MIN_PROB]        
         else:
             log.debug('probability [%s] matches FDR [%s].' % (prob,data_cutoff[fdr_col][0]))        
         log.debug('num of peptides >= probability[%s] [%s]' % (prob,len(data_cutoff[data_cutoff[prob_col]>=prob]))) 
@@ -227,6 +227,7 @@ class Fdr2ProbabilityPython(IApplication):
         args_handler.add_app_args(log, self.PROPHET, 'Prophet type used for the calculation. [IProphet|PeptideProphet]')
         args_handler.add_app_args(log, self.FDR_LEVEL, 'Level used for the calculation: [psm|peptide]')
         args_handler.add_app_args(log, self.NUM_LIMIT, 'Number of matches that have to be non-decoy before the first decoy is found.')
+        args_handler.add_app_args(log, self.MIN_PROB, 'Minimal probability that is reported by the program; even if the actual calculated value is lower.')
         return args_handler
 
     def main(self,info,log):
