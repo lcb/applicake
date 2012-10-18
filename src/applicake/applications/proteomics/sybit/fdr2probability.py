@@ -226,7 +226,7 @@ class Fdr2ProbabilityPython(IApplication):
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff value that has to be matched')
         args_handler.add_app_args(log, self.PROPHET, 'Prophet type used for the calculation. [IProphet|PeptideProphet]')
         args_handler.add_app_args(log, self.FDR_LEVEL, 'Level used for the calculation: [psm|peptide]')
-        args_handler.add_app_args(log, self.NUM_LIMIT, 'Number of matches that have to be non-decoy before the first decoy is found.',type='int')
+        args_handler.add_app_args(log, self.NUM_LIMIT, 'Number of matches that have to be non-decoy before the first decoy is found.',type=str)
         args_handler.add_app_args(log, self.MIN_PROB, 'Minimal probability that is reported by the program; even if the actual calculated value is lower.',type=float)
         return args_handler
 

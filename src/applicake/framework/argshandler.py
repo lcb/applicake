@@ -56,8 +56,7 @@ class ArgsHandler(object):
                                   action="store_true",default=False,
                                   help="If set, log is printed to stderr before exit. (This is independent of the storage type!).")            
 
-    def add_app_args(self,log,name,description,action='store',default=None,choices=None,type='str'):
-        
+    def add_app_args(self,log,name,description,action='store',default=None,choices=None,type=str):        
         name = name.upper()
         self._app_argnames.append(name)
         log.debug('argument name [%s]' % name)
@@ -66,10 +65,21 @@ class ArgsHandler(object):
         if action is 'store_true' or action is 'store_false':
             self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
                             help=description,action=action, default=default,type=type)
-        else:               
+        else:
             self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
-                            help=description,action=action, default=default, choices=choices,type=type)        
-        
+                            help=description,action=action, default=default, choices=choices,type=str)            
+#            if type == 'str':               
+#                self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
+#                                help=description,action=action, default=default, choices=choices,type=str)
+#            elif type == 'int':
+#                self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
+#                                help=description,action=action, default=default, choices=choices,type=int)
+#            elif type == 'float':
+#                self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
+#                                help=description,action=action, default=default, choices=choices,type=float)                
+#            else:
+#                log.fatal('found unknown type [%s]' % type)
+#                sys.exit(1)                            
     
     def get_app_argnames(self):
         return self._app_argnames
