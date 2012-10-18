@@ -232,7 +232,7 @@ class Fdr2ProbabilityPython(IApplication):
         return args_handler
 
     def main(self,info,log):
-        # in order to use the values below with tabular, they have to be transformed into int/float
+        # in order to use the values below with tabular, they have to be transformed into int/float    
         info[self.NUM_LIMIT] = int(info[self.NUM_LIMIT])
         info[self.MIN_PROB] = float(info[self.MIN_PROB])
         info[self.FDR] = float(info[self.FDR])
@@ -258,6 +258,6 @@ class Fdr2ProbabilityPython(IApplication):
         else:
             self._cal_fdr_peptide(info,log,dict)   
         self._data.saveSV(self._output_filename,delimiter="\t")                     
-        log.debug(self._get_probability(info,log,dict.keys()[idx],dict.values()[idx]))        
+        info[self.PROBABILITY] = self._get_probability(info,log,dict.keys()[idx],dict.values()[idx])        
         return 0,info
     
