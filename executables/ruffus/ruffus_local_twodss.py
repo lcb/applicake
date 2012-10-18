@@ -56,7 +56,7 @@ def getexperiment():
 
 @follows(getexperiment)
 def processexperiment():
-    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini',['GETCODES','True'])
+    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini',['--GETCODES','True'])
 
 @follows(processexperiment)   
 @split('processexperiment.ini', "generate.ini_*")
@@ -73,4 +73,4 @@ def dss(input_file_name, output_file_name):
     thandle, tfile = tempfile.mkstemp(suffix='.out', prefix='getmsdata',dir='.')   
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata','--RESULT_FILE',tfile])
     
-pipeline_run([dss], multiprocess=3)
+pipeline_run([dss], multiprocess=16)
