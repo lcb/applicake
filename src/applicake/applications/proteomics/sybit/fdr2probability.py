@@ -122,12 +122,13 @@ class Fdr2ProbabilityPython(IApplication):
     '''
     def _get_probability(self,info, log,fdr_col,prob_col):
         cutoff_limit = 0.001
-        num_limit = 100
         prob = None       
         data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
-        if num < num_limit :
-            log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,info[self.FDR],num_limit))
+        if num < self.info[self.NUM_LIMIT] :
+            log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,
+                                                                                                                       info[self.FDR],
+                                                                                                                       info[self.NUM_LIMIT]))
             sys.exit(1)  
         else:
             log.debug('number of PSMs [%s] matching the probability [%s] with FDR cutoff [%s]' % (num,prob_col,info[self.FDR]))
@@ -225,6 +226,7 @@ class Fdr2ProbabilityPython(IApplication):
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff value that has to be matched')
         args_handler.add_app_args(log, self.PROPHET, 'Prophet type used for the calculation. [IProphet|PeptideProphet]')
         args_handler.add_app_args(log, self.FDR_LEVEL, 'Level used for the calculation: [psm|peptide]')
+        args_handler.add_app_args(log, self.NUM_LIMIT, 'Number of matches that have to be non-decoy before the first decoy is found.')
         return args_handler
 
     def main(self,info,log):
