@@ -249,6 +249,6 @@ class Fdr2ProbabilityPython(IApplication):
         else:
             self._cal_fdr_peptide(info,log,dict)   
         self._data.saveSV(self._output_filename,delimiter="\t")                     
-        log.debug(self._get_probability(dict.keys()[idx],dict.values()[idx]))        
+        log.debug(self._get_probability(log,dict.keys()[idx],dict.values()[idx]))        
 
     
