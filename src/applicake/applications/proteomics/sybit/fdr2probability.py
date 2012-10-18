@@ -226,16 +226,20 @@ class Fdr2ProbabilityPython(IApplication):
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff value that has to be matched')
         args_handler.add_app_args(log, self.PROPHET, 'Prophet type used for the calculation. [IProphet|PeptideProphet]')
         args_handler.add_app_args(log, self.FDR_LEVEL, 'Level used for the calculation: [psm|peptide]')
-        args_handler.add_app_args(log, self.NUM_LIMIT, 'Number of matches that have to be non-decoy before the first decoy is found.')
-        args_handler.add_app_args(log, self.MIN_PROB, 'Minimal probability that is reported by the program; even if the actual calculated value is lower.')
+        args_handler.add_app_args(log, self.NUM_LIMIT, 'Number of matches that have to be non-decoy before the first decoy is found.',type='int')
+        args_handler.add_app_args(log, self.MIN_PROB, 'Minimal probability that is reported by the program; even if the actual calculated value is lower.',type=float)
         return args_handler
 
     def main(self,info,log):
+        # setting default values
+        if not info.has_key(self.FDR_LEVEL): info[self.FDR_LEVEL] = 'psm'
+        if not info.has_key(self.NUM_LIMIT): info[self.NUM_LIMIT] = 100
+        if not info.has_key(self.MIN_PROB): info[self.MIN_PROB] = 0.001
+         
         self._input_filename = info[self.PEPCSV]
         fn = os.path.dirname(info[self.WORKDIR]) + '.csv'
         self._output_filename = os.path.join(info[self.WORKDIR],fn) 
-        info[self.PEPCSV] = self._output_filename
-        
+        info[self.PEPCSV] = self._output_filename        
         log.debug('read [%s]' % self._input_filename)
         self._data = tb.tabarray(SVfile=self._input_filename)
         peptides = self._data['peptide'].tolist()

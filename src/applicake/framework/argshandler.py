@@ -56,7 +56,7 @@ class ArgsHandler(object):
                                   action="store_true",default=False,
                                   help="If set, log is printed to stderr before exit. (This is independent of the storage type!).")            
 
-    def add_app_args(self,log,name,description,action='store',default=None,choices=None):
+    def add_app_args(self,log,name,description,action='store',default=None,choices=None,type='str'):
         
         name = name.upper()
         self._app_argnames.append(name)
@@ -65,10 +65,10 @@ class ArgsHandler(object):
         log.debug('action [%s]' % action)    
         if action is 'store_true' or action is 'store_false':
             self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
-                            help=description,action=action, default=default)
+                            help=description,action=action, default=default,type)
         else:               
             self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
-                            help=description,action=action, default=default, choices=choices)        
+                            help=description,action=action, default=default, choices=choices,type)        
         
     
     def get_app_argnames(self):
