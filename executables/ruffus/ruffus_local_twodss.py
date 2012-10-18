@@ -46,7 +46,6 @@ STORAGE = memory_all
 WORKFLOW = twodss
 
 EXPERIMENT = E286955
-DATASET_CODE = 20110722014852343-201543, 20110722033454238-201588
 """)
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
@@ -57,7 +56,7 @@ def getexperiment():
 
 @follows(getexperiment)
 def processexperiment():
-    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini')
+    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini',['GETCODES','True'])
 
 @follows(processexperiment)   
 @split('processexperiment.ini', "generate.ini_*")
