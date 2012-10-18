@@ -125,10 +125,16 @@ class Fdr2ProbabilityPython(IApplication):
         prob = None       
         data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
+        log.debug(type(num))
+        log.debug(num)
+        log.debug(type(info[self.NUM_LIMIT]))
+        log.debug(info[self.NUM_LIMIT])
+        log.debug(num < info[self.NUM_LIMIT])
+        
         if num < info[self.NUM_LIMIT] :
             log.fatal('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,
                                                                                                                        info[self.FDR],
-                                                                                                                       info[self.NUM_LIMIT]))
+                                                                                                                       str(info[self.NUM_LIMIT])))
             sys.exit(1)  
         else:
             log.debug('number of PSMs [%s] matching the probability [%s] with FDR cutoff [%s]' % (num,prob_col,info[self.FDR]))
