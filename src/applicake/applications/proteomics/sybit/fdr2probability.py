@@ -127,18 +127,18 @@ class Fdr2ProbabilityPython(IApplication):
         data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
         if num < num_limit :
-            self.log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,info[self.FDR],num_limit))
+            log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,info[self.FDR],num_limit))
             sys.exit(1)  
         else:
-            self.log.debug('number of PSMs [%s] matching the probability [%s] with FDR cutoff [%s]' % (num,prob_col,info[self.FDR]))
+            log.debug('number of PSMs [%s] matching the probability [%s] with FDR cutoff [%s]' % (num,prob_col,info[self.FDR]))
         # need to sort by fdr_col and prob_col. otherwise the num of peps differ for the the fdr-cutoff and the prob-cutoff 
         data_cutoff.sort(order=[prob_col])
         prob = data_cutoff[prob_col][0]
         if prob < cutoff_limit: 
-            self.log.debug('probability [%s] is below the cutoff limit [%s]. therefore cutoff limit is applied.' % (prob,cutoff_limit))
+            log.debug('probability [%s] is below the cutoff limit [%s]. therefore cutoff limit is applied.' % (prob,cutoff_limit))
             prob = cutoff_limit        
         else:
-            self.log.debug('probability [%s] matches FDR [%s].' % (prob,data_cutoff[fdr_col][0]))        
+            log.debug('probability [%s] matches FDR [%s].' % (prob,data_cutoff[fdr_col][0]))        
         log.debug('num of peptides >= probability[%s] [%s]' % (prob,len(data_cutoff[data_cutoff[prob_col]>=prob]))) 
         return prob               
 
