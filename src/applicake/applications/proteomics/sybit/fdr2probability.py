@@ -238,8 +238,8 @@ class Fdr2ProbabilityPython(IApplication):
     def main(self,info,log):
         self._input_filename = info[self.PEPCSV]
         fn = os.path.dirname(info[self.WORKDIR]) + '.csv'
-        self._ouput_filename = os.path.join(info[self.WORKDIR],fn) 
-        info[self.PEPCSV] = self._ouput_filename
+        self._output_filename = os.path.join(info[self.WORKDIR],fn) 
+        info[self.PEPCSV] = self._output_filename
         
         log.debug('read [%s]' % self._input_filename)
         self._data = tb.tabarray(SVfile=self._input_filename)
