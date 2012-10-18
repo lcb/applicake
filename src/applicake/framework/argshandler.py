@@ -64,7 +64,7 @@ class ArgsHandler(object):
         log.debug('action [%s]' % action)    
         if action is 'store_true' or action is 'store_false':
             self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
-                            help=description,action=action, default=default,type=type)
+                            help=description,action=action, default=default)
         else:
             self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
                             help=description,action=action, default=default, choices=choices,type=type)            
