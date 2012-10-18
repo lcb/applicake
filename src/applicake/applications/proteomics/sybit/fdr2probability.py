@@ -120,17 +120,17 @@ class Fdr2ProbabilityPython(IApplication):
     - minimal reported cutoff is 0.001 to cut off the mainly false positives for a probability of 0.
     - choice of the fdr level  
     '''
-    def _get_probability(self,log,fdr_col,prob_col):
+    def _get_probability(self,info, log,fdr_col,prob_col):
         cutoff_limit = 0.001
         num_limit = 100
         prob = None       
-        data_cutoff = self._data[self._data[fdr_col]<=self._cutoff]
+        data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
         if num < num_limit :
-            self.log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,self._cutoff,num_limit))
+            self.log.error('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,info[self.FDR],num_limit))
             sys.exit(1)  
         else:
-            self.log.debug('number of PSMs [%s] matching the probability [%s] with FDR cutoff [%s]' % (num,prob_col,self._cutoff))
+            self.log.debug('number of PSMs [%s] matching the probability [%s] with FDR cutoff [%s]' % (num,prob_col,info[self.FDR]))
         # need to sort by fdr_col and prob_col. otherwise the num of peps differ for the the fdr-cutoff and the prob-cutoff 
         data_cutoff.sort(order=[prob_col])
         prob = data_cutoff[prob_col][0]
@@ -249,6 +249,6 @@ class Fdr2ProbabilityPython(IApplication):
         else:
             self._cal_fdr_peptide(info,log,dict)   
         self._data.saveSV(self._output_filename,delimiter="\t")                     
-        log.debug(self._get_probability(log,dict.keys()[idx],dict.values()[idx]))        
+        log.debug(self._get_probability(info,log,dict.keys()[idx],dict.values()[idx]))        
 
     
