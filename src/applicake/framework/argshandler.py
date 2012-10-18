@@ -67,7 +67,7 @@ class ArgsHandler(object):
                             help=description,action=action, default=default,type=type)
         else:
             self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
-                            help=description,action=action, default=default, choices=choices,type=str)            
+                            help=description,action=action, default=default, choices=choices,type=type)            
 #            if type == 'str':               
 #                self._parser.add_argument("--%s" % name,required=False, dest=name,                                 
 #                                help=description,action=action, default=default, choices=choices,type=str)
