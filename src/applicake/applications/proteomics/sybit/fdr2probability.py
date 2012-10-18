@@ -122,21 +122,25 @@ class Fdr2ProbabilityPython(IApplication):
     '''
     def _get_probability(self,info, log,fdr_col,prob_col):
         # this is the minimal probability value that is returned.
-        prob = None       
+        prob = None 
+            
+        self._data.sort(order=[prob_col])  
+        
         data_cutoff = self._data[self._data[fdr_col]<=info[self.FDR]]
         num = len(data_cutoff)
         if num < info[self.NUM_LIMIT] :
-            log.fatal('number of PSMs [%s] matching the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,
+            log.fatal('number of matches [%s] meeting the probability cutoff [%s][%s] is below the threshold of [%s]' % (num,prob_col,
                                                                                                                        info[self.FDR],
                                                                                                                        str(info[self.NUM_LIMIT])))
             sys.exit(1)  
         else:
-            log.debug('number of PSMs [%s] matching the probability [%s] with FDR cutoff [%s]' % (num,prob_col,info[self.FDR]))
+            log.debug('number of matches [%s] below the cutoff  (probability [%s], FDR [%s])' % (num,prob_col,info[self.FDR]))
         # need to sort by fdr_col and prob_col. otherwise the num of peps differ for the the fdr-cutoff and the prob-cutoff 
         data_cutoff.sort(order=[prob_col])
         log.debug(prob_col)
         log.debug(data_cutoff)
         log.debug(data_cutoff[prob_col])
+        
         log.debug(data_cutoff[prob_col][0])
         prob = data_cutoff[prob_col][0]
         if prob < info[self.MIN_PROB]: 
