@@ -135,6 +135,7 @@ class Fdr2ProbabilityPython(IApplication):
         # need to sort by fdr_col and prob_col. otherwise the num of peps differ for the the fdr-cutoff and the prob-cutoff 
         data_cutoff.sort(order=[prob_col])
         log.debug(prob_col)
+        log.debug(data_cutoff)
         log.debug(data_cutoff[prob_col])
         log.debug(data_cutoff[prob_col][0])
         prob = data_cutoff[prob_col][0]
