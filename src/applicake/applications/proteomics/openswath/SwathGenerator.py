@@ -2,6 +2,7 @@
 from applicake.utils.dictutils import DictUtils
 from applicake.applications.commons.generator import Generator
 import os
+import re
 
 class SwathGenerator(Generator):
     """
@@ -25,9 +26,16 @@ class SwathGenerator(Generator):
         
         # prepare a basedic to produced input files for inner workflow
         files = os.listdir(info["MZMLGZDIR"])
+        #http://code.activestate.com/recipes/135435-sort-a-string-using-numeric-order/
+        def stringSplitByNumbers(x):
+            r = re.compile('(\d+)')
+            l = r.split(x)
+            return [int(y) if y.isdigit() else y for y in l]
+        files = sorted(files, key=stringSplitByNumbers)  
+
         mzmlgzfiles = []
         for file in files:
-            if str(file).endswith("mzML.gz"):
+            if str(file).endswith("mzML.gz") and not "ms1scan" in str(file):
                 mzmlgzfiles.append(os.path.join(info["MZMLGZDIR"],file))
         
         log.debug('create work copy of "info"')   
@@ -68,7 +76,7 @@ class SwathGenerator(Generator):
         """
         See interface
         """        
-        args_handler.add_app_args(log, "MZMLGZ", 'Files which are created by this application', action='append')       
+        args_handler.add_app_args(log, "MZMLGZDIR", 'Folder with mzmlgz used', action='append')       
         args_handler.add_app_args(log, "GENERATORS", 'Basename of generated inis', action='append')       
         args_handler.add_app_args(log, "GENERATORSIRT", 'Basename of generated inis FOR IRT', action='append')       
         args_handler.add_app_args(log, "TRAML", 'Traml used by chromextract ', action='append')       
