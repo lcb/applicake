@@ -12,6 +12,8 @@ from ruffus import *
 
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.framework.runner import ApplicationRunner, CollectorRunner, WrapperRunner, IniFileRunner, IniFileRunner2
+
+from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.proteomics.openswath.chromatogramextractor import ChromatogramExtractor
 from applicake.applications.proteomics.openswath.mrmrtnormalizer import MRMRTNormalizer
 from applicake.applications.proteomics.openswath.mrmanalyzer import MRMAnalyzer
@@ -23,40 +25,37 @@ from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.commons.inifile import Unifier
 from applicake.framework.enums import KeyEnum
 
-cwd = None
-
-
 #helper function
 def wrap(applic, input_file_name, output_file_name, opts=None):
     argv = ['', '-i', input_file_name, '-o', output_file_name]
     if opts is not None:
         argv.extend(opts)
     application = applic()
-    if isinstance(application, IApplication):
+    if isinstance(application, Generator):
+        runner = IniFileRunner()
+    elif isinstance(application, IApplication):
         runner = ApplicationRunner()
         print 'use application runner'
     elif isinstance(application, IWrapper):
         runner = WrapperRunner()
     else:
-        raise Exception('could not identfy [%s]' % applic.__name__)    
-    application = applic()
+        raise Exception('could not identfy runner for application [%s]' % applic.__name__)    
     exit_code = runner(argv, application)
     if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
-    
-
+        raise Exception("[%s] failed with exitcode [%s]" % (applic.__name__, exit_code)) 
 
 def setup():
     if len(sys.argv) > 1 and sys.argv[1] == 'restart':
         subprocess.call("rm *ini* *.err *.out",shell=True)    
         with open("input.ini", 'w+') as f:
             f.write("""BASEDIR = /cluster/scratch_xl/shareholder/malars/workflows
-LOG_LEVEL = DEBUG
+LOG_LEVEL = INFO
 STORAGE = file
-THREADS = 8
-MZMLGZDIR = /cluster/scratch_xl/shareholder/malars/quandtan/openswathtest/datasets3/
-LIBTRAML = "/cluster/scratch_xl/shareholder/malars/quandtan/openswathtest/tramls/AQUA4_sh_new.TraML"
-IRTTRAML = "/cluster/scratch_xl/shareholder/malars/quandtan/openswathtest/tramls/DIA_iRT.TraML"
+THREADS = 2
+DATASET_CODES = 20121002200049906-707790
+IRTTRAML = "/cluster/home/biol/loblum/osw/traml/DIA_iRT.TraML"
+LIBTRAML = "/cluster/home/biol/loblum/osw/traml/AQUASky_ShotgunLibrary_3t_345_sh.TraML"
+
 MIN_UPPER_EDGE_DIST = 1
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
@@ -68,17 +67,36 @@ LIBOUTSUFFIX = .chrom.mzML
         
 @follows(setup)
 @split("input.ini", "generate*")
-def generator(input_file_name, notused_output_file_names):
+def generatorDSS(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini', '--GENERATORSIRT', 'generateirt.ini']
     runner = IniFileRunner()
-    application = SwathGenerator()
+    application = DatasetcodeGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("generator failed [%s]" % exit_code) 
-   
+
+@transform(generatorDSS, regex("generate.ini_"), "dss.ini_")
+def dss(input_file_name, output_file_name):
+    thandle, tfile = tempfile.mkstemp(suffix='.out', prefix='getmsdata',dir='.')   
+    wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata','--RESULT_FILE',tfile])
+
+
+@transform(dss, regex("dss.ini_"), "splitwindows.ini_")
+def splitwindows(input_file_name, output_file_name):
+    wrap(SplitWindows,input_file_name, output_file_name) 
+
+@follows(splitwindows)
+@split('splitwindows.ini_*', "generatesplits.ini_*")
+def generatorWindows(input_file_name, notused_output_file_names):
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini', '--GENERATORSIRT', 'generateirt.ini']
+    runner = IniFileRunner()
+    application = SplitGenerator()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("generator failed [%s]" % exit_code)       
 ################## iRT BRANCH #################################
 
-@transform(generator, regex("generateirt.ini_"), "chromatogramextractorirt.ini_")
+@transform(generatorWindows, regex("generateirt.ini_"), "chromatogramextractorirt.ini_")
 def chromatogramExtractorIRT(input_file_name, output_file_name):
     wrap(ChromatogramExtractor, input_file_name, output_file_name,['-n','ChromatogramExtractoriRT']) 
 
@@ -102,27 +120,15 @@ def unifier():
     
 @follows(unifier)
 def filemerger():
-    wrap(FileMerger, 'unifier.ini', 'filemerger.ini',['-s','file'])
-#    argv = ['', '-i', 'unifier.ini', '-o','merger.ini','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
-#    runner = IniFileRunner2()
-#    application = FileMerger()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("filemerger failed [%s]" % exit_code)  
-     
+    wrap(FileMerger, 'unifier.ini', 'filemerger.ini',['-s','file'])     
     
 @follows(filemerger)
 def mrmrtnormalizer():
     wrap(MRMRTNormalizer, 'filemerger.ini', 'mrmrtnormalizer.ini')
-#    argv = ['', '-i', 'unifier.ini', '-o','merger.ini','-s','file']#,'--LISTS_TO_REMOVE',KeyEnum.FILE_IDX]
-#    runner = IniFileRunner2()
-#    application = MRMRTNormalizer()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("mrmrtnormalizer failed [%s]" % exit_code) 
+
 ################## AQUA BRANCH, REQUIRES IRT IN KEYEXTRAT#####################
   
-@transform(generator, regex("generate.ini_"), "cromatogramextractor.ini_")
+@transform(generatorWindows, regex("generate.ini_"), "cromatogramextractor.ini_")
 def chromatogramExtractor(input_file_name, output_file_name):
     wrap(ChromatogramExtractor, input_file_name, output_file_name) 
 
@@ -139,4 +145,5 @@ def featurexmltotsv(input_file_name, output_file_name):
     wrap(FeatureXMLToTSV, input_file_name, output_file_name,['-p']) 
 
     
-pipeline_run([featurexmltotsv],multiprocess=15,verbose=2)
+#pipeline_run([featurexmltotsv],multiprocess=8,verbose=2)
+pipeline_printout_graph ('flowchart.png','png',[featurexmltotsv])
