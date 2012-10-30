@@ -23,6 +23,7 @@ from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
     NoDecoyLibrary, ConsensusLibrary, NoBinaryLibrary
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.srm.sptxt2csv import Sptxt2Csv
+from applicake.applications.proteomics.srm.converttsv2traml import ConvertTSVToTraML
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -155,10 +156,14 @@ def consensuslib(input_file_name, output_file_name):
 
 @transform(consensuslib,regex('consensuslib.ini_'),'nobinarylib.ini_')
 def nobinarylib(input_file_name, output_file_name):
-    wrap(NoBinaryLibrary,input_file_name, output_file_name,['-s','memory_all'])
+    wrap(NoBinaryLibrary,input_file_name, output_file_name)
 
 @transform(nobinarylib,regex('nobinarylib.ini_'),'sptxt2tracsv.ini_')
 def sptxt2tracsv(input_file_name, output_file_name):
-    wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py','-s','memory_all']) 
+    wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py']) 
 
-pipeline_run([sptxt2tracsv], multiprocess=3)
+@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2traml.ini_')
+def tracsv2traml(input_file_name, output_file_name):
+    wrap(ConvertTSVToTraML,input_file_name, output_file_name,['-s','memory_all']) 
+
+pipeline_run([tracsv2traml], multiprocess=3)

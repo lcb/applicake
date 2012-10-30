@@ -42,6 +42,7 @@ class KeyEnum(object):
     PROTXML = 'PROTXML'
     TEMPLATE = 'TEMPLATE'
     TRACSV = 'TRACSV'
+    TRAML = 'TRAML'
     SEARCH = 'SEARCH'    
     SOURCE = 'SOURCE'
     SPLIB = 'SPLIB'
