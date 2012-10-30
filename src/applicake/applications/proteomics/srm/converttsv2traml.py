@@ -63,7 +63,7 @@ class ConvertTSVToTraML(OpenMs):
         See interface
         """
         args_handler = super(ConvertTSVToTraML, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, '', '')
+        args_handler.add_app_args(log, self.TRACSV, 'File in .csv format (tab-delimited) that contains the transitions for SRM.')
         return args_handler
 
 
