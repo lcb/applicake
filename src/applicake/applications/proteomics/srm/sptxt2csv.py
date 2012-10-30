@@ -71,6 +71,7 @@ class Sptxt2Csv(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
+        args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         #args_handler.add_app_args(log, '', '')
         return args_handler
 
