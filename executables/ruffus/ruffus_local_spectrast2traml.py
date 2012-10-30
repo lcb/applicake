@@ -21,7 +21,8 @@ from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probabil
 from applicake.applications.commons.inifile import KeysToList, Unifier
 from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
     NoDecoyLibrary, ConsensusLibrary, NoBinaryLibrary
-from applicake.applications.commons.collector import GuseCollector
+from applicake.applications.commons.collector import GuseCollector,\
+    SimpleCollector
 from applicake.applications.proteomics.srm.sptxt2csv import Sptxt2Csv
 from applicake.applications.proteomics.srm.converttsv2traml import ConvertTSVToTraML
 from applicake.framework import enums
@@ -170,4 +171,27 @@ def tracsv2traml(input_file_name, output_file_name):
                                                               '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML',
                                                               '-s','memory_all']) 
 
-pipeline_run([tracsv2traml], multiprocess=3)
+@collate([tracsv2traml,consensuslib],regex(r".*_(.+)$"),  r'merge.ini_\1')
+def merge(input_file_names, output_file_name):
+    args = []
+    for f in input_file_names:
+        args.append('--COLLECTORS')
+        args.append(f)
+    args.append('-o')
+    args.append(output_file_name)
+    runner = CollectorRunner()
+    application = SimpleCollector()
+    exit_code = runner(args, application)
+    if exit_code != 0:
+        raise Exception("merge failed [%s]" % (exit_code)) 
+    
+@transform(merge, regex("merge.ini_"), "unify.ini_")
+def unify(input_file_name, output_file_name): 
+    argv = ['', '-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE']
+    runner = IniFileRunner2()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier failed [%s]" % exit_code)    
+    
+pipeline_run([unify], multiprocess=3)
