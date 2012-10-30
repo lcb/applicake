@@ -167,7 +167,7 @@ def sptxt2tracsv(input_file_name, output_file_name):
 @transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
-                                                              '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML'
+                                                              '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML',
                                                               '-s','memory_all']) 
 
 pipeline_run([tracsv2traml], multiprocess=3)
