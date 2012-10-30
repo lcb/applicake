@@ -173,7 +173,7 @@ def tracsv2traml(input_file_name, output_file_name):
 
 @collate([tracsv2traml,consensuslib],regex(r".*_(.+)$"),  r'merge.ini_\1')
 def merge(input_file_names, output_file_name):
-    args = []
+    args = ['']
     for f in input_file_names:
         args.append('--COLLECTORS')
         args.append(f)
@@ -184,6 +184,7 @@ def merge(input_file_names, output_file_name):
     exit_code = runner(args, application)
     if exit_code != 0:
         raise Exception("merge failed [%s]" % (exit_code)) 
+        
     
 @transform(merge, regex("merge.ini_"), "unify.ini_")
 def unify(input_file_name, output_file_name): 
