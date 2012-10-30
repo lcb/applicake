@@ -123,7 +123,7 @@ class OpenMs(IWrapper):
         """        
         args_handler.add_app_args(log, self.PREFIX, 'Path to the OpenMS executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the openMS-template file')
-        args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.')
+        args_handler.add_app_args(log, self.THREADS, 'Number of threads used in the process.')
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')   
         return args_handler

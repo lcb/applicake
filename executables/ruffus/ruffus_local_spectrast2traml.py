@@ -164,6 +164,6 @@ def sptxt2tracsv(input_file_name, output_file_name):
 
 @transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
-    wrap(ConvertTSVToTraML,input_file_name, output_file_name,['-s','memory_all']) 
+    wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--TREADS','1','-s','memory_all']) 
 
 pipeline_run([tracsv2traml], multiprocess=3)

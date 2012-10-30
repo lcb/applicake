@@ -43,6 +43,7 @@ class KeyEnum(object):
     TEMPLATE = 'TEMPLATE'
     TRACSV = 'TRACSV'
     TRAML = 'TRAML'
+    THREADS = 'THREADS'
     SEARCH = 'SEARCH'    
     SOURCE = 'SOURCE'
     SPLIB = 'SPLIB'
