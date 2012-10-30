@@ -150,6 +150,22 @@ class ConsensusLibrary(LibraryCreator):
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
 
+class NoBinaryLibrary(LibraryCreator):
+    
+    def get_suffix(self,info,log):
+        root = os.path.splitext(self._result_file1)[0] 
+        return "-c_BIN! -cN%s %s" % (root,self._orig_splib)
+
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """
+        args_handler = super(NoBinaryLibrary, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
+        return args_handler
+    
+#spectrast -c_BIN! -cN/cluster/scratch_xl/shareholder/imsb_ra/workflows/812/0/ConsensusLib
+#rary2/ConensusLibrary2 /cluster/scratch_xl/shareholder/imsb_ra/workflows/812/0/ConsensusLibrary/ConsensusLibrary.splib
 
 class LibraryCreatorTemplate(BasicTemplateHandler):
     """
