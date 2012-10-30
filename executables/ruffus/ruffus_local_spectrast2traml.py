@@ -24,6 +24,8 @@ from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.proteomics.srm.sptxt2csv import Sptxt2Csv
 from applicake.applications.proteomics.srm.converttsv2traml import ConvertTSVToTraML
+from applicake.framework import enums
+from applicake.framework.enums import KeyEnum
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -164,6 +166,6 @@ def sptxt2tracsv(input_file_name, output_file_name):
 
 @transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
-    wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--TREADS','1','-s','memory_all']) 
+    wrap(ConvertTSVToTraML,input_file_name, output_file_name,[KeyEnum.THREADS,'1','-s','memory_all']) 
 
 pipeline_run([tracsv2traml], multiprocess=3)
