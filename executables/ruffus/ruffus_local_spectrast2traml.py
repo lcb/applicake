@@ -159,6 +159,6 @@ def nobinarylib(input_file_name, output_file_name):
 
 @transform(consensuslib,regex('nobinarylib.ini_'),'sptxt2tracsv.ini_')
 def sptxt2tracsv(input_file_name, output_file_name):
-    wrap(Sptxt2Csv,input_file_name, output_file_name,['-s','memory_all']) 
+    wrap(Sptxt2Csv,input_file_name, output_file_name,['-p','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py','-s','memory_all']) 
 
 pipeline_run([consensuslib], multiprocess=3)
