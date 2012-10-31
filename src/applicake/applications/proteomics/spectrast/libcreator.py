@@ -184,7 +184,7 @@ class CreateBinLibrary(LibraryCreator):
         """
         See interface
         """
-        args_handler = super(CreateTxtLibrary, self).set_args(log,args_handler)
+        args_handler = super(CreateBinLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
     
