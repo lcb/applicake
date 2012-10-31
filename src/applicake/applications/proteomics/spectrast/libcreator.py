@@ -96,7 +96,9 @@ class LibraryCreator(IWrapper):
         return 0,info
 
 class RawLibrary(LibraryCreator):
-    
+    '''
+    Create a SpectraST raw library
+    '''
     def get_suffix(self,info,log):
         if len(info[self.PEPXMLS]) >1:
             log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
@@ -122,7 +124,9 @@ class RawLibrary(LibraryCreator):
         return args_handler
 
 class NoDecoyLibrary(LibraryCreator):
-    
+    '''
+    Remove Decoy entries from a SpectraST library.
+    ''' 
     def get_suffix(self,info,log):
         root = os.path.splitext(self._result_file1)[0] 
         return "-cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (root,self._orig_splib)
@@ -137,7 +141,9 @@ class NoDecoyLibrary(LibraryCreator):
 
 
 class ConsensusLibrary(LibraryCreator):
-    
+    '''
+    Create a consensus library from a raw SpectraST raw library.
+    '''
     def get_suffix(self,info,log):
         root = os.path.splitext(self._result_file1)[0] 
         return "-cAC -cN%s %s" % (root,self._orig_splib)
@@ -150,8 +156,10 @@ class ConsensusLibrary(LibraryCreator):
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
 
-class NoBinaryLibrary(LibraryCreator):
-    
+class CreateTxtLibrary(LibraryCreator):
+    '''
+    Convert a SpectraST library in binary format into txt format.
+    '''
     def get_suffix(self,info,log):
         root = os.path.splitext(self._result_file1)[0] 
         return "-c_BIN! -cN%s %s" % (root,self._orig_splib)
@@ -160,12 +168,27 @@ class NoBinaryLibrary(LibraryCreator):
         """
         See interface
         """
-        args_handler = super(NoBinaryLibrary, self).set_args(log,args_handler)
+        args_handler = super(CreateTxtLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
     
-#spectrast -c_BIN! -cN/cluster/scratch_xl/shareholder/imsb_ra/workflows/812/0/ConsensusLib
-#rary2/ConensusLibrary2 /cluster/scratch_xl/shareholder/imsb_ra/workflows/812/0/ConsensusLibrary/ConsensusLibrary.splib
+class CreateBinLibrary(LibraryCreator):
+    '''
+    Convert a SpectraST library in txt format into binary format.
+    '''
+    def get_suffix(self,info,log):
+        root = os.path.splitext(self._result_file1)[0] 
+        return "-c_BIN -cN%s %s" % (root,self._orig_splib)
+
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """
+        args_handler = super(CreateTxtLibrary, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
+        return args_handler
+    
+
 
 class LibraryCreatorTemplate(BasicTemplateHandler):
     """

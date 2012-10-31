@@ -20,7 +20,7 @@ from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probabil
     Fdr2ProbabilityPython
 from applicake.applications.commons.inifile import KeysToList, Unifier
 from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
-    NoDecoyLibrary, ConsensusLibrary, NoBinaryLibrary
+    NoDecoyLibrary, ConsensusLibrary, CreateTxtLibrary, CreateBinLibrary
 from applicake.applications.commons.collector import GuseCollector,\
     SimpleCollector
 from applicake.applications.proteomics.srm.sptxt2csv import Sptxt2Csv
@@ -158,11 +158,11 @@ def nodecoylib(input_file_name, output_file_name):
 def consensuslib(input_file_name, output_file_name):
     wrap(ConsensusLibrary,input_file_name, output_file_name) 
 
-@transform(consensuslib,regex('consensuslib.ini_'),'nobinarylib.ini_')
-def nobinarylib(input_file_name, output_file_name):
-    wrap(NoBinaryLibrary,input_file_name, output_file_name)
+@transform(consensuslib,regex('consensuslib.ini_'),'createtxtlib.ini_')
+def createtxtlib(input_file_name, output_file_name):
+    wrap(CreateTxtLibrary,input_file_name, output_file_name)
 
-@transform(nobinarylib,regex('nobinarylib.ini_'),'sptxt2tracsv.ini_')
+@transform(createtxtlib,regex('createtxtlib.ini_'),'sptxt2tracsv.ini_')
 def sptxt2tracsv(input_file_name, output_file_name):
     wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py']) 
 
@@ -171,59 +171,8 @@ def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
                                                               '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 
 
-@collate([consensuslib,tracsv2traml],regex(r".*_(.+)$"),  r'merge.ini_\1')
-# merge of the 2 input files (priority is to the left input file)
-# goal is to create the final input file that points to the traml and the splib (in binary format instead of txt format)
-def inimerge(input_file_names, output_file_name):
-    args = ['']
-    for f in input_file_names:
-        args.append('-i')
-        args.append(f)
-    args.append('-o')
-    args.append(output_file_name)
-    args.extend(['-s', 'memory_all'])
-    runner = IniFileRunner()
-    application = Unifier()
-    exit_code = runner(args, application)
-    if exit_code != 0:
-        raise Exception("merge failed [%s]" % (exit_code)) 
+@transform(tracsv2traml,regex('tracsv2traml.ini_'),'createbinlib.ini_')
+def createbinlib(input_file_name, output_file_name):
+    wrap(CreateBinLibrary,input_file_name, output_file_name)
 
-##    args = ['']
-##    for f in input_file_names:
-##        args.append('--COLLECTORS')
-##        args.append(f)
-##    args.append('-o')
-##    args.append(output_file_name)
-##    runner = CollectorRunner()
-##    application = SimpleCollector()
-##    exit_code = runner(args, application)
-##    if exit_code != 0:
-##        raise Exception("merge failed [%s]" % (exit_code)) 
-#    pargs = {} 
-#    pargs[KeyEnum.INPUT] = input_file_names
-#    handler = BasicInformationHandler()
-#    
-#    info = handler.get_info(log, pargs)
-#    
-#        args.append('--COLLECTORS')
-#        args.append(f)
-#    args.append('-o')
-#    args.append(output_file_name)
-#    runner = CollectorRunner()
-#    application = SimpleCollector()
-#    exit_code = runner(args, application)
-#    if exit_code != 0:
-#        raise Exception("merge failed [%s]" % (exit_code)) 
-#info = info_handler.get_info(log, pargs)
-#        
-    
-#@transform(merge, regex("merge.ini_"), "unify.ini_")
-#def unify(input_file_name, output_file_name): 
-#    argv = ['', '-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE','-s','memory_all']
-#    runner = IniFileRunner2()
-#    application = Unifier()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("unifier failed [%s]" % exit_code)    
-    
-pipeline_run([inimerge], multiprocess=3)
+pipeline_run([createbinlib], multiprocess=3)

@@ -83,7 +83,7 @@ class DictUtils(SequenceUtils):
         - priority: priority of the merging
         -- left: First dictionary overwrites existing keys in second dictionary
         -- right: Second dictionary overwrites existing keys in first dictionary
-        -- equal: Keys with same values are not changed. 
+        -- flatten_sequence: Keys with same values are not changed. 
             Keys with different values are merged into lists where the value of 
             dict_1 is first in the list.
             Keys that only exist in one dictionary are added
