@@ -49,7 +49,7 @@ class ChromatogramExtractor(IWrapper):
         info[key] = self.outfile
         prefix,info = self.get_prefix(info,log)
         command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
-                                                                                              info['MZMLGZ'],
+                                                                                              info['MZML'],
                                                                                               info['TRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
                                                                                               info['THREADS'],
@@ -66,7 +66,7 @@ class ChromatogramExtractor(IWrapper):
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.') 
         args_handler.add_app_args(log, 'TRAML', 'Path to the TraML file.')
-        args_handler.add_app_args(log, 'MZMLGZ', 'Path to the gzipped mzML files.')
+        args_handler.add_app_args(log, 'MZML', 'Path to the mzML files.')
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', '')
         args_handler.add_app_args(log, 'OUTSUFFIX', 'file ending of chrom files produced')
         return args_handler

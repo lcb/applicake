@@ -35,7 +35,7 @@ from applicake.applications.commons.inifile import Unifier
 from applicake.framework.enums import KeyEnum
 
 def setup():
-    if len(sys.argv) == 1: # and sys.argv[1] == 'restart':
+    if len(sys.argv) > 1 and sys.argv[1] == 'restart':
         subprocess.call("rm *ini* *.err *.out",shell=True)    
         with open("input.ini", 'w+') as f:
             f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
@@ -95,7 +95,7 @@ def convertmz(input_file_name, output_file_name):
 def IRTsplitter(input_file_names, notused_output_file_names):
     for inputfile in input_file_names:
         outfile = 'splitce.ini' + inputfile[inputfile.find('_'):]
-        WrapApp(IRTGenerator,inputfile,outfile)
+        WrapApp(IRTGenerator,inputfile,'',['--GENERATORS', outfile])
         
 ################## iRT BRANCH #################################
 
@@ -149,5 +149,5 @@ def DSScollector(notused_input_file_names, output_file_name):
 
      
        
-pipeline_run([IRTmrmrtnormalizer],multiprocess=8,verbose=2)
+pipeline_run([IRTmrmrtnormalizer],multiprocess=4,verbose=2)
 #pipeline_printout_graph ('flowchart.png','png',[DSScollector])
