@@ -83,7 +83,7 @@ def splitwindows(input_file_name, output_file_name):
 def Windowgenerator(input_file_names, notused_output_file_names):
     for inputfile in input_file_names:
         num = inputfile.split("_")[1]
-        WrapApp(SplitGenerator,inputfile,'output.ini',['--GENERATORS', 'generatewindows.ini_' + num])  
+        WrapApp(SplitGenerator,inputfile,'',['--GENERATORS', 'generatewindows.ini_' + num])  
 
 @transform(Windowgenerator, regex("generatewindows.ini_"), "convertmz.ini_")
 def convertmz(input_file_name, output_file_name):
