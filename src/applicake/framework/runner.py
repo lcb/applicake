@@ -647,7 +647,7 @@ class WrapperRunner(ApplicationRunner):
                 log.debug('exit code [%s]' % exit_code)
                 log.debug('content of app_info [%s]' % app_info)                        
                 log.info('Finish [%s]' % app.validate_run.__name__) 
-                info = DictUtils.merge(log,info, app_info,priority='left')    
+                info = DictUtils.merge(log,info, app_info,priority='right')    
                 log.debug('content of info after merge with app_info [%s]' % info) 
         else:                                   
             log.critical("the object [%s] is not an instance of one of the following [%s]" % (app.__class__.__name__ ,
