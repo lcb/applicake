@@ -182,7 +182,7 @@ def inimerge(input_file_names, output_file_name):
     args.append('-o')
     args.append(output_file_name)
     args.extend(['-s', 'memory_all'])
-    runner = IniFileRunner2()
+    runner = IniFileRunner()
     application = Unifier()
     exit_code = runner(args, application)
     if exit_code != 0:
