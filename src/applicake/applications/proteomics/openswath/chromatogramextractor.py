@@ -43,8 +43,8 @@ class ChromatogramExtractor(IWrapper):
         key = 'CHROM_MZML' #self._file_type.upper()
         outfolder = info[self.WORKDIR]
         self._file_suffix = info['OUTSUFFIX']
-        outfilename = os.path.basename(info['MZMLGZ'])
-        outfilename = outfilename.replace(".mzML.gz",self._file_suffix)
+        outfilename = os.path.basename(info['MZML'])
+        outfilename = outfilename.replace(".mzML",self._file_suffix)
         self.outfile = os.path.join(outfolder,outfilename)
         info[key] = self.outfile
         prefix,info = self.get_prefix(info,log)
