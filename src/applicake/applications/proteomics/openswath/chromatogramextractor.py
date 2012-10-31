@@ -16,7 +16,7 @@ class ChromatogramExtractor(IWrapper):
     '''
 
     _template_file = ''
-    _default_prefix = 'ChromatogramExtractor'
+    _default_prefix = 'OpenSwathChromatogramExtractor'
 
     def __init__(self):
         """
