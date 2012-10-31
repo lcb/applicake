@@ -27,6 +27,7 @@ from applicake.applications.proteomics.srm.sptxt2csv import Sptxt2Csv
 from applicake.applications.proteomics.srm.converttsv2traml import ConvertTSVToTraML
 from applicake.framework import enums
 from applicake.framework.enums import KeyEnum
+from applicake.framework.informationhandler import BasicInformationHandler
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -168,31 +169,60 @@ def sptxt2tracsv(input_file_name, output_file_name):
 @transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
-                                                              '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML',
-                                                              '-s','memory_all']) 
+                                                              '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 
 
-@collate([tracsv2traml,consensuslib],regex(r".*_(.+)$"),  r'merge.ini_\1')
-def merge(input_file_names, output_file_name):
+@collate([consensuslib,tracsv2traml],regex(r".*_(.+)$"),  r'merge.ini_\1')
+# merge of the 2 input files (priority is to the left input file)
+# goal is to create the final input file that points to the traml and the splib (in binary format instead of txt format)
+def inimerge(input_file_names, output_file_name):
     args = ['']
     for f in input_file_names:
-        args.append('--COLLECTORS')
+        args.append('-i')
         args.append(f)
     args.append('-o')
     args.append(output_file_name)
-    runner = CollectorRunner()
-    application = SimpleCollector()
+    runner = IniFileRunner2()
+    application = Unifier()
     exit_code = runner(args, application)
     if exit_code != 0:
         raise Exception("merge failed [%s]" % (exit_code)) 
-        
+
+##    args = ['']
+##    for f in input_file_names:
+##        args.append('--COLLECTORS')
+##        args.append(f)
+##    args.append('-o')
+##    args.append(output_file_name)
+##    runner = CollectorRunner()
+##    application = SimpleCollector()
+##    exit_code = runner(args, application)
+##    if exit_code != 0:
+##        raise Exception("merge failed [%s]" % (exit_code)) 
+#    pargs = {} 
+#    pargs[KeyEnum.INPUT] = input_file_names
+#    handler = BasicInformationHandler()
+#    
+#    info = handler.get_info(log, pargs)
+#    
+#        args.append('--COLLECTORS')
+#        args.append(f)
+#    args.append('-o')
+#    args.append(output_file_name)
+#    runner = CollectorRunner()
+#    application = SimpleCollector()
+#    exit_code = runner(args, application)
+#    if exit_code != 0:
+#        raise Exception("merge failed [%s]" % (exit_code)) 
+#info = info_handler.get_info(log, pargs)
+#        
     
-@transform(merge, regex("merge.ini_"), "unify.ini_")
-def unify(input_file_name, output_file_name): 
-    argv = ['', '-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE']
-    runner = IniFileRunner2()
-    application = Unifier()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("unifier failed [%s]" % exit_code)    
+#@transform(merge, regex("merge.ini_"), "unify.ini_")
+#def unify(input_file_name, output_file_name): 
+#    argv = ['', '-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE','-s','memory_all']
+#    runner = IniFileRunner2()
+#    application = Unifier()
+#    exit_code = runner(argv, application)
+#    if exit_code != 0:
+#        raise Exception("unifier failed [%s]" % exit_code)    
     
-pipeline_run([unify], multiprocess=3)
+pipeline_run([inimerge], multiprocess=3)
