@@ -3,7 +3,7 @@ Created on Oct 24, 2012
 
 @author: lorenz
 '''
-import os
+import os, re
 
 from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
@@ -22,7 +22,8 @@ class SplitWindows(IWrapper):
 
         self.outfolder = info[self.WORKDIR]
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s %s %s' % (prefix,info['MZXML'],info['WINDOWS'],self.outfolder)
+        command = '%s %s %s %s' % (prefix,info[self.MZXML],info['WINDOWS'],self.outfolder)
+        del info[self.MZXML]
         return command,info
 
     def set_args(self,log,args_handler):
@@ -40,16 +41,24 @@ class SplitWindows(IWrapper):
         if 0 != run_code:
             return run_code,info
         outfiles = []
-        for outfile in os.listdir(self.WORKDIR):
+        for outfile in os.listdir(info[self.WORKDIR]):
+            outfile = os.path.join(info[self.WORKDIR],outfile)
             if not str(outfile).endswith('mzXML') or str(outfile).endswith('ms1scan.mzXML'):
                 continue
-            if not FileUtils.is_valid_file(log, self.outfile):
-                log.critical('[%s] is not valid' %self.outfile)
+            if not FileUtils.is_valid_file(log, outfile):
+                log.critical('[%s] is not valid' %outfile)
                 return 1,info
-            if not XmlValidator.is_wellformed(self.outfile):
-                log.critical('[%s] is not well formed.' % self.outfile)
+            if not XmlValidator.is_wellformed(outfile):
+                log.critical('[%s] is not well formed.' % outfile)
                 return 1,info 
             outfiles.append(outfile)
+        
+        #sort outfiles numerically, http://code.activestate.com/recipes/135435-sort-a-string-using-numeric-order/
+        def stringSplitByNumbers(x):
+            r = re.compile('(\d+)')
+            l = r.split(x)
+            return [int(y) if y.isdigit() else y for y in l]
+        outfiles = sorted(outfiles, key=stringSplitByNumbers)
             
         info[self.MZXML] = outfiles   
         return 0,info
