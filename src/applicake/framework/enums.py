@@ -41,6 +41,7 @@ class KeyEnum(object):
     PROPHET = 'PROPHET_TYPE'
     PROTXML = 'PROTXML'
     TEMPLATE = 'TEMPLATE'
+    RSQ_THRESHOLD = 'RSQ_THRESHOLD'
     RT_KIT = 'RT_KIT'
     SEARCH = 'SEARCH'    
     SOURCE = 'SOURCE'

@@ -70,7 +70,8 @@ class SpectrastIrtCalibrator(IWrapper):
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, self.RT_KIT, 'Specific retention time kit(s)',action='append')
-        args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
+        args_handler.add_app_args(log, self.SPTXT, 'Spectrast library in .splib format')
+        args_handler.add_app_args(log, self.RSQ_THRESHOLD, 'specify r-squared threshold to accept linear regression')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -93,7 +94,7 @@ class SpectrastIrtCalibratorTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """--kit LGGNEQVTR:-28.3083,GAGSSEPVTGLDAK:0.227424,VEATFGVDESNAK:13.1078,YILAGVENSK:22.3798,TPVISGGPYEYR:28.9999,TPVITGAPYEYR:33.6311,DGLDAASYYAPVR:43.2819,ADVTPADFSEWSK:54.969,GTFIIDPGGVIR:71.3819,GTFIIDPAAVIR:86.7152,FLQFGAQGSPFLK:98.0897
+        template = """--rsq_threshold $RSQ_THRESHOLD --kit LGGNEQVTR:-28.3083,GAGSSEPVTGLDAK:0.227424,VEATFGVDESNAK:13.1078,YILAGVENSK:22.3798,TPVISGGPYEYR:28.9999,TPVITGAPYEYR:33.6311,DGLDAASYYAPVR:43.2819,ADVTPADFSEWSK:54.969,GTFIIDPGGVIR:71.3819,GTFIIDPAAVIR:86.7152,FLQFGAQGSPFLK:98.0897
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
