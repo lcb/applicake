@@ -157,7 +157,8 @@ def nodecoylib(input_file_name, output_file_name):
 
 @transform(nodecoylib,regex('nodecoylib.ini_'),'irtcalibration.ini_')
 def irtcalibration(input_file_name, output_file_name):
-    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name)
+    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/spectrast2spectrast_irt.py',
+                                                                   '-s','memory_all'])
 
 @transform(irtcalibration,regex('irtcalibration.ini_'),'consensuslib.ini_')
 def consensuslib(input_file_name, output_file_name):
