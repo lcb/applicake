@@ -1,5 +1,5 @@
 '''
-Created on Oct 30, 2012
+Created on Nov 1, 2012
 
 @author: quandtan
 '''
@@ -8,14 +8,14 @@ import os
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 
-class Sptxt2Csv(IWrapper):
+class SpectrastIrtCalibrator(IWrapper):
     '''
-    Wrapper for sptxt2csv.py from the srmcolider package.
+    Wrapper for spectrast2spectrast_irt.py
     '''
 
-#    _template_file = ''
-#    _result_file = ''
-#    _default_prefix = ''
+    _template_file = ''
+    _result_file = ''
+    _default_prefix = 'spectrast2spectrast_irt.py'
 
     def __init__(self):
         """
@@ -23,7 +23,7 @@ class Sptxt2Csv(IWrapper):
         """
         base = self.__class__.__name__
         self._template_file = '%s.tpl' % base # application specific config file
-        self._result_file = '%s.csv' % base # result produced by the application
+        self._result_file = '%s.splib' % base # result produced by the application
 
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -35,7 +35,7 @@ class Sptxt2Csv(IWrapper):
         """
         See interface
         """
-        return Sptxt2CsvTemplate()
+        return SpectrastIrtCalibratorTemplate()
 
     def prepare_run(self,info,log):
         """
@@ -45,10 +45,11 @@ class Sptxt2Csv(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        key = self.TRACSV
+        key = self.SPTXT
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
+        orig_key = info[key]
         info[key] = self._result_file
         self._template_file = os.path.join(wd,self._template_file)
         info['TEMPLATE'] = self._template_file
@@ -57,10 +58,7 @@ class Sptxt2Csv(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        root = os.path.splitext(info[self.SPTXT])[0]
-        command = '%s --in %s --out %s %s' % (prefix,root,self._result_file,mod_template)
-#        /cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py --in /cluster/scratch_
-#xl/shareholder/imsb_ra/workflows/812/0/ConsensusLibrary2/ConensusLibrary2 --out step4.tsv --no_filter=NO=FILTER
+        command = '%s -i %s -o %s %s' % (prefix,orig_key,info[key],mod_template)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -71,8 +69,8 @@ class Sptxt2Csv(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
-        args_handler.add_app_args(log, self.SPTXT, 'Spectrast library in .sptxt format')
-        #args_handler.add_app_args(log, '', '')
+        args_handler.add_app_args(log, self.RT_KIT, 'Specific retention time kit(s)',action='append')
+        args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -86,16 +84,16 @@ class Sptxt2Csv(IWrapper):
         return 0,info
 
 
-class Sptxt2CsvTemplate(BasicTemplateHandler):
+class SpectrastIrtCalibratorTemplate(BasicTemplateHandler):
     """
-    Template handler for Sptxt2Csv to generate a csv with all transitions (SRM mode).
+    Template handler for SpectrastIrtCalibrator.
     """
 
     def read_template(self, info, log):
         """
         See super class.
         """
-        template = """--no_filter=NO=FILTER
+        template = """--kit AAVYHHFISDGVR:10.49,HIQNIDIQHLAGK:23.93,TEVSSNHVLIYLDK:43.54,LVAYYTLIGASGQR:64.15,TEHPFTVEEFVLPK:74.51,TTNIQGINLLFSSR:84.37,NQGNTWLTAFVLK:104.07,DSPVLIDFFEDTER:112.63,ITPNLAEFAFSLYR:122.25,GGQEHFAHLLILR:45,AAVYHHFISDGVR[166]:10.49,HIQNIDIQHLAGK[136]:23.93,TEVSSNHVLIYLDK[136]:43.54,LVAYYTLIGASGQR[166]:64.15,TEHPFTVEEFVLPK[136]:74.51,TTNIQGINLLFSSR[166]:84.37,NQGNTWLTAFVLK[136]:104.07,DSPVLIDFFEDTER[166]:112.63,ITPNLAEFAFSLYR[166]:122.25,GGQEHFAHLLILR[166]:45
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info

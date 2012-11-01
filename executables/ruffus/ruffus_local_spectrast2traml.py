@@ -28,6 +28,7 @@ from applicake.applications.proteomics.srm.converttsv2traml import ConvertTSVToT
 from applicake.framework import enums
 from applicake.framework.enums import KeyEnum
 from applicake.framework.informationhandler import BasicInformationHandler
+from applicake.applications.proteomics.spectrast.spectrastirtcalibrator import SpectrastIrtCalibrator
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -154,15 +155,20 @@ def rawlib(input_file_name, output_file_name):
 def nodecoylib(input_file_name, output_file_name):
     wrap(NoDecoyLibrary,input_file_name, output_file_name)         
 
-@transform(nodecoylib,regex('nodecoylib.ini_'),'consensuslib.ini_')
+@transform(nodecoylib,regex('nodecoylib.ini_'),'irtcalibration.ini_')
+def irtcalibration(input_file_name, output_file_name):
+    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name)
+
+@transform(irtcalibration,regex('irtcalibration.ini_'),'consensuslib.ini_')
 def consensuslib(input_file_name, output_file_name):
     wrap(ConsensusLibrary,input_file_name, output_file_name) 
 
-@transform(consensuslib,regex('consensuslib.ini_'),'createtxtlib.ini_')
-def createtxtlib(input_file_name, output_file_name):
-    wrap(CreateTxtLibrary,input_file_name, output_file_name)
+#@transform(consensuslib,regex('consensuslib.ini_'),'createtxtlib.ini_')
+#def createtxtlib(input_file_name, output_file_name):
+#    wrap(CreateTxtLibrary,input_file_name, output_file_name)
 
-@transform(createtxtlib,regex('createtxtlib.ini_'),'sptxt2tracsv.ini_')
+#@transform(createtxtlib,regex('createtxtlib.ini_'),'sptxt2tracsv.ini_')
+@transform(consensuslib,regex('createtxtlib.ini_'),'sptxt2tracsv.ini_')
 def sptxt2tracsv(input_file_name, output_file_name):
     wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py']) 
 
@@ -171,8 +177,9 @@ def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
                                                               '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 
 
-@transform(tracsv2traml,regex('tracsv2traml.ini_'),'createbinlib.ini_')
-def createbinlib(input_file_name, output_file_name):
-    wrap(CreateBinLibrary,input_file_name, output_file_name)
+#@transform(tracsv2traml,regex('tracsv2traml.ini_'),'createbinlib.ini_')
+#def createbinlib(input_file_name, output_file_name):
+#    wrap(CreateBinLibrary,input_file_name, output_file_name)
 
-pipeline_run([createbinlib], multiprocess=3)
+#pipeline_run([createbinlib], multiprocess=3)
+pipeline_run([consensuslib], multiprocess=3)
