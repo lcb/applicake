@@ -184,5 +184,5 @@ def tracsv2traml(input_file_name, output_file_name):
 #def createbinlib(input_file_name, output_file_name):
 #    wrap(CreateBinLibrary,input_file_name, output_file_name)
 
-#pipeline_run([createbinlib], multiprocess=3)
-pipeline_run([consensuslib], multiprocess=3)
+
+pipeline_run([tracsv2traml], multiprocess=3)
