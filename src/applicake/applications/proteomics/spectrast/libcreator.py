@@ -282,7 +282,7 @@ remark =
 annotatePeaks = true
 
 # Whether or not to use binary format for library created
-binaryFormat = true
+binaryFormat = false
 
 # Write all library spectra as .dta or .mgf files
 # (e.g. for sequence-searching them)
