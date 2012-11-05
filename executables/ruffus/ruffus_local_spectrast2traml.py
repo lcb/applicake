@@ -181,9 +181,10 @@ def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
                                                               '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 
 
-#@transform(tracsv2traml,regex('tracsv2traml.ini_'),'createbinlib.ini_')
-#def createbinlib(input_file_name, output_file_name):
-#    wrap(CreateBinLibrary,input_file_name, output_file_name)
+# in order to remove this node, sptxt2tracsv has to be adjusted
+@transform(tracsv2traml,regex('tracsv2traml.ini_'),'createbinlib.ini_')
+def createbinlib(input_file_name, output_file_name):
+    wrap(CreateBinLibrary,input_file_name, output_file_name)
 
 
 pipeline_run([tracsv2traml], multiprocess=3)
