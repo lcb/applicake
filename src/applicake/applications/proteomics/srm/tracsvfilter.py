@@ -28,6 +28,7 @@ class TraCsvFilter(IApplication):
         self._csv = csv
         self._dialect = 'my_dialect'
         self._csv.register_dialect(self._dialect, delimiter='\t',doublequote=False,quotechar='',lineterminator='\n',escapechar='',quoting=csv.QUOTE_NONE)
+        self._selected_data = []
 
     def set_args(self,log,args_handler):
         """
@@ -79,74 +80,98 @@ class TraCsvFilter(IApplication):
         fout = open(self._result_file, 'wb')
         self._csv.writer(fout,self._dialect).writerows(data)
         log.debug('wrote results to [%s]' % self._result_file)    
+
+
+class RemoveNonAnnotations(TraCsvFilter):
+    '''
+    Remove transitions with missing Annotations ['?']
+    '''  
+    
+    def __init__(self):
+        super(RemoveNonAnnotations, self).__init__()
+        self._rows = ['Annotation']    
+      
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler = super(RemoveNonAnnotations, self).set_args(log,args_handler)    
+        return args_handler 
  
+    def main(self,info,log):
+        data,fields  = self.read_data(info, log)
+        field = fields.index(self._rows[0])
+        for col in data:
+            if col[field] != '?':
+                self._selected_data.append(col)      
+        log.debug('selected [%s] out of [%s] transitions' % (len(self._selected_data),len(data))) 
+        self.write_data(info, log, self._selected_data,fields)
+        return 0,info                
  
 class SelectMostIntensePeptides(TraCsvFilter):
-        '''
-        Filter the transition list for the n most intense peptides.
-        '''
-        
-        def __init__(self):
-            super(SelectMostIntensePeptides, self).__init__()
-            self._default_n_most_intense = 3
-            self._sort_for_rows = ['ProteinName','LibraryIntensity','PeptideSequence']
-        
-        def set_args(self,log,args_handler):
-            """
-            See interface
-            """        
-            args_handler = super(SelectMostIntensePeptides, self).set_args(log,args_handler)  
-            args_handler.add_app_args(log, self.N_MOST_INTENSE, 
-                                      'Number of n most intense peptides per protein that should be included into the transition list. [default:3]',
-                                      type=int)        
-            return args_handler
+    '''
+    Filter the transition list for the n most intense peptides.
+    '''
     
-        def main(self,info,log):
-            if not info.has_key(self.N_MOST_INTENSE):
-                info[self.N_MOST_INTENSE] = self._default_n_most_intense
-                log.debug('no value found for key [%s]. set it to [%s]'% (self.N_MOST_INTENSE,self._default_n_most_intense))
-            data,fields  = self.read_data(info, log)
-            field_1 = fields.index(self._sort_for_rows[0])
-            field_2 = fields.index(self._sort_for_rows[1])
-            field_3 = fields.index(self._sort_for_rows[2])
-            # sorts by protein name and then by intensity
-            # because of the intensity not being a string,'key=operator.itemgetter(9,5)' cannot be used.
-            # instead the old lambda is used.             
-            data = sorted(data,key=lambda x: (x[field_1],float(x[field_2])),reverse=True)
-            pn = ''
-            ps = []
-            limit = info[self.N_MOST_INTENSE]
-            num_transitions = 0
-            selected_data = []            
-            for col in data:
-                #check if col contains a new protein name
-                if pn == col[field_1]:
-                    # transition is not selected if not and the limit of n most intense transitions is reached.
-                    if num_transitions >= limit:
-                        continue
-                    # transition is not selected if the peptide sequence has been already selected before.    
-                    elif col[field_3] in ps:
-                        continue
-                    else:
-                        num_transitions +=1
-                        ps.append(col[field_3])
-                        selected_data.append(col)
+    def __init__(self):
+        super(SelectMostIntensePeptides, self).__init__()
+        self._default_n_most_intense = 3
+        self._rows = ['ProteinName','LibraryIntensity','PeptideSequence']
+    
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler = super(SelectMostIntensePeptides, self).set_args(log,args_handler)  
+        args_handler.add_app_args(log, self.N_MOST_INTENSE, 
+                                  'Number of n most intense peptides per protein that should be included into the transition list. [default:3]',
+                                  type=int)        
+        return args_handler
+
+    def main(self,info,log):
+        if not info.has_key(self.N_MOST_INTENSE):
+            info[self.N_MOST_INTENSE] = self._default_n_most_intense
+            log.debug('no value found for key [%s]. set it to [%s]'% (self.N_MOST_INTENSE,self._default_n_most_intense))
+        data,fields  = self.read_data(info, log)
+        field_1 = fields.index(self._rows[0])
+        field_2 = fields.index(self._rows[1])
+        field_3 = fields.index(self._rows[2])
+        # sorts by protein name and then by intensity
+        # because of the intensity not being a string,'key=operator.itemgetter(9,5)' cannot be used.
+        # instead the old lambda is used.             
+        data = sorted(data,key=lambda x: (x[field_1],float(x[field_2])),reverse=True)
+        pn = ''
+        ps = []
+        limit = info[self.N_MOST_INTENSE]
+        num_transitions = 0            
+        for col in data:
+            #check if col contains a new protein name
+            if pn == col[field_1]:
+                # transition is not selected if not and the limit of n most intense transitions is reached.
+                if num_transitions >= limit:
+                    continue
+                # transition is not selected if the peptide sequence has been already selected before.    
+                elif col[field_3] in ps:
+                    continue
                 else:
-                    pn = col[field_1]
-                    ps = [col[field_3]]
-                    num_transitions = 1 
-                    selected_data.append(col)
-            selected_data.insert(0, fields)       
-            log.debug('selected [%s] out of [%s] transitions' % (len(selected_data)-1,len(data)-1)) 
-            self.write_data(info, log, selected_data,fields)
-            return 0,info
+                    num_transitions +=1
+                    ps.append(col[field_3])
+                    self._selected_data.append(col)
+            else:
+                pn = col[field_1]
+                ps = [col[field_3]]
+                num_transitions = 1 
+                self._selected_data.append(col)
+        log.debug('selected [%s] out of [%s] transitions' % (len(self._selected_data),len(data))) 
+        self.write_data(info, log, self._selected_data,fields)
+        return 0,info  
         
 class SelectMostIntenseTransitionGroups(SelectMostIntensePeptides):  
-        '''
-        Filter the transition list for the n most intense transition groups.
-        '''
-        
-        def __init__(self):
-            super(SelectMostIntensePeptides, self).__init__()
-            self._default_n_most_intense = 3
-            self._sort_for_rows = ['ProteinName','LibraryIntensity','transition_group_id']          
+    '''
+    Filter the transition list for the n most intense transition groups.
+    '''
+    
+    def __init__(self):
+        super(SelectMostIntensePeptides, self).__init__()
+        self._default_n_most_intense = 3
+        self._rows = ['ProteinName','LibraryIntensity','transition_group_id']          
