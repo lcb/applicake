@@ -182,7 +182,7 @@ def tracsv2filter_rmNonAnnot(input_file_name, output_file_name):
 #                                                      '-s','memory_all']) 
 
 
-@transform(sptxt2tracsv,regex('tracsv2filter_rmNonAnnot.ini_'),'tracsv2filter_mostIntPeps.ini_')
+@transform(tracsv2filter_rmNonAnnot,regex('tracsv2filter_rmNonAnnot.ini_'),'tracsv2filter_mostIntPeps.ini_')
 def tracsvfilter_mostIntPeps(input_file_name, output_file_name):
     wrap(SelectMostIntensePeptides,input_file_name, output_file_name,['--N_MOST_INTENSE','3']) 
 
