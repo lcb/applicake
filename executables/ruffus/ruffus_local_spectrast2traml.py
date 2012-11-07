@@ -181,7 +181,7 @@ def tracsvfilter_transgroups(input_file_name, output_file_name):
     wrap(SelectMostIntenseTransitionGroups,input_file_name, output_file_name,['--N_MOST_INTENSE','10',
                                                       '-s','memory_all']) 
 
-@transform(sptxt2tracsv,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
+@transform(tracsvfilter_transgroups,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
                                                               '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 

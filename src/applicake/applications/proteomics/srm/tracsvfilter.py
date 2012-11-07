@@ -37,6 +37,20 @@ class TraCsvFilter(IApplication):
         args_handler.add_app_args(log, self.TRACSV, 'File in .csv format (tab-delimited) that contains the transitions for SRM.')
         return args_handler
 
+#    def convert_item(self,itemkey,methodname,*a,**k):
+#        '''convert an item based on the method applied'''
+#        # http://stackoverflow.com/questions/1394475/python-combine-sort-key-functions-itemgetter-and-str-lower
+#        def keyextractor(container):
+#            item = container[itemkey]
+#            method = getattr(item, methodname)
+#            return method(*a, **k)
+#        return keyextractor    
+#    
+#    def itemgetter_float(self,field):
+#        def _getter(obj):
+#            return float(obj[field])
+#        return _getter
+
     def read_data(self,info,log,has_header=True):
         '''
         Return a tuple with following elements: (data rows as list, fields as list)
