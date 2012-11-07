@@ -48,7 +48,7 @@ class OpenSwathRTNormalizer(IWrapper):
         info[key] = self._result_file
         prefix,info = self.get_prefix(info,log)
         command = '%s -in %s -tr %s -min_rsq %s -min_coverage %s -threads %s -out %s' % (prefix,
-                                                                                         info['OUTCHROMMZML'],
+                                                                                         info['CHROM_MZML'],
                                                                                          info['IRTTRAML'],
                                                                                          info['MIN_RSQ'],
                                                                                          info['MIN_COVERAGE'],
@@ -65,7 +65,7 @@ class OpenSwathRTNormalizer(IWrapper):
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.') 
         args_handler.add_app_args(log, 'IRTTRAML', 'Path to the TraML file.')
-        args_handler.add_app_args(log, 'OUTCHROMMZML', 'Path to the chrom.mzML files.')
+        args_handler.add_app_args(log, 'CHROM_MZML', 'Path to the chrom.mzML after filemerger files.')
         args_handler.add_app_args(log, 'MIN_RSQ', '') 
         args_handler.add_app_args(log, 'MIN_COVERAGE', '')
         #args_handler.add_app_args(log, '', '')

@@ -654,3 +654,43 @@ class WrapperRunner(ApplicationRunner):
                                                                                                  IWrapper.__class__.__name__))  
             exit_code = 1
         return exit_code,info
+    
+class WrapperRunnerSubfile(WrapperRunner):
+    """
+    Like WrapperRunner but for application that uses SUBFILE_IDX
+    """
+
+    def create_workdir(self,info,log):        
+        keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX,'SUBFILE_IDX',self.NAME]
+        path_items = []    
+        for k in keys:
+            if info.has_key(k):
+                path_items.append(info[k])
+            #if one of the keys is missing then exception is thrown. good.
+        
+        # join need a list of strings.
+        # the list has to be parsed explicitly because list might contain integers       
+        path = (os.path.sep).join(map( str, path_items ) ) 
+        # creates the directory, if it exists, it's content is removed       
+        FileUtils.makedirs_safe(log,path,clean=True)
+        info[self.WORKDIR] = path  
+        log.debug("added key [%s] to info object." % self.WORKDIR)    
+        return info  
+
+class ApplicationRunnerSubfile(ApplicationRunner):
+    def create_workdir(self,info,log):        
+        keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX,'SUBFILE_IDX',self.NAME]
+        path_items = []    
+        for k in keys:
+            if info.has_key(k):
+                path_items.append(info[k])
+            #if one of the keys is missing then exception is thrown. good.
+        
+        # join need a list of strings.
+        # the list has to be parsed explicitly because list might contain integers       
+        path = (os.path.sep).join(map( str, path_items ) ) 
+        # creates the directory, if it exists, it's content is removed       
+        FileUtils.makedirs_safe(log,path,clean=True)
+        info[self.WORKDIR] = path  
+        log.debug("added key [%s] to info object." % self.WORKDIR)    
+        return info 

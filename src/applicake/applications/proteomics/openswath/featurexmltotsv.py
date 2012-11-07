@@ -16,7 +16,7 @@ class FeatureXMLToTSV(IWrapper):
 
     _template_file = ''
     _result_file = ''
-    _default_prefix = 'FeatureXMLToTSV'
+    _default_prefix = 'OpenSwathFeatureXMLToTSV'
 
     def __init__(self):
         """

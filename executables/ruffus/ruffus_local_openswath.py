@@ -182,5 +182,5 @@ def featurexmltotsv(input_file_name, output_file_name):
 #def mprophet(input_file_name, output_file_name):
 #    WrapApp(mProphet, input_file_name, output_file_name) 
 
-pipeline_run([featurexmltotsv],multiprocess=4,verbose=2)
-#pipeline_printout_graph ('flowchart.png','png',[DSScollector])
+#pipeline_run([featurexmltotsv],multiprocess=4,verbose=2)
+pipeline_printout_graph ('flowchart.png','png',[featurexmltotsv])
