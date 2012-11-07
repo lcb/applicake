@@ -101,10 +101,12 @@ class RemoveNonAnnotations(TraCsvFilter):
     def main(self,info,log):
         data,fields  = self.read_data(info, log)
         field = fields.index(self._rows[0])
-        for col in data:
+        length = 0
+        for i,col in enumerate(data):
+            length += 1
             if col[field] != '?':
                 self._selected_data.append(col)      
-        log.debug('selected [%s] out of [%s] transitions' % (len(self._selected_data),len(data))) 
+        log.debug('selected [%s] out of [%s] transitions' % (len(self._selected_data),length))
         self.write_data(info, log, self._selected_data,fields)
         return 0,info                
  
