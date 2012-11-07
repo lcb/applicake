@@ -61,7 +61,6 @@ LOG_LEVEL = DEBUG
 STORAGE = file
 WORKFLOW = spectrast_create
 EXPERIMENT = E286955
-DATASET_CODE = 20110721034730308-201103,20110721054532782-201128,20110721073234274-201170,20110721173145616-201355,20110721210947748-201441,20110721233250123-201503,20110722014852343-201543,20110722033454238-201588
 FDR=0.01
 FDR_LEVEL = psm
 NUM_LIMIT = 0
@@ -74,7 +73,7 @@ RSQ_THRESHOLD = 0.95
             #20120928124818478-704737,
             # EXPERIMENT = E286955
             #DATASET_CODE = 20110722014852343-201543, 20110722033454238-201588
-            
+            #DATASET_CODE = 20110721034730308-201103,20110721054532782-201128,20110721073234274-201170,20110721173145616-201355,20110721210947748-201441,20110721233250123-201503,20110722014852343-201543,20110722033454238-201588
             
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
@@ -85,7 +84,7 @@ def getexperiment():
 
 @follows(getexperiment)
 def processexperiment():
-    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini')
+    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini',['--GETCODES','True'])
 
 @follows(processexperiment)   
 @split('processexperiment.ini', "generate.ini_*")
