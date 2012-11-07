@@ -10,14 +10,14 @@ from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
-class MRMRTNormalizer(IWrapper):
+class OpenSwathRTNormalizer(IWrapper):
     '''
     Wrapper for the MRMRTNormalizer in OpenSWATH.
     '''
 
     _template_file = ''
     _result_file = ''
-    _default_prefix = 'MRMRTNormalizer'
+    _default_prefix = 'OpenSwathRTNormalizer'
 
     def __init__(self):
         """

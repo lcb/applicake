@@ -34,17 +34,17 @@ class SplitGenerator(Generator):
 
 class IRTGenerator(Generator):
     def main(self,info,log):
-    
+   
         libdic = info.copy()         
         libdic["TRAML"] = libdic["LIBTRAML"]
         libdic["OUTSUFFIX"] = libdic["LIBOUTSUFFIX"]
-        libdic[self.OUTPUT] = libdic[self.OUTPUT]
+        libdic[self.OUTPUT] = libdic['GENERATORS'][0]
         BasicInformationHandler().write_info(libdic,log)
         
         irtdic = info.copy()
         irtdic["TRAML"] = irtdic["IRTTRAML"]
         irtdic["OUTSUFFIX"] = irtdic["IRTOUTSUFFIX"]
-        irtdic[self.OUTPUT] = 'IRT' + irtdic[self.OUTPUT]
+        irtdic[self.OUTPUT] = irtdic['GENERATORS'][1]
         BasicInformationHandler().write_info(irtdic,log)
             
         return (0,info)   
@@ -53,6 +53,7 @@ class IRTGenerator(Generator):
         """
         See interface
         """ 
+        args_handler.add_app_args(log, "GENERATORS", 'Basename of inis and IRTINIS', action='append')
         args_handler.add_app_args(log, "LIBTRAML", 'Traml used by chromextract ', action='append')       
         args_handler.add_app_args(log, "IRTTRAML", 'Traml used by chromextractIRT', action='append') 
         args_handler.add_app_args(log, "LIBOUTSUFFIX", 'Suffix used by chromextract', action='append') 
