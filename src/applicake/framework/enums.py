@@ -29,6 +29,7 @@ class KeyEnum(object):
     MZML = 'MZML'
     MZXML = 'MZXML'
     MZXML_CODE = 'MZXML_CODE'
+    N_MOST_INTENSE = 'N_MOST_INTENSE'
     NAME = 'NAME'   
     NUM_LIMIT = 'NUM_LIMIT' 
     OUTPUT = 'OUTPUT'      
