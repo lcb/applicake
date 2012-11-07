@@ -82,30 +82,57 @@ class TraCsvFilter(IApplication):
         log.debug('wrote results to [%s]' % self._result_file)    
 
 
-class RemoveNonAnnotations(TraCsvFilter):
+class AnnotationFilter(TraCsvFilter):
     '''
-    Remove transitions with missing Annotations ['?']
+    Removes transitions that do not match the specified annotation criteria.
     '''  
     
     def __init__(self):
-        super(RemoveNonAnnotations, self).__init__()
+        super(AnnotationFilter, self).__init__()
         self._rows = ['Annotation']    
       
     def set_args(self,log,args_handler):
         """
         See interface
         """        
-        args_handler = super(RemoveNonAnnotations, self).set_args(log,args_handler)    
+        args_handler = super(AnnotationFilter, self).set_args(log,args_handler)
+        args_handler.add_app_args(log,self.ANNOTATED , 'If set, removes transitions without annotation.',action="store_true",default=False)
+        args_handler.add_app_args(log,self.NO_ISOTOPES , 'If set, removes transitions without annotation.',action="store_true",default=False)    
         return args_handler 
  
     def main(self,info,log):
         data,fields  = self.read_data(info, log)
         field = fields.index(self._rows[0])
         length = 0
+        annotation = ''
         for i,col in enumerate(data):
-            length += 1
-            if col[field] != '?':
-                self._selected_data.append(col)      
+            annotation = col[field]
+            length += 1  
+            if info[self.NO_ISOTOPES]:
+                # check if transition contains an isotope
+                if 'i' in annotation:
+                    # check if there are multiple annotations
+                    # if not, the annotation is not selected
+                    if ',' not in annotation:
+                        continue
+                    else:
+                        # if there are multiple annotations, the one(s) containing the isotope are removed
+                        annotations = annotation.split(',')
+                        for elem in annotations:
+                            if 'i' in elem:                  
+                                annotations.remove(elem)                                                      
+                        # if no other annotations are left, the transition is marked as unknown with a '?'  
+                        if annotations == []:
+                            col[field] = '?' 
+                        else:
+                            col[field] = (',').join(annotations)
+#                        print '%s:%s' % (annotation,col[field])
+            # remove non-annotated transitions (marked by '?'.      
+            # this filter has to be applied as last because other filters can create non-annotations   
+            if info[self.ANNOTATED] and annotation == '?':
+                continue                                           
+            self._selected_data.append(col)
+                          
         log.debug('selected [%s] out of [%s] transitions' % (len(self._selected_data),length))
         self.write_data(info, log, self._selected_data,fields)
         return 0,info                

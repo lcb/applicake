@@ -9,7 +9,7 @@ from applicake.framework.runner import ApplicationRunner
 from applicake.applications.proteomics.srm.tracsvfilter import *
 
 runner = ApplicationRunner()
-application = RemoveNonAnnotations()
+application = AnnotationFilter()
 exit_code = runner(sys.argv,application)
 print exit_code
 

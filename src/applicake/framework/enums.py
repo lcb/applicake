@@ -6,6 +6,7 @@ Created on Apr 21, 2012
 
 class KeyEnum(object):
     
+    ANNOTATED = 'ANNOTATED'
     BASEDIR = 'BASEDIR'
     COPY_TO_WD = 'COPY_TO_WD'
     COLLECTOR = 'COLLECTORS'
@@ -30,7 +31,8 @@ class KeyEnum(object):
     MZXML = 'MZXML'
     MZXML_CODE = 'MZXML_CODE'
     N_MOST_INTENSE = 'N_MOST_INTENSE'
-    NAME = 'NAME'   
+    NAME = 'NAME' 
+    NO_ISOTOPES = 'NO_ISOTOPES'  
     NUM_LIMIT = 'NUM_LIMIT' 
     OUTPUT = 'OUTPUT'      
     PARAM_IDX = 'PARAM_IDX'

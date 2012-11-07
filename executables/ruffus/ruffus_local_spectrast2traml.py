@@ -30,7 +30,7 @@ from applicake.framework.enums import KeyEnum
 from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.applications.proteomics.spectrast.spectrastirtcalibrator import SpectrastIrtCalibrator
 from applicake.applications.proteomics.srm.tracsvfilter import SelectMostIntenseTransitionGroups,\
-    SelectMostIntensePeptides, RemoveNonAnnotations
+    SelectMostIntensePeptides, AnnotationFilter
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -174,7 +174,7 @@ def sptxt2tracsv(input_file_name, output_file_name):
 
 @transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter_rmNonAnnot.ini_')
 def tracsv2filter_rmNonAnnot(input_file_name, output_file_name):
-    wrap(RemoveNonAnnotations, input_file_name, output_file_name) 
+    wrap(AnnotationFilter, input_file_name, output_file_name) 
 
 #@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
 #def tracsvfilter(input_file_name, output_file_name):
