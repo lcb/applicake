@@ -184,8 +184,7 @@ def sptxt2tracsv(input_file_name, output_file_name):
 
 @transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
 def tracsvfilter(input_file_name, output_file_name):
-    wrap(SelectMostIntensePeptides,input_file_name, output_file_name,['--N_MOST_INTENSE','10',
-                                                      '-s','memory_all']) 
+    wrap(SelectMostIntensePeptides,input_file_name, output_file_name,['--N_MOST_INTENSE','3']) 
 
 
 @transform(tracsvfilter,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')

@@ -138,8 +138,7 @@ class SelectMostIntensePeptides(TraCsvFilter):
                     selected_data.append(col)
             selected_data.insert(0, fields)       
             log.debug('selected [%s] out of [%s] transitions' % (len(selected_data)-1,len(data)-1)) 
-            self.write_data(info, log, data,fields)
-            self._csv.writer(sys.__stdout__,self._dialect).writerows(selected_data)
+            self.write_data(info, log, selected_data,fields)
             return 0,info
         
 class SelectMostIntenseTransitionGroups(SelectMostIntensePeptides):  
