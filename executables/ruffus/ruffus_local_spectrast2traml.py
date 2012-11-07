@@ -29,7 +29,8 @@ from applicake.framework import enums
 from applicake.framework.enums import KeyEnum
 from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.applications.proteomics.spectrast.spectrastirtcalibrator import SpectrastIrtCalibrator
-from applicake.applications.proteomics.srm.tracsvfilter import SelectMostIntenseTransitionGroups
+from applicake.applications.proteomics.srm.tracsvfilter import SelectMostIntenseTransitionGroups,\
+    SelectMostIntensePeptides
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -176,12 +177,18 @@ def sptxt2tracsv(input_file_name, output_file_name):
     wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py',
                                                       '-s','memory_all']) 
 
+#@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
+#def tracsvfilter(input_file_name, output_file_name):
+#    wrap(SelectMostIntenseTransitionGroups,input_file_name, output_file_name,['--N_MOST_INTENSE','10',
+#                                                      '-s','memory_all']) 
+
 @transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
-def tracsvfilter_transgroups(input_file_name, output_file_name):
-    wrap(SelectMostIntenseTransitionGroups,input_file_name, output_file_name,['--N_MOST_INTENSE','10',
+def tracsvfilter(input_file_name, output_file_name):
+    wrap(SelectMostIntensePeptides,input_file_name, output_file_name,['--N_MOST_INTENSE','10',
                                                       '-s','memory_all']) 
 
-@transform(tracsvfilter_transgroups,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
+
+@transform(tracsvfilter,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
                                                               '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 
