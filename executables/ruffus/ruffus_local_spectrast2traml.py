@@ -61,7 +61,7 @@ DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
 STORAGE = file
 WORKFLOW = spectrast_create
-EXPERIMENT = E286955
+EXPERIMENT = E283473
 FDR=0.01
 FDR_LEVEL = psm
 NUM_LIMIT = 0
@@ -124,7 +124,7 @@ def paramgenerator(input_file_name, notused_output_file_names):
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("paramgenerator [%s]" % exit_code)  
-    
+    E283473
     
 @transform(paramgenerator, regex("paramgenerate.ini_"), "pepxmlskey2list.ini_")
 def pepxmlskey2list(input_file_name, output_file_name):
