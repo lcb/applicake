@@ -126,25 +126,25 @@ class AnnotationFilter(TraCsvFilter):
         df  = self.read_dataframe(info, log)
         len_df = len(df)
         # some annotations are surrounded by '[]'. these parentheses have to be removed.
-        df['Annotation'] = df['Annotation'].map(lambda x : x.replace("[",'').replace(']',''))
+        df[self._rows[0]] = df[self._rows[0]].map(lambda x : x.replace("[",'').replace(']',''))
         # non-annotated transitions (marked by '?') are not selected if filter is active
         if info[self.ANNOTATED]: 
-            df = df[df['Annotation'] != '?']
+            df = df[df[self._rows[0]] != '?']
         # isotopic annotations are removed if filter is active.
         if info[self.NO_ISOTOPES]:
             # if there are multiple annotations (e.g. 'y5-35^2/0.04,y5-36^2i/0.53,a7^3/-0.28'),
             #  the annotation containing the isotope is removed from list
-            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if not 'i' in e]) )
+            df[self._rows[0]] = df[self._rows[0]].map(lambda x : ','.join([e for e in x.split(',') if not 'i' in e]) )
             # the previous line produces empty annotations if there is only a single annotation 
             #  which is also an isotope. they have to be removed.
-            df = df[df['Annotation'] != '']
+            df = df[df[self._rows[0]] != '']
         # annotations with too large mass shift are removed if filter is active.
         if info.has_key(self.MASSWIN):
             # first split multiple annotations, then extract mass error for each annotation
             # remove annotations if the absolute value is larger than the defined limit
-            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if abs(float(e.split('/')[1])) <= info[self.MASSWIN]]))
+            df[self._rows[0]] = df[self._rows[0]].map(lambda x : ','.join([e for e in x.split(',') if abs(float(e.split('/')[1])) <= info[self.MASSWIN]]))
             # remove potentially created empty annotations
-            df = df[df['Annotation'] != '']
+            df = df[df[self._rows[0]] != '']
         log.debug('selected [%s] out of [%s] transitions' % (len(df),len_df)) 
         self.write_dataframe(info, log, df)  
         return 0,info                
