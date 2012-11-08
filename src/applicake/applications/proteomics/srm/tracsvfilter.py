@@ -97,42 +97,54 @@ class AnnotationFilter(TraCsvFilter):
         """        
         args_handler = super(AnnotationFilter, self).set_args(log,args_handler)
         args_handler.add_app_args(log,self.ANNOTATED , 'If set, removes transitions without annotation.',action="store_true",default=False)
-        args_handler.add_app_args(log,self.NO_ISOTOPES , 'If set, removes transitions without annotation.',action="store_true",default=False)    
+        args_handler.add_app_args(log,self.NO_ISOTOPES , 'If set, removes transitions without annotation.',action="store_true",default=False) 
+        args_handler.add_app_args(log,self.MASSWIN , 'Allowed mass error (e.g. 0.025 for -0.025 to +0.025)',type=float)   
         return args_handler 
  
     def main(self,info,log):
         data,fields  = self.read_data(info, log)
         field = fields.index(self._rows[0])
         length = 0
-        annotation = ''
         for i,col in enumerate(data):
-            annotation = col[field]
+#            org = col[field]
             length += 1  
-            if info[self.NO_ISOTOPES]:
-                # check if transition contains an isotope
-                if 'i' in annotation:
-                    # check if there are multiple annotations
-                    # if not, the annotation is not selected
-                    if ',' not in annotation:
-                        continue
-                    else:
-                        # if there are multiple annotations, the one(s) containing the isotope are removed
-                        annotations = annotation.split(',')
-                        for elem in annotations:
-                            if 'i' in elem:                  
-                                annotations.remove(elem)                                                      
-                        # if no other annotations are left, the transition is marked as unknown with a '?'  
-                        if annotations == []:
-                            col[field] = '?' 
-                        else:
-                            col[field] = (',').join(annotations)
-#                        print '%s:%s' % (annotation,col[field])
-            # remove non-annotated transitions (marked by '?'.      
-            # this filter has to be applied as last because other filters can create non-annotations   
-            if info[self.ANNOTATED] and annotation == '?':
-                continue                                           
-            self._selected_data.append(col)
-                          
+            # non-annotated transitions (marked by '?') are not selected if filter is active 
+            if info[self.ANNOTATED] and col[field] == '?':
+                continue 
+            # if filter is not active non-annotated transitions are selected without further tests  
+            if not info[self.ANNOTATED] and col[field] == '?':
+                self._selected_data.append(col)
+            else: 
+                # some annotations are surrounded by '[]' and have to be removed
+                if col[field].startswith('['):
+#                    log.debug('TEST %s:%s' % (col[field],col[field][1:-1]))
+                    col[field] = col[field][1:-1]                
+                   
+                # check if multiple annotations exist
+                if ',' in col[field]:
+                    annotations = col[field].split(',')
+                else:
+                    annotations = [col[field]]
+                # start filtering on each of the annotations
+                for elem in annotations:
+                    # isotopic annotations are removed if filter is active.
+                    if info[self.NO_ISOTOPES] and 'i' in elem:
+                        annotations.remove(elem)
+                    # annotations with too large mass shift are removed if filter is active.    
+                    elif info.has_key(self.MASSWIN):
+#                        log.debug(elem.split('/')[1])
+#                        log.debug(elem)
+#                        log.debug(col)
+                        if info[self.MASSWIN] <= abs(float(elem.split('/')[1])):
+                            annotations.remove(elem)  
+                # transition is not selected if an annotation is required   
+                if info[self.ANNOTATED] and annotations == []:
+                    continue        
+                # write filtered annotations back to the field
+                col[field] = (',').join(annotations)          
+                # add transition to selected subset                         
+                self._selected_data.append(col)
+#                print '%s:%s' % (org,col[field])               
         log.debug('selected [%s] out of [%s] transitions' % (len(self._selected_data),length))
         self.write_data(info, log, self._selected_data,fields)
         return 0,info                
