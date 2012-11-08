@@ -7,7 +7,9 @@ Created on Nov 6, 2012
 import csv
 import operator
 import os
+import pandas
 import sys
+
 
 from applicake.framework.interfaces import IApplication
 from applicake.utils.fileutils import FileUtils
@@ -52,34 +54,53 @@ class TraCsvFilter(IApplication):
 #            return float(obj[field])
 #        return _getter
 
-    def read_data(self,info,log,has_header=True):
+#    def read_data(self,info,log,has_header=True):
+#        '''
+#        Return a tuple with following elements: (data rows as list, fields as list)
+#        '''
+#        f = info[self.TRACSV]
+#        if not FileUtils.is_valid_file(log, f):
+#            log.fatal('file [%s] is not valid' % f)
+#            sys.exit(1)
+#        fin = open(f,'r')
+#        data = self._csv.reader(fin,'my_dialect')
+#        fin.close
+#        log.debug('read data from [%s]' % info[self.TRACSV])
+#        if has_header:
+#            fields = data.next()
+#        else:
+#            fields = []    
+#        return data,fields
+
+    def read_dataframe(self,info,log):
         '''
-        Return a tuple with following elements: (data rows as list, fields as list)
+        Return a data frame. 
         '''
         f = info[self.TRACSV]
         if not FileUtils.is_valid_file(log, f):
             log.fatal('file [%s] is not valid' % f)
             sys.exit(1)
-        fin = open(f,'r')
-        data = self._csv.reader(fin,'my_dialect')
-        fin.close
+        df = pandas.read_table(f)
         log.debug('read data from [%s]' % info[self.TRACSV])
-        if has_header:
-            fields = data.next()
-        else:
-            fields = []    
-        return data,fields
+        return df
         
-    
-    def write_data(self,info,log,data,fields):
-        if fields != []:
-            data.insert(0, fields)
+    def write_dataframe(self,info,log,dataframe):
         wd = info[self.WORKDIR]
         self._result_file = os.path.join(wd,self._result_file)
         info[self.TRACSV] = self._result_file
-        fout = open(self._result_file, 'wb')
-        self._csv.writer(fout,self._dialect).writerows(data)
+        dataframe.to_csv(info[self.TRACSV],sep='\t')
         log.debug('wrote results to [%s]' % self._result_file)    
+        
+    
+#    def write_data(self,info,log,data,fields):
+#        if fields != []:
+#            data.insert(0, fields)
+#        wd = info[self.WORKDIR]
+#        self._result_file = os.path.join(wd,self._result_file)
+#        info[self.TRACSV] = self._result_file
+#        fout = open(self._result_file, 'wb')
+#        self._csv.writer(fout,self._dialect).writerows(data)
+#        log.debug('wrote results to [%s]' % self._result_file)    
 
 
 class AnnotationFilter(TraCsvFilter):
@@ -102,51 +123,30 @@ class AnnotationFilter(TraCsvFilter):
         return args_handler 
  
     def main(self,info,log):
-        data,fields  = self.read_data(info, log)
-        field = fields.index(self._rows[0])
-        length = 0
-        for i,col in enumerate(data):
-#            org = col[field]
-            length += 1  
-            # non-annotated transitions (marked by '?') are not selected if filter is active 
-            if info[self.ANNOTATED] and col[field] == '?':
-                continue 
-            # if filter is not active non-annotated transitions are selected without further tests  
-            if not info[self.ANNOTATED] and col[field] == '?':
-                self._selected_data.append(col)
-            else: 
-                # some annotations are surrounded by '[]' and have to be removed
-                if col[field].startswith('['):
-#                    log.debug('TEST %s:%s' % (col[field],col[field][1:-1]))
-                    col[field] = col[field][1:-1]                
-                   
-                # check if multiple annotations exist
-                if ',' in col[field]:
-                    annotations = col[field].split(',')
-                else:
-                    annotations = [col[field]]
-                # start filtering on each of the annotations
-                for elem in annotations:
-                    # isotopic annotations are removed if filter is active.
-                    if info[self.NO_ISOTOPES] and 'i' in elem:
-                        annotations.remove(elem)
-                    # annotations with too large mass shift are removed if filter is active.    
-                    elif info.has_key(self.MASSWIN):
-#                        log.debug(elem.split('/')[1])
-#                        log.debug(elem)
-#                        log.debug(col)
-                        if info[self.MASSWIN] <= abs(float(elem.split('/')[1])):
-                            annotations.remove(elem)  
-                # transition is not selected if an annotation is required   
-                if info[self.ANNOTATED] and annotations == []:
-                    continue        
-                # write filtered annotations back to the field
-                col[field] = (',').join(annotations)          
-                # add transition to selected subset                         
-                self._selected_data.append(col)
-#                print '%s:%s' % (org,col[field])               
-        log.debug('selected [%s] out of [%s] transitions' % (len(self._selected_data),length))
-        self.write_data(info, log, self._selected_data,fields)
+        df  = self.read_dataframe(info, log)
+        len_df = len(df)
+        # some annotations are surrounded by '[]'. these parentheses have to be removed.
+        df['Annotation'] = df['Annotation'].map(lambda x : x.replace("[",'').replace(']',''))
+        # non-annotated transitions (marked by '?') are not selected if filter is active
+        if info[self.ANNOTATED]: 
+            df = df[df['Annotation'] != '?']
+        # isotopic annotations are removed if filter is active.
+        if info[self.NO_ISOTOPES]:
+            # if there are multiple annotations (e.g. 'y5-35^2/0.04,y5-36^2i/0.53,a7^3/-0.28'),
+            #  the annotation containing the isotope is removed from list
+            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if not 'i' in e]) )
+            # the previous line produces empty annotations if there is only a single annotation 
+            #  which is also an isotope. they have to be removed.
+            df = df[df['Annotation'] != '']
+        # annotations with too large mass shift are removed if filter is active.
+        if info.has_key(self.MASSWIN):
+            # first split multiple annotations, then extract mass error for each annotation
+            # remove annotations if the absolute value is larger than the defined limit
+            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if abs(float(e.split('/')[1])) <= info[self.MASSWIN]]))
+            # remove potentially created empty annotations
+            df = df[df['Annotation'] != '']
+        log.debug('selected [%s] out of [%s] transitions' % (len(df),len_df)) 
+        self.write_dataframe(info, log, df)  
         return 0,info                
  
 class SelectMostIntensePeptides(TraCsvFilter):
