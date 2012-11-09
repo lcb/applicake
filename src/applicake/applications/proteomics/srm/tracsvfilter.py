@@ -16,8 +16,9 @@ from applicake.utils.fileutils import FileUtils
 
 class TraCsvFilter(IApplication):
     '''
-    Basis application class to implement filters for a TraCSV file.
-    '''
+    Create a subset of the original list of transitions based on the applied filters.
+    '''  
+    
     _result_file = ''
     _delimiter = '\t'
 
@@ -27,10 +28,7 @@ class TraCsvFilter(IApplication):
         """
         base = self.__class__.__name__
         self._result_file = '%s.csv' % base # result produced by the application
-        self._csv = csv
-        self._dialect = 'my_dialect'
-        self._csv.register_dialect(self._dialect, delimiter='\t',doublequote=False,quotechar='',lineterminator='\n',escapechar='',quoting=csv.QUOTE_NONE)
-        self._selected_data = []
+        self._default_intensity_criteria = 'PeptideSequence'  
 
     def set_args(self,log,args_handler):
         """
@@ -38,95 +36,19 @@ class TraCsvFilter(IApplication):
         """
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')
         args_handler.add_app_args(log, self.TRACSV, 'File in .csv format (tab-delimited) that contains the transitions for SRM.')
-        return args_handler
-
-#    def convert_item(self,itemkey,methodname,*a,**k):
-#        '''convert an item based on the method applied'''
-#        # http://stackoverflow.com/questions/1394475/python-combine-sort-key-functions-itemgetter-and-str-lower
-#        def keyextractor(container):
-#            item = container[itemkey]
-#            method = getattr(item, methodname)
-#            return method(*a, **k)
-#        return keyextractor    
-#    
-#    def itemgetter_float(self,field):
-#        def _getter(obj):
-#            return float(obj[field])
-#        return _getter
-
-    def read_data(self,info,log,has_header=True):
-        '''
-        Return a tuple with following elements: (data rows as list, fields as list)
-        '''
-        f = info[self.TRACSV]
-        if not FileUtils.is_valid_file(log, f):
-            log.fatal('file [%s] is not valid' % f)
-            sys.exit(1)
-        fin = open(f,'r')
-        data = self._csv.reader(fin,'my_dialect')
-        fin.close
-        log.debug('read data from [%s]' % info[self.TRACSV])
-        if has_header:
-            fields = data.next()
-        else:
-            fields = []    
-        return data,fields
-
-    def read_dataframe(self,info,log):
-        '''
-        Return a data frame. 
-        '''
-        f = info[self.TRACSV]
-        if not FileUtils.is_valid_file(log, f):
-            log.fatal('file [%s] is not valid' % f)
-            sys.exit(1)
-        df = pandas.read_table(f)
-        log.debug('read data from [%s]' % info[self.TRACSV])
-        return df
-        
-    def write_dataframe(self,info,log,dataframe):
-        wd = info[self.WORKDIR]
-        self._result_file = os.path.join(wd,self._result_file)
-        info[self.TRACSV] = self._result_file
-        dataframe.to_csv(info[self.TRACSV],sep='\t')
-        log.debug('wrote results to [%s]' % self._result_file)    
-        
-    
-    def write_data(self,info,log,data,fields):
-        if fields != []:
-            data.insert(0, fields)
-        wd = info[self.WORKDIR]
-        self._result_file = os.path.join(wd,self._result_file)
-        info[self.TRACSV] = self._result_file
-        fout = open(self._result_file, 'wb')
-        self._csv.writer(fout,self._dialect).writerows(data)
-        log.debug('wrote results to [%s]' % self._result_file)    
-
-
-class DataFrameFilter(TraCsvFilter):
-    '''
-    Removes transitions that do not match the specified annotation criteria.
-    '''  
-    
-    def __init__(self):
-        super(DataFrameFilter, self).__init__()
-        self._rows = ['Annotation']    
-      
-    def set_args(self,log,args_handler):
-        """
-        See interface
-        """        
-        args_handler = super(DataFrameFilter, self).set_args(log,args_handler)
         args_handler.add_app_args(log,self.ANNOTATED , 'If set, removes transitions without annotation.',action="store_true",default=False)
         args_handler.add_app_args(log,self.NO_ISOTOPES , 'If set, removes transitions without annotation.',action="store_true",default=False) 
         args_handler.add_app_args(log,self.MASSMODS, 'List of allowed fragment mass modifications. Example: -80,-98 (Phosphorylation)',action="append")
         args_handler.add_app_args(log,self.MASSWIN , 'Allowed mass error. Example: 0.025 for -0.025/+0.025',type=float)   
         args_handler.add_app_args(log,self.PRECMASS_RANGE , 'Allowed mass range for precursor mass of each transition. Example: [200-1200]')
         args_handler.add_app_args(log,self.NO_HIGHPRODMZ , 'If set, removes transitions for which the ProductMz > PrecursorMz',action="store_true",default=False)
-        return args_handler 
+        args_handler.add_app_args(log, self.N_MOST_INTENSE, 'Number of n most intense [peptides[transition groups per protein that should be included into the transition list. Example[3]',type=int)
+        args_handler.add_app_args(log, self.INTENSITY_CRITERIA, 'Intensity criteria [default:PeptideSequence]',
+                                  choices=['PeptideSequence','transition_group_id'])          
+        return args_handler
  
     def main(self,info,log):
-        df  = self.read_dataframe(info, log)
+        df  = self._read_dataframe(info, log)
         len_df = len(df)
         # some annotations are surrounded by '[]'. these parentheses have to be removed.
         df['Annotation'] = df['Annotation'].map(lambda x : x.replace("[",'').replace(']',''))
@@ -142,23 +64,9 @@ class DataFrameFilter(TraCsvFilter):
             #  which is also an isotope. they have to be removed.
             df = df[df['Annotation'] != '']
         # delete annotations that contain modifs other than the specified if filter is active
-        if info.has_key(self.MASSMODS):
-            # function used to process with lambda
-            def func(x):
-                new_x = []
-                # look for multiple annotations
-                for annot in x.split(','):     
-                    # check if annotation contains a modif                
-                    if '+' in annot or '-' in annot: 
-                        # if modif has not beed defined, it is not selected
-                        for e in info[self.MASSMODS]:
-                            if e in annot: 
-                                new_x.append(annot)
-                    else:
-                        new_x.append(annot)
-                return ','.join(new_x)  
+        if info.has_key(self.MASSMODS): 
             # apply filter              
-            df['Annotation'] = df['Annotation'].map(lambda x : func(x) )
+            df['Annotation'] = df['Annotation'].map(lambda x : self._filter_annotation_modif(info,x) )
             # remove potential empty annotations
             df = df[df['Annotation'] != '']
         # annotations with too large mass shift are removed if filter is active.
@@ -175,89 +83,77 @@ class DataFrameFilter(TraCsvFilter):
             df = df[(df['PrecursorMz']>=min) &(df['PrecursorMz']<=max)]
         if info[self.NO_HIGHPRODMZ]:
             df = df[df['PrecursorMz']>= df['ProductMz']]
-        
-        log.debug('selected [%s] out of [%s] transitions' % (len(df),len_df)) 
-        self.write_dataframe(info, log, df)  
-        return 0,info                
- 
-class SelectMostIntensePeptides(TraCsvFilter):
-    '''
-    Filter the transition list for the n most intense peptides.
-    '''
-    
-    def __init__(self):
-        super(SelectMostIntensePeptides, self).__init__()
-        self._default_n_most_intense = 3
-        self._rows = ['ProteinName','LibraryIntensity','PeptideSequence']
-    
-    def set_args(self,log,args_handler):
-        """
-        See interface
-        """        
-        args_handler = super(SelectMostIntensePeptides, self).set_args(log,args_handler)  
-        args_handler.add_app_args(log, self.N_MOST_INTENSE, 
-                                  'Number of n most intense peptides per protein that should be included into the transition list. [default:3]',
-                                  type=int)        
-        return args_handler
+        # filter for the N-most intense [peptides, transition groups] if active    
+        if info.has_key(self.N_MOST_INTENSE):
+            # set default if not defined by the user
+            if not info.has_key(self.INTENSITY_CRITERIA):
+                info[self.INTENSITY_CRITERIA] = self._default_intensity_criteria
+                log.warning('no value found for key [%s]. set it to [%s]'% (self.N_MOST_INTENSE,self._default_intensity_criteria))                
+            df = self._filter_intensity(info,log,df)
+        log.debug('selected [%s] out of [%s] transitions' % (len(df),len_df))        
+        self._write_dataframe(info, log, df)  
+        return 0,info  
 
-    def main(self,info,log):
-        if not info.has_key(self.N_MOST_INTENSE):
-            info[self.N_MOST_INTENSE] = self._default_n_most_intense
-            limit = self._default_n_most_intense
-            log.debug('no value found for key [%s]. set it to [%s]'% (self.N_MOST_INTENSE,self._default_n_most_intense))
-#        df = self.read_dataframe(info, log)
-#        len_df = len(df)
-#        df.sort_index(by=[self._rows[0],self._rows[1]]) 
-#        proteins = []
-#        def func(x):
-#            if not x in proteins: proteins = [x];return True  
-#            if len(proteins)<=limit: proteins.append(x); return True
-#            else: return False
-#        df[df['ProteinName'].map(lambda x : func(x))]
-#        print df
-#        return 0,info 
+    def _filter_annotation_modif(self,info, annotation):
+            new_annotation = []
+            # look for multiple annotations
+            for annot in annotation.split(','):     
+                # check if annotation contains a modif                
+                if '+' in annot or '-' in annot: 
+                    # if modif has not beed defined, it is not selected
+                    for e in info[self.MASSMODS]:
+                        if e in annot: 
+                            new_annotation.append(annot)
+                else:
+                    new_annotation.append(annot)
+            return ','.join(new_annotation)         
 
-            
-        data,fields  = self.read_data(info, log)
-        field_1 = fields.index(self._rows[0])
-        field_2 = fields.index(self._rows[1])
-        field_3 = fields.index(self._rows[2])
-        # sorts by protein name and then by intensity
-        # because of the intensity not being a string,'key=operator.itemgetter(9,5)' cannot be used.
-        # instead the old lambda is used.             
-        data = sorted(data,key=lambda x: (x[field_1],float(x[field_2])),reverse=True)
+
+    def _filter_intensity(self,info,log,df):
+        ''' 
+        Filter for the most n intense criteria.
+        '''
         pn = ''
         ps = []
         limit = info[self.N_MOST_INTENSE]
-        num_transitions = 0            
-        for col in data:
-            #check if col contains a new protein name
-            if pn == col[field_1]:
+        num_transitions = 0 
+        self._selected_data = []  
+        df = df.sort_index(by=['ProteinName','LibraryIntensity'])            
+        for idx,row in df.iterrows():
+            #check if row contains a new protein name
+            if pn == row['ProteinName']:
                 # transition is not selected if not and the limit of n most intense transitions is reached.
                 if num_transitions >= limit:
                     continue
                 # transition is not selected if the peptide sequence has been already selected before.    
-                elif col[field_3] in ps:
+                elif row[info[self.INTENSITY_CRITERIA]] in ps:
                     continue
                 else:
                     num_transitions +=1
-                    ps.append(col[field_3])
-                    self._selected_data.append(col)
+                    ps.append(row[info[self.INTENSITY_CRITERIA]])
+                    self._selected_data.append(row)
             else:
-                pn = col[field_1]
-                ps = [col[field_3]]
+                pn = row['ProteinName']
+                ps = [row[info[self.INTENSITY_CRITERIA]]]
                 num_transitions = 1 
-                self._selected_data.append(col)
-        log.debug('selected [%s] out of [%s] transitions' % (len(self._selected_data),len(data))) 
-        self.write_data(info, log, self._selected_data,fields)
-        return 0,info  
-        
-class SelectMostIntenseTransitionGroups(SelectMostIntensePeptides):  
-    '''
-    Filter the transition list for the n most intense transition groups.
-    '''
+                self._selected_data.append(row) 
+        return pandas.DataFrame(self._selected_data)    
     
-    def __init__(self):
-        super(SelectMostIntensePeptides, self).__init__()
-        self._default_n_most_intense = 3
-        self._rows = ['ProteinName','LibraryIntensity','transition_group_id']          
+    def _read_dataframe(self,info,log):
+        '''
+        Return a data frame. 
+        '''
+        f = info[self.TRACSV]
+        if not FileUtils.is_valid_file(log, f):
+            log.fatal('file [%s] is not valid' % f)
+            sys.exit(1)
+        df = pandas.read_table(f)
+        log.debug('read data from [%s]' % info[self.TRACSV])
+        return df
+        
+    def _write_dataframe(self,info,log,dataframe):
+        wd = info[self.WORKDIR]
+        self._result_file = os.path.join(wd,self._result_file)
+        info[self.TRACSV] = self._result_file
+        dataframe.to_csv(info[self.TRACSV],sep='\t')
+        log.debug('wrote results to [%s]' % self._result_file)       

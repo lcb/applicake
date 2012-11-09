@@ -6,10 +6,10 @@ Created on Nov 7, 2012
 
 import sys
 from applicake.framework.runner import ApplicationRunner
-from applicake.applications.proteomics.srm.tracsvfilter import *
+from applicake.applications.proteomics.srm.tracsvfilter import TraCsvFilter
 
 runner = ApplicationRunner()
-application = DataFrameFilter()
+application = TraCsvFilter()
 exit_code = runner(sys.argv,application)
 print exit_code
 
