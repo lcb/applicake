@@ -103,48 +103,79 @@ class TraCsvFilter(IApplication):
         log.debug('wrote results to [%s]' % self._result_file)    
 
 
-class AnnotationFilter(TraCsvFilter):
+class DataFrameFilter(TraCsvFilter):
     '''
     Removes transitions that do not match the specified annotation criteria.
     '''  
     
     def __init__(self):
-        super(AnnotationFilter, self).__init__()
+        super(DataFrameFilter, self).__init__()
         self._rows = ['Annotation']    
       
     def set_args(self,log,args_handler):
         """
         See interface
         """        
-        args_handler = super(AnnotationFilter, self).set_args(log,args_handler)
+        args_handler = super(DataFrameFilter, self).set_args(log,args_handler)
         args_handler.add_app_args(log,self.ANNOTATED , 'If set, removes transitions without annotation.',action="store_true",default=False)
         args_handler.add_app_args(log,self.NO_ISOTOPES , 'If set, removes transitions without annotation.',action="store_true",default=False) 
-        args_handler.add_app_args(log,self.MASSWIN , 'Allowed mass error (e.g. 0.025 for -0.025 to +0.025)',type=float)   
+        args_handler.add_app_args(log,self.MASSMODS, 'List of allowed fragment mass modifications. Example: -80,-98 (Phosphorylation)',action="append")
+        args_handler.add_app_args(log,self.MASSWIN , 'Allowed mass error. Example: 0.025 for -0.025/+0.025',type=float)   
+        args_handler.add_app_args(log,self.PRECMASS_RANGE , 'Allowed mass range for precursor mass of each transition. Example: [200-1200]')
+        args_handler.add_app_args(log,self.NO_HIGHPRODMZ , 'If set, removes transitions for which the ProductMz > PrecursorMz',action="store_true",default=False)
         return args_handler 
  
     def main(self,info,log):
         df  = self.read_dataframe(info, log)
         len_df = len(df)
         # some annotations are surrounded by '[]'. these parentheses have to be removed.
-        df[self._rows[0]] = df[self._rows[0]].map(lambda x : x.replace("[",'').replace(']',''))
+        df['Annotation'] = df['Annotation'].map(lambda x : x.replace("[",'').replace(']',''))
         # non-annotated transitions (marked by '?') are not selected if filter is active
         if info[self.ANNOTATED]: 
-            df = df[df[self._rows[0]] != '?']
+            df = df[df['Annotation'] != '?']
         # isotopic annotations are removed if filter is active.
         if info[self.NO_ISOTOPES]:
             # if there are multiple annotations (e.g. 'y5-35^2/0.04,y5-36^2i/0.53,a7^3/-0.28'),
             #  the annotation containing the isotope is removed from list
-            df[self._rows[0]] = df[self._rows[0]].map(lambda x : ','.join([e for e in x.split(',') if not 'i' in e]) )
+            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if not 'i' in e]) )
             # the previous line produces empty annotations if there is only a single annotation 
             #  which is also an isotope. they have to be removed.
-            df = df[df[self._rows[0]] != '']
+            df = df[df['Annotation'] != '']
+        # delete annotations that contain modifs other than the specified if filter is active
+        if info.has_key(self.MASSMODS):
+            # function used to process with lambda
+            def func(x):
+                new_x = []
+                # look for multiple annotations
+                for annot in x.split(','):     
+                    # check if annotation contains a modif                
+                    if '+' in annot or '-' in annot: 
+                        # if modif has not beed defined, it is not selected
+                        for e in info[self.MASSMODS]:
+                            if e in annot: 
+                                new_x.append(annot)
+                    else:
+                        new_x.append(annot)
+                return ','.join(new_x)  
+            # apply filter              
+            df['Annotation'] = df['Annotation'].map(lambda x : func(x) )
+            # remove potential empty annotations
+            df = df[df['Annotation'] != '']
         # annotations with too large mass shift are removed if filter is active.
         if info.has_key(self.MASSWIN):
             # first split multiple annotations, then extract mass error for each annotation
             # remove annotations if the absolute value is larger than the defined limit
-            df[self._rows[0]] = df[self._rows[0]].map(lambda x : ','.join([e for e in x.split(',') if abs(float(e.split('/')[1])) <= info[self.MASSWIN]]))
+            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if abs(float(e.split('/')[1])) <= info[self.MASSWIN]]))
             # remove potentially created empty annotations
-            df = df[df[self._rows[0]] != '']
+            df = df[df['Annotation'] != '']
+        # filters for the precursor mass if filter is active
+        if info.has_key(self.PRECMASS_RANGE):
+            min = info[self.PRECMASS_RANGE].split('-')[0]
+            max = info[self.PRECMASS_RANGE].split('-')[1]
+            df = df[(df['PrecursorMz']>=min) &(df['PrecursorMz']<=max)]
+        if info[self.NO_HIGHPRODMZ]:
+            df = df[df['PrecursorMz']>= df['ProductMz']]
+        
         log.debug('selected [%s] out of [%s] transitions' % (len(df),len_df)) 
         self.write_dataframe(info, log, df)  
         return 0,info                
