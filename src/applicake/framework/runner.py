@@ -9,6 +9,7 @@ Created on Nov 11, 2010
 import os
 import shutil
 import sys
+import time, random
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
@@ -227,6 +228,7 @@ class Runner(KeyEnum):
                     
     def _set_jobid(self,info,log):
         """
+        Creates job id by taking current time & adding random numbers (to avoid overlap)
         Uses a file-based system to retrieve a job id.
         
         Creates a file in a base dir that holds the last job id and increases it incrementally.
@@ -237,36 +239,12 @@ class Runner(KeyEnum):
         @type log: Logger 
         @param log: Logger to store log messages  
         """
-        jobid = 0
         if not info.has_key(self.BASEDIR):
-            log.info("info has not key [%s]. " % self.BASEDIR +
+            log.warn("info has not key [%s]. " % self.BASEDIR +
                      "Therefore the key [%s] is not set" % (self.JOB_IDX))                       
         else:    
-            dirname = info[self.BASEDIR]
-            log.debug('found base dir [%s]' % dirname)
-            filename = os.path.join(dirname, 'jobid.txt')    
-            
-            if not os.path.exists(filename):
-                log.debug("Creating new job file [%s]" % filename)
-                with open(filename,'w') as f:
-                    f.write('0')
-            else:
-                try:
-                    fh = open(filename,'r+') 
-                    locker = FileLocker()
-                    locker.lock(fh,locker.LOCK_EX) 
-                    jobid= int(fh.read())   
-                    log.debug('previous job id [%s]' % jobid)
-                    jobid += 1         
-                    log.debug('current job id [%s]' % jobid)
-                    fh.seek(0)
-                    fh.write(str(jobid))
-                finally:
-                    locker.unlock(fh)
-                    fh.close()
-                    
-            info[self.JOB_IDX]=jobid    
-            log.debug("added key [%s] to info object" % self.JOB_IDX)
+            info[self.JOB_IDX]= time.strftime('%Y%m%d_%H%M%S_') + str( random.randint(100000,999999) )
+            log.info("added JOB_IDX = %s to info object" % info[self.JOB_IDX])
         
     def create_workdir(self,info,log):
         """
