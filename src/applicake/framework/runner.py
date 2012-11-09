@@ -229,10 +229,7 @@ class Runner(KeyEnum):
     def _set_jobid(self,info,log):
         """
         Creates job id by taking current time & adding random numbers (to avoid overlap)
-        Uses a file-based system to retrieve a job id.
-        
-        Creates a file in a base dir that holds the last job id and increases it incrementally.
-        If the 'jobid.txt' does not exists, it is initiated with the job id '1'.
+        the job id is used for creating the workdir (@see create_workdir)
         
         @type info: dict         
         @param info: Dictionary object with information needed by the class
