@@ -54,23 +54,23 @@ class TraCsvFilter(IApplication):
 #            return float(obj[field])
 #        return _getter
 
-#    def read_data(self,info,log,has_header=True):
-#        '''
-#        Return a tuple with following elements: (data rows as list, fields as list)
-#        '''
-#        f = info[self.TRACSV]
-#        if not FileUtils.is_valid_file(log, f):
-#            log.fatal('file [%s] is not valid' % f)
-#            sys.exit(1)
-#        fin = open(f,'r')
-#        data = self._csv.reader(fin,'my_dialect')
-#        fin.close
-#        log.debug('read data from [%s]' % info[self.TRACSV])
-#        if has_header:
-#            fields = data.next()
-#        else:
-#            fields = []    
-#        return data,fields
+    def read_data(self,info,log,has_header=True):
+        '''
+        Return a tuple with following elements: (data rows as list, fields as list)
+        '''
+        f = info[self.TRACSV]
+        if not FileUtils.is_valid_file(log, f):
+            log.fatal('file [%s] is not valid' % f)
+            sys.exit(1)
+        fin = open(f,'r')
+        data = self._csv.reader(fin,'my_dialect')
+        fin.close
+        log.debug('read data from [%s]' % info[self.TRACSV])
+        if has_header:
+            fields = data.next()
+        else:
+            fields = []    
+        return data,fields
 
     def read_dataframe(self,info,log):
         '''
@@ -92,15 +92,15 @@ class TraCsvFilter(IApplication):
         log.debug('wrote results to [%s]' % self._result_file)    
         
     
-#    def write_data(self,info,log,data,fields):
-#        if fields != []:
-#            data.insert(0, fields)
-#        wd = info[self.WORKDIR]
-#        self._result_file = os.path.join(wd,self._result_file)
-#        info[self.TRACSV] = self._result_file
-#        fout = open(self._result_file, 'wb')
-#        self._csv.writer(fout,self._dialect).writerows(data)
-#        log.debug('wrote results to [%s]' % self._result_file)    
+    def write_data(self,info,log,data,fields):
+        if fields != []:
+            data.insert(0, fields)
+        wd = info[self.WORKDIR]
+        self._result_file = os.path.join(wd,self._result_file)
+        info[self.TRACSV] = self._result_file
+        fout = open(self._result_file, 'wb')
+        self._csv.writer(fout,self._dialect).writerows(data)
+        log.debug('wrote results to [%s]' % self._result_file)    
 
 
 class AnnotationFilter(TraCsvFilter):
@@ -172,7 +172,21 @@ class SelectMostIntensePeptides(TraCsvFilter):
     def main(self,info,log):
         if not info.has_key(self.N_MOST_INTENSE):
             info[self.N_MOST_INTENSE] = self._default_n_most_intense
+            limit = self._default_n_most_intense
             log.debug('no value found for key [%s]. set it to [%s]'% (self.N_MOST_INTENSE,self._default_n_most_intense))
+#        df = self.read_dataframe(info, log)
+#        len_df = len(df)
+#        df.sort_index(by=[self._rows[0],self._rows[1]]) 
+#        proteins = []
+#        def func(x):
+#            if not x in proteins: proteins = [x];return True  
+#            if len(proteins)<=limit: proteins.append(x); return True
+#            else: return False
+#        df[df['ProteinName'].map(lambda x : func(x))]
+#        print df
+#        return 0,info 
+
+            
         data,fields  = self.read_data(info, log)
         field_1 = fields.index(self._rows[0])
         field_2 = fields.index(self._rows[1])
