@@ -8,6 +8,10 @@ from applicake.applications.commons.generator import Generator
 from applicake.framework.informationhandler import BasicInformationHandler
 
 class WindowGenerator(Generator):
+    """
+	Generator using SUBFILE_IDX as index for enumeration. Useful for 3rd layer when FILE_IDX and PARAM_IDX are already used.
+	(Used in openswath windowgenerator)
+	"""
     def main(self,info,log):
         basedic = info.copy()        
         #check if value DATASE_CODE is defined as list

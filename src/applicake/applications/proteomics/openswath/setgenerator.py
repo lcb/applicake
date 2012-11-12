@@ -5,7 +5,7 @@ from applicake.framework.informationhandler import BasicInformationHandler
 
 class SetGenerator(Generator):
     """
-    Generator that runs after a collector to split the information by the parameter sets.
+    Generator that runs after a collector. Splits by PARAM_IDX AND FILE_IDX (in contrast to Parametersetgenerator which only enumerates PARAM_IDX)
     """
 
     def main(self,info,log):
