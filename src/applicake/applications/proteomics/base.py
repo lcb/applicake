@@ -78,7 +78,7 @@ class SearchEngine(IWrapper):
         args_handler.add_app_args(log, self.ENZYME, 'Enzyme used to digest the proteins',choices=EnzymeDb().get_keys())
         args_handler.add_app_args(log, self.STATIC_MODS, 'List of static modifications',choices=ModificationDb().get_keys())
         args_handler.add_app_args(log, self.VARIABLE_MODS, 'List of variable modifications',choices=ModificationDb().get_keys())
-        args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.')
+        args_handler.add_app_args(log, self.THREADS, 'Number of threads used in the process.')
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')   
         return args_handler
@@ -195,7 +195,7 @@ class SearchEngineAdapter(OpenMs):
         args_handler.add_app_args(log, self.ENZYME, 'Enzyme used to digest the proteins',choices=EnzymeDb().get_keys())
         args_handler.add_app_args(log, self.STATIC_MODS, 'List of static modifications',choices=ModificationDb().get_keys())
         args_handler.add_app_args(log, self.VARIABLE_MODS, 'List of variable modifications',choices=ModificationDb().get_keys())
-        args_handler.add_app_args(log, 'MZML', 'Path to the mzML file.')
+        args_handler.add_app_args(log, self.MZML, 'Path to the mzML file.')
         return args_handler     
         
 

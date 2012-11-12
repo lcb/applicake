@@ -13,6 +13,8 @@ import sys
 
 from applicake.framework.interfaces import IApplication
 from applicake.utils.fileutils import FileUtils
+from applicake.applications.proteomics.fasta import FastaReader
+from applicake.utils.sequenceutils import SequenceUtils
 
 class TraCsvFilter(IApplication):
     '''
@@ -42,6 +44,8 @@ class TraCsvFilter(IApplication):
         args_handler.add_app_args(log,self.MASSWIN , 'Allowed mass error. Example: 0.025 for -0.025/+0.025',type=float)   
         args_handler.add_app_args(log,self.PRECMASS_RANGE , 'Allowed mass range for precursor mass of each transition. Example: [200-1200]')
         args_handler.add_app_args(log,self.NO_HIGHPRODMZ , 'If set, removes transitions for which the ProductMz > PrecursorMz',action="store_true",default=False)
+        args_handler.add_app_args(log,'DBASE' , 'Sequence database file with target/decoy entries.')
+        args_handler.add_app_args(log,self.NO_DECOY , 'If set, decoy entries are not checked',action="store_true",default=False)
         args_handler.add_app_args(log, self.N_MOST_INTENSE, 'Number of n most intense [peptides[transition groups per protein that should be included into the transition list. Example[3]',type=int)
         args_handler.add_app_args(log, self.INTENSITY_CRITERIA, 'Intensity criteria [default:PeptideSequence]',
                                   choices=['PeptideSequence','transition_group_id'])          
@@ -83,6 +87,12 @@ class TraCsvFilter(IApplication):
             df = df[(df['PrecursorMz']>=min) &(df['PrecursorMz']<=max)]
         if info[self.NO_HIGHPRODMZ]:
             df = df[df['PrecursorMz']>= df['ProductMz']]
+        if info.has_key('DBASE'):
+            df_fas = FastaReader().read(info['DBASE'],log)
+            if info[self.NO_DECOY]:
+                df_fas = df_fas[df_fas['protein'].map(lambda x : 'DECOY' in x)]
+            seq_list = df_fas['sequence'].to_dict().items()
+            df[df['PeptideSequence'].map(lambda x: len(SequenceUtils.findall(seq_list,lambda y: x in y)) > 1)]
         # filter for the N-most intense [peptides, transition groups] if active    
         if info.has_key(self.N_MOST_INTENSE):
             # set default if not defined by the user

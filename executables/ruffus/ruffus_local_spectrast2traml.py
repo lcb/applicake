@@ -28,9 +28,8 @@ from applicake.applications.proteomics.srm.converttsv2traml import ConvertTSVToT
 from applicake.framework import enums
 from applicake.framework.enums import KeyEnum
 from applicake.framework.informationhandler import BasicInformationHandler
-from applicake.applications.proteomics.spectrast.spectrastirtcalibrator import SpectrastIrtCalibrator
-from applicake.applications.proteomics.srm.tracsvfilter import SelectMostIntenseTransitionGroups,\
-    SelectMostIntensePeptides, AnnotationFilter
+from applicake.applications.proteomics.spectrast.spectrastirtcalibrator import SpectrastIrtCalibrator 
+from applicake.applications.proteomics.srm.tracsvfilter import TraCsvFilter
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -62,6 +61,13 @@ LOG_LEVEL = DEBUG
 STORAGE = file
 WORKFLOW = spectrast_create
 EXPERIMENT = E283473
+DBASE = /cluster/scratch/malars/bin/biodb/data/ex_ddb/20111006/decoy/ex_ddb_167.fasta
+NO_DECOY = True
+ANNOTATED = True
+NO_ISOTOPES = True
+MASSWIN = 0.025
+N_MOST_INTENSE = 10
+INTENSITY_CRITERIA = PeptideSequence 
 FDR=0.01
 FDR_LEVEL = psm
 NUM_LIMIT = 0
@@ -124,7 +130,6 @@ def paramgenerator(input_file_name, notused_output_file_names):
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("paramgenerator [%s]" % exit_code)  
-    E283473
     
 @transform(paramgenerator, regex("paramgenerate.ini_"), "pepxmlskey2list.ini_")
 def pepxmlskey2list(input_file_name, output_file_name):
@@ -172,9 +177,9 @@ def sptxt2tracsv(input_file_name, output_file_name):
     wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py',
                                                       '-s','memory_all']) 
 
-@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter_rmNonAnnot.ini_')
-def tracsv2filter_rmNonAnnot(input_file_name, output_file_name):
-    wrap(AnnotationFilter, input_file_name, output_file_name) 
+@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
+def tracsvfilter(input_file_name, output_file_name):
+    wrap(TraCsvFilter, input_file_name, output_file_name,['--MASSMODS -18','--MASSMODS','-80','--MASSMODS','-98']) 
 
 #@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
 #def tracsvfilter(input_file_name, output_file_name):
@@ -182,12 +187,7 @@ def tracsv2filter_rmNonAnnot(input_file_name, output_file_name):
 #                                                      '-s','memory_all']) 
 
 
-@transform(tracsv2filter_rmNonAnnot,regex('tracsv2filter_rmNonAnnot.ini_'),'tracsv2filter_mostIntPeps.ini_')
-def tracsvfilter_mostIntPeps(input_file_name, output_file_name):
-    wrap(SelectMostIntensePeptides,input_file_name, output_file_name,['--N_MOST_INTENSE','3']) 
-
-
-@transform(tracsvfilter_mostIntPeps,regex('tracsv2filter_mostIntPeps.ini_'),'tracsv2traml.ini_')
+@transform(tracsvfilter,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
                                                               '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 
