@@ -5,6 +5,7 @@ Created on Jun 6, 2012
 '''
 
 import os
+import sys
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
@@ -36,6 +37,11 @@ class InterProphet(IWrapper):
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
         old = info[self.PEPXMLS]
+        # this check has to be included to cope with non-failing workflow engines
+        for path in old:
+            if not FileUtils.is_valid_file(log, path):
+                log.fatal('Input file [%s] is not valid' % path)
+                sys.exit(1)
         new = self._result_file
         log.debug('replace value of [%s] [%s] with [%s]' %(self.PEPXMLS,old,new))     
         info[self.PEPXMLS] = [new]
