@@ -40,7 +40,6 @@ class Mzxmls2Mzmls(OpenMs):
         
         mzmls = []
         commands = []
- 
         for mzxml in info['MZXML']:
             infocopy = info.copy()
             fileName, fileExtension = os.path.splitext(os.path.basename(mzxml))
@@ -55,6 +54,7 @@ class Mzxmls2Mzmls(OpenMs):
         
         info['MZMLGZ'] = mzmls
         command = ' && '.join(commands)
+        command = '%s && gzip %s' % (command,wd)
         return command,info
 
     def set_args(self,log,args_handler):
