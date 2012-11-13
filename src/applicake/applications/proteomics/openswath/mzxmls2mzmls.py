@@ -28,11 +28,10 @@ class Mzxmls2Mzmls(OpenMs):
 
     def prepare_run(self,info,log):
         """
-        See interface.
-
-        - Read the a specific template and replaces variables from the info object.
-        - Tool is executed using the pattern: [PREFIX] -ini [TEMPLATE].
-        - If there is a result file, it is added with a specific key to the info object.
+        Builds an AND concatenated command which 
+        - first converts all mzXML to mzML one after the other (fileconvert cannot handle multiple at once)
+        - second gzips the mzMLs
+        the resulting mzML.gzs are stored in a list with key MZMLGZ
         """
         wd = info[self.WORKDIR]
         prefix,info = self.get_prefix(info,log)
@@ -41,20 +40,20 @@ class Mzxmls2Mzmls(OpenMs):
         
         mzmls = []
         commands = []
-        
+ 
         for mzxml in info['MZXML']:
             infocopy = info.copy()
             fileName, fileExtension = os.path.splitext(os.path.basename(mzxml))
             infocopy[self.TEMPLATE] = os.path.join(wd,fileName+'.ini')
             infocopy['MZXML'] = mzxml
-            infocopy['MZML'] = os.path.join(wd,fileName+'.mzML')
-            mzmls.append(infocopy['MZML'])            
+            infocopy['MZMLGZ'] = os.path.join(wd,fileName+'.mzML.gz')
+            mzmls.append(infocopy['MZMLGZ'])            
             mod_template,infocopy = th.modify_template(infocopy, log)
             
             command = '%s -ini %s' % (prefix,infocopy[self.TEMPLATE])
             commands.append(command)
         
-        info['MZML'] = mzmls
+        info['MZMLGZ'] = mzmls
         command = ' && '.join(commands)
         return command,info
 
