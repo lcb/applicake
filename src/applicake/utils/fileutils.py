@@ -6,9 +6,12 @@ Created on Mar 31, 2012
 
 import fcntl
 import errno
+import gzip
 import os
 import shutil
+import StringIO
 import sys
+import urllib2
 
 class FileLocker(object):
     """
@@ -42,6 +45,18 @@ class FileUtils(object):
     """
     Utilites for handling files and directories
     """
+    
+    @staticmethod
+    def download_url(log,url,path):
+        """
+        Download a file from an internet url and stores it in a local path.
+        """
+        u = urllib2.urlopen(url)
+        localFile = open(path, 'w')
+        localFile.write(u.read())
+        localFile.close()
+        log.debug('downloaded [%s] and saved it as [%s]' % (url,path))
+        
     
     @staticmethod
     def is_valid_file(log,path):
@@ -131,6 +146,13 @@ class FileUtils(object):
             else:
                 log.fatal('could not create dir [%s]' % path)
                 sys.exit(1)
+    
+    @staticmethod
+    def decompress(input,output,type):
+        if type == 'gz':
+            fin = gzip.open('/home/joe/file.txt.gz', 'rb')
+            fout = open(output,'w+')
+            fout.write(StringIO(fin.read()))
     
     @staticmethod
     def rm_dir_content(path):
