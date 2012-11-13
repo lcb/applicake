@@ -28,10 +28,9 @@ class Mzxmls2Mzmls(OpenMs):
 
     def prepare_run(self,info,log):
         """
-        Builds an AND concatenated command which 
-        - first converts all mzXML to mzML one after the other (fileconvert cannot handle multiple at once)
-        - second gzips the mzMLs
-        the resulting mzML.gzs are stored in a list with key MZMLGZ
+        Builds an AND concatenated command which converts all mzXML to mzML one after the other 
+        (fileconvert cannot handle multiple at once)
+        the resulting mzMLs are stored in a list with key MZML
         """
         wd = info[self.WORKDIR]
         prefix,info = self.get_prefix(info,log)
@@ -45,16 +44,15 @@ class Mzxmls2Mzmls(OpenMs):
             fileName, fileExtension = os.path.splitext(os.path.basename(mzxml))
             infocopy[self.TEMPLATE] = os.path.join(wd,fileName+'.ini')
             infocopy['MZXML'] = mzxml
-            infocopy['MZMLGZ'] = os.path.join(wd,fileName+'.mzML.gz')
-            mzmls.append(infocopy['MZMLGZ'])            
+            infocopy['MZML'] = os.path.join(wd,fileName+'.mzML')   
             mod_template,infocopy = th.modify_template(infocopy, log)
             
+            mzmls.append(infocopy['MZML'])     
             command = '%s -ini %s' % (prefix,infocopy[self.TEMPLATE])
             commands.append(command)
         
-        info['MZMLGZ'] = mzmls
+        info['MZML'] = mzmls
         command = ' && '.join(commands)
-        command = '%s && gzip %s' % (command,wd)
         return command,info
 
     def set_args(self,log,args_handler):

@@ -42,13 +42,13 @@ class ChromatogramExtractor(IWrapper):
         """
         outfolder = info[self.WORKDIR]
         self._file_suffix = '.chrom.mzML'
-        outfilename = os.path.basename(info['MZMLGZ'][0])
-        outfilename = outfilename.replace(".mzML.gz",self._file_suffix)
+        outfilename = os.path.basename(info['MZML'][0])
+        outfilename = outfilename.replace(".mzML",self._file_suffix)
         self.outfile = os.path.join(outfolder,outfilename)
         info['CHROM_MZML'] = self.outfile
         prefix,info = self.get_prefix(info,log)
         command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
-                                                                                              info['MZMLGZ'],
+                                                                                              info['MZML'],
                                                                                               info['TRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
                                                                                               info['THREADS'],
@@ -64,7 +64,7 @@ class ChromatogramExtractor(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.') 
         args_handler.add_app_args(log, 'TRAML', 'Path to the TraML file.')
-        args_handler.add_app_args(log, 'MZMLGZ', 'Path to the mzML files.')
+        args_handler.add_app_args(log, 'MZML', 'Path to the mzML files.')
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', 'minimum upper edge distance parameter')
         return args_handler
 
