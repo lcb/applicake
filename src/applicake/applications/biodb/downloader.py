@@ -29,7 +29,7 @@ class Downloader(IApplication):
 
 class DatDownloader(Downloader): 
     """
-    Download a dat file from a specific url and stores it as local file.
+    Download a dat.gz file from a specific url, decompress it and stores it as local file.
     """
 
     def __init__(self):
@@ -38,6 +38,7 @@ class DatDownloader(Downloader):
         """
         base = self.__class__.__name__
         self._result_file = '%s.dat' % base # result produced by the application
+        self._result_file2 = '%s.dat.gz' % base # result produced by the application
 
     def set_args(self,log,args_handler):
         """
@@ -51,6 +52,14 @@ class DatDownloader(Downloader):
     def main(self,info,log):
         '''      
         '''
-        info[self.DAT] = self._result_file
-        FileUtils.download_url(log, info[self.URL_DAT], info[self.DAT])
+        key = self.DAT
+        wd = info[self.WORKDIR]
+        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
+        self._result_file = os.path.join(wd,self._result_file)
+        info[key] = self._result_file
+        self._result_file2 = os.path.join(wd,self._result_file2)
+        log.debug('download [%s] to [%s]' % (info[self.URL_DAT],self._result_file2))
+        FileUtils.download_url(log, info[self.URL_DAT], self._result_file2)
+        log.debug('decompress [%s] to [%s]' % (self._result_file,self._result_file2))
+        FileUtils.decompress(self._result_file2, info[key], type='gz')
         return 0,info

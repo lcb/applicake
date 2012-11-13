@@ -20,6 +20,7 @@ class KeyEnum(object):
     DSSCLIENT = 'DSSCLIENT'
     DSSKEYS = 'DSSKEYS'
     DSSOUTPUT = 'DSSOUTPUT'
+    FASTA = 'FASTA'
     FDR = 'FDR'
     FDR_LEVEL = 'FDR_LEVEL'
     FILE_IDX = 'FILE_IDX'

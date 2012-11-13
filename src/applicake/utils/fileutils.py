@@ -150,9 +150,11 @@ class FileUtils(object):
     @staticmethod
     def decompress(input,output,type):
         if type == 'gz':
-            fin = gzip.open('/home/joe/file.txt.gz', 'rb')
+            fin = gzip.open(input, 'rb')
             fout = open(output,'w+')
-            fout.write(StringIO(fin.read()))
+            fout.write(fin.read())
+            fin.close()
+               
     
     @staticmethod
     def rm_dir_content(path):
