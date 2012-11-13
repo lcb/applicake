@@ -52,7 +52,7 @@ class FileUtils(object):
         Download a file from an internet url and stores it in a local path.
         """
         u = urllib2.urlopen(url)
-        localFile = open(path, 'w')
+        localFile = open(path, 'wb')
         localFile.write(u.read())
         localFile.close()
         log.debug('downloaded [%s] and saved it as [%s]' % (url,path))

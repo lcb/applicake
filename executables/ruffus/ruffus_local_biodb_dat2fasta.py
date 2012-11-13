@@ -42,7 +42,6 @@ LOG_LEVEL = DEBUG
 STORAGE = memory_all
 WORKFLOW = biodb_dat2fasta
 URL_DAT = ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
-
 """)
 #EXPERIMENT = E286955
     else:
