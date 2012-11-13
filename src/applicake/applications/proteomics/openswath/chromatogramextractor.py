@@ -87,7 +87,7 @@ class ChromatogramExtractor(IWrapper):
 class IRTChromatogramExtractor(ChromatogramExtractor):
     def prepare_run(self,info,log):
         info['TRAML'] = info['IRTTRAML']
-        command, info = super(IRTChromatogramExtractor, self).prepare_run(self,info,log)
+        command, info = super(IRTChromatogramExtractor, self).prepare_run(info,log)
         return command,info
     
     def set_args(self,log,args_handler):  
