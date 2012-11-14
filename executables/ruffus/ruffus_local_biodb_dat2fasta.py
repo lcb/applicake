@@ -13,6 +13,9 @@ from applicake.applications.biodb.downloader import DatDownloader
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.framework.runner import ApplicationRunner, WrapperRunner
 from applicake.applications.biodb.uniprotdat2fasta import UniprotDat2Fasta
+from applicake.applications.biodb.fastafilter import FastaFilter
+from applicake.applications.biodb.mimic import Mimic
+from applicake.applications.biodb.mimicpostprocess import MimicPostprocess
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -47,7 +50,7 @@ LOG_LEVEL = DEBUG
 STORAGE = memory_all
 WORKFLOW = biodb_dat2fasta
 URL_DAT = ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
-FASTA_TAXONOMY = 9606,10090,562,7227,10116,4932,83333,51453,5062,
+FASTA_SUBSETS = 9606,10090,562,7227,10116,YEAST,ECOLI
 """)
 #/cluster/scratch_xl/shareholder/imsb_ra/workflows
 #    else:
@@ -61,7 +64,16 @@ def download():
 def dat2fasta():
     wrap(UniprotDat2Fasta,'datdownloader.ini','dat2fasta.ini')    
 
+@follows(dat2fasta)
+def fasta2subsets():
+    wrap(FastaFilter,'dat2fasta.ini','fasta2subsets.ini')
     
+@follows(fasta2subsets)
+def fasta2decoy():
+    wrap(Mimic,'fasta2subsets.ini','fasta2decoy.ini',['--PREFIX','/usr/local/apps/mimic/bin/mimic'])    
 
+@follows(fasta2decoy)
+def fastafinal():
+    wrap(MimicPostprocess,'fasta2decoy.ini','fastafinal.ini')
 
-pipeline_run([dat2fasta], multiprocess=1)
+pipeline_run([fastafinal], multiprocess=1)

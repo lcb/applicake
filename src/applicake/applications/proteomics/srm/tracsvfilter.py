@@ -13,7 +13,7 @@ import sys
 
 from applicake.framework.interfaces import IApplication
 from applicake.utils.fileutils import FileUtils
-from applicake.applications.proteomics.fasta import FastaReader
+from applicake.applications.proteomics.fasta import FastaUtil
 from applicake.utils.sequenceutils import SequenceUtils
 
 class TraCsvFilter(IApplication):
@@ -88,7 +88,7 @@ class TraCsvFilter(IApplication):
         if info[self.NO_HIGHPRODMZ]:
             df = df[df['PrecursorMz']>= df['ProductMz']]
         if info.has_key('DBASE'):
-            df_fas = FastaReader().read(info['DBASE'],log)
+            df_fas = FastaUtil.read(info['DBASE'],log)
             if info[self.NO_DECOY]:
                 df_fas = df_fas[df_fas['protein'].map(lambda x : 'DECOY' in x)]
             seq_list = df_fas['sequence'].to_dict().items()
