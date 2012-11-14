@@ -102,18 +102,67 @@ class DatasetcodeGenerator(Generator):
         args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')       
         return args_handler       
         
-#class PgradeDatasetcodeGenerator(DatasetcodeGenerator):
-#    """
-#    Dataset-code generator for the P-Grade workflow manager.
-#    
-#    It creates output files of the format [INPUTFILENAME].[INDEX]
-#    """
-#    
-#    def write_files(self,info,log,dicts): 
-#        """
-#        see super class
-#        """       
-#        super(PgradeDatasetcodeGenerator,self).write_files(info,log,dicts,idx_sep='.')
+class GenericGenerator(Generator):
+    """
+    Generic generator that allows to define escape keys.
+    
+    The generator splits the input file by the all possible parameter combinations and then by all defined dataset-codes.
+    """
+
+
+    def main(self,info,log):
+        """
+        Generate the cartesian product of all values from info and writes them to files. 
+        
+        There is a distinction between dataset codes and parameters. For every parameter combination
+        a new key [%s] is added. Dataset combinations are indexed using another key [%s]. 
+        
+        @precondition: 'info' object has to contain key [%s]
+        @type info: see super class
+        @param info: see super class
+        @type log: see super class
+        @param log: see super class 
+        """ % (self.PARAM_IDX,self.DATASET_CODE,self.DATASET_CODE)
+        
+        # prepare a basedic to produced input files for inner workflow
+        log.debug('create work copy of "info"')   
+        basedic = info.copy()        
+        log.debug('need to remove some keys from the work copy for a "clean" start ;-)')
+        remove_keys = [self.COPY_TO_WD,self.NAME]        
+        for key in remove_keys:
+            try:
+                del basedic[key]
+                log.debug('removed key [%s] from work copy' % key)
+            except:
+                log.debug('work copy did not have key [%s]' % key)            
+        # prepare first the product of a parameter combinations
+        if not info.has_key(self.ESCAPE_KEYS):
+            info[self.ESCAPE_KEYS] = []    
+        escape_keys = info[self.ESCAPE_KEYS]
+        param_dicts = DictUtils.get_product_dicts(basedic, log, escape_keys,idx_key=self.PARAM_IDX)
+        log.debug('param_dicts: [%s]' % param_dicts)
+        log.debug('created [%s] dictionaries based on parameter combinations' % len(param_dicts))
+        # prepare combinations based on files
+        param_file_dicts = []
+        escape_keys = []
+        for dic in  param_dicts:            
+            file_dicts = DictUtils.get_product_dicts(dic, log, escape_keys,idx_key=self.FILE_IDX)
+            param_file_dicts.extend(file_dicts)
+        log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
+        # write ini files
+        self.write_files(info,log,param_file_dicts)
+        del info[self.ESCAPE_KEYS]
+        return (0,info)   
+    
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """        
+        args_handler.add_app_args(log, self.GENERATOR, 'Base name for generating output files (such as for a parameter sweep)',action='append')
+        args_handler.add_app_args(log, self.DATASET_CODE, 'Dataset code from OpenBIS)')
+        args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')    
+        args_handler.add_app_args(log, self.ESCAPE_KEYS, 'Key(s) that should be masked during the process', action='append')    
+        return args_handler 
         
 class ParametersetGenerator(Generator):
     """
