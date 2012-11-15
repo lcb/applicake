@@ -120,7 +120,7 @@ class TraCsvFilter(IApplication):
             try:
                 masswin = e.split('/')[1]
                 masswin = abs(float(masswin))
-                if masswin <= info[self.MASSWIN]:
+                if masswin <= float(info[self.MASSWIN]):
                     new_annotation.append(e)
             except:
                 log.fatal('could not extract mass window from [%s]' % e)
