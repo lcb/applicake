@@ -125,7 +125,7 @@ class TraCsvFilter(IApplication):
             except:
                 log.fatal('could not extract mass window from [%s]' % e)
                 sys.exit(1)
-            return ','.join(new_annotation)
+        return ','.join(new_annotation)
     
     def _filter_annotation_modif(self,info, annotation):
             new_annotation = []
