@@ -81,8 +81,8 @@ class TraCsvFilter(IApplication):
             log.debug('filter for transitions within the allowed mass window')
             # first split multiple annotations, then extract mass error for each annotation
             # remove annotations if the absolute value is larger than the defined limit
-            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if abs(float(e.split('/')[1])) <= info[self.MASSWIN]]))
-#            df['Annotation'] = df['Annotation'].map(lambda x : self._filter_annotation_masswin(info,log,x))
+#            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if abs(float(e.split('/')[1])) <= info[self.MASSWIN]]))
+            df['Annotation'] = df['Annotation'].map(lambda x : self._filter_annotation_masswin(info,log,x))
             # remove potentially created empty annotations
             df = df[df['Annotation'] != '']
         # filters for the precursor mass if filter is active
@@ -125,6 +125,7 @@ class TraCsvFilter(IApplication):
             except:
                 log.fatal('could not extract mass window from [%s]' % e)
                 sys.exit(1)
+        log.debug('annotation [%s]: new_annotation[%s]'% (annotation,','.join(new_annotation)))
         return ','.join(new_annotation)
     
     def _filter_annotation_modif(self,info, annotation):
