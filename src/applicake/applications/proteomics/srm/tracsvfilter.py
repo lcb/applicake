@@ -58,9 +58,11 @@ class TraCsvFilter(IApplication):
         df['Annotation'] = df['Annotation'].map(lambda x : x.replace("[",'').replace(']',''))
         # non-annotated transitions (marked by '?') are not selected if filter is active
         if info[self.ANNOTATED]: 
+            log.debug('remove non-annotated transitions')
             df = df[df['Annotation'] != '?']
         # isotopic annotations are removed if filter is active.
         if info[self.NO_ISOTOPES]:
+            log.debug('remove annotations pointing to isotopes')
             # if there are multiple annotations (e.g. 'y5-35^2/0.04,y5-36^2i/0.53,a7^3/-0.28'),
             #  the annotation containing the isotope is removed from list
             df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if not 'i' in e]) )
@@ -69,12 +71,14 @@ class TraCsvFilter(IApplication):
             df = df[df['Annotation'] != '']
         # delete annotations that contain modifs other than the specified if filter is active
         if info.has_key(self.MASSMODS): 
+            log.debug('filter for the allowed mass modifications')
             # apply filter              
             df['Annotation'] = df['Annotation'].map(lambda x : self._filter_annotation_modif(info,x) )
             # remove potential empty annotations
             df = df[df['Annotation'] != '']
         # annotations with too large mass shift are removed if filter is active.
         if info.has_key(self.MASSWIN):
+            log.debug('filter for transitions within the allowed mass window')
             # first split multiple annotations, then extract mass error for each annotation
             # remove annotations if the absolute value is larger than the defined limit
 #            df['Annotation'] = df['Annotation'].map(lambda x : ','.join([e for e in x.split(',') if abs(float(e.split('/')[1])) <= info[self.MASSWIN]]))
@@ -83,19 +87,24 @@ class TraCsvFilter(IApplication):
             df = df[df['Annotation'] != '']
         # filters for the precursor mass if filter is active
         if info.has_key(self.PRECMASS_RANGE):
+            log.debug('filters for the precursor mass if filter')
             min = info[self.PRECMASS_RANGE].split('-')[0]
             max = info[self.PRECMASS_RANGE].split('-')[1]
             df = df[(df['PrecursorMz']>=min) &(df['PrecursorMz']<=max)]
         if info[self.NO_HIGHPRODMZ]:
+            log.debug('remove transitions where PrecursorMz is >= ProductMz')
             df = df[df['PrecursorMz']>= df['ProductMz']]
         if info.has_key('DBASE'):
+            log.debug('only allow proteotypic peptides')
             df_fas = FastaUtil.read(info['DBASE'],log)
             if info[self.NO_DECOY]:
+                log.debug('exclude decoy hits from search for proteotypic peptides')
                 df_fas = df_fas[df_fas['protein'].map(lambda x : 'DECOY' in x)]
             seq_list = df_fas['sequence'].to_dict().items()
             df[df['PeptideSequence'].map(lambda x: len(SequenceUtils.findall(seq_list,lambda y: x in y)) > 1)]
         # filter for the N-most intense [peptides, transition groups] if active    
         if info.has_key(self.N_MOST_INTENSE):
+            log.debug('filter for n most intense transitions')
             # set default if not defined by the user
             if not info.has_key(self.INTENSITY_CRITERIA):
                 info[self.INTENSITY_CRITERIA] = self._default_intensity_criteria
