@@ -16,8 +16,7 @@ from applicake.applications.commons.generator import DatasetcodeGenerator,\
     ParametersetGenerator
 from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
-from applicake.applications.proteomics.sybit.fdr2probability import Fdr2Probability,\
-    Fdr2ProbabilityPython
+from applicake.applications.proteomics.sybit.fdr2probability import Fdr2ProbabilityPython
 from applicake.applications.commons.inifile import KeysToList, Unifier
 from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
     NoDecoyLibrary, ConsensusLibrary, CreateTxtLibrary, CreateBinLibrary
@@ -60,13 +59,12 @@ DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
 STORAGE = file
 WORKFLOW = spectrast_create
-EXPERIMENT = E283473
+EXPERIMENT = E287475
 DBASE = /cluster/scratch/malars/bin/biodb/data/ex_ddb/20111006/decoy/ex_ddb_167.fasta
 NO_DECOY = True
 ANNOTATED = True
 NO_ISOTOPES = True
 MASSWIN = 0.025
-N_MOST_INTENSE = 10
 INTENSITY_CRITERIA = PeptideSequence 
 FDR=0.01
 FDR_LEVEL = psm
@@ -74,9 +72,9 @@ NUM_LIMIT = 0
 MIN_PROB = 0.0001
 PROPHET_TYPE = IProphet
 DECOY_STRING = DECOY_
-RSQ_THRESHOLD = 0.95
 """)
-#EXPERIMENT = E286955
+#EXPERIMENT = E286955,E283473
+# N_MOST_INTENSE = 10
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
     
