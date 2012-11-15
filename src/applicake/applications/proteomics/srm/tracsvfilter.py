@@ -118,14 +118,13 @@ class TraCsvFilter(IApplication):
         new_annotation = []
         for e in annotation.split(','):
             try:
-                masswin = e.split('/')[1]
-                masswin = abs(float(masswin))
+                masswin = abs(float(e.split('/')[1]))
                 if masswin <= float(info[self.MASSWIN]):
+                    log.debug('annotation [%s]: new_annotation[%s]'% (annotation,','.join(new_annotation)))
                     new_annotation.append(e)
             except:
                 log.fatal('could not extract mass window from [%s]' % e)
                 sys.exit(1)
-        log.debug('annotation [%s]: new_annotation[%s]'% (annotation,','.join(new_annotation)))
         return ','.join(new_annotation)
     
     def _filter_annotation_modif(self,info, annotation):
