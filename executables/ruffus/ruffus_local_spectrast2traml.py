@@ -177,7 +177,7 @@ def sptxt2tracsv(input_file_name, output_file_name):
 
 @transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
 def tracsvfilter(input_file_name, output_file_name):
-    wrap(TraCsvFilter, input_file_name, output_file_name,['--MASSMODS -18','--MASSMODS','-80','--MASSMODS','-98']) 
+    wrap(TraCsvFilter, input_file_name, output_file_name,['--MASSMODS', '-18','--MASSMODS','-80','--MASSMODS','-98']) 
 
 #@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
 #def tracsvfilter(input_file_name, output_file_name):
