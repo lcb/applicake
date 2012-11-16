@@ -64,10 +64,10 @@ def setup():
             f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 LOG_LEVEL = INFO
 STORAGE = memory_all
-THREADS = 2
+THREADS = 1
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 
-DATASET_CODE = 20120713110650516-637617, 20120713110650516-637617
+DATASET_CODE = 20120713110650516-637617
 IRTTRAML = "/cluster/home/biol/loblum/oswtraml/DIA_iRT.TraML"
 TRAML = "/cluster/home/biol/loblum/oswtraml/AQUASky_ShotgunLibrary_3t_345_sh.TraML"
 
@@ -77,10 +77,13 @@ TRAML = "/cluster/home/biol/loblum/oswtraml/AQUASky_ShotgunLibrary_3t_345_sh.Tra
 
 
 MIN_UPPER_EDGE_DIST = 1
-MIN_RSQ = 0.95, 0.96
+
+MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
-IRTOUTSUFFIX = _rtnorm.chrom.mzML
-LIBOUTSUFFIX = .chrom.mzML
+
+MPR_NUM_XVAL = 5
+WRITE_ALL_PG = 1
+WRITE_CLASSIFIER = 1
 """)
     else:
         print 'Continuing'       
@@ -133,5 +136,5 @@ def featurexmltotsv(input_file_name, output_file_name):
 def mprophet(input_file_name, output_file_name):
     WrapApp(mProphet, input_file_name, output_file_name) 
 
-#pipeline_run([IRT_merge],multiprocess=4,verbose=2)
-pipeline_printout_graph ('flowchart.png','png',[mprophet])
+pipeline_run([mprophet],multiprocess=1,verbose=2)
+#pipeline_printout_graph ('flowchart.png','png',[mprophet])

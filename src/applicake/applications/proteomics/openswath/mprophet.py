@@ -28,7 +28,7 @@ class mProphet(IWrapper):
         
         wd = info[self.WORKDIR]
         info['RESULTBASE'] = os.path.join(wd,self._result_base)
-
+        info['TEMPLATE'] = os.path.join(wd,self._result_base + '.tpl')
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
@@ -42,10 +42,14 @@ class mProphet(IWrapper):
         """
         See interface
         """
-        args_handler.add_app_args(log, 'MPROPHET_BINDIR', 'mprophet binaries folder')
+        args_handler.add_app_args(log, 'MPROPHET_BINDIR', 'mprophet binaries folder',default='/cluster/apps/openms/openswath-testing/mapdiv/scripts/mProphet/')
+        args_handler.add_app_args(log, 'WORKDIR','wd')
+        args_handler.add_app_args(log, self.COPY_TO_WD,'cptowd')
         args_handler.add_app_args(log, 'MPR_NUM_XVAL', 'help')
         args_handler.add_app_args(log, 'WRITE_ALL_PG', 'help')
         args_handler.add_app_args(log, 'WRITE_CLASSIFIER', 'help')
+        args_handler.add_app_args(log, 'FEATURETSV', 'featuretsv')
+		
 
         return args_handler
 
@@ -64,9 +68,9 @@ class mProphetTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template =  'R --slave -f $MPROPHET_BINDIR/mProphet.R --args bin_dir=$MPROPHET_BINDIR ' \
-                    'run_log=FALSE workflow=LABEL_FREE help=0' \
-                    'num_xval=$MPR_NUM_XVAL write_classifier=$WRITE_CLASSIFIER write_all_pg=$WRITE_ALL_PG  ' \
-                    'project=$RESULTBASE mquest=$OUTBASE_combined.short_format.csv > $RESULTBASE.mProphet'
+        template =  '--slave -f $MPROPHET_BINDIR/mProphet.R --args bin_dir=$MPROPHET_BINDIR ' \
+                    'run_log=FALSE workflow=LABEL_FREE help=0 ' \
+                    'num_xval=$MPR_NUM_XVAL write_classifier=$WRITE_CLASSIFIER write_all_pg=$WRITE_ALL_PG ' \
+                    'project=mProphet mquest=$FEATURETSV > $WORKDIR/mProphet.log'
         return template,info    
     

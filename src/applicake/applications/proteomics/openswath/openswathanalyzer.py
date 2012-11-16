@@ -67,7 +67,7 @@ class OpenSwathAnalyzer(IWrapper):
                                                                                               info['MIN_UPPER_EDGE_DIST'],
                                                                                               info['THREADS'],
                                                                                               info['TRAFOXML'],
-                                                                                              info['MZML'],
+                                                                                              ' '.join(info['MZML']),
                                                                                               info[self.TEMPLATE],
                                                                                               self._result_file)
         return command,info

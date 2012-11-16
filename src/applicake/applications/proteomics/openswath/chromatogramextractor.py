@@ -40,15 +40,11 @@ class ChromatogramExtractor(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        outfolder = info[self.WORKDIR]
-        self._file_suffix = '.chrom.mzML'
-        outfilename = os.path.basename(info['MZML'][0])
-        outfilename = outfilename.replace(".mzML",self._file_suffix)
-        self.outfile = os.path.join(outfolder,outfilename)
+        self.outfile = os.path.join(info[self.WORKDIR],'ChromatogramExtractor.chrom.mzML')
         info['CHROM_MZML'] = self.outfile
         prefix,info = self.get_prefix(info,log)
         command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
-                                                                                              info['MZML'],
+                                                                                              ' '.join(info['MZML']),
                                                                                               info['TRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
                                                                                               info['THREADS'],
@@ -92,5 +88,5 @@ class IRTChromatogramExtractor(ChromatogramExtractor):
     
     def set_args(self,log,args_handler):  
         args_handler = super(IRTChromatogramExtractor, self).set_args(log,args_handler)
-        args_handler.add_app_args(log, 'IRTTRAML', 'Path to the TraML file.')
+        args_handler.add_app_args(log, 'IRTTRAML', 'Path to the iRT TraML file.')
         return args_handler
