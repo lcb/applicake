@@ -81,11 +81,17 @@ class ChromatogramExtractor(IWrapper):
         return 0,info
 
 class IRTChromatogramExtractor(ChromatogramExtractor):
+    
     def prepare_run(self,info,log):
+        self._traml = info['TRAML']
         info['TRAML'] = info['IRTTRAML']
         command, info = super(IRTChromatogramExtractor, self).prepare_run(info,log)
         return command,info
     
+    def validate_run(self,info,log, run_code,out_stream, err_stream):
+        info['TRAML'] = self._traml
+        return super(IRTChromatogramExtractor, self).validate_run(info,log, run_code,out_stream, err_stream)
+     
     def set_args(self,log,args_handler):  
         args_handler = super(IRTChromatogramExtractor, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'IRTTRAML', 'Path to the iRT TraML file.')
