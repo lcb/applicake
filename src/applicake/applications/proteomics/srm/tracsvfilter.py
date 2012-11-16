@@ -188,5 +188,5 @@ class TraCsvFilter(IApplication):
         wd = info[self.WORKDIR]
         self._result_file = os.path.join(wd,self._result_file)
         info[self.TRACSV] = self._result_file
-        dataframe.to_csv(info[self.TRACSV],sep='\t')
+        dataframe.to_csv(info[self.TRACSV],sep='\t',index=False)
         log.debug('wrote results to [%s]' % self._result_file)       
