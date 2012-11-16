@@ -11,7 +11,8 @@ import subprocess
 import tempfile
 from ruffus import *
 
-from applicake.framework.runner import IniFileRunner, IniFileRunner2, IApplication, IWrapper, WrapperRunner, CollectorRunner
+from applicake.framework.runner import IniFileRunner, IniFileRunner2, IApplication, IWrapper, WrapperRunner, CollectorRunner,\
+    ApplicationRunner
 from applicake.applications.commons.collector import BasicCollector
 from applicake.applications.commons.inifile import Unifier
 from applicake.applications.commons.generator import Generator

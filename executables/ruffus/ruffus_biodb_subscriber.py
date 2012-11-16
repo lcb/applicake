@@ -55,6 +55,15 @@ FASTA = /home/quandtan/tmp/20121114_010943_465934/MimicPostprocess/9606.fasta, /
 #        print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
     
 
+
+#####
+# 
+# TODO
+# - scripts should be modifed to read external ini file
+# - adding the downloader api node from biodb
+#
+#####
+
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):

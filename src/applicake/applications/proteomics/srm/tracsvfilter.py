@@ -8,6 +8,7 @@ import csv
 import operator
 import os
 import pandas
+import re
 import sys
 
 
@@ -100,8 +101,9 @@ class TraCsvFilter(IApplication):
             if info[self.NO_DECOY]:
                 log.debug('exclude decoy hits from search for proteotypic peptides')
                 df_fas = df_fas[df_fas['protein'].map(lambda x : 'DECOY' in x)]
-            seq_list = df_fas['sequence'].to_dict().items()
+            seq_list = df_fas['sequence'].to_dict().values()
             df[df['PeptideSequence'].map(lambda x: len(SequenceUtils.findall(seq_list,lambda y: x in y)) > 1)]
+#            df[df['PeptideSequence'].map(lambda x: len([m.start() for m in re.finditer(r"%s" % x,seq_str)]) > 1)]
         # filter for the N-most intense [peptides, transition groups] if active    
         if info.has_key(self.N_MOST_INTENSE):
             log.debug('filter for n most intense transitions')
