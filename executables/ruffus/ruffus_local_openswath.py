@@ -9,6 +9,7 @@ Created on Jul 11, 2012
 import sys
 import subprocess
 import tempfile
+import shutil
 from ruffus import *
 
 from applicake.framework.runner import IniFileRunner, IniFileRunner2, IApplication, IWrapper, WrapperRunner, CollectorRunner,\
@@ -28,7 +29,7 @@ from applicake.applications.proteomics.openswath.openswathanalyzer import OpenSw
 from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
 from applicake.applications.proteomics.openswath.mprophet import mProphet
 
-
+#helper methods
 def WrapApp(applic, input_file_name, output_file_name, opts=None):
     argv = ['fakename.py', '-i', input_file_name, '-o', output_file_name]
     if opts is not None:
@@ -57,40 +58,9 @@ def WrapApp(applic, input_file_name, output_file_name, opts=None):
     if exit_code != 0:
         raise Exception("[%s] failed with exitcode [%s]" % (applic.__name__, exit_code))
 
-
-def setup():
-    if len(sys.argv) > 1 and sys.argv[1] == 'restart':
-        subprocess.call("rm *ini* *.err *.out",shell=True)    
-        with open("input.ini", 'w+') as f:
-            f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
-LOG_LEVEL = INFO
-STORAGE = memory_all
-THREADS = 1
-DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
-
-DATASET_CODE = 20120713110650516-637617
-IRTTRAML = "/cluster/home/biol/loblum/oswtraml/DIA_iRT.TraML"
-TRAML = "/cluster/home/biol/loblum/oswtraml/AQUASky_ShotgunLibrary_3t_345_sh.TraML"
-
-#DATASET_CODE = 20120815035639258-664552, 20121025182348951-723768
-#IRTTRAML = "/cluster/home/biol/loblum/oswtraml/DIA_iRT.TraML"
-#TRAML = "/cluster/home/biol/loblum/oswtraml/RCC_kinases.TraML"
-
-
-MIN_UPPER_EDGE_DIST = 1
-
-MIN_RSQ = 0.95
-MIN_COVERAGE = 0.6
-
-MPR_NUM_XVAL = 5
-WRITE_ALL_PG = 1
-WRITE_CLASSIFIER = 1
-""")
-    else:
-        print 'Continuing'       
         
-        
-@follows(setup)
+######################START OF WF##############################
+
 @split("input.ini", "dssgenerator.ini_*")
 def DSSgenerator(input_file_name, notused_output_file_names):
     WrapApp(DatasetcodeGenerator, input_file_name, '', ['--GENERATORS', 'dssgenerator.ini'])
@@ -137,5 +107,48 @@ def featurexmltotsv(input_file_name, output_file_name):
 def mprophet(input_file_name, output_file_name):
     WrapApp(mProphet, input_file_name, output_file_name) 
 
-pipeline_run([mprophet],multiprocess=1,verbose=2)
-#pipeline_printout_graph ('flowchart.png','png',[mprophet])
+########################################################
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print """Please specify action: continue | writeexampleini | FILENAME        
+continue: continue started workflow
+writeexampleini: writes built in example.ini
+FILENAME: copies FILENAME to input.ini and starts workflow"""
+        sys.exit(0)
+    elif sys.argv[1] == 'writeexampleini':
+        print "Writing example.ini"
+        with open("example.ini", 'w+') as f:
+                f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
+LOG_LEVEL = INFO
+STORAGE = memory_all
+THREADS = 1
+DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
+
+IRTTRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_DIA_iRT.TraML"
+
+DATASET_CODE = 20120713110650516-637617
+TRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_AQUASky_ShotgunLibrary_3t_345_sh.TraML"
+#DATASET_CODE = 20120815035639258-664552, 20121025182348951-723768
+#TRAML = "/cluster/home/biol/loblum/oswtraml/guot_RCC_cells_PP09_iRTcal_consensus.TraML"
+
+
+MIN_UPPER_EDGE_DIST = 1
+
+MIN_RSQ = 0.95
+MIN_COVERAGE = 0.6
+
+MPR_NUM_XVAL = 5
+WRITE_ALL_PG = 1
+WRITE_CLASSIFIER = 1
+""")
+        sys.exit(0)
+    elif sys.argv[1] == 'continue':
+        print "Continuing..."
+    else:
+        infile = sys.argv[1]
+        print "Start. Copying %s to input.ini" % infile
+        shutil.copyfile(infile,'input.ini')       
+    pipeline_run([mprophet],multiprocess=1,verbose=2)
+    #pipeline_printout_graph ('flowchart.png','png',[mprophet])
+
