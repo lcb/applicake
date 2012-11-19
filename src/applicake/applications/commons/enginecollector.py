@@ -43,6 +43,7 @@ class GuseEngineCollector(IApplication):
         
         runs = 1
         infocopy = info.copy()
+        infocopy['USED_SEARCHENGINES'] = ' '.join(used_engines)
         del infocopy['ENGINES']
         del infocopy[self.COPY_TO_WD]
         for key,value in infocopy.items():
@@ -61,7 +62,8 @@ class GuseEngineCollector(IApplication):
                 config = ConfigHandler().read(log,path)
                 collector_config = DictUtils.merge(log,collector_config, config,priority='append')
             
-            collector_path = "output.ini_%d" % i       
+            collector_path = "output.ini_%d" % i   
+             
             ConfigHandler().write(collector_config, collector_path)
             log.debug('Wrote outfile '+collector_path)
 
