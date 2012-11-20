@@ -96,6 +96,7 @@ class Omssa(SearchEngine):
         See interface
         """
         args_handler = super(Omssa, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format, used to make basename')
         args_handler.add_app_args(log, 'MGF', 'Peak list file in mgf format')  
         return args_handler
 
