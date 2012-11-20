@@ -77,7 +77,7 @@ class Myrimatch(SearchEngine):
         self._template_file = os.path.join(wd,self._template_file) 
         info['TEMPLATE'] = self._template_file
         basename = os.path.splitext(os.path.split(info['MZXML'])[1])[0]    
-        self._result_file  = os.path.join(wd,basename + ".pepXML") #myrimatch default is pepXML
+        self._result_file  = os.path.join(wd,basename + ".pepXML") #myrimatch default is pepXML NOT pep.xml
         info['PEPXMLS'] = [self._result_file]
         # need to create a working copy to prevent replacement or generic definitions
         # with app specific definitions

@@ -62,7 +62,8 @@ class Omssa(SearchEngine):
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._template_file = os.path.join(wd,self._template_file) 
         info['TEMPLATE'] = self._template_file
-        self._result_file = os.path.join(wd,self._result_file) 
+        basename = os.path.splitext(os.path.split(info['MZXML'])[1])[0]    
+        self._result_file  = os.path.join(wd,basename + ".pep.xml")
         info['PEPXMLS'] = [self._result_file]
         # need to create a working copy to prevent replacement or generic definitions
         # with app specific definitions
