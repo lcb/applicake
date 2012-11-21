@@ -65,6 +65,13 @@ FASTA = /home/quandtan/tmp/20121114_010943_465934/MimicPostprocess/9606.fasta, /
 #####
 
 @follows(setup)
+
+#@follows(setup)
+#def subscribe()
+#    wrap(Subscriber,'','')
+#
+#
+
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini','-l','DEBUG']

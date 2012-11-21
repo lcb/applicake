@@ -16,6 +16,8 @@ from applicake.applications.biodb.uniprotdat2fasta import UniprotDat2Fasta
 from applicake.applications.biodb.fastafilter import FastaFilter
 from applicake.applications.biodb.mimic import Mimic
 from applicake.applications.biodb.mimicpostprocess import MimicPostprocess
+from applicake.applications.biodb.publisher import Publisher
+from applicake.applications.biodb.fastametadata import FastaMetaData
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -45,7 +47,6 @@ def setup():
     with open("input.ini", 'w+') as f:
         f.write("""
 BASEDIR = /home/quandtan/tmp
-DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
 STORAGE = memory_all
 WORKFLOW = biodb_dat2fasta
@@ -75,5 +76,13 @@ def fasta2decoy():
 @follows(fasta2decoy)
 def fastafinal():
     wrap(MimicPostprocess,'fasta2decoy.ini','fastafinal.ini')
+    
+@follows(fastafinal)
+def create_meta():
+    wrap(FastaMetaData,'fastafinal.ini','fastametadata.ini')
+    
+@follows(create_meta)
+def publish():
+    wrap(Publisher,'fastametadata.ini','publisher.ini',['--PREFIX','java -jar biodbpublisher.jar'])        
 
-pipeline_run([fastafinal], multiprocess=1)
+pipeline_run([create_meta], multiprocess=1)
