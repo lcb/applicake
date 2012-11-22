@@ -71,5 +71,5 @@ class BasicInformationHandler(IInformationHandler):
                 log.fatal('Exit program because output file [%s] was not valid' % path)
                 sys.exit(1)  
         else:
-            log.error('info object did not countain key [%s]. Therefore no output is written' % self.OUTPUT)                                                                                                                                    
+            log.info('info object did not countain key [%s]. Therefore no output info is written' % self.OUTPUT)                                                                                                                                    
                                         
