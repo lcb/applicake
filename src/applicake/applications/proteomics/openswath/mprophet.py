@@ -71,6 +71,6 @@ class mProphetTemplate(BasicTemplateHandler):
         template =  '--slave -f $MPROPHET_BINDIR/mProphet.R --args bin_dir=$MPROPHET_BINDIR ' \
                     'run_log=FALSE workflow=LABEL_FREE help=0 ' \
                     'num_xval=$MPR_NUM_XVAL write_classifier=$WRITE_CLASSIFIER write_all_pg=$WRITE_ALL_PG ' \
-                    'project=mProphet mquest=$FEATURETSV > $WORKDIR/mProphet.log'
+                    'project=$WORKDIR/mProphet mquest=$FEATURETSV > $WORKDIR/mProphet.log'
         return template,info    
     
