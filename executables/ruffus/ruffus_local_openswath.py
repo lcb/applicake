@@ -157,6 +157,6 @@ DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openswath/fakedropbox
         infile = sys.argv[1]
         print "Start. Copying %s to input.ini" % infile
         shutil.copyfile(infile,'input.ini')       
-    pipeline_run([mprophet],multiprocess=1,verbose=2)
-    #pipeline_printout_graph ('flowchart.png','png',[mprophet])
+    pipeline_run([copytodropbox],multiprocess=1,verbose=2)
+    #pipeline_printout_graph ('flowchart.png','png',[copytodropbox])
 
