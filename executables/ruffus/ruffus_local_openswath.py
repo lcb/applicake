@@ -28,6 +28,7 @@ from applicake.applications.proteomics.openswath.openswathrtnormalizer import Op
 from applicake.applications.proteomics.openswath.openswathanalyzer import OpenSwathAnalyzer
 from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
 from applicake.applications.proteomics.openswath.mprophet import mProphet
+from applicake.applications.proteomics.openbis.dropbox import Copy2SwathDropbox
 
 #helper methods
 def WrapApp(applic, input_file_name, output_file_name, opts=None):
@@ -107,6 +108,9 @@ def featurexmltotsv(input_file_name, output_file_name):
 def mprophet(input_file_name, output_file_name):
     WrapApp(mProphet, input_file_name, output_file_name) 
 
+@transform(mprophet,regex("featurexml2tsv.ini_"), "mprophet.ini_")
+def copytodropbox(input_file_name, output_file_name):
+    WrapApp(Copy2SwathDropbox, input_file_name, output_file_name) 
 ########################################################
 
 if __name__ == "__main__":
@@ -141,6 +145,10 @@ MIN_COVERAGE = 0.6
 MPR_NUM_XVAL = 5
 WRITE_ALL_PG = 1
 WRITE_CLASSIFIER = 1
+
+SPACE = LOBLUM
+PROJECT = TEST
+DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openswath/fakedropbox
 """)
         sys.exit(0)
     elif sys.argv[1] == 'continue':

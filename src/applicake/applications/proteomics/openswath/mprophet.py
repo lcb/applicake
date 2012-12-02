@@ -7,6 +7,7 @@ Created on Oct 24, 2012
 import os
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
+from applicake.utils.fileutils import FileUtils
 
 class mProphet(IWrapper):
     
@@ -49,13 +50,16 @@ class mProphet(IWrapper):
         args_handler.add_app_args(log, 'WRITE_ALL_PG', 'help')
         args_handler.add_app_args(log, 'WRITE_CLASSIFIER', 'help')
         args_handler.add_app_args(log, 'FEATURETSV', 'featuretsv')
-		
 
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
-        if run_code != 0:            
-            return(run_code,info)
+        resultfile = os.path.join(info[self.WORKDIR],'mProphet_all_peakgroups.xls')
+        if not FileUtils.is_valid_file(log, resultfile):
+            log.critical('xls is not valid')
+            return 1,info
+        else:
+            info['MPROPHET_RESULT'] = resultfile
         return run_code,info
 
         
@@ -71,6 +75,6 @@ class mProphetTemplate(BasicTemplateHandler):
         template =  '--slave -f $MPROPHET_BINDIR/mProphet.R --args bin_dir=$MPROPHET_BINDIR ' \
                     'run_log=FALSE workflow=LABEL_FREE help=0 ' \
                     'num_xval=$MPR_NUM_XVAL write_classifier=$WRITE_CLASSIFIER write_all_pg=$WRITE_ALL_PG ' \
-                    'project=$WORKDIR/mProphet mquest=$FEATURETSV'
+                    'working_dir=$WORKDIR project=mProphet mquest=$FEATURETSV'
         return template,info    
     

@@ -94,7 +94,7 @@ class PeptideProphetTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """DECOY=$%s DECOYPROBS MINPROB=0 PI ACCMASS LEAVE NONPARAM Pd 
+        template = """DECOY=$%s DECOYPROBS MINPROB=0 PI ACCMASS LEAVE NONPARAM 
 """ % (self.DECOY_STRING)
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
