@@ -43,8 +43,11 @@ class ChromatogramExtractor(IWrapper):
         self.outfile = os.path.join(info[self.WORKDIR],'ChromatogramExtractor.chrom.mzML')
         info['CHROM_MZML'] = self.outfile
         prefix,info = self.get_prefix(info,log)
-        command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
+        
+        command = '%s -in %s -extraction_window %s -rt_extraction_window -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
                                                                                               ' '.join(info['MZML']),
+                                                                                              info['EXTRACTION_WINDOW'],
+                                                                                              info['RT_EXTRACTION_WINDOW'],
                                                                                               info['TRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
                                                                                               info['THREADS'],
@@ -62,6 +65,9 @@ class ChromatogramExtractor(IWrapper):
         args_handler.add_app_args(log, 'TRAML', 'Path to the TraML file.')
         args_handler.add_app_args(log, 'MZML', 'Path to the mzML files.')
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', 'minimum upper edge distance parameter')
+        args_handler.add_app_args(log, 'EXTRACTION_WINDOW', 'extraction window to extract around')
+        args_handler.add_app_args(log, 'RT_EXTRACTION_WINDOW', 'RT extraction window to extract around')
+        
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):

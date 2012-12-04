@@ -43,23 +43,31 @@ class mProphet(IWrapper):
         """
         See interface
         """
-        args_handler.add_app_args(log, 'MPROPHET_BINDIR', 'mprophet binaries folder',default='/cluster/apps/openms/openswath-testing/mapdiv/scripts/mProphet/')
         args_handler.add_app_args(log, 'WORKDIR','wd')
         args_handler.add_app_args(log, self.COPY_TO_WD,'cptowd')
         args_handler.add_app_args(log, 'MPR_NUM_XVAL', 'help')
-        args_handler.add_app_args(log, 'WRITE_ALL_PG', 'help')
-        args_handler.add_app_args(log, 'WRITE_CLASSIFIER', 'help')
         args_handler.add_app_args(log, 'FEATURETSV', 'featuretsv')
 
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
+        
         resultfile = os.path.join(info[self.WORKDIR],'mProphet_all_peakgroups.xls')
         if not FileUtils.is_valid_file(log, resultfile):
-            log.critical('xls is not valid')
+            log.critical('%s is not valid',resultfile)
             return 1,info
         else:
-            info['MPROPHET_RESULT'] = resultfile
+            info['MPROPHET_TSV'] = resultfile
+        
+        info['MPROPHET_STATS'] = []
+        for statfile in ['mProphet.pdf','mProphet_classifier.xls','mProphet_raw_stat.xls','mProphet_stat.xls']:
+            fullpath = os.path.join(info[self.WORKDIR],statfile)
+            if not FileUtils.is_valid_file(log, fullpath):
+                log.critical('%s is not valid',fullpath)
+                return 1,info
+            else:
+                info['MPROPHET_STATS'].append(fullpath)
+            
         return run_code,info
 
         
@@ -71,10 +79,14 @@ class mProphetTemplate(BasicTemplateHandler):
     def read_template(self, info, log):
         """
         See super class.
+        
+        args <- commandArgs(trailingOnly = F)
+        t.lib_path <- paste( dirname(sub("--file=","",args[grep("--file",args)])),"/",sep="")
+
         """
-        template =  '--slave -f $MPROPHET_BINDIR/mProphet.R --args bin_dir=$MPROPHET_BINDIR ' \
+        template =  '--slave --file=$MPROPHET_BINDIR/mProphet.R --args ' \
                     'run_log=FALSE workflow=LABEL_FREE help=0 ' \
-                    'num_xval=$MPR_NUM_XVAL write_classifier=$WRITE_CLASSIFIER write_all_pg=$WRITE_ALL_PG ' \
+                    'num_xval=$MPR_NUM_XVAL write_classifier=1 write_all_pg=1 ' \
                     'working_dir=$WORKDIR project=mProphet mquest=$FEATURETSV'
         return template,info    
     

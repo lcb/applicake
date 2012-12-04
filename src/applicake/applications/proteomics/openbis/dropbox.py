@@ -134,42 +134,4 @@ class Copy2IdentDropbox(Copy2Dropbox):
                 info[key] = 'NONE'
         return super(Copy2IdentDropbox,self).main(info,log)
         
-
-class Copy2SwathDropbox(Copy2Dropbox):
-    """
-    Copy files to an Openbis-prot_ident_dropbox.
-    
-    This dropbox is specified for MS-Search experiements.
-    """
-        
-    def set_args(self,log,args_handler):
-        args_handler.add_app_args(log, 'FEATURETSV', 'featuretsv')
-        args_handler.add_app_args(log, 'MPROPHET_RESULT', 'mprophet output')
-        return super(Copy2SwathDropbox, self).set_args(log,args_handler)
-    
-    def copy_dropbox_specific_files(self,info,log,path):
-        """
-        See super class.
-        """
-        keys = ['MPROPHET_RESULT','FEATURETSV']
-        files = []
-        for key in keys:
-            if info.has_key(key):
-                if isinstance(info[key], list):
-                    files = info[key]
-                else:
-                    files = [info[key]]
-                for file in files:
-                    try:
-                        shutil.copy(file,path)
-                        log.debug('Copy [%s] to [%s]' % (file,path))
-                    except:
-                        if FileUtils.is_valid_file(log, file):
-                            log.warn('Could not copy, file [%s] already exists' % file)
-                        else:
-                            log.fatal('Stop program because could not copy [%s] to [%s]' % (file,path))
-                            return(1,info,log)
-            else:
-                log.error('info did not contain key [%s]' % key)
-                return 1, info
-        return 0,info    
+ 

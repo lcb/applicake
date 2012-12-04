@@ -28,6 +28,8 @@ from applicake.applications.proteomics.openswath.openswathrtnormalizer import Op
 from applicake.applications.proteomics.openswath.openswathanalyzer import OpenSwathAnalyzer
 from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureXMLToTSV
 from applicake.applications.proteomics.openswath.mprophet import mProphet
+from applicake.applications.proteomics.openswath.rewritetsvtoxml import RewriteTSVToFeatureXML
+from applicake.applications.proteomics.openswath.gzipxml import gzipXml
 from applicake.applications.proteomics.openbis.dropbox import Copy2SwathDropbox
 
 #helper methods
@@ -108,7 +110,15 @@ def featurexmltotsv(input_file_name, output_file_name):
 def mprophet(input_file_name, output_file_name):
     WrapApp(mProphet, input_file_name, output_file_name) 
 
-@transform(mprophet,regex("featurexml2tsv.ini_"), "mprophet.ini_")
+@transform(mprophet,regex("mprophet.ini_"), "rewritetsvtoxml.ini_")
+def rewritetsvtoxml(input_file_name, output_file_name):
+    WrapApp(RewriteTSVToFeatureXML, input_file_name, output_file_name) 
+
+@transform(rewritetsvtoxml,regex("rewritetsvtoxml.ini_"), "gzipxml.ini_")
+def gzipxml(input_file_name, output_file_name):
+    WrapApp(gzipXml, input_file_name, output_file_name) 
+
+@transform(gzipxml,regex("gzipxml.ini_"), "cp2dropbox.ini_")
 def copytodropbox(input_file_name, output_file_name):
     WrapApp(Copy2SwathDropbox, input_file_name, output_file_name) 
 ########################################################
@@ -136,6 +146,8 @@ TRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_AQUA
 #DATASET_CODE = 20120815035639258-664552, 20121025182348951-723768
 #TRAML = "/cluster/home/biol/loblum/oswtraml/guot_RCC_cells_PP09_iRTcal_consensus.TraML"
 
+EXTRACTION_WINDOW = 0.05
+RT_EXTRACTION_WINDOW = 0.05
 
 MIN_UPPER_EDGE_DIST = 1
 
@@ -143,8 +155,6 @@ MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
 
 MPR_NUM_XVAL = 5
-WRITE_ALL_PG = 1
-WRITE_CLASSIFIER = 1
 
 SPACE = LOBLUM
 PROJECT = TEST
