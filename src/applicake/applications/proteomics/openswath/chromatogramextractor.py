@@ -44,7 +44,7 @@ class ChromatogramExtractor(IWrapper):
         info['CHROM_MZML'] = self.outfile
         prefix,info = self.get_prefix(info,log)
         
-        command = '%s -in %s -extraction_window %s -rt_extraction_window -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
+        command = '%s -in %s -extraction_window %s -rt_extraction_window %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
                                                                                               ' '.join(info['MZML']),
                                                                                               info['EXTRACTION_WINDOW'],
                                                                                               info['RT_EXTRACTION_WINDOW'],

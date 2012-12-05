@@ -30,7 +30,7 @@ from applicake.applications.proteomics.openswath.featurexmltotsv import FeatureX
 from applicake.applications.proteomics.openswath.mprophet import mProphet
 from applicake.applications.proteomics.openswath.rewritetsvtoxml import RewriteTSVToFeatureXML
 from applicake.applications.proteomics.openswath.gzipxml import gzipXml
-from applicake.applications.proteomics.openbis.dropbox import Copy2SwathDropbox
+from applicake.applications.proteomics.openbis.openswathdropbox import Copy2SwathDropbox
 
 #helper methods
 def WrapApp(applic, input_file_name, output_file_name, opts=None):
@@ -108,7 +108,7 @@ def featurexmltotsv(input_file_name, output_file_name):
 
 @transform(featurexmltotsv,regex("featurexml2tsv.ini_"), "mprophet.ini_")
 def mprophet(input_file_name, output_file_name):
-    WrapApp(mProphet, input_file_name, output_file_name) 
+    WrapApp(mProphet, input_file_name, output_file_name,['--MPROPHET_BINDIR','/cluster/apps/openms/openswath-testing/mapdiv/scripts/mProphet/']) 
 
 @transform(mprophet,regex("mprophet.ini_"), "rewritetsvtoxml.ini_")
 def rewritetsvtoxml(input_file_name, output_file_name):
@@ -120,10 +120,17 @@ def gzipxml(input_file_name, output_file_name):
 
 @transform(gzipxml,regex("gzipxml.ini_"), "cp2dropbox.ini_")
 def copytodropbox(input_file_name, output_file_name):
-    WrapApp(Copy2SwathDropbox, input_file_name, output_file_name) 
+    
+    argv = ['a','-i',input_file_name, '-o',output_file_name ]
+    applic = Copy2SwathDropbox()
+    runner = IniFileRunner()
+    if runner(argv, applic) != 0:
+        raise Exception()
+
 ########################################################
 
 if __name__ == "__main__":
+    pipeline_printout_graph ('flowchart.png','png',[copytodropbox])
     if len(sys.argv) < 2:
         print """Please specify action: continue | writeexampleini | FILENAME        
 continue: continue started workflow
@@ -147,7 +154,7 @@ TRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_AQUA
 #TRAML = "/cluster/home/biol/loblum/oswtraml/guot_RCC_cells_PP09_iRTcal_consensus.TraML"
 
 EXTRACTION_WINDOW = 0.05
-RT_EXTRACTION_WINDOW = 0.05
+RT_EXTRACTION_WINDOW = -1
 
 MIN_UPPER_EDGE_DIST = 1
 
@@ -158,7 +165,7 @@ MPR_NUM_XVAL = 5
 
 SPACE = LOBLUM
 PROJECT = TEST
-DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openswath/fakedropbox
+DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbix_dropbox
 """)
         sys.exit(0)
     elif sys.argv[1] == 'continue':
@@ -168,5 +175,4 @@ DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openswath/fakedropbox
         print "Start. Copying %s to input.ini" % infile
         shutil.copyfile(infile,'input.ini')       
     pipeline_run([copytodropbox],multiprocess=1,verbose=2)
-    #pipeline_printout_graph ('flowchart.png','png',[copytodropbox])
-
+    

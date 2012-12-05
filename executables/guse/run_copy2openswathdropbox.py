@@ -7,7 +7,7 @@ Created on Jun 19, 2012
 
 import sys
 from applicake.framework.runner import IniFileRunner
-from applicake.applications.proteomics.openbis.dropbox import Copy2SwathDropbox
+from applicake.applications.proteomics.openbis.openswathdropbox import Copy2SwathDropbox
 
 runner = IniFileRunner()
 application = Copy2SwathDropbox()

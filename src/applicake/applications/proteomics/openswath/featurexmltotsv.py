@@ -11,8 +11,7 @@ from applicake.utils.fileutils import FileUtils
 
 class FeatureXMLToTSV(IWrapper):
     '''
-    Wrapper for the FeatureXMLToTSV in OpenSWATH .OpenSwathRewriteToFeatureXML -FDR_cutoff $fdr_cutoff -csv ${file_basename}_all_peakgroups.xls \
-  -featureXML ${file_basename}_combined.featureXML -out ${file_basename}_combined_fdr.featureXML -threads $OMP_NUM_THREADS
+    Wrapper for the FeatureXMLToTSV in OpenSWATH
     '''
 
     _template_file = ''
@@ -33,11 +32,6 @@ class FeatureXMLToTSV(IWrapper):
             log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
         return info[self.PREFIX],info
 
-#    def get_template_handler(self):
-#        """
-#        See interface
-#        """
-#        return FeatureXMLToTSVTemplate()
 
     def prepare_run(self,info,log):
         """
@@ -52,12 +46,6 @@ class FeatureXMLToTSV(IWrapper):
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
         info[key] = self._result_file
-#        self._template_file = os.path.join(wd,self._template_file)
-#        info['TEMPLATE'] = self._template_file
-#        log.debug('get template handler')
-#        th = self.get_template_handler()
-#        log.debug('modify template')
-#        mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)        
         command = '%s -in %s -tr %s -out %s -short_format' % (prefix,
                                                               info['FEATUREXML'],
@@ -71,7 +59,6 @@ class FeatureXMLToTSV(IWrapper):
         """
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
-#        args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
         args_handler.add_app_args(log, 'FEATUREXML', 'The output featureXML file ')
         args_handler.add_app_args(log, 'TRAML', 'Path to the TraML file.')
@@ -90,17 +77,3 @@ class FeatureXMLToTSV(IWrapper):
             return 1,info    
         return 0,info
 
-
-#class FeatureXMLToTSVTemplate(BasicTemplateHandler):
-#    """
-#    Template handler for FeatureXMLToTSV.
-#    """
-#
-#    def read_template(self, info, log):
-#        """
-#        See super class.
-#        """
-#        template = """
-#"""
-#        log.debug('read template from [%s]' % self.__class__.__name__)
-#        return template,info

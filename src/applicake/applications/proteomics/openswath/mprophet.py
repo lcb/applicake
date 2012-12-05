@@ -47,7 +47,7 @@ class mProphet(IWrapper):
         args_handler.add_app_args(log, self.COPY_TO_WD,'cptowd')
         args_handler.add_app_args(log, 'MPR_NUM_XVAL', 'help')
         args_handler.add_app_args(log, 'FEATURETSV', 'featuretsv')
-
+        args_handler.add_app_args(log, 'MPROPHET_BINDIR', 'mProphet binary dir')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -79,12 +79,9 @@ class mProphetTemplate(BasicTemplateHandler):
     def read_template(self, info, log):
         """
         See super class.
-        
-        args <- commandArgs(trailingOnly = F)
-        t.lib_path <- paste( dirname(sub("--file=","",args[grep("--file",args)])),"/",sep="")
 
         """
-        template =  '--slave --file=$MPROPHET_BINDIR/mProphet.R --args ' \
+        template =  '--slave --file=$MPROPHET_BINDIR/mProphet.R --args bin_dir=$MPROPHET_BINDIR ' \
                     'run_log=FALSE workflow=LABEL_FREE help=0 ' \
                     'num_xval=$MPR_NUM_XVAL write_classifier=1 write_all_pg=1 ' \
                     'working_dir=$WORKDIR project=mProphet mquest=$FEATURETSV'

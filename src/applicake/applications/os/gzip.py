@@ -34,13 +34,15 @@ class Gzip(IWrapper):
              
         command = "gzip -v %s" % param
         
-        info['COMPRESS_OUT'] = outs
+        self._result_files = outs
         return command,info
            
     def validate_run(self,info,log, run_code,out_stream, err_stream): 
         if 0 != run_code:
             return run_code,info
-        if not FileUtils.is_valid_file(log, self._result_file):
-            log.critical('[%s] is not valid' %self._result_file)
-            return 1,info 
+        for file in self._result_files:
+            if not FileUtils.is_valid_file(log, file):
+                log.critical('[%s] is not valid' %file)
+                return 1,info 
+        info['COMPRESS_OUT'] = self._result_files
         return 0,info
