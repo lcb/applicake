@@ -165,7 +165,7 @@ MPR_NUM_XVAL = 5
 
 SPACE = LOBLUM
 PROJECT = TEST
-DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbix_dropbox
+DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
 """)
         sys.exit(0)
     elif sys.argv[1] == 'continue':
