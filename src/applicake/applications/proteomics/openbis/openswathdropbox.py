@@ -44,7 +44,6 @@ class Copy2SwathDropbox(Copy2Dropbox):
         keys = ['MPROPHET_TSV','MPROPHET_STATS','COMPRESS_OUT','FEATURETSV']
         files = []
         for key in keys:
-            log.warn(key)
             if isinstance(info[key], list):
                 files = info[key]
             else:
