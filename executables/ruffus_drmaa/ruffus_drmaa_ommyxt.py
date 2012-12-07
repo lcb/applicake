@@ -74,7 +74,7 @@ def tandeminteract(input_file_name, output_file_name,):
 def tandemrefresh(input_file_name, output_file_name):
    submitter.run('run_refreshparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandemrefresh'],lsfargs)
 
-@transform(tandemrefresh, regex("tandemrefresh.ini_"), "tandempeppro.ini_")
+@transform(tandemrefresh, regex("tandemrefresh.ini_"), "tandem.ini_")
 def tandemPepPro(input_file_name, output_file_name):
     submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name,'-n','tandempeppro'],lsfargs)
 
@@ -82,11 +82,11 @@ def tandemPepPro(input_file_name, output_file_name):
 ########################### MYRI #######################################
 
 
-@transform(dss, regex("dss.ini_"), "myrimatch.ini_")
+@transform(dss, regex("dss.ini_"), "myri.ini_")
 def myrimatch(input_file_name, output_file_name):
     submitter.run('run_myrimatch.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
 
-@transform(myrimatch, regex("myrimatch.ini_"), "myriattr.ini_")
+@transform(myrimatch, regex("myri.ini_"), "myriattr.ini_")
 def myriaddr(input_file_name, output_file_name):
     submitter.run('run_addSID2pepxml.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
     
@@ -102,7 +102,7 @@ def myriinteract(input_file_name, output_file_name,):
 def myrirefresh2(input_file_name, output_file_name):
     submitter.run('run_refreshparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','myrirefresh2'],lsfargs)
 
-@transform(myrirefresh2, regex("myrirefresh2.ini_"), "myripeppro.ini_")
+@transform(myrirefresh2, regex("myrirefresh2.ini_"), "myrimatch.ini_")
 def myriPepPro(input_file_name, output_file_name):
     submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name,'-n','myripeppro'],lsfargs)
 
@@ -114,11 +114,11 @@ def myriPepPro(input_file_name, output_file_name):
 def msconvert(input_file_name, output_file_name):
     submitter.run('run_mzxml2mgf.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
     
-@transform(msconvert, regex("msconvert.ini_"), "omssa.ini_")
+@transform(msconvert, regex("msconvert.ini_"), "oms.ini_")
 def omssa(input_file_name, output_file_name):
     submitter.run('run_omssa.py', ['-i',  input_file_name,'-o', output_file_name],lsfargs)
     
-@transform(omssa, regex("omssa.ini_"), "omssainteract.ini_")
+@transform(omssa, regex("oms.ini_"), "omssainteract.ini_")
 def omssainteract(input_file_name, output_file_name):
     submitter.run('run_interactparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','omssainteract'],lsfargs)   
 
@@ -126,7 +126,7 @@ def omssainteract(input_file_name, output_file_name):
 def omssarefresh(input_file_name, output_file_name):
     submitter.run('run_refreshparser.py', ['-i',  input_file_name,'-o', output_file_name,'-n','omssarefresh'],lsfargs)
 
-@transform(omssarefresh, regex("omssarefresh.ini_"), "omssapeppro.ini_")
+@transform(omssarefresh, regex("omssarefresh.ini_"), "omssa.ini_")
 def omssaPepPro(input_file_name, output_file_name):
     submitter.run('run_peptideprophet.py', ['-i',  input_file_name,'-o', output_file_name,'-n','omssapeppro'],lsfargs)
 
@@ -134,42 +134,45 @@ def omssaPepPro(input_file_name, output_file_name):
 ############################# MERGE SEARCH ENGINE RESULTS ################################## 
 
 
-@collate([omssaPepPro,tandemPepPro,myriPepPro],regex(r".*_(.+)$"),  r'mergeengines.ini_\1')
+@collate([omssaPepPro,tandemPepPro,myriPepPro],regex(r".*_(.+)$"),  r'output.ini_\1')
 def mergeEngines(input_file_names, output_file_name):
-    args = []
-    for f in input_file_names:
-        args.append('--COLLECTORS')
-        args.append(f)
-    args.append('-o')
-    args.append(output_file_name)
-    submitter.run('run_simple_collector.py', args ,lsfargs)
+    args = ['-i','input.ini','-o', output_file_name,'--ENGINES','tandem','--ENGINES','omssa','--ENGINES','myrimatch']
+    submitter.run('run_guse_enginecollector.py', args ,lsfargs)
     
-@transform(mergeEngines, regex("mergeengines.ini_"), "unifyengines.ini_")
+@transform(mergeEngines, regex("output.ini_"), "unifyengines.ini_")
 def unifyEngines(input_file_name, output_file_name):
     submitter.run('run_unify.py', ['-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE'] ,lsfargs)
 
-@transform(unifyEngines, regex("unifyengines.ini_"), "interprophetengines.ini_")
-def interprophetengines(input_file_name, output_file_name):
-    submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+@transform(unifyEngines, regex("unifyengines.ini_"), "keystolist.ini_")
+def keysToList(input_file_name, output_file_name):
+    submitter.run('run_keystolist.py',['-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS'],lsfargs)
+
+@transform(keysToList, regex("keystolist.ini_"), "interprophet1.ini_")
+def interprophet1(input_file_name, output_file_name):
+    submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name,'-n','iprophet1'],lsfargs)
 
 
 ############################# TAIL: PARAMGENERATE ##################################   
 
 
-@merge(interprophetengines, "collector.ini")
+@merge(interprophet1, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    submitter.run('run_guse_collector.py',['--COLLECTORS', 'interprophetengines.ini', '-o',output_file_name],lsfargs) 
+    submitter.run('run_guse_collector.py',['--COLLECTORS', 'interprophet1.ini', '-o',output_file_name],lsfargs) 
 
 @follows(collector)
 @split("collector.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
-    submitter.run('run_parameter_generator.py',['-i', input_file_name, '--GENERATORS','paramgenerate.ini','-s','file'],lsfargs)
+    submitter.run('run_parameter_generator.py',['-i', input_file_name, '--GENERATORS','paramgenerate.ini','-s','memory_all'],lsfargs)
 
-@transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet.ini_")
-def interprophet(input_file_name, output_file_name):
-    submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name],lsfargs)
+@transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet2.ini_")
+def interprophet2(input_file_name, output_file_name):
+    submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name,'-n','iprophet2'],lsfargs)
+    
+@transform(interprophet2, regex("interprophet2.ini_"), "keystolist2.ini_")
+def keysToList2(input_file_name, output_file_name):
+    submitter.run('run_keystolist.py',['-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS'],lsfargs)  
 
-@transform(interprophet, regex("interprophet.ini_"), "pepxml2csv.ini_")
+@transform(keysToList2, regex("keystolist2.ini_"), "pepxml2csv.ini_")
 def pepxml2csv(input_file_name, output_file_name):
     submitter.run('run_pep2csv.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
     
