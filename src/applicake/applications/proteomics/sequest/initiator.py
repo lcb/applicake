@@ -90,7 +90,7 @@ class SequestInitiator(Generator):
         info[self.PARAM_IDX] = '0'
         for idx, pepxml in enumerate(pepxmls.strip().split('\n')):
             dict = info.copy()
-            copyin = sorcAddr + ':' + sorcPath + pepxml
+            copyin = sorcAddr + ':' + pepxml
             copyout = os.path.join(info[self.WORKDIR])
             dict[self.SOURCE] = copyin+" "+copyout
             
