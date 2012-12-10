@@ -86,7 +86,6 @@ class SequestInitiator(Generator):
             raise Exception('Could not get list of pepxml.')
 
         dicts = []
-        parentcodes = []
         info[self.PARAM_IDX] = '0'
         for idx, pepxmldir in enumerate(pepxmldirs.strip().split('\n')):
             dict = info.copy()
@@ -103,7 +102,7 @@ class SequestInitiator(Generator):
             
             ###################################################
             try:
-                scdc = subprocess.check_output(['searchmzxml', pepxmldir + '.mzXML' ])
+                scdc = subprocess.check_output(['searchmzxml', pepxmldir + '.mzXML*' ])
             except:
                 raise Exception("Failed matching mzxml to samplecode")
             
@@ -112,10 +111,7 @@ class SequestInitiator(Generator):
             datasetcode = datasetcode.strip()
             dict['NEWBASENAME'] = samplecode + '~' + datasetcode
             dict['DATASET_CODE'] = datasetcode
-            #parentcodes.append(datasetcode)
             dicts.append(dict)
-        
-        #for dict in dicts:
-        #    dict['PARENT-DATA-SET-CODES'] = parentcodes
+
             
         return dicts
