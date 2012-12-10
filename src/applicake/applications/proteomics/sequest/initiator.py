@@ -29,8 +29,8 @@ class SequestInitiator(Generator):
         sorcPath = '/home/sorcerer/output/' + info['SEQUESTRESULTPATH'] + '/original/'
         
         info = self.addParamsToInfo(sorcAddr+":"+ sorcPath, info)
-        info = self.cpAndCheckDB(sorcAddr, info,log)
-        dicts = self.convertSeq2Pepxml(info, log,sorcAddr,sorcPath);
+        info = self.getAndCheckDB(sorcAddr, info,log)
+        dicts = self.getPepxmlAndCodes(info, log,sorcAddr,sorcPath);
         self.write_files(info, log, dicts)
         return 0,info
      
@@ -61,7 +61,7 @@ class SequestInitiator(Generator):
                 info['ENZYME'] = 'Semi-Tryptic'  
         return info
     
-    def cpAndCheckDB(self,sorcAddr,info,log):
+    def getAndCheckDB(self,sorcAddr,info,log):
         info['DBASE'] = os.path.join(info[self.WORKDIR], os.path.basename(info['SEQUESTDBASE']))
         print 
         try:
@@ -78,37 +78,32 @@ class SequestInitiator(Generator):
             sys.exit(1)
         return info
     
-    def convertSeq2Pepxml(self,info,log,sorcAddr,sorcPath):
-        pepxmldirs = ''
+    def getPepxmlAndCodes(self,info,log,sorcAddr,sorcPath):
+        pepxmls = ''
         try:
-            pepxmldirs = subprocess.check_output(['ssh', sorcAddr, 'find ' + sorcPath + '* -type d -maxdepth 1'])
+            pepxmls = subprocess.check_output(['ssh', sorcAddr, 'find ' + sorcPath + '*.pep.xml'])
+            pepxmls = pepxmls.replace(sorcPath + 'inputlists.pep.xml', '')
         except:
             raise Exception('Could not get list of pepxml.')
 
         dicts = []
         info[self.PARAM_IDX] = '0'
-        for idx, pepxmldir in enumerate(pepxmldirs.strip().split('\n')):
+        for idx, pepxml in enumerate(pepxmls.strip().split('\n')):
             dict = info.copy()
-            dict[self.FILE_IDX] = str(idx) 
-            pepxmldir = os.path.basename(pepxmldir)
-            try:
-                subprocess.check_call(['ssh', sorcAddr, 'cd ' + sorcPath + ';/usr/local/tpp/bin/Out2XML ' + pepxmldir + ' 1 -P.'])
-            except:
-                raise Exception("Couldnt convert pepxml: " + pepxmldir)
-            
-            copyin = sorcAddr + ':' + sorcPath + pepxmldir + '.pep.xml'
+            copyin = sorcAddr + ':' + sorcPath + pepxml
             copyout = os.path.join(info[self.WORKDIR])
             dict[self.SOURCE] = copyin+" "+copyout
             
             ###################################################
             try:
-                scdc = subprocess.check_output(['searchmzxml', pepxmldir + '.mzXML*' ])
+                scdc = subprocess.check_output(['searchmzxml', os.path.basename(pepxml).replace('.pep.xml','') + '.mzXML*' ])
             except:
                 raise Exception("Failed matching mzxml to samplecode")
             
             (samplecode, datasetcode) = scdc.split(':')
             samplecode = samplecode.strip()
             datasetcode = datasetcode.strip()
+            #newbasename for pepxmlcorrector
             dict['NEWBASENAME'] = samplecode + '~' + datasetcode
             dict['DATASET_CODE'] = datasetcode
             dicts.append(dict)
