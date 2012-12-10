@@ -136,12 +136,12 @@ def omssaPepPro(input_file_name, output_file_name):
 
 @collate([omssaPepPro,tandemPepPro,myriPepPro],regex(r".*_(.+)$"),  r'output.ini_\1')
 def mergeEngines(input_file_names, output_file_name):
-    args = ['-i','input.ini','-o', output_file_name,'--ENGINES','tandem','--ENGINES','omssa','--ENGINES','myrimatch']
+    args = ['-i','generate.ini_0','-o', 'notused.ini','--ENGINES','tandem','--ENGINES','omssa','--ENGINES','myrimatch']
     submitter.run('run_guse_enginecollector.py', args ,lsfargs)
     
 @transform(mergeEngines, regex("output.ini_"), "unifyengines.ini_")
 def unifyEngines(input_file_name, output_file_name):
-    submitter.run('run_unify.py', ['-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE'] ,lsfargs)
+    submitter.run('run_unify.py', ['-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE','-s','memory_all'] ,lsfargs)
 
 @transform(unifyEngines, regex("unifyengines.ini_"), "keystolist.ini_")
 def keysToList(input_file_name, output_file_name):
@@ -164,15 +164,15 @@ def collector(notused_input_file_names, output_file_name):
 def paramgenerator(input_file_name, notused_output_file_names):
     submitter.run('run_parameter_generator.py',['-i', input_file_name, '--GENERATORS','paramgenerate.ini','-s','memory_all'],lsfargs)
 
-@transform(paramgenerator, regex("paramgenerate.ini_"), "interprophet2.ini_")
+@transform(paramgenerator, regex("paramgenerate.ini_"), "keystolist2.ini_")
+def keysToList2(input_file_name, output_file_name):
+    submitter.run('run_keystolist.py',['-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS'],lsfargs)
+
+@transform(keysToList2, regex("keystolist2.ini_"), "interprophet2.ini_")
 def interprophet2(input_file_name, output_file_name):
     submitter.run('run_iprophet.py',['-i', input_file_name, '-o',output_file_name,'-n','iprophet2'],lsfargs)
     
-@transform(interprophet2, regex("interprophet2.ini_"), "keystolist2.ini_")
-def keysToList2(input_file_name, output_file_name):
-    submitter.run('run_keystolist.py',['-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS'],lsfargs)  
-
-@transform(keysToList2, regex("keystolist2.ini_"), "pepxml2csv.ini_")
+@transform(interprophet2, regex("interprophet2.ini_"), "pepxml2csv.ini_")
 def pepxml2csv(input_file_name, output_file_name):
     submitter.run('run_pep2csv.py',['-i', input_file_name, '-o',output_file_name],lsfargs)   
     
