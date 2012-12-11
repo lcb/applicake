@@ -90,13 +90,18 @@ class SequestInitiator(Generator):
         info[self.PARAM_IDX] = '0'
         for idx, pepxml in enumerate(pepxmls.strip().split('\n')):
             dict = info.copy()
+            dict[self.FILE_IDX] = idx
             copyin = sorcAddr + ':' + pepxml
             copyout = os.path.join(info[self.WORKDIR])
             dict[self.SOURCE] = copyin+" "+copyout
             
             ###################################################
             try:
-                scdc = subprocess.check_output(['searchmzxml', os.path.basename(pepxml).replace('.pep.xml','') + '.mzXML*' ])
+                mzbase = os.path.basename(pepxml)
+                mzbase = mzbase.replace('.pep.xml','')
+                if str(mzbase).endswith('_c'):
+                    mzbase = mzbase[:-2] 
+                scdc = subprocess.check_output(['searchmzxml', mzbase + '.mzXML*' ])
             except:
                 raise Exception("Failed matching mzxml to samplecode")
             
