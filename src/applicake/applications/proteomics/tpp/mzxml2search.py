@@ -41,7 +41,7 @@ class Mzxml2Search(IWrapper):
         info['MGF'] = self._result_file
         
         prefix,info = self.get_prefix(info,log)
-        command = "%s -mgf %s" %(wd,prefix,self._input_link) 
+        command = "%s -mgf %s" %(prefix,self._input_link) 
         return command,info  
     
     def set_args(self,log,args_handler):
