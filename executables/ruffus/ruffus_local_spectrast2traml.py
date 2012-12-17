@@ -2,7 +2,7 @@
 '''
 Created on Oct 18, 2012
 
-@author: quandtan
+@author: quandtan, loblum
 '''
 
 import sys
@@ -28,7 +28,7 @@ from applicake.framework import enums
 from applicake.framework.enums import KeyEnum
 from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.applications.proteomics.spectrast.spectrastirtcalibrator import SpectrastIrtCalibrator 
-from applicake.applications.proteomics.srm.tracsvfilter import TraCsvFilter
+#from applicake.applications.proteomics.srm.tracsvfilter import TraCsvFilter
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -59,22 +59,25 @@ DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
 STORAGE = file
 WORKFLOW = spectrast_create
-EXPERIMENT = E287475
-DBASE = /cluster/scratch/malars/bin/biodb/data/ex_ddb/20111006/decoy/ex_ddb_167.fasta
-NO_DECOY = True
-ANNOTATED = True
-NO_ISOTOPES = True
-MASSWIN = 0.025
-INTENSITY_CRITERIA = PeptideSequence 
+EXPERIMENT = E287621
+DBASE = /cluster/scratch/malars/bin/biodb/data/ex_pd/current/decoy/loblum_UPS1.fasta
+
+#tra2csv
+#NO_DECOY = True 
+#ANNOTATED = True
+#NO_ISOTOPES = True
+#MASSWIN = 0.025
+#INTENSITY_CRITERIA = PeptideSequence 
+RSQ_THRESHOLD = 0.0
+#fdr2prob
+DECOY_STRING = DECOY_
 FDR=0.01
+PROPHET_TYPE = IProphet
 FDR_LEVEL = psm
 NUM_LIMIT = 0
 MIN_PROB = 0.0001
-PROPHET_TYPE = IProphet
-DECOY_STRING = DECOY_
+
 """)
-#EXPERIMENT = E286955,E283473
-# N_MOST_INTENSE = 10
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
     
@@ -122,7 +125,7 @@ def unifier():
 @follows(unifier)
 @split("unifier.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-s','memory_all']
     runner = IniFileRunner2()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
@@ -147,53 +150,35 @@ def fdr2probability(input_file_name, output_file_name):
     #wrap(Fdr2Probability,input_file_name, output_file_name)
     wrap(Fdr2ProbabilityPython,input_file_name, output_file_name) 
     
+########################################################################
+  
 @transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
 def rawlib(input_file_name, output_file_name):
     wrap(RawLibrary,input_file_name, output_file_name)
-    
+  
 @transform(rawlib,regex('rawlibcreator.ini_'),'nodecoylib.ini_')
 def nodecoylib(input_file_name, output_file_name):
     wrap(NoDecoyLibrary,input_file_name, output_file_name)         
 
-#@transform(nodecoylib,regex('nodecoylib.ini_'),'irtcalibration.ini_')
-#def irtcalibration(input_file_name, output_file_name):
-#    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/spectrast2spectrast_irt.py',
-#                                                                   '-s','memory_all'])
+@transform(nodecoylib,regex('nodecoylib.ini_'),'irtcalibration.ini_')
+def irtcalibration(input_file_name, output_file_name):
+    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/spectrast2spectrast_irt.py'])
 
-#@transform(irtcalibration,regex('irtcalibration.ini_'),'consensuslib.ini_')
-@transform(nodecoylib,regex('nodecoylib.ini_'),'consensuslib.ini_')
+@transform(irtcalibration,regex('irtcalibration.ini_'),'consensuslib.ini_')
 def consensuslib(input_file_name, output_file_name):
     wrap(ConsensusLibrary,input_file_name, output_file_name) 
 
-#@transform(consensuslib,regex('consensuslib.ini_'),'createtxtlib.ini_')
-#def createtxtlib(input_file_name, output_file_name):
-#    wrap(CreateTxtLibrary,input_file_name, output_file_name)
-
-#@transform(createtxtlib,regex('createtxtlib.ini_'),'sptxt2tracsv.ini_')
 @transform(consensuslib,regex('consensuslib.ini_'),'sptxt2tracsv.ini_')
 def sptxt2tracsv(input_file_name, output_file_name):
-    wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py',
-                                                      '-s','memory_all']) 
+    wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py'])
 
-@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
-def tracsvfilter(input_file_name, output_file_name):
-    wrap(TraCsvFilter, input_file_name, output_file_name,['--MASSMODS', '-18','--MASSMODS','-80','--MASSMODS','-98']) 
-
-#@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2filter.ini_')
-#def tracsvfilter(input_file_name, output_file_name):
-#    wrap(SelectMostIntenseTransitionGroups,input_file_name, output_file_name,['--N_MOST_INTENSE','10',
-#                                                      '-s','memory_all']) 
-
-
-@transform(tracsvfilter,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
+@transform(sptxt2tracsv,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
                                                               '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 
 
-# in order to remove this node, sptxt2tracsv has to be adjusted
-@transform(tracsv2traml,regex('tracsv2traml.ini_'),'createbinlib.ini_')
-def createbinlib(input_file_name, output_file_name):
-    wrap(CreateBinLibrary,input_file_name, output_file_name)
+@transform(tracsv2traml,regex('tracsv2traml.ini_'),'openswathdecoy.ini_')
+def openswathdecoy(input_file_name, output_file_name):
+    wrap(DecoyGenerator,input_file_name, output_file_name)
 
-
-pipeline_run([tracsv2traml], multiprocess=3)
+pipeline_run([openswathdecoy], verbose=2, multiprocess=16)

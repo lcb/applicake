@@ -69,9 +69,9 @@ class LibraryCreator(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        spectrast_log = os.path.join(info[self.WORKDIR],'app.log')
         suffix = self.get_suffix(info, log)
-        command = '%s -cF%s -V -L%s %s ' % (prefix,self._template_file,spectrast_log,suffix)
+        command = '%s -cF%s -V %s ' % (prefix,self._template_file,suffix)
+        
         return command,info
 
     def set_args(self,log,args_handler):

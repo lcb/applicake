@@ -40,7 +40,9 @@ class Xtandem(SearchEngine):
         if info['XTANDEM_SCORE'] == 'default': # for default score, no entry is allowed in template
             info['XTANDEM_SCORE'] = ''
         else:
-            info['XTANDEM_SCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' % info['XTANDEM_SCORE']
+            info['XTANDEM_SCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' \
+            '<note label="spectrum, use conditioning" type="input" >no</note>' \
+            '<note label="scoring, minimum ion count" type="input">1</note>' % info['XTANDEM_SCORE']
         return info   
 
     def _write_input_files(self,info,log):       
@@ -126,7 +128,7 @@ class Xtandem(SearchEngine):
         """        
         args_handler = super(Xtandem, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')   
-        args_handler.add_app_args(log, 'XTANDEM_SCORE', 'Scoring algorithm used in the search.',choices=['default','k-score','c-score','hrk-score'])        
+        args_handler.add_app_args(log, 'XTANDEM_SCORE', 'Scoring algorithm used in the search.',choices=['default','k-score'])        
         return args_handler
     
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -162,14 +164,11 @@ class XtandemTemplate(BasicTemplateHandler):
     def read_template(self, info, log):
         """
         See super class.
+        Template carefully checked Dec 2012 by hroest, olgas & loblum 
         """
         template = """<?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="tandem-input-style.xsl"?>
 <bioml>
-
-<note type="heading">Paths</note>    
-    <note type="input" label="list path, default parameters">default_input.xml</note>
-    <note type="input" label="list path, taxonomy information">taxonomy_pro.xml</note>
 
 <note type="heading">Spectrum general</note>    
     <note type="input" label="spectrum, fragment monoisotopic mass error">$FRAGMASSERR</note>
@@ -182,12 +181,6 @@ class XtandemTemplate(BasicTemplateHandler):
 <note type="heading">Spectrum conditioning</note>
     <note type="input" label="spectrum, fragment mass type">monoisotopic</note>
     <note type="input" label="spectrum, dynamic range">1000.0</note>
-    <note>
-        This parameter is used to normalize the intensity values of fragment ions, from spectrum to spectrum.
-        For example, if Drange = 100.0, then the intensity of the most intense peak in a spectrum is set to 100, and all
-        of the other intensities are linearly scaled to that intensity. Any peak with a scaled intensity of less than 1 is rejected
-        as being outside of the dynamic range. Therefore, in addition to normalizing the spectra, it sets an effective relative threshold for peaks.
-    </note>
     <note type="input" label="spectrum, total peaks">50</note>
     <note type="input" label="spectrum, maximum parent charge">5</note>
     <note type="input" label="spectrum, use noise suppression">yes</note>
@@ -206,14 +199,13 @@ class XtandemTemplate(BasicTemplateHandler):
     <note type="input" label="protein, taxon">no default</note>
     <note type="input" label="protein, cleavage site">[RK]|{P}</note>
     <note type="input" label="protein, cleavage semi">$XTANDEM_SEMI_CLEAVAGE</note>
+<!--   do not add, otherwise xinteracts generates tons of confusing modification entries
     <note type="input" label="protein, cleavage C-terminal mass change">+17.00305</note>
     <note type="input" label="protein, cleavage N-terminal mass change">+1.00794</note>    
+-->
     <note type="input" label="protein, N-terminal residue modification mass">0.0</note>
     <note type="input" label="protein, C-terminal residue modification mass">0.0</note>
     <note type="input" label="protein, homolog management">no</note>
-    <note type="input" label="protein, quick acetyl">yes</note>
-    <note>When this parameter is yes, these common modifications are checked for the peptides generated from the protein's N-terminus, at all stages of analysis.</note>
-    <note type="input" label="protein, stP bias">yes</note>
 
 
 <note type="heading">Scoring</note>
@@ -227,25 +219,10 @@ class XtandemTemplate(BasicTemplateHandler):
     <note type="input" label="scoring, cyclic permutation">no</note>
     <note type="input" label="scoring, include reverse">no</note>
     $XTANDEM_SCORE
-    <note type="input" label="scoring, minimum ion count">1</note>
 
 
 <note type="heading">model refinement paramters</note>
-    <!--<note type="input" label="refine">yes</note>-->
     <note type="input" label="refine">no</note>
-    <note type="input" label="refine, spectrum synthesis">yes</note>
-    <note type="input" label="refine, maximum valid expectation value">0.1</note>
-    <!--<note type="input" label="refine, potential N-terminus modifications">42.01056</note>-->
-    <note type="input" label="refine, potential C-terminus modifications"></note>
-    <note type="input" label="refine, unanticipated cleavage">no</note>
-    <note type="input" label="refine, cleavage semi">no</note>
-    <note type="input" label="refine, modification mass">57.021464@C</note>
-    <!--<note type="input" label="refine, potential modification mass">79.966331@S,79.966331@T,79.966331@Y</note>-->
-    <note type="input" label="refine, point mutations">no</note>
-    <note type="input" label="refine, use potential modifications for full refinement">yes</note>
-    <note type="input" label="refine, potential modification motif"></note>
-    <!--<note type="input" label="scoring, minimum ion count">4</note>-->
-
 
 <note type="heading">Output</note>
     <note type="input" label="output, message">testing 1 2 3</note>

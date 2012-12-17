@@ -42,7 +42,7 @@ class Runner(KeyEnum):
         default_info = {
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
-                        self.LOG_LEVEL:'DEBUG',
+                        self.LOG_LEVEL:'INFO',
                         self.COPY_TO_WD: [],  
                         self.PRINT_LOG: True      
                         } 
