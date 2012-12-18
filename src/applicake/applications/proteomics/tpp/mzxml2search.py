@@ -14,11 +14,7 @@ class Mzxml2Search(IWrapper):
     """
     
     def __init__(self):
-        self._default_prefix = 'MzXML2Search'
-        base = self.__class__.__name__
-        self._input_link = '%s.mzXML' % base
-        self._result_file = '%s.mgf' % base     
-
+        self._default_prefix = 'MzXML2Search'   
 
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -31,17 +27,16 @@ class Mzxml2Search(IWrapper):
         """
         See interface.
         """
-        
         wd = info[self.WORKDIR]
+        basename = os.path.basename(info['MZXML'])
+        inputlink = os.path.join(wd,basename)
+        os.symlink(info['MZXML'], inputlink)
         
-        self._input_link = os.path.join(wd,self._input_link)
-        os.symlink(info['MZXML'], self._input_link)
-        
-        self._result_file = os.path.join(wd,self._result_file)
+        self._result_file = os.path.join(wd,os.path.splitext(basename)[0]+'.mgf')
         info['MGF'] = self._result_file
         
         prefix,info = self.get_prefix(info,log)
-        command = "%s -mgf %s" %(prefix,self._input_link) 
+        command = "%s -mgf %s" %(prefix,inputlink) 
         return command,info  
     
     def set_args(self,log,args_handler):
