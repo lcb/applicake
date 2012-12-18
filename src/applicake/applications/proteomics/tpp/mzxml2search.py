@@ -26,6 +26,8 @@ class Mzxml2Search(IWrapper):
     def prepare_run(self,info,log):
         """
         See interface.
+        
+        Keep orinial mzXML filename so TITLE tag is correctly in mgf output
         """
         wd = info[self.WORKDIR]
         basename = os.path.basename(info['MZXML'])

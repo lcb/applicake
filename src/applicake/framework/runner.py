@@ -42,7 +42,7 @@ class Runner(KeyEnum):
         default_info = {
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
-                        self.LOG_LEVEL:'INFO',
+                        self.LOG_LEVEL:'DEBUG',
                         self.COPY_TO_WD: [],  
                         self.PRINT_LOG: True      
                         } 
@@ -84,7 +84,10 @@ class Runner(KeyEnum):
                 # sys.exit(1) so the final dear_down can start
                 info = default_info
                 sys.exit(1)
-            log.debug('content of info [%s]' % info)
+            if self.LOG_LEVEL in info:
+                log.debug('Setting loglevel to %s',info[self.LOG_LEVEL])
+                log.setLevel(info[self.LOG_LEVEL])
+            log.info('initial content of info [%s]' % info)
             info = DictUtils.merge(log,info, default_info,priority='left')
             log.debug('Added default values to info they were not set before')            
             log.debug('content of final info [%s]' % info)   
@@ -126,7 +129,7 @@ class Runner(KeyEnum):
             else:
                 stream = tmp_log_stream               
             stream.seek(0)               
-            if info[self.PRINT_LOG] or info[self.STORAGE]== 'memory_all':
+            if info[self.PRINT_LOG]:
                 sys.stderr.write(stream.read())
             self.info = info  
             return exit_code
@@ -173,7 +176,7 @@ class Runner(KeyEnum):
                     src = r'%s' % os.path.abspath(path) 
                     try:
                         shutil.copy(src,wd) 
-                        log.debug('Copied [%s] to [%s]' % (src,wd))
+                        log.info('Copied [%s] to [%s]' % (src,wd))
                     except:
                         log.critical('Counld not copy [%s] to [%s]' % (src,wd))
                         return (1,info,log)            
@@ -215,7 +218,7 @@ class Runner(KeyEnum):
                         dest = r'%s' % os.path.join(wd,os.path.basename(path))                    
                     try:
                         shutil.copy(src,wd)
-                        log.debug('Copy [%s] to [%s]' % (src,dest))
+                        log.info('Copy [%s] to [%s]' % (src,dest))
                     except:
                         if FileUtils.is_valid_file(log, dest):
                             log.debug('file [%s] already exists' % dest)
