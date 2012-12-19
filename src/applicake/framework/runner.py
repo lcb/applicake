@@ -111,6 +111,7 @@ class Runner(KeyEnum):
             if exit_code != 0:
                 log.fatal('exit code of run_app() != 0')
                 if info[self.STORAGE].startswith('memory'):
+                    print self.reset_streams()
                     print self.out_stream.read()
                     print self.err_stream.read()
                 sys.exit(1)                             
