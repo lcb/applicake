@@ -85,7 +85,7 @@ class Runner(KeyEnum):
                 info = default_info
                 sys.exit(1)
             if self.LOG_LEVEL in info:
-                log.debug('Setting loglevel to %s',info[self.LOG_LEVEL])
+                log.debug('Setting to loglevel from info: %s',info[self.LOG_LEVEL])
                 log.setLevel(info[self.LOG_LEVEL])
             log.info('initial content of info [%s]' % info)
             info = DictUtils.merge(log,info, default_info,priority='left')
@@ -129,7 +129,7 @@ class Runner(KeyEnum):
             else:
                 stream = tmp_log_stream               
             stream.seek(0)               
-            if info[self.PRINT_LOG]:
+            if info[self.PRINT_LOG] or info[self.STORAGE]== 'memory_all':
                 sys.stderr.write(stream.read())
             self.info = info  
             return exit_code
@@ -176,7 +176,7 @@ class Runner(KeyEnum):
                     src = r'%s' % os.path.abspath(path) 
                     try:
                         shutil.copy(src,wd) 
-                        log.info('Copied [%s] to [%s]' % (src,wd))
+                        log.debug('Copied [%s] to [%s]' % (src,wd))
                     except:
                         log.critical('Counld not copy [%s] to [%s]' % (src,wd))
                         return (1,info,log)            
@@ -198,10 +198,11 @@ class Runner(KeyEnum):
                 self.err_stream.seek(0)
                 for line in self.err_stream.readlines():
                     print line 
-                sys.stderr.write('==log==\n')
-                self.log_stream.seek(0)
-                for line in self.log_stream.readlines():
-                    sys.stderr.write(line)                                    
+                #print of log done in finally of __call__
+                #sys.stderr.write('==log==\n')
+                #self.log_stream.seek(0)
+                #for line in self.log_stream.readlines():
+                #    sys.stderr.write(line)                                    
             # move created files to working directory
             # 'created_files might be none e.g. if memory-storage is used   
             if info[self.COPY_TO_WD] != []:  
@@ -218,7 +219,7 @@ class Runner(KeyEnum):
                         dest = r'%s' % os.path.join(wd,os.path.basename(path))                    
                     try:
                         shutil.copy(src,wd)
-                        log.info('Copy [%s] to [%s]' % (src,dest))
+                        log.debug('Copy [%s] to [%s]' % (src,dest))
                     except:
                         if FileUtils.is_valid_file(log, dest):
                             log.debug('file [%s] already exists' % dest)
