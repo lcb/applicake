@@ -6,10 +6,10 @@ Created on Nov 16, 2012
 '''
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.openswath.splitwindows import SplitWindows
+from applicake.applications.proteomics.openswath.splitwindows import SplitWindowsConvertZip
 
 runner = WrapperRunner()
-application = SplitWindows()
+application = SplitWindowsConvertZip()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

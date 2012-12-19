@@ -21,7 +21,7 @@ from applicake.applications.commons.generator import Generator
 #workflow specific inputs 
 from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.proteomics.openbis.dss import Dss
-from applicake.applications.proteomics.openswath.splitwindows import SplitWindows
+from applicake.applications.proteomics.openswath.splitwindows import SplitWindowsConvertZip
 from applicake.applications.proteomics.openswath.mzxmls2mzmls import Mzxmls2Mzmls
 from applicake.applications.proteomics.openswath.chromatogramextractor import ChromatogramExtractor, IRTChromatogramExtractor
 from applicake.applications.proteomics.openswath.openswathrtnormalizer import OpenSwathRTNormalizer
@@ -76,14 +76,9 @@ def dss(input_file_name, output_file_name):
 
 @transform(dss, regex("dss.ini_"), "splitwindows.ini_")
 def splitwindows(input_file_name, output_file_name):
-    WrapApp(SplitWindows,input_file_name, output_file_name) 
+    WrapApp(SplitWindowsConvertZip,input_file_name, output_file_name) 
 
-@transform(splitwindows, regex("splitwindows.ini_*"), 'convertmz.ini_')
-def convertmz(input_file_name, output_file_name):
-    WrapApp(Mzxmls2Mzmls,input_file_name, output_file_name) 
-
-
-@transform(convertmz, regex("convertmz.ini_*"), "IRTchromatogramextractor.ini_")
+@transform(convertmz, regex("splitwindows.ini_*"), "IRTchromatogramextractor.ini_")
 def IRTchromatogramextractor(input_file_name, output_file_name):
     WrapApp(IRTChromatogramExtractor, input_file_name, output_file_name,['-n','IRTChromatogramExtractor']) 
        

@@ -63,7 +63,7 @@ class ChromatogramExtractor(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.') 
         args_handler.add_app_args(log, 'TRAML', 'Path to the TraML file.')
-        args_handler.add_app_args(log, 'MZML', 'Path to the mzML files.')
+        args_handler.add_app_args(log, 'MZML', 'Comma separated list of the mzML(.gz) files.')
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', 'minimum upper edge distance parameter')
         args_handler.add_app_args(log, 'EXTRACTION_WINDOW', 'extraction window to extract around')
         args_handler.add_app_args(log, 'RT_EXTRACTION_WINDOW', 'RT extraction window to extract around')
