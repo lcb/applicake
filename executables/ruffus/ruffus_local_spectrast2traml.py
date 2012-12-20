@@ -60,6 +60,7 @@ LOG_LEVEL = INFO
 STORAGE = memory_all
 WORKFLOW = traml_create
 EXPERIMENT = E287728
+THREADS = 8
 
 #fdr2prob
 DECOY_STRING = DECOY_

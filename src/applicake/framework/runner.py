@@ -87,6 +87,8 @@ class Runner(KeyEnum):
                 sys.exit(1)
             log.info('initial content of info [%s]' % info)
             info = DictUtils.merge(log,info, default_info,priority='left')
+            if isinstance(info[self.LOG_LEVEL],list):
+                info[self.LOG_LEVEL] = info[self.LOG_LEVEL][0]
             log.debug('Setting to loglevel from info: %s',info[self.LOG_LEVEL])
             log.setLevel(info[self.LOG_LEVEL])
             log.debug('Added default values to info they were not set before')            
