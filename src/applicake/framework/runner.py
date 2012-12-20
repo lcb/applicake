@@ -79,10 +79,11 @@ class Runner(KeyEnum):
             try:
                 # overwrite previous default values
                 info = info_handler.get_info(log, pargs)
-            except:
+            except Exception, e:
                 # if get_info() fails, default info is set and the program stopped by
                 # sys.exit(1) so the final dear_down can start
                 info = default_info
+                log.exception(e)
                 sys.exit(1)
             log.info('initial content of info [%s]' % info)
             info = DictUtils.merge(log,info, default_info,priority='left')

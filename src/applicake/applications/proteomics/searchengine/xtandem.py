@@ -5,7 +5,6 @@ Created on May 24, 2012
 @author: quandtan
 '''
 import os
-from applicake.applications.proteomics.modifications import ModificationDb
 from applicake.applications.proteomics.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
@@ -35,14 +34,21 @@ class Xtandem(SearchEngine):
 
     def _define_score(self, info, log):
         if not info.has_key('XTANDEM_SCORE'):
-            info['XTANDEM_SCORE'] = 'default'
-            log.debug('did not find value for key [%s]. set it to [%s]' % ('XTANDEM_SCORE', info['XTANDEM_SCORE']))
-        if info['XTANDEM_SCORE'] == 'default': # for default score, no entry is allowed in template
+            log.info('No score given, using default score')
             info['XTANDEM_SCORE'] = ''
-        else:
+        # for default score, no entry is allowed in template
+        elif info['XTANDEM_SCORE'] == 'default': 
+            log.info('Using default score')
+            info['XTANDEM_SCORE'] = ''
+        # for k-score add special tags
+        elif info['XTANDEM_SCORE'] == 'k-score':
+            log.info('Using k-score')
             info['XTANDEM_SCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' \
             '<note label="spectrum, use conditioning" type="input" >no</note>' \
             '<note label="scoring, minimum ion count" type="input">1</note>' % info['XTANDEM_SCORE']
+        else:
+            log.warn('Using special score %s' % info['XTANDEM_SCORE'])
+            info['XTANDEM_SCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' % info['XTANDEM_SCORE']
         return info   
 
     def _write_input_files(self,info,log):       
@@ -128,7 +134,7 @@ class Xtandem(SearchEngine):
         """        
         args_handler = super(Xtandem, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')   
-        args_handler.add_app_args(log, 'XTANDEM_SCORE', 'Scoring algorithm used in the search.',choices=['default','k-score'])        
+        args_handler.add_app_args(log, 'XTANDEM_SCORE', 'Scoring algorithm used in the search.',choices=['default','k-score','c-score','hrk-score',])        
         return args_handler
     
     def validate_run(self,info,log, run_code,out_stream, err_stream):

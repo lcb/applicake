@@ -27,18 +27,20 @@ class OpenSwathDecoyGenerator(IWrapper):
             theoretical = ''
             
         prefix,info = self.get_prefix(info,log)
-        command = '%s -in %s -out %s -method %s -append -exclude_similar %s' % (prefix,
+        command = '%s -in %s -out %s -method %s -append -exclude_similar %s -threads %s' % (prefix,
                                                                                 info[self.TRAML],
                                                                                 self._result_file,
                                                                                 info['SWDECOY_METHOD'],
-                                                                                theoretical)
+                                                                                theoretical,
+                                                                                info['THREADS'])
         return command,info
 
     def set_args(self,log,args_handler):
         args_handler.add_app_args(log, self.TRAML, 'input traml')
-        args_handler.add_app_args(log, 'SWDECOY_METHOD', 'decoy generation method',choices=['shuffle','pseudo-reverse','reverse','shift'])
+        args_handler.add_app_args(log, 'SWDECOY_METHOD', 'decoy generation method (shuffle, pseudo-reverse, reverse, shift)')
         args_handler.add_app_args(log, 'SWDECOY_THEORETICAL', 'Set true if only annotated transitions should be used and be corrected to the theoretical mz')
-        args_handler.add_app_args(log, self.WORKDIR, 'working directory')        
+        args_handler.add_app_args(log, self.WORKDIR, 'working directory')   
+        args_handler.add_app_args(log, 'THREADS', 'Number of threads used in the process.')      
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
