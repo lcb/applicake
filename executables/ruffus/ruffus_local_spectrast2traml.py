@@ -28,7 +28,6 @@ from applicake.framework import enums
 from applicake.framework.enums import KeyEnum
 from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.applications.proteomics.spectrast.spectrastirtcalibrator import SpectrastIrtCalibrator 
-#from applicake.applications.proteomics.srm.tracsvfilter import TraCsvFilter
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -38,7 +37,6 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     application = applic()
     if isinstance(application, IApplication):
         runner = ApplicationRunner()
-        print 'use application runner'
     elif isinstance(application, IWrapper):
         runner = WrapperRunner()
     else:
@@ -57,18 +55,10 @@ def setup():
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = DEBUG
-STORAGE = file
-WORKFLOW = spectrast_create
-EXPERIMENT = E287621
-DBASE = /cluster/scratch/malars/bin/biodb/data/ex_pd/current/decoy/loblum_UPS1.fasta
+STORAGE = memory
+WORKFLOW = traml_create
+EXPERIMENT = E287708
 
-#tra2csv
-#NO_DECOY = True 
-#ANNOTATED = True
-#NO_ISOTOPES = True
-#MASSWIN = 0.025
-#INTENSITY_CRITERIA = PeptideSequence 
-RSQ_THRESHOLD = 0.0
 #fdr2prob
 DECOY_STRING = DECOY_
 FDR=0.01
@@ -77,17 +67,44 @@ FDR_LEVEL = psm
 NUM_LIMIT = 0
 MIN_PROB = 0.0001
 
+#tracsvFilter
+#NO_DECOY = True 
+#ANNOTATED = True
+#NO_ISOTOPES = True
+#MASSWIN = 0.025
+#INTENSITY_CRITERIA = PeptideSequence 
+#DBASE = /cluster/scratch_xl/shareholder/imsb_ra/bin/biodb/data/ex_pd/20121212/decoy/hroest_NC_010172.1.M.extorquens_PA1.fasta
+
+
+#sptxt2csv
+LOW_MZ_CUTOFF=300
+MIN_NR_TR=2
+MAX_NR_TR=6
+
+#spectrast2spectrast_irt
+RSQ_THRESHOLD = 0.5
+
+#decoygen
+SWDECOY_METHOD=
+SWDECOY_THEORETHICAL = True
+#append = always true
+
+
+
+
 """)
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
     
 @follows(setup)
-def getexperiment():
-     wrap(Dss,'input.ini','getexperiment.ini',['--PREFIX', 'getexperiment'])
+@files('input.ini','getexperiment.ini')
+def getexperiment(input_file_name,output_file_name):
+     wrap(Dss,input_file_name,output_file_name,['--PREFIX', 'getexperiment'])
 
 @follows(getexperiment)
-def processexperiment():
-    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini',['--GETCODES','True'])
+@files('getexperiment.ini','processexperiment.ini')
+def processexperiment(input_file_name,output_file_name):
+    wrap(ProcessExperiment,input_file_name,output_file_name,['--GETCODES','True'])
 
 @follows(processexperiment)   
 @split('processexperiment.ini', "generate.ini_*")
@@ -114,8 +131,9 @@ def collector(notused_input_file_names, output_file_name):
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
 @follows(collector)
-def unifier():
-    argv = ['','-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
+@files('collector.ini','unifier.ini')
+def unifier(input_file_name,output_file_name):
+    argv = ['','-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE']
     runner = IniFileRunner2()
     application = Unifier()
     exit_code = runner(argv, application)
@@ -162,7 +180,7 @@ def nodecoylib(input_file_name, output_file_name):
 
 @transform(nodecoylib,regex('nodecoylib.ini_'),'irtcalibration.ini_')
 def irtcalibration(input_file_name, output_file_name):
-    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/spectrast2spectrast_irt.py'])
+    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/spectrast2spectrast_irt.py','-p'])
 
 @transform(irtcalibration,regex('irtcalibration.ini_'),'consensuslib.ini_')
 def consensuslib(input_file_name, output_file_name):
@@ -174,8 +192,7 @@ def sptxt2tracsv(input_file_name, output_file_name):
 
 @transform(sptxt2tracsv,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
-    wrap(ConvertTSVToTraML,input_file_name, output_file_name,['--%s' % KeyEnum.THREADS,'1',
-                                                              '--%s' % KeyEnum.PREFIX,'module unload openms;module unload openms;module load openms/svn;ConvertTSVToTraML']) 
+    wrap(ConvertTSVToTraML,input_file_name, output_file_name) 
 
 @transform(tracsv2traml,regex('tracsv2traml.ini_'),'openswathdecoy.ini_')
 def openswathdecoy(input_file_name, output_file_name):

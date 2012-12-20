@@ -84,11 +84,10 @@ class Runner(KeyEnum):
                 # sys.exit(1) so the final dear_down can start
                 info = default_info
                 sys.exit(1)
-            if self.LOG_LEVEL in info:
-                log.debug('Setting to loglevel from info: %s',info[self.LOG_LEVEL])
-                log.setLevel(info[self.LOG_LEVEL])
             log.info('initial content of info [%s]' % info)
             info = DictUtils.merge(log,info, default_info,priority='left')
+            log.debug('Setting to loglevel from info: %s',info[self.LOG_LEVEL])
+            log.setLevel(info[self.LOG_LEVEL])
             log.debug('Added default values to info they were not set before')            
             log.debug('content of final info [%s]' % info)   
             log.info('Start [%s]' % self.create_workdir.__name__)

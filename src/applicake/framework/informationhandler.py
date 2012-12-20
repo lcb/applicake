@@ -17,7 +17,7 @@ class BasicInformationHandler(IInformationHandler):
     
     def __init__(self):
         # keys that have to be removed before writing the information object
-        self.remove_keys = [self.INPUT,self.OUTPUT,self.LOG_LEVEL,self.COPY_TO_WD,
+        self.remove_keys = [self.INPUT,self.OUTPUT,self.COPY_TO_WD,
                        self.GENERATOR,self.COLLECTOR,self.NAME,self.PREFIX,
                        self.TEMPLATE,self.PRINT_LOG]
     
