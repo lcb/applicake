@@ -28,6 +28,8 @@ from applicake.framework import enums
 from applicake.framework.enums import KeyEnum
 from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.applications.proteomics.spectrast.spectrastirtcalibrator import SpectrastIrtCalibrator 
+from applicake.applications.proteomics.openswath.decoygen import OpenSwathDecoyGenerator
+from applicake.applications.proteomics.openswath.copytraml import CopyTraml
     
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -54,10 +56,10 @@ def setup():
             f.write("""
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
-LOG_LEVEL = DEBUG
-STORAGE = memory
+LOG_LEVEL = INFO
+STORAGE = memory_all
 WORKFLOW = traml_create
-EXPERIMENT = E287708
+EXPERIMENT = E287728
 
 #fdr2prob
 DECOY_STRING = DECOY_
@@ -85,12 +87,8 @@ MAX_NR_TR=6
 RSQ_THRESHOLD = 0.5
 
 #decoygen
-SWDECOY_METHOD=
-SWDECOY_THEORETHICAL = True
-#append = always true
-
-
-
+SWDECOY_METHOD = shuffle
+SWDECOY_THEORETICAL = True
 
 """)
     else:
@@ -196,6 +194,11 @@ def tracsv2traml(input_file_name, output_file_name):
 
 @transform(tracsv2traml,regex('tracsv2traml.ini_'),'openswathdecoy.ini_')
 def openswathdecoy(input_file_name, output_file_name):
-    wrap(DecoyGenerator,input_file_name, output_file_name)
+    wrap(OpenSwathDecoyGenerator,input_file_name, output_file_name)
 
-pipeline_run([openswathdecoy], verbose=2, multiprocess=16)
+@transform(tracsv2traml,regex('tracsv2traml.ini_'),'openswathdecoy.ini_')
+def copytraml(input_file_name, output_file_name):
+    wrap(CopyTraml,input_file_name, output_file_name)
+
+
+pipeline_run([copytraml], verbose=2, multiprocess=16)
