@@ -69,15 +69,6 @@ FDR_LEVEL = psm
 NUM_LIMIT = 0
 MIN_PROB = 0.0001
 
-#tracsvFilter
-#NO_DECOY = True 
-#ANNOTATED = True
-#NO_ISOTOPES = True
-#MASSWIN = 0.025
-#INTENSITY_CRITERIA = PeptideSequence 
-#DBASE = /cluster/scratch_xl/shareholder/imsb_ra/bin/biodb/data/ex_pd/20121212/decoy/hroest_NC_010172.1.M.extorquens_PA1.fasta
-
-
 #sptxt2csv
 LOW_MZ_CUTOFF=300
 MIN_NR_TR=2
@@ -88,8 +79,11 @@ RSQ_THRESHOLD = 0.5
 
 #decoygen
 SWDECOY_METHOD = shuffle
-SWDECOY_THEORETICAL = True
+SWDECOY_THEORETICAL = False
 
+#cp2traml
+TRAML_DIR = /cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile
+TRAML_NAME = loblum_PA1.traml
 """)
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
