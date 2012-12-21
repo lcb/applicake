@@ -116,7 +116,7 @@ def dss(input_file_name, output_file_name):
 
 @merge(dss, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,'-s','file']
+    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,'-s','memory_all','-l','INFO']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -136,7 +136,7 @@ def unifier(input_file_name,output_file_name):
 @follows(unifier)
 @split("unifier.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-s','memory_all']
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
     runner = IniFileRunner2()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
@@ -173,7 +173,7 @@ def nodecoylib(input_file_name, output_file_name):
 
 @transform(nodecoylib,regex('nodecoylib.ini_'),'irtcalibration.ini_')
 def irtcalibration(input_file_name, output_file_name):
-    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/spectrast2spectrast_irt.py','-p'])
+    wrap(SpectrastIrtCalibrator,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/spectrast2spectrast_irt.py'])
 
 @transform(irtcalibration,regex('irtcalibration.ini_'),'consensuslib.ini_')
 def consensuslib(input_file_name, output_file_name):
@@ -183,7 +183,7 @@ def consensuslib(input_file_name, output_file_name):
 def sptxt2tracsv(input_file_name, output_file_name):
     wrap(Sptxt2Csv,input_file_name, output_file_name,['--PREFIX','/cluster/apps/openms/openswath-testing/mapdiv/scripts/assays/sptxt2csv.py'])
 
-@transform(sptxt2tracsv,regex('tracsv2filter.ini_'),'tracsv2traml.ini_')
+@transform(sptxt2tracsv,regex('sptxt2tracsv.ini_'),'tracsv2traml.ini_')
 def tracsv2traml(input_file_name, output_file_name):
     wrap(ConvertTSVToTraML,input_file_name, output_file_name) 
 
@@ -191,7 +191,7 @@ def tracsv2traml(input_file_name, output_file_name):
 def openswathdecoy(input_file_name, output_file_name):
     wrap(OpenSwathDecoyGenerator,input_file_name, output_file_name)
 
-@transform(tracsv2traml,regex('tracsv2traml.ini_'),'openswathdecoy.ini_')
+@transform(openswathdecoy,regex('openswathdecoy.ini_'),'copytraml.ini_')
 def copytraml(input_file_name, output_file_name):
     wrap(CopyTraml,input_file_name, output_file_name)
 
