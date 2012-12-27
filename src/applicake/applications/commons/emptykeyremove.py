@@ -15,6 +15,8 @@ class EmptyKeyRemover(IApplication):
             if value == None or value == "":
                 log.debug("Removing empty key %s" % key)
                 del info[key]
+            else:
+                print "%s = %s" % key,value
 
         return (0,info)
     

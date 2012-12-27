@@ -116,7 +116,7 @@ def dss(input_file_name, output_file_name):
 
 @merge(dss, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,'-s','memory_all','-l','INFO']
+    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,]
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
@@ -124,19 +124,9 @@ def collector(notused_input_file_names, output_file_name):
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
 @follows(collector)
-@files('collector.ini','unifier.ini')
-def unifier(input_file_name,output_file_name):
-    argv = ['','-i', input_file_name, '-o',output_file_name,'--UNIFIER_REDUCE']
-    runner = IniFileRunner2()
-    application = Unifier()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('unifier',exit_code))  
-
-@follows(unifier)
-@split("unifier.ini", "paramgenerate.ini_*")
+@split("collector.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-s','memory_all','-l','INFO']
     runner = IniFileRunner2()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
