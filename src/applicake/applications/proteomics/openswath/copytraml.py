@@ -24,5 +24,5 @@ class CopyTraml(IApplication):
             return 1,info
         
         shutil.copy(infile, resultfile)
-        log.info('Final TraML: %s' % resultfile)
+        print 'Final TraML: %s' % resultfile
         return 0,info
