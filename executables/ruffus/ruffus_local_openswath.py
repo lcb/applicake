@@ -77,7 +77,7 @@ def dss(input_file_name, output_file_name):
 def splitwindows(input_file_name, output_file_name):
     WrapApp(SplitWindowsConvertZip,input_file_name, output_file_name) 
 
-@transform(convertmz, regex("splitwindows.ini_*"), "IRTchromatogramextractor.ini_")
+@transform(splitwindows, regex("splitwindows.ini_*"), "IRTchromatogramextractor.ini_")
 def IRTchromatogramextractor(input_file_name, output_file_name):
     WrapApp(IRTChromatogramExtractor, input_file_name, output_file_name,['-n','IRTChromatogramExtractor']) 
        
