@@ -22,7 +22,6 @@ from applicake.applications.commons.generator import Generator
 from applicake.applications.commons.generator import DatasetcodeGenerator
 from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.openswath.splitwindows import SplitWindowsConvertZip
-from applicake.applications.proteomics.openswath.mzxmls2mzmls import Mzxmls2Mzmls
 from applicake.applications.proteomics.openswath.chromatogramextractor import ChromatogramExtractor, IRTChromatogramExtractor
 from applicake.applications.proteomics.openswath.openswathrtnormalizer import OpenSwathRTNormalizer
 from applicake.applications.proteomics.openswath.openswathanalyzer import OpenSwathAnalyzer
@@ -125,7 +124,7 @@ def copytodropbox(input_file_name, output_file_name):
 ########################################################
 
 if __name__ == "__main__":
-    pipeline_printout_graph ('flowchart.png','png',[copytodropbox])
+    #pipeline_printout_graph ('flowchart.png','png',[copytodropbox])
     if len(sys.argv) < 2:
         print """Please specify action: continue | writeexampleini | FILENAME        
 continue: continue started workflow
