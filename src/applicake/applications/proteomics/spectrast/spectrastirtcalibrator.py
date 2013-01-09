@@ -45,7 +45,7 @@ class SpectrastIrtCalibrator(IWrapper):
         - If a template is used, the template is read variables from the info object are used to set concretes.
         - If there is a result file, it is added with a specific key to the info object.
         """
-        key = self.SPTXT
+        key = self.SPLIB
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
@@ -70,7 +70,7 @@ class SpectrastIrtCalibrator(IWrapper):
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, self.RT_KIT, 'Specific retention time kit(s)',action='append')
-        args_handler.add_app_args(log, self.SPTXT, 'Spectrast library in .splib format')
+        args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         args_handler.add_app_args(log, self.RSQ_THRESHOLD, 'specify r-squared threshold to accept linear regression')
         return args_handler
 
