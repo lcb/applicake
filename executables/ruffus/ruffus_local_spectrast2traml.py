@@ -19,7 +19,7 @@ from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
 from applicake.applications.proteomics.sybit.fdr2probability import Fdr2ProbabilityPython
 from applicake.applications.commons.inifile import KeysToList, Unifier
 from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
-    NoDecoyLibrary, ConsensusTxtNoirtLibrary, CreateTxtLibrary, CreateBinLibrary
+    NoDecoyTxtLibrary, ConsensusTxtNoirtLibrary, CreateTxtLibrary, CreateBinLibrary
 from applicake.applications.commons.collector import GuseCollector,\
     SimpleCollector
 from applicake.applications.proteomics.srm.sptxt2csv import Sptxt2Csv
@@ -159,7 +159,7 @@ def rawlib(input_file_name, output_file_name):
   
 @transform(rawlib,regex('rawlibcreator.ini_'),'nodecoylib.ini_')
 def nodecoylib(input_file_name, output_file_name):
-    wrap(NoDecoyLibrary,input_file_name, output_file_name)         
+    wrap(NoDecoyTxtLibrary,input_file_name, output_file_name)         
 
 @transform(nodecoylib,regex('nodecoylib.ini_'),'irtcalibration.ini_')
 def irtcalibration(input_file_name, output_file_name):

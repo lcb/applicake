@@ -128,6 +128,22 @@ class NoDecoyLibrary(LibraryCreator):
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
 
+class NoDecoyTxtLibrary(LibraryCreator):
+    '''
+    Remove Decoy entries from a SpectraST library.
+    ''' 
+    def get_suffix(self,info,log):
+        root = os.path.splitext(self._result_file1)[0] 
+        return "-c_BIN! -cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (root,self._orig_splib)
+
+    def set_args(self,log,args_handler):
+        """
+        See interface
+        """
+        args_handler = super(NoDecoyLibrary, self).set_args(log,args_handler)
+        args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
+        return args_handler
+    
 
 class ConsensusLibrary(LibraryCreator):
     '''

@@ -36,7 +36,10 @@ class mProphet(IWrapper):
         mod_template,info = th.modify_template(info, log)
 
         prefix = 'R'
-        command = '%s %s' % (prefix,mod_template)
+        lda = ''
+        if info['MPR_USE_LDA'] == 'True':
+            lda = '-use_classifier ' + info['MPR_LDA_PATH']
+        command = '%s %s %s' % (prefix,mod_template,lda)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -48,6 +51,8 @@ class mProphet(IWrapper):
         args_handler.add_app_args(log, 'MPR_NUM_XVAL', 'help')
         args_handler.add_app_args(log, 'FEATURETSV', 'featuretsv')
         args_handler.add_app_args(log, 'MPROPHET_BINDIR', 'mProphet binary dir')
+        args_handler.add_app_args(log, 'MPR_USE_LDA', 'mProphet use existing LDA model')
+        args_handler.add_app_args(log, 'MPR_LDA_PATH', 'mProphet use existing LDA model')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
