@@ -94,7 +94,7 @@ class SpectrastIrtCalibratorTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """--rsq_threshold $RSQ_THRESHOLD --kit LGGNEQVTR:-28.3083,GAGSSEPVTGLDAK:0.227424,VEATFGVDESNAK:13.1078,YILAGVENSK:22.3798,TPVISGGPYEYR:28.9999,TPVITGAPYEYR:33.6311,DGLDAASYYAPVR:43.2819,ADVTPADFSEWSK:54.969,GTFIIDPGGVIR:71.3819,GTFIIDPAAVIR:86.7152,FLQFGAQGSPFLK:98.0897
+        template = """--rsq_threshold $RSQ_THRESHOLD
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info

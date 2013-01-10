@@ -43,10 +43,14 @@ class ChromatogramExtractor(IWrapper):
         self.outfile = os.path.join(info[self.WORKDIR],'ChromatogramExtractor.chrom.mzML')
         info['CHROM_MZML'] = self.outfile
         prefix,info = self.get_prefix(info,log)
-        
-        command = '%s -in %s -extraction_window %s -rt_extraction_window %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
+        ppm = ''
+        if info['WINDOW_UNIT'] == 'ppm':
+            ppm = '-ppm'
+            
+        command = '%s -in %s -extraction_window %s %s -rt_extraction_window %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
                                                                                               ' '.join(info['MZML']),
                                                                                               info['EXTRACTION_WINDOW'],
+                                                                                              ppm,
                                                                                               info['RT_EXTRACTION_WINDOW'],
                                                                                               info['TRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
@@ -66,6 +70,7 @@ class ChromatogramExtractor(IWrapper):
         args_handler.add_app_args(log, 'MZML', 'Comma separated list of the mzML(.gz) files.')
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', 'minimum upper edge distance parameter')
         args_handler.add_app_args(log, 'EXTRACTION_WINDOW', 'extraction window to extract around')
+        args_handler.add_app_args(log, 'WINDOW_UNIT','extraction window unit thompson/ppm')
         args_handler.add_app_args(log, 'RT_EXTRACTION_WINDOW', 'RT extraction window to extract around')
         
         return args_handler

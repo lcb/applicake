@@ -72,7 +72,9 @@ class Sptxt2Csv(IWrapper):
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, self.SPTXT, 'Spectrast library in .sptxt format')
-        #args_handler.add_app_args(log, '', '')
+        args_handler.add_app_args(log, 'MAX_NR_TR', 'maximum nr of transitions per peptide')
+        args_handler.add_app_args(log, 'MIN_NR_TR', 'min nr of transitions per peptide')
+        args_handler.add_app_args(log, 'LOW_MZ_CUTOFF', 'lower mz limit/cutoff')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
