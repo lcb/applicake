@@ -75,6 +75,7 @@ class Sptxt2Csv(IWrapper):
         args_handler.add_app_args(log, 'MAX_NR_TR', 'maximum nr of transitions per peptide')
         args_handler.add_app_args(log, 'MIN_NR_TR', 'min nr of transitions per peptide')
         args_handler.add_app_args(log, 'LOW_MZ_CUTOFF', 'lower mz limit/cutoff')
+        args_handler.add_app_args(log, 'SWATH_WND_FILE', 'file containing swath windows',default='/cluster/apps/imsbtools/stable/bin/swaths.txt')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -97,6 +98,6 @@ class Sptxt2CsvTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = "--remove_non_unique --max_nr_tr=$MAX_NR_TR --min_nr_tr=$MIN_NR_TR --low_mz_cutoff=$LOW_MZ_CUTOFF"
+        template = "--remove_non_unique --max_nr_tr=$MAX_NR_TR --min_nr_tr=$MIN_NR_TR --low_mz_cutoff=$LOW_MZ_CUTOFF --swathfile $SWATH_WND_FILE"
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
