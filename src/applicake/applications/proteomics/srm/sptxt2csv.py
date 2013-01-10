@@ -15,7 +15,7 @@ class Sptxt2Csv(IWrapper):
 
 #    _template_file = ''
 #    _result_file = ''
-#    _default_prefix = ''
+    _default_prefix = 'sptxt2csv.py'
 
     def __init__(self):
         """
@@ -95,7 +95,6 @@ class Sptxt2CsvTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """--no_filter=NO=FILTER
-"""
+        template = "--remove_non_unique --max_nr_tr=$MAX_NR_TR --min_nr_tr=$MIN_NR_TR --low_mz_cutoff=$LOW_MZ_CUTOFF"
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info

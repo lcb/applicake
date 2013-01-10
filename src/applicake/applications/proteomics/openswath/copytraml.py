@@ -20,7 +20,9 @@ class CopyTraml(IApplication):
         infile = info['TRAML']
         resultfile = os.path.join(info['TRAML_DIR'],info['TRAML_NAME'])
         if os.path.exists(resultfile):
-            log.error('TRAMLfile %s already exists! Copy %s yourself!' % (resultfile, infile))
+            msg = 'TRAMLfile %s already exists! Copy %s yourself!' % (resultfile, infile)
+            log.error(msg)
+            print msg
             return 1,info
         
         shutil.copy(infile, resultfile)
