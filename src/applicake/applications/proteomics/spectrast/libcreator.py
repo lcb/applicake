@@ -140,7 +140,7 @@ class NoDecoyTxtLibrary(LibraryCreator):
         """
         See interface
         """
-        args_handler = super(NoDecoyLibrary, self).set_args(log,args_handler)
+        args_handler = super(NoDecoyTxtLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
     
@@ -173,7 +173,7 @@ class ConsensusTxtNoirtLibrary(LibraryCreator):
         """
         See interface
         """
-        args_handler = super(ConsensusLibrary, self).set_args(log,args_handler)
+        args_handler = super(ConsensusTxtNoirtLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         return args_handler
     
