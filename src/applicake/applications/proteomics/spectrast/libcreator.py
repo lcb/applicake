@@ -134,7 +134,9 @@ class NoDecoyTxtLibrary(LibraryCreator):
     ''' 
     def get_suffix(self,info,log):
         root = os.path.splitext(self._result_file1)[0] 
-        return "-c_BIN! -cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (root,self._orig_splib)
+        return "-c_BIN! -cf'Protein !~ DECOY_' -cN%s %s" % (root,self._orig_splib)
+        #in gUSE only DECOY is allowed/supported
+        #return "-c_BIN! -cf'Protein !~ REV_  &  Protein !~ DECOY_' -cN%s %s" % (root,self._orig_splib)
 
     def set_args(self,log,args_handler):
         """
@@ -167,7 +169,7 @@ class ConsensusTxtNoirtLibrary(LibraryCreator):
     '''
     def get_suffix(self,info,log):
         root = os.path.splitext(self._result_file1)[0] 
-        return "-cAC -c_BIN! -cf'Protein!~iRT' -cN%s %s" % (root,self._orig_splib)
+        return "-cAC -c_BIN! -cf'Protein !~ iRT & ' -cN%s %s" % (root,self._orig_splib)
 
     def set_args(self,log,args_handler):
         """
