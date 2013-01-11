@@ -37,7 +37,7 @@ class mProphet(IWrapper):
 
         prefix = 'R'
         lda = ''
-        if info['MPR_USE_LDA'] == 'True':
+        if 'MPR_USE_LDA' in info and info['MPR_USE_LDA'] == 'True':
             lda = '-use_classifier ' + info['MPR_LDA_PATH']
         command = '%s %s %s' % (prefix,mod_template,lda)
         return command,info
