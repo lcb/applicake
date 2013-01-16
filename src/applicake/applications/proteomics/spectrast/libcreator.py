@@ -100,7 +100,7 @@ class RawLibrary(LibraryCreator):
             log.debug('create symlink [%s] -> [%s]' % (f,dest))
             os.symlink(f, dest)
             symlink_files[i] = dest                
-        return '-cP%s -cN%s %s ' % (info[self.PROBABILITY],root,symlink_files[0])
+        return '-c_FDR%s -cN%s %s ' % (info[self.FDR],root,symlink_files[0])
 
     def set_args(self,log,args_handler):
         """
@@ -109,7 +109,7 @@ class RawLibrary(LibraryCreator):
         args_handler = super(RawLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, self.MZXML, 'Peak list file in mzXML format',action='append')
-        args_handler.add_app_args(log, self.PROBABILITY, 'Probabilty cutoff value that has to be matched') 
+        args_handler.add_app_args(log, self.FDR, 'FDR cutoff value that has to be matched') 
         return args_handler
 
 class NoDecoyLibrary(LibraryCreator):
