@@ -229,7 +229,7 @@ class ProtXml2IdXml(OpenMs):
         self._template_file = os.path.join(wd,self._template_file)
         info[self.TEMPLATE] = self._template_file
         self._result_file = os.path.join(wd,self._result_file)
-        info['IDXML_PROTXML'] = self._result_file
+        info['IDXML'] = self._result_file
         log.debug('get template handler')
         th = self.get_template_handler()
         log.debug('modify template')
