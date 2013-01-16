@@ -263,7 +263,7 @@ class ProtXml2IdXmlTemplate(BasicTemplateHandler):
     <ITEM name="version" value="1.9.0" type="string" description="Version of the tool that generated this parameters file." tags="advanced" />
     <NODE name="1" description="Instance &apos;1&apos; section for &apos;IDFileConverter&apos;">
       <ITEM name="in" value="$PROTXML" type="string" description="Input file or directory containing the output of the search engine.#br#Sequest: Directory containing the .out files#br#pepXML: Single pepXML file.#br#protXML: Single protXML file.#br#xml: Single mascot XML file.#br#idXML: Single idXML file.#br#" tags="input file,required" />
-      <ITEM name="out" value="$IDXML_PROTXML" type="string" description="Output file" tags="output file,required" restrictions="*.idXML,*.mzid,*.pepXML,*.FASTA" />
+      <ITEM name="out" value="$IDXML" type="string" description="Output file" tags="output file,required" restrictions="*.idXML,*.mzid,*.pepXML,*.FASTA" />
       <ITEM name="out_type" value="" type="string" description="output file type -- default: determined from file extension or content#br#" restrictions="idXML,mzid,pepXML,FASTA" />
       <ITEM name="mz_file" value="$MZXML" type="string" description="MS data file from which the pepXML was generated. Used to look up retention times (some pepXMLs contain only scan numbers) and/or to define what parts to extract (some pepXMLs contain results from multiple experiments)." />
       <ITEM name="ignore_proteins_per_peptide" value="false" type="string" description="Workaround to deal with .out files that contain e.g. &quot;+1&quot; in references column,#br#but do not list extra references in subsequent lines (try -debug 3 or 4)" tags="advanced" restrictions="true,false" />
