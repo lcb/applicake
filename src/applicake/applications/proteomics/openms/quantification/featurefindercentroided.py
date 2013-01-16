@@ -65,6 +65,7 @@ class FeatureFinderCentroided(OpenMs):
         args_handler = super(FeatureFinderCentroided, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'MZML', 'The input mzML file ')
         args_handler.add_app_args(log, 'FEATUREXML', 'The output featureXML file ')
+        args_handler.add_app_args(log, 'THREADS', 'threads')
         return args_handler
     
 class OrbiLessStrict(FeatureFinderCentroided): 
