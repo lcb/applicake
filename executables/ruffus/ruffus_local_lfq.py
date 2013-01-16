@@ -20,7 +20,7 @@ from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres
 from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import ProtXml2IdXml
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
-from applicake.applications.proteomics.openswath import KeyExtract
+from applicake.applications.proteomics.sybit.keyextract import KeyExtract
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idmapper import IdMapper
 from applicake.applications.proteomics.openms.mapalignment.mappaligneridentification import MapAlignerIdentification
 from applicake.applications.proteomics.openms.quantification.proteinquantifier import ProteinQuantifier
