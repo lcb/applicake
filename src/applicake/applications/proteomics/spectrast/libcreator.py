@@ -100,7 +100,7 @@ class RawLibrary(LibraryCreator):
             log.debug('create symlink [%s] -> [%s]' % (f,dest))
             os.symlink(f, dest)
             symlink_files[i] = dest                
-        return '-c_FDR%s -cN%s %s ' % (info[self.FDR],root,symlink_files[0])
+        return '-cq%s -cN%s %s ' % (info[self.FDR],root,symlink_files[0])
 
     def set_args(self,log,args_handler):
         """
