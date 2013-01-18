@@ -18,6 +18,11 @@ class CopyTraml(IApplication):
     
     def main(self, info, log):
         infile = info['TRAML']
+        if not 'TRAML_NAME' in info:
+            msg = 'No output TRAML filename specified! Copy %s yourself!' % (infile)
+            log.error(msg)
+            print msg
+
         resultfile = os.path.join(info['TRAML_DIR'],info['TRAML_NAME'])
         if os.path.exists(resultfile):
             msg = 'TRAMLfile %s already exists! Copy %s yourself!' % (resultfile, infile)
