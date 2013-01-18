@@ -22,6 +22,7 @@ class CopyTraml(IApplication):
             msg = 'No output TRAML filename specified! Copy %s yourself!' % (infile)
             log.error(msg)
             print msg
+            return 1,info
 
         resultfile = os.path.join(info['TRAML_DIR'],info['TRAML_NAME'])
         if os.path.exists(resultfile):
