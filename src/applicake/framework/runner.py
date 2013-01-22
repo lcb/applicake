@@ -211,7 +211,7 @@ class Runner(KeyEnum):
                 #    sys.stderr.write(line)                                    
             # move created files to working directory
             # 'created_files might be none e.g. if memory-storage is used   
-            if info[self.COPY_TO_WD] != []:  
+            if info.has_key(self.COPY_TO_WD) and info[self.COPY_TO_WD] != []:  
                 for path in info[self.COPY_TO_WD]:
                     # check if element is a key of info and not an actual file
                     if info.has_key(path):
@@ -233,7 +233,8 @@ class Runner(KeyEnum):
                             log.fatal('Stop program because could not copy [%s] to [%s]' % (src,dest))
                             return(1,info,log)
             return (0,info,log)
-        except:
+        except Exception, e:
+            log.critical(e)
             return 1,info,log           
                     
     def _set_jobid(self,info,log):
@@ -536,14 +537,6 @@ class CollectorRunner(ApplicationRunner):
                                [IApplication,__class__.__name__]))  
             exit_code = 1
         return exit_code,info   
-        
-class EngineCollectorRunner(CollectorRunner):
-    def run_app(self,app,info,log,args_handler):
-        if isinstance(app,IApplication):
-            return app.main(info,log)   
-        else:                                    
-            log.critical('given app is not iApplication')  
-            return 1, info
     
 class WrapperRunner(ApplicationRunner):
     """
