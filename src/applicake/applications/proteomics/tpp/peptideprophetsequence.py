@@ -76,7 +76,7 @@ class PeptideProphetSequenceTemplate(BasicTemplateHandler):
         # Threads is not set by a variable as this does not make sense here
         template = """-L7 -E$ENZYME
 
-DECOY=DECOY_ ACCMASS NONPARAM DECOYPROBS LEAVE PI INSTRWARN MINPROB=0"""        
+DECOY=DECOY_ ACCMASS NONPARAM DECOYPROBS LEAVE PI INSTRWARN"""        
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
         
