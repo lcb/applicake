@@ -88,7 +88,7 @@ class Omssa(SearchEngine):
         prefix,app_info = self._get_prefix(app_info,log)
         command = "%s %s -fm %s -op %s" %(prefix,mod_template,app_info['MGF'],self._result_file)
         # update original info object with new keys from working copy
-        info = DictUtils.merge(log, info, app_info, priority='left')        
+        #info = DictUtils.merge(log, info, app_info, priority='left')        
         return command,info
 
     def set_args(self,log,args_handler):

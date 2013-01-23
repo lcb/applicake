@@ -98,7 +98,7 @@ class Myrimatch(SearchEngine):
                                                                           app_info[self.WORKDIR], app_info['DBASE'],
                                                                           app_info['MZXML'])        
         # update original info object with new keys from working copy
-        info = DictUtils.merge(log, info, app_info, priority='left')        
+        #info = DictUtils.merge(log, info, app_info, priority='left')        
         return command,info
 
     def set_args(self,log,args_handler):

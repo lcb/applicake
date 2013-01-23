@@ -125,7 +125,7 @@ class Xtandem(SearchEngine):
         prefix,app_info = self.get_prefix(app_info,log)
         command = '%s %s' % (prefix,self._input_file)
         # update original info object with new keys from working copy
-        info = DictUtils.merge(log, info, app_info, priority='left')        
+        #info = DictUtils.merge(log, info, app_info, priority='left')        
         return command,info    
 
     def set_args(self,log,args_handler):
