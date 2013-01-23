@@ -8,6 +8,7 @@ import os
 from applicake.framework.interfaces import IApplication
 from applicake.framework.confighandler import ConfigHandler
 from applicake.utils.dictutils import DictUtils
+from applicake.utils.sequenceutils import SequenceUtils
 
 class GuseEngineCollector(IApplication):
     """
@@ -16,44 +17,51 @@ class GuseEngineCollector(IApplication):
     2) there are some checks if searches went fine or error
     """
      
-    
-    def main(self,info,log):
-        """
-        Merge collector files into a single dictionary.
-        
-        The values of the collector files are flattened. That means if a key value is equal across all
-        collector files, the value is kept as single value. If values for the same key differ, a list of
-        these values is created.      
-        
-        @type info: see super class
-        @param info: see super class
-        @type log: see super class
-        @param log: see super class 
-        """ 
-        
+    def getUsedEngines(self,info,log):
         available_engines = info['ENGINES']
         log.debug("Available engines: %s" % available_engines)
         used_engines = []
+        log.info(info)
         for engine in available_engines:
             key = 'RUN' + engine.upper()
             if key in info and info[key] == 'True':
                 used_engines.append(engine)
         
-        log.debug("Expected search engine inis: %s" % used_engines)
+        log.info("Expected search engine inis: %s" % used_engines)
         
+        return used_engines
+    
+    def getNumberOfRuns(self,info,log):
+        #cleanup necessary
+        if info.has_key('ENGINES'):
+            del info['ENGINES']
+        if info.has_key(self.COPY_TO_WD):
+            del info[self.COPY_TO_WD]
+            
         runs = 1
-        infocopy = info.copy()
-        infocopy['USED_SEARCHENGINES'] = ' '.join(used_engines)
-        del infocopy['ENGINES']
-        del infocopy[self.COPY_TO_WD]
-        for key,value in infocopy.items():
+        for key,value in info.items():
             if isinstance(value, list):
                 log.debug("Runs: %d times %d (key %s)" % (runs,len(value),key))
                 runs = runs * len(value)
                 
-        log.debug("Expected number of inis: %d" % runs)
-
+        log.info("Expected number of inis: %d" % runs)
+        return runs
+    
+    def unifyCleanInfo(self,info):
+        for key in info.keys():
+            if isinstance(info[key], list):
+                info[key] = SequenceUtils.unify(info[key], reduce = True)    
+            
+        if info.has_key(self.WORKDIR):        
+            del info[self.WORKDIR]
+        return info  
+            
+    def main(self,info,log):        
+        used_engines = self.getUsedEngines(info,log)
+        runs = self.getNumberOfRuns(info,log)
+        
         for i in range(runs):
+            
             collector_config = {}
             for engine in used_engines:
                 path = "%s.ini_%d" % (engine, i)
@@ -62,10 +70,11 @@ class GuseEngineCollector(IApplication):
                 config = ConfigHandler().read(log,path)
                 collector_config = DictUtils.merge(log,collector_config, config,priority='append')
             
+            unified_config = self.unifyCleanInfo(collector_config)
             collector_path = "output.ini_%d" % i   
              
-            ConfigHandler().write(collector_config, collector_path)
-            log.debug('Wrote outfile '+collector_path)
+            ConfigHandler().write(unified_config, collector_path)
+            log.info('Wrote outfile '+collector_path)
 
         return (0,info)
     

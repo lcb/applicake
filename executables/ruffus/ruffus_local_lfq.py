@@ -70,18 +70,7 @@ def getexperiment():
 
 @follows(getexperiment)
 def processexperiment():
-    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini',['--GETCODES','True'])
-    
-################################## ID Extraction ############################################
-
-@follows(processexperiment)   
-def idfileconverter():
-    wrap(ProtXml2IdXml,'processexperiment.ini','idfileconverter.ini')
-    
-@follows(idfileconverter)
-def idfilter():
-    wrap(IdFilter,'idfileconverter.ini','idfilter.ini')
-    
+    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini')
 
 ################################## Picking ##################################################
 
@@ -99,67 +88,13 @@ def generator(input_file_name, notused_output_file_names):
 def dss(input_file_name, output_file_name):
     thandle, tfile = tempfile.mkstemp(suffix='.out', prefix='getmsdata',dir='.')   
     wrap(Dss,input_file_name, output_file_name,['--PREFIX', 'getmsdata','--RESULT_FILE',tfile])
-    
+
+################################################################################################
+
+
 @transform(dss, regex("dss.ini_"), "fileconverter.ini_")
-def fileconverter(input_file_name, output_file_name):
-    wrap(Mzxml2Mzml,input_file_name,output_file_name)
-    
-@transform(fileconverter, regex("fileconverter.ini_"), "peakpicker.ini_")
-def peakpicker(input_file_name, output_file_name):
-    wrap(PeakPickerHighRes,input_file_name,output_file_name)    
-
-@transform(peakpicker, regex("peakpicker.ini_"), "featurefinder.ini_")
-def featurefinder(input_file_name, output_file_name):
-    wrap(FeatureFinderCentroided,input_file_name,output_file_name)
-
-################################# Merge ID Extract and Picking ##############################
-
-@transform([featurefinder,idfilter], regex("featurefinder.ini_"), "keyextract.ini_")
-def keyextract(input_file_name, output_file_name):
-    wrap(KeyExtract, input_file_name, output_file_name, ['--KEYFILE','idfilter.ini','--KEYSTOEXTRACT','IDXML']) 
-
-@transform(keyextract, regex("keyextract.ini_"), "idmapper.ini_")
-def idmapper(input_file_name, output_file_name):
-    wrap(IDMapper, input_file_name, output_file_name) 
-    
-@transform(idmapper, regex("idmapper.ini_"), "mapaligner.ini_")
-def mapaligner(input_file_name, output_file_name):
-    wrap(MapAligner, input_file_name, output_file_name) 
-    
-@transform(mapaligner, regex("mapaligner.ini_"), "featurelinker.ini_")
-def featurelinker(input_file_name, output_file_name):
-    wrap(FeatureLinker, input_file_name, output_file_name) 
-
-
-@merge(featurelinker, "collector.ini")
-def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'featurelinker.ini', '-o', output_file_name,'-s','file']
-    runner = CollectorRunner()
-    application = GuseCollector()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
-
-@follows(collector)
-def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE','--LISTS_TO_REMOVE','PARAM_IDX','--LISTS_TO_REMOVE','FILE_IDX']
-    runner = IniFileRunner2()
-    application = Unifier()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("unifier [%s]" % exit_code)
-        
-@follows(unifier)
-def proteinquantifier():
-    wrap(ProteinQuantifier,'unifier.ini','proteinquantifier.ini')
-    
-@follows(proteinquantifier)
-def annotxml():
-    wrap(AnnotProtxmlFromCsv,'proteinquantifier.ini','annotxml.ini')
-    
-@follows(annotxml)
-def cp2dropbox():
-    wrap(Copy2Dropbox,'annotxml.ini','cp2dropbox.ini')
-
+def LFQpart1(input_file_name, output_file_name):
+    wrap(LFQpart1,input_file_name,output_file_name)
+ 
 pipeline_run([cp2dropbox], multiprocess=16)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg

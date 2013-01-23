@@ -537,6 +537,14 @@ class CollectorRunner(ApplicationRunner):
                                [IApplication,__class__.__name__]))  
             exit_code = 1
         return exit_code,info   
+        
+class EngineCollectorRunner(CollectorRunner):
+    def run_app(self,app,info,log,args_handler):
+        if isinstance(app,IApplication):
+            return app.main(info,log)   
+        else:                                    
+            log.critical('given app is not iApplication')  
+            return 1, info
     
 class WrapperRunner(ApplicationRunner):
     """

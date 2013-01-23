@@ -6,10 +6,10 @@ Created on Apr 23, 2012
 '''
 
 import sys
-from applicake.framework.runner import EngineCollectorRunner
+from applicake.framework.runner import IniFileRunner
 from applicake.applications.commons.enginecollector import GuseEngineCollector
 
-runner = EngineCollectorRunner()
+runner = IniFileRunner()
 application = GuseEngineCollector()
 exit_code = runner(sys.argv,application)
 print exit_code
