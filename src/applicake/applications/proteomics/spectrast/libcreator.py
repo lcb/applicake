@@ -181,15 +181,15 @@ class CreateBinLibrary(LibraryCreator):
 
 ########################################
 class RawLibraryNodecoy(LibraryCreator):
-    def get_suffix(self,info,log):
-        if len(info[self.PEPXMLS]) >1:
+    def prepare_run(self,info,log):
+        if isinstance(info[self.PEPXMLS], list):
             log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
-            sys.exit(1)           
+            sys.exit(1)  
+                     
         #have to symlink the pepxml and mzxml files first into a single directory
-        root = os.path.splitext(self._result_file1)[0]
-        symlink_files = info[self.PEPXMLS] + info[self.MZXML] 
+        symlink_files = [info[self.PEPXMLS]] + info[self.MZXML] 
         for i,f in enumerate(symlink_files):
-            dest = os.path.join(os.path.dirname(self._result_file1),os.path.basename(f))
+            dest = os.path.join(info[self.WORKDIR],os.path.basename(f))
             log.debug('create symlink [%s] -> [%s]' % (f,dest))
             os.symlink(f, dest)
             symlink_files[i] = dest  
@@ -198,8 +198,11 @@ class RawLibraryNodecoy(LibraryCreator):
             log.info("No probability given, trying to get probability from FDR")
             info[self.PROBABILITY] = self.getiProbability(log, info)
         
-        root = os.path.join(info['LIBDIR'],os.path.basename(self._result_file1)[0])                  
-        return '-cP%s -cN%s %s ' % (info[self.PROBABILITY],root,symlink_files[0])
+
+        root = os.path.join(info['LIBDIR'],'RawLibraryNodecoy'+info['PARAM_IDX'])
+        info[self.SPLIB] = root + '.splib'
+        info[self.SPTXT] = root + '.sptxt'       
+        return 'spectrast -V -cP%s -cN%s %s' % (info[self.PROBABILITY],root,symlink_files[0]),info
     
     def getiProbability(self,log,info):
         minprob = ''
@@ -219,12 +222,13 @@ class RawLibraryNodecoy(LibraryCreator):
         """
         See interface
         """
-        args_handler = super(RawLibrary, self).set_args(log,args_handler)
+        args_handler = super(RawLibraryNodecoy, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, self.MZXML, 'Peak list file in mzXML format',action='append')
         args_handler.add_app_args(log, self.PROBABILITY, 'Probability cutoff value that has to be matched') 
-        args_handler.add_app_args(log, self.FDR, 'FDR cutoff (if no probability given)') 
+        args_handler.add_app_args(log, self.FDR, 'FDR cutoff (if no probability given)')         
         args_handler.add_app_args(log, 'LIBDIR', 'Folder to put output libraries')
+        args_handler.add_app_args(log, 'PARAM_IDX', 'Folder to put output libraries')
         return args_handler
 
 
@@ -233,9 +237,12 @@ class RTLibrary(LibraryCreator):
     '''
     Create a consensus library from a raw SpectraST raw library.
     '''
-    def get_suffix(self,info,log):
-        root = os.path.join(info['LIBDIR'],os.path.basename(self._result_file1)[0]) 
-        return "-cf'Protein !~ iRT & ' -cN%s %s" % (root,self._orig_splib)
+    def prepare_run(self,info,log):
+        root = os.path.join(info['LIBDIR'],'RTLibrary'+info['PARAM_IDX'])
+        self._orig_splib = info[self.SPLIB]
+        info[self.SPLIB] = root + '.splib'
+        info[self.SPTXT] = root + '.sptxt'       
+        return "spectrast -V -cf'Protein !~ iRT & ' -cN%s %s" % (root,self._orig_splib),info
 
     def set_args(self,log,args_handler):
         """
@@ -244,5 +251,5 @@ class RTLibrary(LibraryCreator):
         args_handler = super(RTLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         args_handler.add_app_args(log, 'LIBDIR', 'Folder to put output libraries')
-        
+        args_handler.add_app_args(log, 'PARAM_IDX', 'Folder to put output libraries')        
         return args_handler

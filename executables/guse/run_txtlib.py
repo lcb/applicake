@@ -6,10 +6,10 @@ Created on Dec 11, 2012
 '''
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.spectrast.libcreator import RawLibrary
+from applicake.applications.proteomics.spectrast.libcreator import CreateTxtLibrary
 
 runner = WrapperRunner()
-application = RawLibrary()
+application = CreateTxtLibrary()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

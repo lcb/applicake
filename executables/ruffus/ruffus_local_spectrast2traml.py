@@ -131,7 +131,7 @@ def paramgenerator(input_file_name, notused_output_file_names):
     if exit_code != 0:
         raise Exception("paramgenerator [%s]" % exit_code)  
   
-@transform(paramgenerator,regex('fdr2probability.ini_'),'rawlibnodecoy.ini_')
+@transform(paramgenerator,regex('paramgenerate.ini_'),'rawlibnodecoy.ini_')
 def rawlibnodecoy(input_file_name, output_file_name):
     wrap(RawLibraryNodecoy,input_file_name, output_file_name)
 
