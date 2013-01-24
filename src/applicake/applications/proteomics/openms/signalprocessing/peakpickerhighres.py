@@ -33,9 +33,9 @@ class PeakPickerHighRes(MzMlModifier):
         """
         args_handler = super(PeakPickerHighRes, self).set_args(log,args_handler)
         args_handler.add_app_args(log, 'SIGNAL_TO_NOISE', 'Signal to noise ')
-        args_handler.add_app_args(log, 'ORGMZML', 'input')
-        args_handler.add_app_args(log, 'MZML', 'output')
-        args_handler.add_app_args(log, 'THREADS', 'threads')
+        #args_handler.add_app_args(log, 'ORGMZML', 'input')
+        #args_handler.add_app_args(log, 'MZML', 'output')
+        #args_handler.add_app_args(log, 'THREADS', 'threads')
         
         return args_handler
 

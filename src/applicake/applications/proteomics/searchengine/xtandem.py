@@ -212,7 +212,9 @@ class XtandemTemplate(BasicTemplateHandler):
     <note type="input" label="protein, N-terminal residue modification mass">0.0</note>
     <note type="input" label="protein, C-terminal residue modification mass">0.0</note>
     <note type="input" label="protein, homolog management">no</note>
-
+    <!-- explicitly disabled -->
+    <note type="input" label="protein, quick acetyl">no</note>
+    <note type="input" label="protein, quick pyrolidone">no</note>
 
 <note type="heading">Scoring</note>
     <note type="input" label="scoring, maximum missed cleavage sites">$MISSEDCLEAVAGE</note>

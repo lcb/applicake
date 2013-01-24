@@ -31,10 +31,9 @@ class PeptideProphetSequence(IWrapper):
         cmds = []                
         # InteractParser <outfile> <file1.pep.xml> <file2.pep.xml>... <options>            
         cmds.append('InteractParser %s %s %s %s' % (self._result_file,pepxml_filename,paramarr[0],omssafix))
-        # the 1st refreshparser is needed by myrimatch. otherwise no decays are found and no unsupervised model can be used
         #RefreshParser <xmlfile> <database>
         cmds.append('RefreshParser %s %s %s' % (self._result_file,db_filename,paramarr[1]))    
-        #PeptideProphetParser output.pep.xml DECOY=DECOY_ MINPROB=0 NONPARAM
+        #PeptideProphetParser output.pep.xml DECOY=DECOY_ MINPROB=0 NONPARAM MINPROB required for myrimatch otherwise 'no results found'
         cmds.append('PeptideProphetParser %s %s' % (self._result_file,paramarr[2]))           
         return ' && '.join(cmds),info
     
@@ -76,7 +75,7 @@ class PeptideProphetSequenceTemplate(BasicTemplateHandler):
         # Threads is not set by a variable as this does not make sense here
         template = """-L7 -E$ENZYME
 
-DECOY=DECOY_ ACCMASS NONPARAM DECOYPROBS LEAVE PI INSTRWARN MINPROB=0"""        
+DECOY=DECOY_ ACCMASS NONPARAM DECOYPROBS LEAVE PI INSTRWARN"""        
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
         

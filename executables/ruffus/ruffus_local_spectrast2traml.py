@@ -15,11 +15,9 @@ from applicake.framework.runner import IniFileRunner2, ApplicationRunner,Collect
 from applicake.applications.commons.generator import DatasetcodeGenerator,\
     ParametersetGenerator
 from applicake.framework.interfaces import IApplication, IWrapper
-from applicake.applications.proteomics.sybit.pepxml2csv import Pepxml2Csv
-from applicake.applications.proteomics.sybit.fdr2probability import Fdr2ProbabilityPython
 from applicake.applications.commons.inifile import KeysToList, Unifier
-from applicake.applications.proteomics.spectrast.libcreator import RawLibrary ,\
-    NoDecoyTxtLibrary, ConsensusTxtNoirtLibrary, CreateTxtLibrary, CreateBinLibrary
+from applicake.applications.proteomics.spectrast.libcreator import RawLibraryNodecoy ,\
+    RTLibrary, CreateTxtLibrary
 from applicake.applications.commons.collector import GuseCollector,\
     SimpleCollector
 from applicake.applications.proteomics.srm.sptxt2csv import Sptxt2Csv
@@ -126,48 +124,36 @@ def collector(notused_input_file_names, output_file_name):
 @follows(collector)
 @split("collector.ini", "paramgenerate.ini_*")
 def paramgenerator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-s','memory_all','-l','INFO']
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
     runner = IniFileRunner2()
     application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("paramgenerator [%s]" % exit_code)  
-    
-@transform(paramgenerator, regex("paramgenerate.ini_"), "pepxmlskey2list.ini_")
-def pepxmlskey2list(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name, '-o',output_file_name,'--KEYSTOLIST','PEPXMLS']
-    runner = IniFileRunner()
-    application = KeysToList()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("paramgenerator [%s]" % exit_code)      
-
-@transform(pepxmlskey2list, regex("pepxmlskey2list.ini_"), "pepxml2csv.ini_")
-def pepxml2csv(input_file_name, output_file_name):
-    wrap(Pepxml2Csv,input_file_name, output_file_name)          
-    
-@transform(pepxml2csv, regex("pepxml2csv.ini_"), "fdr2probability.ini_")
-def fdr2probability(input_file_name, output_file_name):
-    #wrap(Fdr2Probability,input_file_name, output_file_name)
-    wrap(Fdr2ProbabilityPython,input_file_name, output_file_name) 
-    
-########################################################################
   
-@transform(fdr2probability,regex('fdr2probability.ini_'),'rawlibcreator.ini_')
-def rawlib(input_file_name, output_file_name):
-    wrap(RawLibrary,input_file_name, output_file_name)
-  
-@transform(rawlib,regex('rawlibcreator.ini_'),'nodecoylib.ini_')
-def nodecoylib(input_file_name, output_file_name):
-    wrap(NoDecoyTxtLibrary,input_file_name, output_file_name)         
+@transform(paramgenerator,regex('fdr2probability.ini_'),'rawlibnodecoy.ini_')
+def rawlibnodecoy(input_file_name, output_file_name):
+    wrap(RawLibraryNodecoy,input_file_name, output_file_name)
 
-@transform(nodecoylib,regex('nodecoylib.ini_'),'irtcalibration.ini_')
+#########OPTIONAL################
+  
+@transform(rawlibnodecoy,regex('rawlibnodecoy.ini_'),'txtlib.ini_')
+def txtlib(input_file_name, output_file_name):
+    wrap(CreateTxtLibrary,input_file_name, output_file_name)         
+
+@transform(txtlib,regex('txtlib.ini_'),'irtcalibration.ini_')
 def irtcalibration(input_file_name, output_file_name):
     wrap(SpectrastIrtCalibrator,input_file_name, output_file_name)
 
+@transform(irtcalibration,regex('irtcalibration.ini_'),'binlib.ini_')
+def binlib(input_file_name, output_file_name):
+    wrap(RTLibrary,input_file_name, output_file_name)
+
+    
+##############################SECOND PART
 @transform(irtcalibration,regex('irtcalibration.ini_'),'consensuslib.ini_')
 def consensuslib(input_file_name, output_file_name):
-    wrap(ConsensusTxtNoirtLibrary,input_file_name, output_file_name) 
+    wrap(ConsensusTxtLibrary,input_file_name, output_file_name) 
 
 @transform(consensuslib,regex('consensuslib.ini_'),'sptxt2tracsv.ini_')
 def sptxt2tracsv(input_file_name, output_file_name):
@@ -186,4 +172,4 @@ def copytraml(input_file_name, output_file_name):
     wrap(CopyTraml,input_file_name, output_file_name)
 
 
-pipeline_run([copytraml], verbose=2, multiprocess=16)
+pipeline_run([binlib], verbose=2, multiprocess=16)
