@@ -198,8 +198,7 @@ class RawLibraryNodecoy(LibraryCreator):
             log.info("No probability given, trying to get probability from FDR")
             info[self.PROBABILITY] = self.getiProbability(log, info)
         
-
-        root = os.path.join(info['LIBDIR'],'RawLibraryNodecoy'+info['PARAM_IDX'])
+        root = info['LIBOUTBASE']+info['PARAM_IDX']+'_rawnodecoy'
         info[self.SPLIB] = root + '.splib'
         info[self.SPTXT] = root + '.sptxt'       
         return 'spectrast -V -cP%s -cN%s %s' % (info[self.PROBABILITY],root,symlink_files[0]),info
@@ -227,7 +226,7 @@ class RawLibraryNodecoy(LibraryCreator):
         args_handler.add_app_args(log, self.MZXML, 'Peak list file in mzXML format',action='append')
         args_handler.add_app_args(log, self.PROBABILITY, 'Probability cutoff value that has to be matched') 
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff (if no probability given)')         
-        args_handler.add_app_args(log, 'LIBDIR', 'Folder to put output libraries')
+        args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
         args_handler.add_app_args(log, 'PARAM_IDX', 'Folder to put output libraries')
         return args_handler
 
@@ -238,7 +237,7 @@ class RTLibrary(LibraryCreator):
     Create a consensus library from a raw SpectraST raw library.
     '''
     def prepare_run(self,info,log):
-        root = os.path.join(info['LIBDIR'],'RTLibrary'+info['PARAM_IDX'])
+        root = info['LIBOUTBASE']+info['PARAM_IDX']+'_rt'
         self._orig_splib = info[self.SPLIB]
         info[self.SPLIB] = root + '.splib'
         info[self.SPTXT] = root + '.sptxt'       
@@ -250,6 +249,6 @@ class RTLibrary(LibraryCreator):
         """
         args_handler = super(RTLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
-        args_handler.add_app_args(log, 'LIBDIR', 'Folder to put output libraries')
+        args_handler.add_app_args(log, 'LIBOUTBASE', 'Basename (folder + filenamebase) for output libraries')
         args_handler.add_app_args(log, 'PARAM_IDX', 'Folder to put output libraries')        
         return args_handler
