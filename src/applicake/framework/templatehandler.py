@@ -65,6 +65,8 @@ class BasicTemplateHandler(ITemplateHandler):
         fh.write(template)
         fh.close()
         FileUtils.is_valid_file(log, path) 
+        if not info.has_key(self.COPY_TO_WD):
+            info[self.COPY_TO_WD] = []
         info[self.COPY_TO_WD].append(path)
         log.debug('added [%s] to key [%s]' % (path,self.COPY_TO_WD))
         return info         

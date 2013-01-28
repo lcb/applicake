@@ -15,11 +15,13 @@ class Spectrast2TraML(IWrapper):
     Wrapper for the famous spectrast2traml.sh script
     """
     def prepare_run(self,info,log):
-        options = Spectrast2TraMLTemplate().modify_template(info, log) 
+        info['TEMPLATE'] = 'template.tpl'
+        options,info = Spectrast2TraMLTemplate().modify_template(info, log) 
         if info.has_key('SWATH_WND_FILE'):
                 options = options + " --swathfile " + info['SWATH_WND_FILE']
-        self._result_file = info['LIBOUTBASE'] + '.TraML'
-        return ('spectrast2traml.sh --in %s --out %s %s' % info[self.SPLIB],self._result_file,options)
+        self._result_file = info['LIBOUTBASE'] + '_' + info[self.PARAM_IDX] +  '.TraML'
+        command = 'spectrast2traml.sh --in %s --out %s %s' % (info[self.SPLIB],self._result_file,options)
+        return command,info
     
     def set_args(self,log,args_handler):
         """
@@ -37,8 +39,7 @@ class Spectrast2TraML(IWrapper):
     def validate_run(self,info,log,run_code, out_stream, err_stream):
         if 0 != run_code:
             return run_code,info
-    #out_stream.seek(0)
-    #err_stream.seek(0)
+
         if not FileUtils.is_valid_file(log, self._result_file):
             log.critical('[%s] is not valid' %self._result_file)
             return 1,info

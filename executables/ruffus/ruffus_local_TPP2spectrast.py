@@ -114,22 +114,22 @@ def dss(input_file_name, output_file_name):
 
 @merge(dss, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,]
+    argv = ['', '--COLLECTORS', 'dss.ini', '-o', output_file_name,'-l','INFO','-s','memory_all']
     runner = CollectorRunner()
     application = GuseCollector()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("[%s] failed [%s]" % ('collector',exit_code))    
 
-#@follows(collector)
-#@split("collector.ini", "paramgenerate.ini_*")
-#    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
-##def paramgenerator(input_file_name, notused_output_file_names):
-#    runner = IniFileRunner2()
-#    application = ParametersetGenerator()
-#    exit_code = runner(argv, application)
-#    if exit_code != 0:
-#        raise Exception("paramgenerator [%s]" % exit_code)  
+@follows(collector)
+@split("collector.ini", "paramgenerate.ini_*")
+def paramgenerator(input_file_name, notused_output_file_names):
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini']
+    runner = IniFileRunner2()
+    application = ParametersetGenerator()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("paramgenerator [%s]" % exit_code)  
   
 @transform(paramgenerator,regex('paramgenerate.ini_'),'rawlibnodecoy.ini_')
 def rawlibnodecoy(input_file_name, output_file_name):
@@ -150,8 +150,7 @@ def binlib(input_file_name, output_file_name):
     wrap(RTLibrary,input_file_name, output_file_name)
 
     
-##############################SECOND PART
-#conditiona
+#########DONE BY DEFAULT########################
 @transform(irtcalibration,regex('irtcalibration.ini_'),'trameler.ini_')
 def trameler(input_file_name, output_file_name):
     wrap(Spectrast2TraML,input_file_name, output_file_name) 

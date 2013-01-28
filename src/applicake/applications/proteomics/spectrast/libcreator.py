@@ -198,7 +198,7 @@ class RawLibraryNodecoy(LibraryCreator):
             log.info("No probability given, trying to get probability from FDR")
             info[self.PROBABILITY] = self.getiProbability(log, info)
         
-        root = info['LIBOUTBASE']+info['PARAM_IDX']+'_rawnodecoy'
+        root = info['LIBOUTBASE']+'_'+info['PARAM_IDX']+'_rawnodecoy'
         info[self.SPLIB] = root + '.splib'
         info[self.SPTXT] = root + '.sptxt'       
         return 'spectrast -V -cP%s -cN%s %s' % (info[self.PROBABILITY],root,symlink_files[0]),info
@@ -227,7 +227,7 @@ class RawLibraryNodecoy(LibraryCreator):
         args_handler.add_app_args(log, self.PROBABILITY, 'Probability cutoff value that has to be matched') 
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff (if no probability given)')         
         args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
-        args_handler.add_app_args(log, 'PARAM_IDX', 'Folder to put output libraries')
+        args_handler.add_app_args(log, 'PARAM_IDX', 'Folder to put output libraries')       
         return args_handler
 
 
@@ -237,7 +237,7 @@ class RTLibrary(LibraryCreator):
     Create a consensus library from a raw SpectraST raw library.
     '''
     def prepare_run(self,info,log):
-        root = info['LIBOUTBASE']+info['PARAM_IDX']+'_rt'
+        root = info['LIBOUTBASE']+'_'+info['PARAM_IDX']+'_rt'
         self._orig_splib = info[self.SPLIB]
         info[self.SPLIB] = root + '.splib'
         info[self.SPTXT] = root + '.sptxt'       
