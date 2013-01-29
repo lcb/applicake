@@ -57,16 +57,12 @@ DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = INFO
 STORAGE = memory_all
 WORKFLOW = traml_create
-EXPERIMENT = E287728
-THREADS = 8
+EXPERIMENT = E287786
 
-#fdr2prob
-DECOY_STRING = DECOY_
-FDR=0.01
-PROPHET_TYPE = IProphet
-FDR_LEVEL = psm
-NUM_LIMIT = 0
-MIN_PROB = 0.0001
+LIBOUTBASE = /cluster/home/biol/loblum/TPP2traml/libdirr/loblum_UPS1
+
+#rawlib
+FDR=0.01,0.02
 
 #sptxt2csv
 LOW_MZ_CUTOFF=300
@@ -78,11 +74,6 @@ RSQ_THRESHOLD = 0.5
 
 #decoygen
 SWDECOY_METHOD = shuffle
-SWDECOY_THEORETICAL = False
-
-#cp2traml
-TRAML_DIR = /cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile
-TRAML_NAME = loblum_PA1.traml
 """)
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
@@ -151,7 +142,7 @@ def binlib(input_file_name, output_file_name):
 
     
 #########DONE BY DEFAULT########################
-@transform(irtcalibration,regex('irtcalibration.ini_'),'trameler.ini_')
+@transform(binlib,regex('binlib.ini_'),'trameler.ini_')
 def trameler(input_file_name, output_file_name):
     wrap(Spectrast2TraML,input_file_name, output_file_name) 
 

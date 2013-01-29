@@ -34,6 +34,7 @@ class Spectrast2TraML(IWrapper):
         args_handler.add_app_args(log, 'SWATH_WND_FILE', 'file containing swath windows')
         args_handler.add_app_args(log, 'SWDECOY_METHOD', 'decoy generation method (shuffle, pseudo-reverse, reverse, shift)')
         args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
+        args_handler.add_app_args(log, 'PARAM_IDX', 'Parameter index to distinguish')   
         return args_handler
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):

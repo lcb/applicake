@@ -227,7 +227,7 @@ class RawLibraryNodecoy(LibraryCreator):
         args_handler.add_app_args(log, self.PROBABILITY, 'Probability cutoff value that has to be matched') 
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff (if no probability given)')         
         args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
-        args_handler.add_app_args(log, 'PARAM_IDX', 'Folder to put output libraries')       
+        args_handler.add_app_args(log, 'PARAM_IDX', 'Parameter index to distinguish')       
         return args_handler
 
 
@@ -250,5 +250,5 @@ class RTLibrary(LibraryCreator):
         args_handler = super(RTLibrary, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         args_handler.add_app_args(log, 'LIBOUTBASE', 'Basename (folder + filenamebase) for output libraries')
-        args_handler.add_app_args(log, 'PARAM_IDX', 'Folder to put output libraries')        
+        args_handler.add_app_args(log, 'PARAM_IDX', 'Parameter index to distinguish')           
         return args_handler
