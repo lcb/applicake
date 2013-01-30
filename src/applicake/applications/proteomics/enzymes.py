@@ -53,7 +53,7 @@ class EnzymeDb(object):
         Return the program specific enzyme.
         """
         try:
-            name = name.trim()
+            name = name.strip()
             assert self._enzymes.has_key(name)
             assert search_engine in self._applications
             return self._enzymes[name][search_engine]

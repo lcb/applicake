@@ -76,7 +76,7 @@ class ModificationDb(object):
             self.log.info("No modification used")
             return ''
         try:
-            name = name.trim()
+            name = name.strip()
             assert self._mods.has_key(name)
             assert search_engine in self._applications
             return self._mods[name][search_engine]
