@@ -182,12 +182,19 @@ class CreateBinLibrary(LibraryCreator):
 ########################################
 class RawLibraryNodecoy(LibraryCreator):
     def prepare_run(self,info,log):
+        #have to symlink the pepxml and mzxml files first into a single directory
+        symlink_files = []
         if isinstance(info[self.PEPXMLS], list):
             log.fatal('found > 1 pepxml files [%s] in [%s].' % (len(info[self.PEPXMLS]),info[self.PEPXMLS]))
             sys.exit(1)  
-                     
-        #have to symlink the pepxml and mzxml files first into a single directory
-        symlink_files = [info[self.PEPXMLS]] + info[self.MZXML] 
+        else:
+            symlink_files.append(info[self.PEPXMLS])
+        
+        if isinstance(info[self.MZXML], list):
+            symlink_files.extend(info[self.MZXML])  
+        else:
+            symlink_files.append(info[self.MZXML])
+
         for i,f in enumerate(symlink_files):
             dest = os.path.join(info[self.WORKDIR],os.path.basename(f))
             log.debug('create symlink [%s] -> [%s]' % (f,dest))

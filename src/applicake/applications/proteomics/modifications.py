@@ -73,6 +73,7 @@ class ModificationDb(object):
         Return the program specific modification.
         """
         if name == None or name == "":
+            self.log.info("No modification used")
             return ''
         try:
             assert self._mods.has_key(name)
