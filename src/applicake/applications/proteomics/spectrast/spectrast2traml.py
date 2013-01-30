@@ -59,6 +59,6 @@ class Spectrast2TraMLTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = "--max_nr_tr $MAX_NR_TR --min_nr_tr $MIN_NR_TR --low_mz_cutoff $LOW_MZ_CUTOFF --method $SWDECOY_METHOD"
+        template = "--doconsensus --max_nr_tr $MAX_NR_TR --min_nr_tr $MIN_NR_TR --low_mz_cutoff $LOW_MZ_CUTOFF --method $SWDECOY_METHOD"
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
