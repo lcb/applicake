@@ -72,6 +72,8 @@ class ModificationDb(object):
         """
         Return the program specific modification.
         """
+        if name == None or name == "":
+            return ''
         try:
             assert self._mods.has_key(name)
             assert search_engine in self._applications
