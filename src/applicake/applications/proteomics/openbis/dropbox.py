@@ -130,7 +130,7 @@ class Copy2IdentDropbox(Copy2Dropbox):
         # set values to NONE if they were e.g. "" before
         check_keys = ['STATIC_MODS','VARIABLE_MODS']
         for key in check_keys:
-            if info[key] == "":
+            if not info.has_key(key) or info[key] == "":
                 info[key] = 'NONE'
         return super(Copy2IdentDropbox,self).main(info,log)
         
