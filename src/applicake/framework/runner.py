@@ -452,7 +452,8 @@ class IniFileRunner2(IniFileRunner):
         """
         See super class.
         """  
-        del info[self.WORKDIR]      
+        if info.has_key(self.WORKDIR):
+            del info[self.WORKDIR]     
         check_keys = [self.PARAM_IDX,self.FILE_IDX]
         mod_info = info.copy()
         for key in check_keys:            
