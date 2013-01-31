@@ -96,11 +96,14 @@ class IRTChromatogramExtractor(ChromatogramExtractor):
     def prepare_run(self,info,log):
         self._traml = info['TRAML']
         info['TRAML'] = info['IRTTRAML']
+        self._rtwnd = info['RT_EXTRACTION_WINDOW']
+        info['RT_EXTRACTION_WINDOW'] = '-1'
         command, info = super(IRTChromatogramExtractor, self).prepare_run(info,log)
         return command,info
     
     def validate_run(self,info,log, run_code,out_stream, err_stream):
         info['TRAML'] = self._traml
+        info['RT_EXTRACTION_WINDOW'] = self._rtwnd 
         return super(IRTChromatogramExtractor, self).validate_run(info,log, run_code,out_stream, err_stream)
      
     def set_args(self,log,args_handler):  

@@ -18,7 +18,7 @@ def setup():
             f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 LOG_LEVEL = INFO
 STORAGE = memory_all
-THREADS = 32
+THREADS = 16
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 
 IRTTRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_DIA_iRT.TraML"
@@ -31,7 +31,9 @@ TRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_AQUA
 
 EXTRACTION_WINDOW = 0.05
 RT_EXTRACTION_WINDOW = 600
+WINDOW_UNIT = Thomson
 
+MPR_USE_LDA = False
 MIN_UPPER_EDGE_DIST = 1
 
 MIN_RSQ = 0.95
