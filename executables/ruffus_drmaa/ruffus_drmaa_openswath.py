@@ -30,16 +30,18 @@ TRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_AQUA
 
 
 EXTRACTION_WINDOW = 0.05
-RT_EXTRACTION_WINDOW = 600
+RT_EXTRACTION_WINDOW = -1
 WINDOW_UNIT = Thomson
 
-MPR_USE_LDA = False
+
 MIN_UPPER_EDGE_DIST = 1
 
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
 
 MPR_NUM_XVAL = 5
+MPR_USE_LDA = False
+MPR_LDA_PATH = /dev/null 
 
 WIDTH = 20
 RTWIDTH = 9
