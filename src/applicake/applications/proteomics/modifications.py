@@ -52,6 +52,13 @@ class ModificationDb(object):
                            _applications[2]: 'K 226.077598',
                            _applications[3]: '<LISTITEM value="Biotin (K)"/>'
                            },
+           
+           'Oxidation (HW)' : {
+                           _applications[0]: '15.994915@H,15.994915@W',
+                           _applications[1]: '89,90',
+                           _applications[2]: '[HW] 15.995',
+                           _applications[3]: '<LISTITEM value="Oxidation (HW)"/>'
+                           },
            }           
 
     def __init__(self,log=None):
