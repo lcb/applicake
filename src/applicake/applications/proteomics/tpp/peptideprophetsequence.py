@@ -80,7 +80,8 @@ class PeptideProphetSequence(IWrapper):
         fout = open(pepxmlout, 'w')
         for line in open(pepxmlin).readlines():
             if '<msms_run_summary base_name' in line:
-                line = '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">' % mzxmlbase
+                spaces = line[:line.find('<')]
+                line = spaces + '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">' % mzxmlbase
                 log.debug('changed msms_run_summary tag')
             if '<search_summary base_name' in line:
                 if line.find('search_id') == -1:
