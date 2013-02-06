@@ -36,6 +36,8 @@ class InterProphet(IWrapper):
         wd = info[self.WORKDIR]
         log.debug('reset path of application files from current dir to work dir [%s]' % wd)
         self._result_file = os.path.join(wd,self._result_file)
+        if not isinstance(info[self.PEPXMLS], list):
+            info[self.PEPXMLS] = [info[self.PEPXMLS]]
         old = info[self.PEPXMLS]
         # this check has to be included to cope with non-failing workflow engines
         for path in old:

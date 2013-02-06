@@ -58,7 +58,7 @@ class ProteinProphetFDR(IWrapper):
     def prepare_run(self,info,log):
         if len(info['PEPXMLS']) > 1:
             log.fatal("This ProteinProphet only takes one iProphet inputfile!")
-        
+            return 1,info
         
         # store original values in temporary key
         info['ORGPEPXMLS'] = info['PEPXMLS']

@@ -92,9 +92,14 @@ def dss(input_file_name, output_file_name):
 ################################################################################################
 
 
+
 @transform(dss, regex("dss.ini_"), "fileconverter.ini_")
 def LFQpart1(input_file_name, output_file_name):
-    wrap(LFQpart1,input_file_name,output_file_name)
+    argv = ['', '-i', input_file_name,'-o',output_file_name]
+    runner = IniFileRunner()
+    application = LFQpart1()
+    exit_code = runner(argv, application)
+
  
-pipeline_run([cp2dropbox], multiprocess=16)
+pipeline_run([LFQpart1], multiprocess=16)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg

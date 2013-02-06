@@ -15,9 +15,11 @@ from applicake.utils.xmlutils import XmlValidator
 class PeptideProphetSequence(IWrapper):
     
     def prepare_run(self,info,log):
-        #pepxmls always a list, even if only one pepxml
-        pepxml_filename = info[self.PEPXMLS][0]        
         db_filename = info['DBASE']
+        
+        corrected_pepxml = os.path.join(info[self.WORKDIR], 'corrected.pep.xml')
+        self._correctPepxml(log, info[self.PEPXMLS][0], info[self.MZXML], corrected_pepxml)        
+        
         self._result_file  = os.path.join(info[self.WORKDIR], 'interact.pep.xml')
         
         omssafix = ''
@@ -30,7 +32,7 @@ class PeptideProphetSequence(IWrapper):
         
         cmds = []                
         # InteractParser <outfile> <file1.pep.xml> <file2.pep.xml>... <options>            
-        cmds.append('InteractParser %s %s %s %s' % (self._result_file,pepxml_filename,paramarr[0],omssafix))
+        cmds.append('InteractParser %s %s %s %s' % (self._result_file,corrected_pepxml,paramarr[0],omssafix))
         #RefreshParser <xmlfile> <database>
         cmds.append('RefreshParser %s %s %s' % (self._result_file,db_filename,paramarr[1]))    
         #PeptideProphetParser output.pep.xml DECOY=DECOY_ MINPROB=0 NONPARAM MINPROB required for myrimatch otherwise 'no results found'
@@ -63,6 +65,41 @@ class PeptideProphetSequence(IWrapper):
         info[self.PEPXMLS] = [self._result_file]         
         return run_code,info
           
+    def _getValue(self,line, attribute):
+        """Get the value of an attribute from the XML element contained in 'line'"""
+        pos0 = line.index(attribute + '="')
+        pos1 = line.index('"', pos0) + 1
+        pos2 = line.index('"', pos1)
+        return line[pos1:pos2]
+    
+    def _correctPepxml(self,log,pepxmlin,mzxml,pepxmlout):
+        log.info("Correcting pepxml")
+        mzxmlbase = os.path.splitext(mzxml)[0]
+        
+        fout = open(pepxmlout, 'w')
+        for line in open(pepxmlin).readlines():
+            if '<msms_run_summary base_name' in line:
+                line = '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n' % mzxmlbase
+                log.debug('changed msms_run_summary tag')
+            if '<search_summary base_name' in line:
+                if line.find('search_id') == -1:
+                    line = line.replace('>', ' search_id="1">')
+                    log.debug("added search_id")
+                basename = self._getValue(line, 'base_name')
+                line = line.replace(basename,mzxmlbase) + '\n'
+                log.debug('changed search_summary')
+
+            if '<spectrum_query spectrum="' in line:
+                spectrum = self._getValue(line, 'spectrum')
+                (basename,start_scan,end_scan,assumed_charge) = spectrum.split('.')  
+                if len(end_scan) > 5:
+                    log.fatal("Scan number > 5, this will kill the Prophets, aborting!")
+                    raise Exception('Scan number > 5')                              
+                spectrum_mod = "%s.%05d.%05d.%s" %(basename,int(start_scan),int(end_scan),assumed_charge)
+                line = line.replace(spectrum,spectrum_mod) + '\n'                                    
+                                    
+            fout.write(line) 
+        fout.close()
 
 class PeptideProphetSequenceTemplate(BasicTemplateHandler):
     """

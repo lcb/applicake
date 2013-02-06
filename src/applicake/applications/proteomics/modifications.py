@@ -2,6 +2,26 @@
 Created on Jun 5, 2012
 
 @author: quandtan
+
+Omssa usermods.xml for biotin:
+  <MSModSpec>
+    <MSModSpec_mod>
+      <MSMod value="usermod7">125</MSMod>
+    </MSModSpec_mod>
+    <MSModSpec_type>
+      <MSModType value="modaa">0</MSModType>
+    </MSModSpec_type>
+    <MSModSpec_name>Biotin</MSModSpec_name>
+    <MSModSpec_monomass>226.077598</MSModSpec_monomass>
+    <MSModSpec_averagemass>226.2954</MSModSpec_averagemass>
+    <MSModSpec_n15mass>0</MSModSpec_n15mass>
+    <MSModSpec_residues>
+      <MSModSpec_residues_E>K</MSModSpec_residues_E>
+    </MSModSpec_residues>
+    <MSModSpec_unimod>21</MSModSpec_unimod>
+    <MSModSpec_psi-ms>Biotin</MSModSpec_psi-ms>
+  </MSModSpec>
+  
 '''
 
 import sys
