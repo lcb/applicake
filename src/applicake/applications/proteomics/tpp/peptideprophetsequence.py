@@ -44,6 +44,7 @@ class PeptideProphetSequence(IWrapper):
         args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, 'ENZYME', 'Enzyme used for digest')
         args_handler.add_app_args(log, 'DBASE', 'FASTA dbase')
+        args_handler.add_app_args(log, 'MZXML', 'Path to the original MZXML inputfile')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, 'OMSSAFIX', 'Fix omssa',action="store_true")
         return args_handler
@@ -79,14 +80,14 @@ class PeptideProphetSequence(IWrapper):
         fout = open(pepxmlout, 'w')
         for line in open(pepxmlin).readlines():
             if '<msms_run_summary base_name' in line:
-                line = '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n' % mzxmlbase
+                line = '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">' % mzxmlbase
                 log.debug('changed msms_run_summary tag')
             if '<search_summary base_name' in line:
                 if line.find('search_id') == -1:
                     line = line.replace('>', ' search_id="1">')
                     log.debug("added search_id")
                 basename = self._getValue(line, 'base_name')
-                line = line.replace(basename,mzxmlbase) + '\n'
+                line = line.replace(basename,mzxmlbase)
                 log.debug('changed search_summary')
 
             if '<spectrum_query spectrum="' in line:
@@ -96,7 +97,7 @@ class PeptideProphetSequence(IWrapper):
                     log.fatal("Scan number > 5, this will kill the Prophets, aborting!")
                     raise Exception('Scan number > 5')                              
                 spectrum_mod = "%s.%05d.%05d.%s" %(basename,int(start_scan),int(end_scan),assumed_charge)
-                line = line.replace(spectrum,spectrum_mod) + '\n'                                    
+                line = line.replace(spectrum,spectrum_mod)                                    
                                     
             fout.write(line) 
         fout.close()
