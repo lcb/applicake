@@ -4,6 +4,7 @@
 Created on Jan 22, 2013
 
 @author: lorenz
+
 '''
 
 import os
@@ -15,11 +16,9 @@ from applicake.utils.xmlutils import XmlValidator
 class PeptideProphetSequence(IWrapper):
     
     def prepare_run(self,info,log):
-        db_filename = info['DBASE']
-        
+        db_filename = info['DBASE'] 
         corrected_pepxml = os.path.join(info[self.WORKDIR], 'corrected.pep.xml')
-        self._correctPepxml(log, info[self.PEPXMLS][0], info[self.MZXML], corrected_pepxml)        
-        
+        self._correctPepxml(log, info[self.PEPXMLS][0], info[self.MZXML], corrected_pepxml)            
         self._result_file  = os.path.join(info[self.WORKDIR], 'interact.pep.xml')
         
         omssafix = ''
@@ -31,11 +30,8 @@ class PeptideProphetSequence(IWrapper):
         paramarr = template.splitlines()
         
         cmds = []                
-        # InteractParser <outfile> <file1.pep.xml> <file2.pep.xml>... <options>            
         cmds.append('InteractParser %s %s %s %s' % (self._result_file,corrected_pepxml,paramarr[0],omssafix))
-        #RefreshParser <xmlfile> <database>
         cmds.append('RefreshParser %s %s %s' % (self._result_file,db_filename,paramarr[1]))    
-        #PeptideProphetParser output.pep.xml DECOY=DECOY_ MINPROB=0 NONPARAM MINPROB required for myrimatch otherwise 'no results found'
         cmds.append('PeptideProphetParser %s %s' % (self._result_file,paramarr[2]))           
         return ' && '.join(cmds),info
     
@@ -74,29 +70,45 @@ class PeptideProphetSequence(IWrapper):
         return line[pos1:pos2]
     
     def _correctPepxml(self,log,pepxmlin,mzxml,pepxmlout):
-        log.info("Correcting pepxml")
+        '''
+        scan numbers => different padding leads to non-matching in iProphet & spectrast
+        Tandem: Tandem2XML = 00000-Padding
+        Omssa: MzXML2Search = 00000-Padding
+        Myrimatch: None
+        
+        base_name ms_run_summary => .pep.xml in this tag leads to LFQ IDFileConverter error (Found no experiment with name NNN)
+        Tandem: path/ID
+        Omssa: path/ID.pep.xml
+        Myrimatch: ID
+        
+        search_id => missing attribute leads to error in LFQ ()
+        Tandem y
+        Omssa y
+        Myrimatch n!
+        '''
+        log.info("correcting pepxml")
         mzxmlbase = os.path.splitext(mzxml)[0]
         
         fout = open(pepxmlout, 'w')
         for line in open(pepxmlin).readlines():
             if '<msms_run_summary base_name' in line:
                 spaces = line[:line.find('<')]
-                line = spaces + '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">' % mzxmlbase
-                log.debug('changed msms_run_summary tag')
+                line = spaces + '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n' % mzxmlbase
+                log.info('changed msms_run_summary tag')
             if '<search_summary base_name' in line:
                 if line.find('search_id') == -1:
                     line = line.replace('>', ' search_id="1">')
-                    log.debug("added search_id")
+                    log.info("added search_id")
                 basename = self._getValue(line, 'base_name')
                 line = line.replace(basename,mzxmlbase)
-                log.debug('changed search_summary')
+                log.info('changed search_summary')
 
             if '<spectrum_query spectrum="' in line:
                 spectrum = self._getValue(line, 'spectrum')
                 (basename,start_scan,end_scan,assumed_charge) = spectrum.split('.')  
                 if len(end_scan) > 5:
-                    log.fatal("Scan number > 5, this will kill the Prophets, aborting!")
-                    raise Exception('Scan number > 5')                              
+                    log.fatal("Scan number > 5 digits, this will kill the Prophets, aborting!")
+                    raise Exception('Scan number > 5 digits')                              
                 spectrum_mod = "%s.%05d.%05d.%s" %(basename,int(start_scan),int(end_scan),assumed_charge)
                 line = line.replace(spectrum,spectrum_mod)                                    
                                     
@@ -105,13 +117,20 @@ class PeptideProphetSequence(IWrapper):
 
 class PeptideProphetSequenceTemplate(BasicTemplateHandler):
     """
-    Template handler for xinteract.
+    Template handler for xinteract. mapping of options:
+    -p0 MINPROB=0
+    -dDECOY_ DECOY=DECOY_ str used for decoys
+    -OA ACCMASS accurate mass binning
+    -OP NONPARAM
+    -Od DECOYPROBS
+    -Ol LEAVE
+    -OI PI
+    -Ow INSTRWARN
     """
     def read_template(self, info, log):
         """
         See super class.
         """
-        # Threads is not set by a variable as this does not make sense here
         template = """-L7 -E$ENZYME
 
 DECOY=DECOY_ ACCMASS NONPARAM DECOYPROBS LEAVE PI INSTRWARN MINPROB=0"""        
