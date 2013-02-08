@@ -38,7 +38,7 @@ class PepXml2IdXml(OpenMs):
         - Tool is executed using the pattern: [PREFIX] -ini [TEMPLATE].
         - If there is a result file, it is added with a specific key to the info object.
         """
-        if len(info['PEPXMLS']) != 1:
+        if isinstance(info['PEPXMLS'],list) and len(info['PEPXMLS']) != 1:
             log.fatal('Only the use of 1 pepXML file is currently supported. Found [%s]' % info['PEPXMLS'])
             sys.exit(1)        
         wd = info[self.WORKDIR]

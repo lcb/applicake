@@ -24,7 +24,8 @@ class Copy2Dropbox(IApplication):
         if info.has_key(self.PARAM_IDX):
             prefix = '%s.%s' % (prefix,info[self.PARAM_IDX])
         dirname = '%s+%s+%s' % (space, project, prefix)
-        return os.path.join(info['DROPBOX'],dirname)
+        #return os.path.join(info['DROPBOX'],dirname)
+        return os.path.join(info[self.WORKDIR],dirname)
     
     def copy_dropbox_specific_files(self,info,log,path):
         """
@@ -55,12 +56,17 @@ class Copy2Dropbox(IApplication):
         info_copy = info.copy()
         info_copy[self.OUTPUT] = os.path.join(path,'search.properties')
         BasicInformationHandler().write_info(info_copy, log)
+        
+        shutil.copy(path, info['DROPBOXDIR'])
+        info['DROPBOXSTAGE'] = path
+        
         return exit_code,info
         
     def set_args(self,log,args_handler):
         """
         See interface
         """        
+        args_handler.add_app_args(log, 'WORKDIR', 'wd')
         args_handler.add_app_args(log, 'DROPBOX', 'Path to the dropbox folder used to upload data to OpenBIS.')
         args_handler.add_app_args(log, 'SPACE', 'OpenBIS space')
         args_handler.add_app_args(log, 'PROJECT', 'Project in the OpenBIS space.')

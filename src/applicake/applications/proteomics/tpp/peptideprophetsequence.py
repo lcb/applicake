@@ -5,6 +5,8 @@ Created on Jan 22, 2013
 
 @author: lorenz
 
+Corrects pepxml output to make compatible with TPP and openms, then executes xinteract (step by step because of semiTrypsin option)
+
 '''
 
 import os
@@ -18,6 +20,7 @@ class PeptideProphetSequence(IWrapper):
     def prepare_run(self,info,log):
         db_filename = info['DBASE'] 
         corrected_pepxml = os.path.join(info[self.WORKDIR], 'corrected.pep.xml')
+        #CORRECT
         self._correctPepxml(log, info[self.PEPXMLS][0], info[self.MZXML], corrected_pepxml)            
         self._result_file  = os.path.join(info[self.WORKDIR], 'interact.pep.xml')
         
@@ -29,6 +32,7 @@ class PeptideProphetSequence(IWrapper):
         template,info = PeptideProphetSequenceTemplate().modify_template(info, log)
         paramarr = template.splitlines()
         
+        #XTINERACT
         cmds = []                
         cmds.append('InteractParser %s %s %s %s' % (self._result_file,corrected_pepxml,paramarr[0],omssafix))
         cmds.append('RefreshParser %s %s %s' % (self._result_file,db_filename,paramarr[1]))    
@@ -76,12 +80,12 @@ class PeptideProphetSequence(IWrapper):
         Omssa: MzXML2Search = 00000-Padding
         Myrimatch: None
         
-        base_name ms_run_summary => .pep.xml in this tag leads to LFQ IDFileConverter error (Found no experiment with name NNN)
+        base_name ms_run_summary => .pep.xml in this tag leads to error in LFQ (IDFileConverter found no experiment with name NNN)
         Tandem: path/ID
         Omssa: path/ID.pep.xml
         Myrimatch: ID
         
-        search_id => missing attribute leads to error in LFQ ()
+        search_id => missing attribute leads to error in LFQ (IDFilter?)
         Tandem y
         Omssa y
         Myrimatch n!
@@ -92,13 +96,16 @@ class PeptideProphetSequence(IWrapper):
         fout = open(pepxmlout, 'w')
         for line in open(pepxmlin).readlines():
             if '<msms_run_summary base_name' in line:
+                #all engines: link to real original mzXML
                 spaces = line[:line.find('<')]
                 line = spaces + '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n' % mzxmlbase
                 log.info('changed msms_run_summary tag')
             if '<search_summary base_name' in line:
+                #myrimatch: no search_id
                 if line.find('search_id') == -1:
                     line = line.replace('>', ' search_id="1">')
                     log.info("added search_id")
+                #omssa: superfluous .pep.xml
                 basename = self._getValue(line, 'base_name')
                 line = line.replace(basename,mzxmlbase)
                 log.info('changed search_summary')
