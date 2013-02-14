@@ -276,6 +276,5 @@ class ProtXml2IdXmlTemplate(BasicTemplateHandler):
       <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
     </NODE>
   </NODE>
-</PARAMETERS>
-"""
-        return template,info    
+</PARAMETERS>"""
+        return template,info

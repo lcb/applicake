@@ -20,39 +20,47 @@ class LFQpart1(IWrapper):
         mod_template,info = LFQpart1WorkflowTemplate().modify_template(info, log)
         wftemplate = info[self.TEMPLATE]
         
-        info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.trf')
-        mod_template,info = LFQpart1InputfilesTemplate().modify_template(info, log)
-        trftemplate = info[self.TEMPLATE]
+#        info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.trf')
+#        mod_template,info = LFQpart1InputfilesTemplate().modify_template(info, log)
+#        trftemplate = info[self.TEMPLATE]
 
-        command = 'ExecutePipeline -in %s -resource_file %s -out_dir %s' % (wftemplate, trftemplate, wd)
+        command = 'ExecutePipeline -in %s -out_dir %s' % (wftemplate, wd)
         return command,info
 
     def set_args(self,log,args_handler):
         """
         See interface
         """
+        args_handler.add_app_args(log, self.WORKDIR, 'wd')
         args_handler.add_app_args(log, 'MZXML', 'Path to the mzXML file.')
         args_handler.add_app_args(log, 'PEPXMLS', 'Path to the pepXML file.')
+        
+        args_handler.add_app_args(log, "PEAKPICKER_SIGNAL_TO_NOISE", "")
+        args_handler.add_app_args(log, "PEAKPICKER_MS1_ONLY", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_MASS_TRACE__MZ_TOLERANCE", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_MASS_TRACE__MIN_SPECTRA", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_MASS_TRACE__MAX_MISSING", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_ISOTOPIC_PATTERN__CHARGE_LOW", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_ISOTOPIC_PATTERN__CHARGE_HIGH", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_ISOTOPIC_PATTERN__MZ_TOLERANCE", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_FEATURE__MIN_SCORE", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_FEATURE__MIN_ISOTOPE_FIT", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_FEATURE__MIN_TRACE_SCORE", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_USER_SEED__RT_TOLERANCE", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_USER_SEED__MZ_TOLERANCE", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_USER_SEED__MIN_SCORE", "")
+        args_handler.add_app_args(log, "FEATUREFINDER_SEED__MIN_SCORE","")
+        args_handler.add_app_args(log, "FEATUREFINDER_MASS_TRACE__SLOPE_BOUND","")
+        args_handler.add_app_args(log, "IDMAPPER_RT_TOLERANCE", "")
+        args_handler.add_app_args(log, "IDMAPPER_MZ_TOLERANCE", "")
+        args_handler.add_app_args(log, "IDMAPPER_MZ_REFERENCE", "")
+        args_handler.add_app_args(log, "IDMAPPER_USE_CENTROID_MZ", "")
+        args_handler.add_app_args(log, "SEEDLISTGENERATOR_USE_PEPTIDE_MASS", "")
         return args_handler
+        
+    def validate_run(self,info,log, run_code,out_stream, err_stream):
+        return run_code,info
 
-class LFQpart1InputfilesTemplate(BasicTemplateHandler):
-    def read_template(self, info, log):
-        template = """
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<PARAMETERS version="1.4" xsi:noNamespaceSchemaLocation="http://open-ms.sourceforge.net/schemas/Param_1_4.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <NODE name="1" description="">
-    <ITEMLIST name="url_list" type="string" description="">
-      <LISTITEM value="file://$MZXML"/>
-    </ITEMLIST>
-  </NODE>
-  <NODE name="2" description="">
-    <ITEMLIST name="url_list" type="string" description="">
-      <LISTITEM value="file://$PEPXMLS"/>
-    </ITEMLIST>
-  </NODE>
-</PARAMETERS>
-        """
-        return template,info
              
 class LFQpart1WorkflowTemplate(BasicTemplateHandler):
     """
@@ -63,8 +71,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """
-<?xml version="1.0" encoding="ISO-8859-1"?>
+        template = """<?xml version="1.0" encoding="ISO-8859-1"?>
 <PARAMETERS version="1.4" xsi:noNamespaceSchemaLocation="http://open-ms.sourceforge.net/schemas/Param_1_4.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <NODE name="info" description="">
     <ITEM name="version" value="1.10.0" type="string" description="" />
@@ -77,7 +84,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
       <ITEM name="recycle_output" value="false" type="string" description="" />
       <ITEM name="toppas_type" value="input file list" type="string" description="" />
       <ITEMLIST name="file_names" type="string" description="">
-        <LISTITEM value="CHLUDWIG_M1107_273~20110721034730308-201103.mzXML"/>
+        <LISTITEM value="$MZXML"/>
       </ITEMLIST>
       <ITEM name="x_pos" value="-520" type="float" description="" />
       <ITEM name="y_pos" value="-440" type="float" description="" />
@@ -86,11 +93,12 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
       <ITEM name="recycle_output" value="false" type="string" description="" />
       <ITEM name="toppas_type" value="input file list" type="string" description="" />
       <ITEMLIST name="file_names" type="string" description="">
-        <LISTITEM value="CHLUDWIG_M1107_273~20110721034730308-201103.pep.xml"/>
+        <LISTITEM value="$PEPXMLS"/>
       </ITEMLIST>
       <ITEM name="x_pos" value="0" type="float" description="" />
       <ITEM name="y_pos" value="-360" type="float" description="" />
     </NODE>
+    
     <NODE name="5" description="">
       <ITEM name="recycle_output" value="false" type="string" description="" />
       <ITEM name="toppas_type" value="tool" type="string" description="" />
@@ -151,8 +159,8 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
         <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
         <NODE name="algorithm" description="Algorithm parameters section">
-          <ITEM name="signal_to_noise" value="$PeakPicker.signal_to_noise" type="float" description="Minimal signal-to-noise ratio for a peak to be picked (0.0 disables SNT estimation!)" restrictions="0:" />
-          <ITEM name="ms1_only" value="$PeakPicker.ms1_only" type="string" description="If true, peak picking is only applied to MS1 scans. Other scans are copied to the output without changes." restrictions="true,false" />
+          <ITEM name="signal_to_noise" value="$PEAKPICKER_SIGNAL_TO_NOISE" type="float" description="Minimal signal-to-noise ratio for a peak to be picked (0.0 disables SNT estimation!)" restrictions="0:" />
+          <ITEM name="ms1_only" value="$PEAKPICKER_MS1_ONLY" type="string" description="If true, peak picking is only applied to MS1 scans. Other scans are copied to the output without changes." restrictions="true,false" />
         </NODE>
       </NODE>
     </NODE>
@@ -198,22 +206,22 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
             <ITEM name="bins" value="10" type="int" description="Number of bins per dimension (RT and m/z). The higher this value, the more local the intensity significance score is.#br#This parameter should be decreased, if the algorithm is used on small regions of a map." restrictions="1:" />
           </NODE>
           <NODE name="mass_trace" description="Settings for the calculation of a score indicating if a peak is part of a mass trace (between 0 and 1).">
-            <ITEM name="mz_tolerance" value="$FeatureFinder.mass_trace__mz_tolerance" type="float" description="Tolerated m/z deviation of peaks belonging to the same mass trace.#br#It should be larger than the m/z resolution of the instument.#br#This value must be smaller than that 1/charge_high!" restrictions="0:" />
-            <ITEM name="min_spectra" value="$FeatureFinder.mass_trace__min_spectra" type="int" description="Number of spectra that have to show a similar peak mass in a mass trace." restrictions="1:" />
-            <ITEM name="max_missing" value="$FeatureFinder.mass_trace__max_missing" type="int" description="Number of consecutive spectra where a high mass deviation or missing peak is acceptable.#br#This parameter should be well below &apos;min_spectra&apos;!" restrictions="0:" />
-            <ITEM name="slope_bound" value="mass_trace__slope_bound" type="float" description="The maximum slope of mass trace intensities when extending from the highest peak.#br#This parameter is important to seperate overlapping elution peaks.#br#It should be increased if feature elution profiles fluctuate a lot." restrictions="0:" />
+            <ITEM name="mz_tolerance" value="$FEATUREFINDER_MASS_TRACE__MZ_TOLERANCE" type="float" description="Tolerated m/z deviation of peaks belonging to the same mass trace.#br#It should be larger than the m/z resolution of the instument.#br#This value must be smaller than that 1/charge_high!" restrictions="0:" />
+            <ITEM name="min_spectra" value="$FEATUREFINDER_MASS_TRACE__MIN_SPECTRA" type="int" description="Number of spectra that have to show a similar peak mass in a mass trace." restrictions="1:" />
+            <ITEM name="max_missing" value="$FEATUREFINDER_MASS_TRACE__MAX_MISSING" type="int" description="Number of consecutive spectra where a high mass deviation or missing peak is acceptable.#br#This parameter should be well below &apos;min_spectra&apos;!" restrictions="0:" />
+            <ITEM name="slope_bound" value="$FEATUREFINDER_MASS_TRACE__SLOPE_BOUND" type="float" description="The maximum slope of mass trace intensities when extending from the highest peak.#br#This parameter is important to seperate overlapping elution peaks.#br#It should be increased if feature elution profiles fluctuate a lot." restrictions="0:" />
           </NODE>
           <NODE name="isotopic_pattern" description="Settings for the calculation of a score indicating if a peak is part of a isotoipic pattern (between 0 and 1).">
-            <ITEM name="charge_low" value="$FeatureFinder.isotopic_pattern__charge_low" type="int" description="Lowest charge to search for." restrictions="1:" />
-            <ITEM name="charge_high" value="$FeatureFinder.isotopic_pattern__charge_high" type="int" description="Highest charge to search for." restrictions="1:" />
-            <ITEM name="mz_tolerance" value="$FeatureFinder.isotopic_pattern__mz_tolerance" type="float" description="Tolerated m/z deviation from the theoretical isotopic pattern.#br#It should be larger than the m/z resolution of the instument.#br#This value must be smaller than that 1/charge_high!" restrictions="0:" />
+            <ITEM name="charge_low" value="$FEATUREFINDER_ISOTOPIC_PATTERN__CHARGE_LOW" type="int" description="Lowest charge to search for." restrictions="1:" />
+            <ITEM name="charge_high" value="$FEATUREFINDER_ISOTOPIC_PATTERN__CHARGE_HIGH" type="int" description="Highest charge to search for." restrictions="1:" />
+            <ITEM name="mz_tolerance" value="$FEATUREFINDER_ISOTOPIC_PATTERN__MZ_TOLERANCE" type="float" description="Tolerated m/z deviation from the theoretical isotopic pattern.#br#It should be larger than the m/z resolution of the instument.#br#This value must be smaller than that 1/charge_high!" restrictions="0:" />
             <ITEM name="intensity_percentage" value="10" type="float" description="Isotopic peaks that contribute more than this percentage to the overall isotope pattern intensity must be present." tags="advanced" restrictions="0:100" />
             <ITEM name="intensity_percentage_optional" value="0.1" type="float" description="Isotopic peaks that contribute more than this percentage to the overall isotope pattern intensity can be missing." tags="advanced" restrictions="0:100" />
             <ITEM name="optional_fit_improvement" value="2" type="float" description="Minimal percental improvement of isotope fit to allow leaving out an optional peak." tags="advanced" restrictions="0:100" />
             <ITEM name="mass_window_width" value="25" type="float" description="Window width in Dalton for precalculation of estimated isotope distribtions." tags="advanced" restrictions="1:200" />
           </NODE>
           <NODE name="seed" description="Settings that determine which peaks are considered a seed">
-            <ITEM name="min_score" value="FeatureFinder.seed__min_score" type="float" description="Minimum seed score a peak has to reach to be used as seed.#br#The seed score is the geometric mean of intensity score, mass trace score and isotope pattern score.#br#If your features show a large deviation from the averagene isotope distribution or from an gaussian elution profile, lower this score." restrictions="0:1" />
+            <ITEM name="min_score" value="$FEATUREFINDER_SEED__MIN_SCORE" type="float" description="Minimum seed score a peak has to reach to be used as seed.#br#The seed score is the geometric mean of intensity score, mass trace score and isotope pattern score.#br#If your features show a large deviation from the averagene isotope distribution or from an gaussian elution profile, lower this score." restrictions="0:1" />
           </NODE>
           <NODE name="fit" description="Settings for the model fitting">
             <ITEM name="epsilon_abs" value="0.0001" type="float" description="Absolute epsilon used for convergence of the fit." tags="advanced" restrictions="0:" />
@@ -221,9 +229,9 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
             <ITEM name="max_iterations" value="500" type="int" description="Maximum number of iterations of the fit." tags="advanced" restrictions="1:" />
           </NODE>
           <NODE name="feature" description="Settings for the features (intensity, quality assessment, ...)">
-            <ITEM name="min_score" value="$FeatureFinder.feature__min_score" type="float" description="Feature score threshold for a feature to be reported.#br#The feature score is the geometric mean of the average relative deviation and the correlation between the model and the observed peaks." restrictions="0:1" />
-            <ITEM name="min_isotope_fit" value="$FeatureFinder.feature__min_isotope_fit" type="float" description="Minimum isotope fit of the feature before model fitting." tags="advanced" restrictions="0:1" />
-            <ITEM name="min_trace_score" value="$FeatureFinder.feature__min_trace_score" type="float" description="Trace score threshold.#br#Traces below this threshold are removed after the model fitting.#br#This parameter is important for features that overlap in m/z dimension." tags="advanced" restrictions="0:1" />
+            <ITEM name="min_score" value="$FEATUREFINDER_FEATURE__MIN_SCORE" type="float" description="Feature score threshold for a feature to be reported.#br#The feature score is the geometric mean of the average relative deviation and the correlation between the model and the observed peaks." restrictions="0:1" />
+            <ITEM name="min_isotope_fit" value="$FEATUREFINDER_FEATURE__MIN_ISOTOPE_FIT" type="float" description="Minimum isotope fit of the feature before model fitting." tags="advanced" restrictions="0:1" />
+            <ITEM name="min_trace_score" value="$FEATUREFINDER_FEATURE__MIN_TRACE_SCORE" type="float" description="Trace score threshold.#br#Traces below this threshold are removed after the model fitting.#br#This parameter is important for features that overlap in m/z dimension." tags="advanced" restrictions="0:1" />
             <ITEM name="min_rt_span" value="0.333" type="float" description="Minimum RT span in relation to extended area that has to remain after model fitting." tags="advanced" restrictions="0:1" />
             <ITEM name="max_rt_span" value="2.5" type="float" description="Maximum RT span in relation to extended area that the model is allowed to have." tags="advanced" restrictions="0.5:" />
             <ITEM name="rt_shape" value="symmetric" type="string" description="Choose model used for RT profile fitting. If set to symmetric a gauss shape is used, in case of asymmetric an EGH shape is used." tags="advanced" restrictions="symmetric,asymmetric" />
@@ -231,9 +239,9 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
             <ITEM name="reported_mz" value="monoisotopic" type="string" description="The mass type that is reported for features.#br#&apos;maximum&apos; returns the m/z value of the highest mass trace.#br#&apos;average&apos; returns the intensity-weighted average m/z value of all contained peaks.#br#&apos;monoisotopic&apos; returns the monoisotopic m/z value derived from the fitted isotope model." restrictions="maximum,average,monoisotopic" />
           </NODE>
           <NODE name="user-seed" description="Settings for user-specified seeds.">
-            <ITEM name="rt_tolerance" value="$FeatureFinder.user_seed__rt_tolerance" type="float" description="Allowed RT deviation of seeds from the user-specified seed position." restrictions="0:" />
-            <ITEM name="mz_tolerance" value="$FeatureFinder.user_seed__mz_tolerance" type="float" description="Allowed m/z deviation of seeds from the user-specified seed position." restrictions="0:" />
-            <ITEM name="min_score" value="$FeatureFinder.user_seed__min_score" type="float" description="Overwrites &apos;seed:min_score&apos; for user-specified seeds. The cutoff is typically a bit lower in this case." restrictions="0:1" />
+            <ITEM name="rt_tolerance" value="$FEATUREFINDER_USER_SEED__RT_TOLERANCE" type="float" description="Allowed RT deviation of seeds from the user-specified seed position." restrictions="0:" />
+            <ITEM name="mz_tolerance" value="$FEATUREFINDER_USER_SEED__MZ_TOLERANCE" type="float" description="Allowed m/z deviation of seeds from the user-specified seed position." restrictions="0:" />
+            <ITEM name="min_score" value="$FEATUREFINDER_USER_SEED__MIN_SCORE" type="float" description="Overwrites &apos;seed:min_score&apos; for user-specified seeds. The cutoff is typically a bit lower in this case." restrictions="0:1" />
           </NODE>
           <NODE name="debug" description="">
             <ITEM name="pseudo_rt_shift" value="500" type="float" description="Pseudo RT shift used when ." tags="advanced" restrictions="1:" />
@@ -252,13 +260,13 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="id" value="" type="string" description="Protein/peptide identifications file" tags="input file,required" />
         <ITEM name="in" value="" type="string" description="Feature map/consensus map file" tags="input file,required" />
         <ITEM name="out" value="" type="string" description="Output file (the format depends on the input file format)." tags="output file,required" />
-        <ITEM name="rt_tolerance" value="$IDMapper.rt_tolerance" type="float" description="RT tolerance (in seconds) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
-        <ITEM name="mz_tolerance" value="$IDMapper.mz_tolerance" type="float" description="m/z tolerance (in ppm or Da) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
+        <ITEM name="rt_tolerance" value="$IDMAPPER_RT_TOLERANCE" type="float" description="RT tolerance (in seconds) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
+        <ITEM name="mz_tolerance" value="$IDMAPPER_MZ_TOLERANCE" type="float" description="m/z tolerance (in ppm or Da) for the matching of peptide identifications and (consensus) features.#br#Tolerance is understood as &apos;plus or minus x&apos;, so the matching range increases by twice the given value." restrictions="0:" />
         <ITEM name="mz_measure" value="ppm" type="string" description="Unit of &apos;mz_tolerance&apos;." restrictions="ppm,Da" />
-        <ITEM name="mz_reference" value="$IDMapper.mz_reference" type="string" description="Source of m/z values for peptide identifications. If &apos;precursor&apos;, the precursor-m/z from the idXML is used. If &apos;peptide&apos;,#br#masses are computed from the sequences of peptide hits; in this case, an identification matches if any of its hits matches.#br#(&apos;peptide&apos; should be used together with &apos;use_centroid_mz&apos; to avoid false-positive matches.)" restrictions="precursor,peptide" />
+        <ITEM name="mz_reference" value="$IDMAPPER_MZ_REFERENCE" type="string" description="Source of m/z values for peptide identifications. If &apos;precursor&apos;, the precursor-m/z from the idXML is used. If &apos;peptide&apos;,#br#masses are computed from the sequences of peptide hits; in this case, an identification matches if any of its hits matches.#br#(&apos;peptide&apos; should be used together with &apos;use_centroid_mz&apos; to avoid false-positive matches.)" restrictions="precursor,peptide" />
         <ITEM name="ignore_charge" value="false" type="string" description="For feature/consensus maps: Assign an ID independently of whether its charge state matches that of the (consensus) feature." restrictions="true,false" />
         <ITEM name="use_centroid_rt" value="false" type="string" description="Use the RT coordinates of the feature centroids for matching, instead of the RT ranges of the features/mass traces." restrictions="true,false" />
-        <ITEM name="use_centroid_mz" value="$IDMapper.use_centroid_mz" type="string" description="Use the m/z coordinates of the feature centroids for matching, instead of the m/z ranges of the features/mass traces.#br#(If you choose &apos;peptide&apos; as &apos;mz_reference&apos;, you should usually set this flag to avoid false-positive matches.)" restrictions="true,false" />
+        <ITEM name="use_centroid_mz" value="$IDMAPPER_USE_CENTROID_MZ" type="string" description="Use the m/z coordinates of the feature centroids for matching, instead of the m/z ranges of the features/mass traces.#br#(If you choose &apos;peptide&apos; as &apos;mz_reference&apos;, you should usually set this flag to avoid false-positive matches.)" restrictions="true,false" />
         <ITEM name="use_subelements" value="false" type="string" description="Match using RT and m/z of sub-features instead of consensus RT and m/z. A consensus feature matches if any of its sub-features matches." restrictions="true,false" />
         <ITEM name="log" value="" type="string" description="Name of log file (created only when specified)" tags="advanced" />
         <ITEM name="debug" value="0" type="int" description="Sets the debug level" tags="advanced" />
@@ -301,7 +309,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="in" value="" type="string" description="Input file (see below for details)" tags="input file,required" />
         <ITEMLIST name="out" type="string" description="Output file(s)" tags="output file,required">
         </ITEMLIST>
-        <ITEM name="use_peptide_mass" value="$SeedListGenerator.use_peptide_mass" type="string" description="Use the monoisotopic mass of the best peptide hit for the m/z position (default: use precursor m/z)" restrictions="true,false" />
+        <ITEM name="use_peptide_mass" value="$SEEDLISTGENERATOR_USE_PEPTIDE_MASS" type="string" description="Use the monoisotopic mass of the best peptide hit for the m/z position (default: use precursor m/z)" restrictions="true,false" />
         <ITEM name="log" value="" type="string" description="Name of log file (created only when specified)" tags="advanced" />
         <ITEM name="debug" value="0" type="int" description="Sets the debug level" tags="advanced" />
         <ITEM name="threads" value="1" type="int" description="Sets the number of threads allowed to be used by the TOPP tool" />
@@ -320,7 +328,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="in" value="" type="string" description="Input file or directory containing the output of the search engine.#br#Sequest: Directory containing the .out files#br#pepXML: Single pepXML file.#br#protXML: Single protXML file.#br#xml: Single mascot XML file.#br#idXML: Single idXML file.#br#" tags="input file,required" />
         <ITEM name="out" value="" type="string" description="Output file" tags="output file,required" />
         <ITEM name="out_type" value="idXML" type="string" description="output file type -- default: determined from file extension or content#br#" restrictions="idXML,mzid,pepXML,FASTA" />
-        <ITEM name="mz_file" value="" type="string" description="MS data file from which the pepXML was generated. Used to look up retention times (some pepXMLs contain only scan numbers) and/or to define what parts to extract (some pepXMLs contain results from multiple experiments)." />
+        <ITEM name="mz_file" value="$MZXML" type="string" description="MS data file from which the pepXML was generated. Used to look up retention times (some pepXMLs contain only scan numbers) and/or to define what parts to extract (some pepXMLs contain results from multiple experiments)." />
         <ITEM name="ignore_proteins_per_peptide" value="false" type="string" description="Workaround to deal with .out files that contain e.g. &quot;+1&quot; in references column,#br#but do not list extra references in subsequent lines (try -debug 3 or 4)" tags="advanced" restrictions="true,false" />
         <ITEM name="mz_name" value="" type="string" description="Experiment filename/path to match in the pepXML file (&apos;base_name&apos; attribute). Only necessary if different from &apos;mz_file&apos;." />
         <ITEM name="use_precursor_data" value="false" type="string" description="Use precursor RTs (and m/z values) from &apos;mz_file&apos; for the generated peptide identifications, instead of the RTs of MS2 spectra." restrictions="true,false" />

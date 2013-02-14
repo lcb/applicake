@@ -26,7 +26,8 @@ from applicake.applications.proteomics.openms.mapalignment.mappaligneridentifica
 from applicake.applications.proteomics.openms.quantification.proteinquantifier import ProteinQuantifier
 from applicake.applications.proteomics.sybit.annotxmlfromcsv import AnnotProtxmlFromCsv
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
-
+from applicake.applications.proteomics.openms.quantification.lfqpart1 import LFQpart1
+from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
     argv = ['', '-i', input_file_name, '-o', output_file_name]
@@ -56,6 +57,40 @@ DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 LOG_LEVEL = INFO
 STORAGE = memory_all
 WORKFLOW = ruffus_LFQ
+DATASET_CODE =  20121111164535033-734577, 20121111202839878-734779, 20121111030327351-734253, 20121111061258331-734296, 20121112035136561-734911, 20121110192440296-733977, 20121111130631004-734532, 20121111093340399-734380, 20121110224801061-734044, 20121111235146323-734856
+
+PEPXML_FDR = 0.01
+
+FEATUREFINDER_MASS_TRACE__MZ_TOLERANCE = 0.03
+FEATUREFINDER_MASS_TRACE__MIN_SPECTRA = 5
+FEATUREFINDER_MASS_TRACE__MAX_MISSING = 2
+FEATUREFINDER_MASS_TRACE__SLOPE_BOUND = 1
+FEATUREFINDER_ISOTOPIC_PATTERN__CHARGE_LOW = 2
+FEATUREFINDER_ISOTOPIC_PATTERN__CHARGE_HIGH = 6
+FEATUREFINDER_ISOTOPIC_PATTERN__MZ_TOLERANCE = 0.03
+FEATUREFINDER_SEED__MIN_SCORE = 0.1
+FEATUREFINDER_FEATURE__MIN_SCORE = 0.3
+FEATUREFINDER_FEATURE__MIN_ISOTOPE_FIT = 0.1
+FEATUREFINDER_FEATURE__MIN_TRACE_SCORE = 0.1
+FEATUREFINDER_USER_SEED__MIN_SCORE = 0.1
+FEATUREFINDER_USER_SEED__RT_TOLERANCE = 120
+FEATUREFINDER_USER_SEED__MZ_TOLERANCE = 0.1
+FEATURELINKER_USE_IDENTIFICATIONS = true
+FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE = 120
+FEATURELINKER_DISTANCE_MZ__MAX_DIFFERENCE = 0.02
+FEATURELINKER_DISTANCE_MZ__UNIT = DA
+IDMAPPER_MZ_TOLERANCE = 40
+IDMAPPER_MZ_REFERENCE = peptide
+IDMAPPER_USE_CENTROID_MZ = true
+IDMAPPER_RT_TOLERANCE= 10
+MAPALIGNER_MODEL__TYPE = b_spline
+MAPALIGNER_ALGORITHM__MAX_RT_SHIFT = 0.2
+PEAKPICKER_SIGNAL_TO_NOISE = 0
+PEAKPICKER_MS1_ONLY = true
+PROTEINQUANTIFIER_INCLUDE_ALL = true
+PROTEINQUANTIFIER_TOP = 1
+SEEDLISTGENERATOR_USE_PEPTIDE_MASS = true
+
 
 EXPERIMENT = E286955
 FDR = 0.01
@@ -65,12 +100,14 @@ THREADS = 4
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
     
 @follows(setup)
-def getexperiment():
-     wrap(Dss,'input.ini','getexperiment.ini',['--PREFIX', 'getexperiment'])
+@files('input.ini','getexperiment.ini')
+def getexperiment(input,output):
+     wrap(Dss,input,output,['--PREFIX', 'getexperiment'])
 
 @follows(getexperiment)
-def processexperiment():
-    wrap(ProcessExperiment,'getexperiment.ini','processexperiment.ini')
+@files('getexperiment.ini','processexperiment.ini')
+def processexperiment(input,output):
+    wrap(ProcessExperiment,input,output)
 
 ################################## Picking ##################################################
 
@@ -92,14 +129,9 @@ def dss(input_file_name, output_file_name):
 ################################################################################################
 
 
-
-@transform(dss, regex("dss.ini_"), "fileconverter.ini_")
-def LFQpart1(input_file_name, output_file_name):
-    argv = ['', '-i', input_file_name,'-o',output_file_name]
-    runner = IniFileRunner()
-    application = LFQpart1()
-    exit_code = runner(argv, application)
-
+@transform(dss, regex("dss.ini_"), "lfqpart1.ini_")
+def lfqpart1(input_file_name, output_file_name):
+    wrap(LFQpart1,input_file_name,output_file_name)
  
-pipeline_run([LFQpart1], multiprocess=16)
+pipeline_run([lfqpart1], multiprocess=16)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg
