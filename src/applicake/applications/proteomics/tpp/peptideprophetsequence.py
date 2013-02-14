@@ -50,8 +50,8 @@ class PeptideProphetSequence(IWrapper):
         args_handler.add_app_args(log, 'DBASE', 'FASTA dbase')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, 'OMSSAFIX', 'Fix omssa',action="store_true")
-        return PepXMLCorrector().set_args(log, args_handler)
-
+        args_handler.add_app_args(log, 'MZXML', 'Path to the original MZXML inputfile')
+        return args_handler
     
     def validate_run(self,info,log, run_code,out_stream, err_stream):
         """
