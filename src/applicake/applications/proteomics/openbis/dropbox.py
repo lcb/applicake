@@ -22,7 +22,7 @@ class Copy2Dropbox(IApplication):
         if info.has_key(self.JOB_IDX):
             prefix = info[self.JOB_IDX]
         if info.has_key(self.PARAM_IDX):
-            prefix = '%s.%s' % (prefix,info[self.PARAM_IDX])
+            prefix = '%s_%s' % (prefix,info[self.PARAM_IDX])
         dirname = '%s+%s+%s' % (space, project, prefix)
         #return os.path.join(info['DROPBOX'],dirname)
         return os.path.join(info[self.WORKDIR],dirname)
@@ -138,6 +138,8 @@ class Copy2IdentDropbox(Copy2Dropbox):
         for key in check_keys:
             if not info.has_key(key) or info[key] == "":
                 info[key] = 'NONE'
+        #set experiment id
+        info['EXPERIMENT-CODE'] = 'E' + info['JOB_IDX'] + '_' + info['PARAM_IDX']
         return super(Copy2IdentDropbox,self).main(info,log)
         
  
