@@ -25,7 +25,7 @@ class Copy2Dropbox(IApplication):
             prefix = '%s_%s' % (prefix,info[self.PARAM_IDX])
         dirname = '%s+%s+%s' % (space, project, prefix)
         #return os.path.join(info['DROPBOX'],dirname)
-        return os.path.join(info[self.WORKDIR],dirname)
+        return dirname
     
     def copy_dropbox_specific_files(self,info,log,path):
         """
@@ -47,8 +47,10 @@ class Copy2Dropbox(IApplication):
         """
         See super class.
         """
-        path = self._get_dropboxstage(info)
+        dirname = self._get_dropboxstage(info)
+        path = os.path.join(info[self.WORKDIR],dirname)
         FileUtils.makedirs_safe(log, path,clean=True)
+        
         exit_code,info = self.copy_dropbox_specific_files(info, log, path)
         if exit_code !=0:
             return exit_code,info
@@ -57,7 +59,8 @@ class Copy2Dropbox(IApplication):
         info_copy[self.OUTPUT] = os.path.join(path,'search.properties')
         BasicInformationHandler().write_info(info_copy, log)
         
-        shutil.copytree(path, info['DROPBOX'])
+        dst = os.path.join(info['DROPBOX'],dirname)
+        shutil.copytree(path, dst)
         info['DROPBOXSTAGE'] = path
         
         return exit_code,info
