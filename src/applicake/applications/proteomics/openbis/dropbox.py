@@ -57,7 +57,7 @@ class Copy2Dropbox(IApplication):
         info_copy[self.OUTPUT] = os.path.join(path,'search.properties')
         BasicInformationHandler().write_info(info_copy, log)
         
-        shutil.copytree(path, info['DROPBOXDIR'])
+        shutil.copytree(path, info['DROPBOX'])
         info['DROPBOXSTAGE'] = path
         
         return exit_code,info
