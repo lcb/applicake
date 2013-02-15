@@ -15,7 +15,7 @@ class Copy2Dropbox(IApplication):
     Copy certain files to the openbis dropbox.
     '''
 
-    def _get_dropboxdir(self, info):
+    def _get_dropboxstage(self, info):
         space = info['SPACE']
         project = info['PROJECT']
         prefix = ''
@@ -47,7 +47,7 @@ class Copy2Dropbox(IApplication):
         """
         See super class.
         """
-        path = self._get_dropboxdir(info)
+        path = self._get_dropboxstage(info)
         FileUtils.makedirs_safe(log, path,clean=True)
         exit_code,info = self.copy_dropbox_specific_files(info, log, path)
         if exit_code !=0:
@@ -57,7 +57,7 @@ class Copy2Dropbox(IApplication):
         info_copy[self.OUTPUT] = os.path.join(path,'search.properties')
         BasicInformationHandler().write_info(info_copy, log)
         
-        shutil.copy(path, info['DROPBOXDIR'])
+        shutil.copytree(path, info['DROPBOXDIR'])
         info['DROPBOXSTAGE'] = path
         
         return exit_code,info
