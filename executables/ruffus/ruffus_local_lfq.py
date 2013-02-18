@@ -27,7 +27,11 @@ from applicake.applications.proteomics.openms.quantification.proteinquantifier i
 from applicake.applications.proteomics.sybit.annotxmlfromcsv import AnnotProtxmlFromCsv
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
 from applicake.applications.proteomics.openms.quantification.lfqpart1 import LFQpart1
+from applicake.applications.proteomics.openms.quantification.lfqpart2 import LFQpart2
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
+from applicake.applications.commons.collector import GuseCollector
+from applicake.applications.commons.inifile import Unifier
+from applicake.applications.proteomics.openms.quantification.rewriteprotxml import RewriteAbundancesToProtXML
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
     argv = ['', '-i', input_file_name, '-o', output_file_name]
@@ -134,7 +138,7 @@ def lfqpart1(input_file_name, output_file_name):
     wrap(LFQpart1,input_file_name,output_file_name)
 
 
-@merge(rosetta, "collector.ini")
+@merge(lfqpart1, "collector.ini")
 def collector(notused_input_file_names, output_file_name):
     argv = ['', '--COLLECTORS', 'lfqpart1.ini', '-o', output_file_name]
     runner = CollectorRunner()
@@ -143,15 +147,25 @@ def collector(notused_input_file_names, output_file_name):
     if exit_code != 0:
         raise Exception("collector failed [%s]" % exit_code)    
 
-
 @follows(collector)
-def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
+@split("collector.ini", "paramgenerate.ini_*")
+def paramgenerator(input_file_name, notused_output_file_names):
+    argv = ['', '-i', input_file_name, '--GENERATORS','paramgenerate.ini','-o','paramgenerator.ini','-s','memory_all']
     runner = IniFileRunner2()
-    application = Unifier()
+    application = ParametersetGenerator()
     exit_code = runner(argv, application)
     if exit_code != 0:
-        raise Exception("unifier failed [%s]" % exit_code)  
+        raise Exception("paramgenerator [%s]" % exit_code)
+ 
+        
+@follows(paramgenerator)
+@transform(paramgenerator,regex("paramgenerate.ini_"),"lfqpart2.ini_")
+def lfqpart2(input_file_name, output_file_name):
+    wrap(LFQpart2,input_file_name,output_file_name)        
+
+@transform(lfqpart2,regex("lfqpart2.ini_"),"rewritexml.ini_")
+def rewritexml(input_file_name, output_file_name):
+    wrap(RewriteAbundancesToProtXML,input_file_name,output_file_name)      
     
-pipeline_run([unifier], multiprocess=16)
+pipeline_run([rewritexml], multiprocess=16)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg

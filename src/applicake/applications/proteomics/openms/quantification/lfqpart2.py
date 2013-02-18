@@ -5,11 +5,9 @@ Created on Jun 18, 2012
 '''
 
 import os
-import sys
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
-from applicake.utils.xmlutils import XmlValidator
 
 class LFQpart2(IWrapper):
 
@@ -17,12 +15,19 @@ class LFQpart2(IWrapper):
 
         wd = info[self.WORKDIR]
         
+        info['FEATUREXMLLIST'] = ''
         for i in info['FEATUREXMLS']:
-            info['FEATUREXMLLIST'] += '<LISTITEM value="' + i + '"/>\n'
+            info['FEATUREXMLLIST'] += '<LISTITEM value="' + i + '"/>'
             
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart2.toppas')
         _,info = LFQpart1WorkflowTemplate().modify_template(info, log)
 
+        info['PROTCSV'] = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/out_tmp23.unknown')
+        info['PEPCSV'] = os.path.join(wd,'TOPPAS_out/011-ProteinQuantifier/out_tmp24.unknown')
+        
+        self._result_files = []
+        self._result_files.append(info['PROTCSV'])
+        self._result_files.append(info['PEPCSV'])
         
         command = 'ExecutePipeline -in %s -out_dir %s' % (info[self.TEMPLATE], wd)
         return command,info
@@ -32,29 +37,26 @@ class LFQpart2(IWrapper):
         See interface
         """
         args_handler.add_app_args(log, self.WORKDIR, 'wd')
-        args_handler.add_app_args(log, 'FEATUREXMLS', 'Path to the mzXML file.')
-        args_handler.add_app_args(log, 'PROTXMLS', 'Path to the pepXML file.')
+        args_handler.add_app_args(log, 'FEATUREXMLS', 'Path to the featureXML fileS.')
+        args_handler.add_app_args(log, 'PROTXML', 'Path to the protXML file (one).')
         
         args_handler.add_app_args(log, "MAPALIGNER_ALGORITHM__MAX_RT_SHIFT", "")
-        args_handler.add_app_args(log, "MAPALIGNER_MODEL__TYPE_VALUE", "")
-        args_handler.add_app_args(log, "PROTEINQUANTIFIER_FORMAT__SEPARATOR_VALUE", "")
-        args_handler.add_app_args(log, "PROTEINQUANTIFIER_INCLUDE_ALL_VALUE", "")
-        args_handler.add_app_args(log, "PROTEINQUANTIFIER_TOP_VALUE", "")
-        args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_MZ__MAX_DIFFERENCE_VALUE", "")
-        args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_MZ__UNIT_VALUE", "")
-        args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE_VALUE", "")
-        args_handler.add_app_args(log, "FEATURELINKER_USE_IDENTIFICATIONS_VALUE", "")
+        args_handler.add_app_args(log, "MAPALIGNER_MODEL__TYPE", "")
+        args_handler.add_app_args(log, "PROTEINQUANTIFIER_INCLUDE_ALL", "")
+        args_handler.add_app_args(log, "PROTEINQUANTIFIER_TOP", "")
+        args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_MZ__MAX_DIFFERENCE", "")
+        args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_MZ__UNIT", "")
+        args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE", "")
+        args_handler.add_app_args(log, "FEATURELINKER_USE_IDENTIFICATIONS", "")
         return args_handler
         
     def validate_run(self,info,log, run_code,out_stream, err_stream):
         if 0 != run_code:
-            return run_code,info  
-        if not FileUtils.is_valid_file(log, self._result_file):
-            log.critical('[%s] is not valid' %self._result_file)
-            return 1,info
-        if not XmlValidator.is_wellformed(self._result_file):
-            log.critical('[%s] is not well formed.' % self._result_file)
-            return 1,info
+            return run_code,info 
+        for i in  self._result_files:
+            if not FileUtils.is_valid_file(log, i):
+                log.critical('[%s] is not valid' % i)
+                return 1,info
         return run_code,info
 
              
@@ -80,7 +82,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
       <ITEM name="recycle_output" value="false" type="string" description="" />
       <ITEM name="toppas_type" value="input file list" type="string" description="" />
       <ITEMLIST name="file_names" type="string" description="">
-        <LISTITEM value="$PEPXMLS" />
+        <LISTITEM value="$PROTXML" />
       </ITEMLIST>
       <ITEM name="x_pos" value="640" type="float" description="" />
       <ITEM name="y_pos" value="-340" type="float" description="" />
@@ -132,7 +134,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
           <ITEM name="use_feature_rt" value="false" type="string" description="When aligning feature maps, don&apos;t use the retention time of a peptide identification directly; instead, use the retention time of the centroid of the feature (apex of the elution profile) that the peptide was matched to. If different identifications are matched to one feature, only the peptide closest to the centroid in RT is used.#br#Precludes &apos;use_unassigned_peptides&apos;." restrictions="true,false" />
         </NODE>
         <NODE name="model" description="Options to control the modeling of retention time transformations from data">
-          <ITEM name="type" value="$MAPALIGNER_MODEL__TYPE_VALUE" type="string" description="Type of model" restrictions="linear,b_spline,interpolated" />
+          <ITEM name="type" value="$MAPALIGNER_MODEL__TYPE" type="string" description="Type of model" restrictions="linear,b_spline,interpolated" />
           <NODE name="linear" description="Parameters for &apos;linear&apos; model">
             <ITEM name="symmetric_regression" value="false" type="string" description="Perform linear regression on &apos;y - x&apos; vs. &apos;y + x&apos;, instead of on &apos;y&apos; vs. &apos;x&apos;." restrictions="true,false" />
           </NODE>
@@ -164,16 +166,16 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
         <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
         <NODE name="algorithm" description="Algorithm parameters section">
-          <ITEM name="use_identifications" value="$FEATURELINKER_USE_IDENTIFICATIONS_VALUE" type="string" description="Never link features that are annotated with different peptides (only the best hit per peptide identification is taken into account)." restrictions="true,false" />
+          <ITEM name="use_identifications" value="$FEATURELINKER_USE_IDENTIFICATIONS" type="string" description="Never link features that are annotated with different peptides (only the best hit per peptide identification is taken into account)." restrictions="true,false" />
           <ITEM name="ignore_charge" value="false" type="string" description="Compare features normally even if their charge states are different" restrictions="true,false" />
           <NODE name="distance_RT" description="Distance component based on RT differences">
-            <ITEM name="max_difference" value="$FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE_VALUE" type="float" description="Maximum allowed difference in RT" restrictions="0:" />
+            <ITEM name="max_difference" value="$FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE" type="float" description="Maximum allowed difference in RT" restrictions="0:" />
             <ITEM name="exponent" value="1" type="float" description="Normalized RT differences are raised to this power" tags="advanced" restrictions="0:" />
             <ITEM name="weight" value="1" type="float" description="RT distances are weighted by this factor" tags="advanced" restrictions="0:" />
           </NODE>
           <NODE name="distance_MZ" description="Distance component based on m/z differences">
-            <ITEM name="max_difference" value="$FEATURELINKER_DISTANCE_MZ__MAX_DIFFERENCE_VALUE" type="float" description="Maximum allowed difference in m/z (unit defined by &apos;mz_unit&apos;)" restrictions="0:" />
-            <ITEM name="unit" value="$FEATURELINKER_DISTANCE_MZ__UNIT_VALUE" type="string" description="Unit of the &apos;max_difference&apos; parameter" restrictions="Da,ppm" />
+            <ITEM name="max_difference" value="$FEATURELINKER_DISTANCE_MZ__MAX_DIFFERENCE" type="float" description="Maximum allowed difference in m/z (unit defined by &apos;mz_unit&apos;)" restrictions="0:" />
+            <ITEM name="unit" value="$FEATURELINKER_DISTANCE_MZ__UNIT" type="string" description="Unit of the &apos;max_difference&apos; parameter" restrictions="Da,ppm" />
             <ITEM name="exponent" value="2" type="float" description="Normalized m/z differences are raised to this power" tags="advanced" restrictions="0:" />
             <ITEM name="weight" value="1" type="float" description="m/z distances are weighted by this factor" tags="advanced" restrictions="0:" />
           </NODE>
@@ -203,9 +205,9 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="out" value="" type="string" description="Output file for protein abundances" tags="output file" />
         <ITEM name="peptide_out" value="" type="string" description="Output file for peptide abundances" tags="output file" />
         <ITEM name="id_out" value="" type="string" description="Output file for peptide and protein abundances (annotated idXML) - suitable for export to mzTab.#br#Either &apos;out&apos;, &apos;peptide_out&apos;, or &apos;id_out&apos; are required. They can be used together." tags="output file" />
-        <ITEM name="top" value="$PROTEINQUANTIFIER_TOP_VALUE" type="int" description="Calculate protein abundance from this number of proteotypic peptides (most abundant first; &apos;0&apos; for all)" restrictions="0:" />
+        <ITEM name="top" value="$PROTEINQUANTIFIER_TOP" type="int" description="Calculate protein abundance from this number of proteotypic peptides (most abundant first; &apos;0&apos; for all)" restrictions="0:" />
         <ITEM name="average" value="median" type="string" description="Averaging method used to compute protein abundances from peptide abundances" restrictions="median,mean,sum" />
-        <ITEM name="include_all" value="$PROTEINQUANTIFIER_INCLUDE_ALL_VALUE" type="string" description="Include results for proteins with fewer proteotypic peptides than indicated by &apos;top&apos; (no effect if &apos;top&apos; is 0 or 1)" restrictions="true,false" />
+        <ITEM name="include_all" value="$PROTEINQUANTIFIER_INCLUDE_ALL" type="string" description="Include results for proteins with fewer proteotypic peptides than indicated by &apos;top&apos; (no effect if &apos;top&apos; is 0 or 1)" restrictions="true,false" />
         <ITEM name="filter_charge" value="false" type="string" description="Distinguish between charge states of a peptide. For peptides, abundances will be reported separately for each charge;#br#for proteins, abundances will be computed based only on the most prevalent charge of each peptide.#br#By default, abundances are summed over all charge states." restrictions="true,false" />
         <ITEM name="log" value="" type="string" description="Name of log file (created only when specified)" tags="advanced" />
         <ITEM name="debug" value="0" type="int" description="Sets the debug level" tags="advanced" />
@@ -217,7 +219,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
           <ITEM name="fix_peptides" value="false" type="string" description="Use the same peptides for protein quantification across all samples.#br#With &apos;top 0&apos;, all peptides that occur in every sample are considered.#br#Otherwise (&apos;top N&apos;), the N peptides that occur in the most samples (independently of each other) are selected,#br#breaking ties by total abundance (there is no guarantee that the best co-ocurring peptides are chosen!)." restrictions="true,false" />
         </NODE>
         <NODE name="format" description="Output formatting options">
-          <ITEM name="separator" value="$PROTEINQUANTIFIER_FORMAT__SEPARATOR_VALUE" type="string" description="Character(s) used to separate fields; by default, the &apos;tab&apos; character is used" />
+          <ITEM name="separator" value="," type="string" description="Character(s) used to separate fields; by default, the &apos;tab&apos; character is used" />
           <ITEM name="quoting" value="double" type="string" description="Method for quoting of strings: &apos;none&apos; for no quoting, &apos;double&apos; for quoting with doubling of embedded quotes,#br#&apos;escape&apos; for quoting with backslash-escaping of embedded quotes" restrictions="none,double,escape" />
           <ITEM name="replacement" value="_" type="string" description="If &apos;quoting&apos; is &apos;none&apos;, used to replace occurrences of the separator in strings before writing" />
         </NODE>
