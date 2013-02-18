@@ -132,6 +132,26 @@ def dss(input_file_name, output_file_name):
 @transform(dss, regex("dss.ini_"), "lfqpart1.ini_")
 def lfqpart1(input_file_name, output_file_name):
     wrap(LFQpart1,input_file_name,output_file_name)
- 
-pipeline_run([lfqpart1], multiprocess=16)
+
+
+@merge(rosetta, "collector.ini")
+def collector(notused_input_file_names, output_file_name):
+    argv = ['', '--COLLECTORS', 'lfqpart1.ini', '-o', output_file_name]
+    runner = CollectorRunner()
+    application = GuseCollector()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("collector failed [%s]" % exit_code)    
+
+
+@follows(collector)
+def unifier():
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
+    runner = IniFileRunner2()
+    application = Unifier()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("unifier failed [%s]" % exit_code)  
+    
+pipeline_run([unifier], multiprocess=16)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg

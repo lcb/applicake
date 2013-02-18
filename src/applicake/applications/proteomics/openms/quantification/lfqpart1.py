@@ -17,9 +17,11 @@ class LFQpart1(IWrapper):
 
         wd = info[self.WORKDIR]
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.toppas')
-        mod_template,info = LFQpart1WorkflowTemplate().modify_template(info, log)
+        _,info = LFQpart1WorkflowTemplate().modify_template(info, log)
         wftemplate = info[self.TEMPLATE]
         
+        info['FEATUREXMLS'] = os.path.join(wd,'LFQpart1/TOPPAS_out/011-IDMapper/out_tmp8.featureXML')
+        self._result_file = info['FEATUREXMLS']
 #        info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.trf')
 #        mod_template,info = LFQpart1InputfilesTemplate().modify_template(info, log)
 #        trftemplate = info[self.TEMPLATE]
@@ -59,6 +61,14 @@ class LFQpart1(IWrapper):
         return args_handler
         
     def validate_run(self,info,log, run_code,out_stream, err_stream):
+        if 0 != run_code:
+            return run_code,info  
+        if not FileUtils.is_valid_file(log, self._result_file):
+            log.critical('[%s] is not valid' %self._result_file)
+            return 1,info
+        if not XmlValidator.is_wellformed(self._result_file):
+            log.critical('[%s] is not well formed.' % self._result_file)
+            return 1,info
         return run_code,info
 
              

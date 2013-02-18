@@ -91,7 +91,7 @@ def collector(notused_input_file_names, output_file_name):
     application = GuseCollector()
     exit_code = runner(argv, application)
     if exit_code != 0:
-        raise Exception("collector failed [%s]" % ('collector',exit_code))    
+        raise Exception("collector failed [%s]" % exit_code)    
 
 
 @follows(collector)
