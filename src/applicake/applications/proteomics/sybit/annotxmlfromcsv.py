@@ -22,7 +22,7 @@ class AnnotProtxmlFromCsv(IApplication):
         csv_in = info['PROTCSV']
 
         prot_abundances = self._read_csv(csv_in)
-        self._annotate_protxml(xml_in,xml_out,prot_abundances)
+        self._annotate_protxml(xml_in,xml_out,prot_abundances,info['INDENT'])
         
         del info['PROTCSV']
         del info['INDENT']
