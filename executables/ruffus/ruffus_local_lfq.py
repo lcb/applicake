@@ -31,7 +31,8 @@ from applicake.applications.proteomics.openms.quantification.lfqpart2 import LFQ
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.commons.inifile import Unifier
-from applicake.applications.proteomics.openms.quantification.rewriteprotxml import RewriteAbundancesToProtXML
+from applicake.applications.proteomics.openbis.dropboxquant import Copy2DropboxQuant
+
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
     argv = ['', '-i', input_file_name, '-o', output_file_name]
@@ -165,7 +166,12 @@ def lfqpart2(input_file_name, output_file_name):
 
 @transform(lfqpart2,regex("lfqpart2.ini_"),"rewritexml.ini_")
 def rewritexml(input_file_name, output_file_name):
-    wrap(AnnotProtxmlFromCsv,input_file_name,output_file_name)      
+    wrap(AnnotProtxmlFromCsv,input_file_name,output_file_name)
     
-pipeline_run([rewritexml], multiprocess=16)
+@transform(rewritexml,regex("rewritexml.ini_"),"cp2dropbox.ini_")
+def cp2dropbox(input_file_name, output_file_name):
+    wrap(Copy2DropboxQuant,input_file_name,output_file_name)    
+          
+    
+pipeline_run([cp2dropbox], multiprocess=16)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg
