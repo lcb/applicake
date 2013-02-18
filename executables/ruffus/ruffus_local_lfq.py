@@ -165,7 +165,7 @@ def lfqpart2(input_file_name, output_file_name):
 
 @transform(lfqpart2,regex("lfqpart2.ini_"),"rewritexml.ini_")
 def rewritexml(input_file_name, output_file_name):
-    wrap(RewriteAbundancesToProtXML,input_file_name,output_file_name)      
+    wrap(AnnotProtxmlFromCsv,input_file_name,output_file_name)      
     
 pipeline_run([rewritexml], multiprocess=16)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg

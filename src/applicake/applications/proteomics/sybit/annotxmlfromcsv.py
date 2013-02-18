@@ -19,12 +19,12 @@ class AnnotProtxmlFromCsv(IApplication):
         """
         xml_in = info['PROTXML']
         xml_out = os.path.join(info[self.WORKDIR],os.path.basename(xml_in))
-        csv_in = info['CSV']
+        csv_in = info['PROTCSV']
 
         prot_abundances = self._read_csv(csv_in)
         self._annotate_protxml(xml_in,xml_out,prot_abundances)
         
-        del info['CSV']
+        del info['PROTCSV']
         del info['INDENT']
         del info['DELIM']  
         info['PROTXML'] = xml_out 
