@@ -104,7 +104,7 @@ class AnnotProtxmlFromCsv(IApplication):
 
     def set_args(self,log,args_handler):
         args_handler.add_app_args(log, self.WORKDIR , 'Current WD')
-        args_handler.add_app_args(log, 'CSV' , 'Path to CSV input file containing abundances')
+        args_handler.add_app_args(log, 'PROTCSV' , 'Path to CSV input file containing abundances')
         args_handler.add_app_args(log, 'PROTXML' , 'Path to protXML input file')
         args_handler.add_app_args(log, 'DELIM', 'Field delimiter used in CSV input (optional)', default=',')
         args_handler.add_app_args(log, 'INDENT', 'Additional indentation for abundance entries in the protXML output (optional)', default='   ')
