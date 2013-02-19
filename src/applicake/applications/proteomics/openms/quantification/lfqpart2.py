@@ -20,7 +20,7 @@ class LFQpart2(IWrapper):
             info['FEATUREXMLLIST'] += '<LISTITEM value="' + i + '"/>'
             
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart2.toppas')
-        _,info = LFQpart1WorkflowTemplate().modify_template(info, log)
+        _,info = LFQpart2WorkflowTemplate().modify_template(info, log)
 
         del info['FEATUREXMLLIST']
         info['PROTCSV'] = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/out_tmp23.unknown')
@@ -61,7 +61,7 @@ class LFQpart2(IWrapper):
         return run_code,info
 
              
-class LFQpart1WorkflowTemplate(BasicTemplateHandler):
+class LFQpart2WorkflowTemplate(BasicTemplateHandler):
     """
     Template handler for Mzxml2Mzml.
     """
