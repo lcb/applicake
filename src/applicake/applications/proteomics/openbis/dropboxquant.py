@@ -68,24 +68,16 @@ class Copy2DropboxQuant(IApplication):
                         log.fatal('Stop program because could not copy [%s] to [%s]' % (file,path))
                         return(1,info,log)
         
-        #SPACE PROJECT given
-        dsinfo = {}
-        dsinfo['SPACE'] = info['SPACE']
-        dsinfo['PROJECT'] = info['PROJECT']
-        dsinfo['PARENT_DATASETS']= info[self.DATASET_CODE]
-        dsinfo['DATASET_TYPE'] = 'SWATH_RESULT'
-        dsinfo['EXPERIMENT_TYPE'] = 'SWATH_SEARCH'
-        #%.4 is just to have fixed num of digits in experiment
-        dsinfo['EXPERIMENT'] = 'E%.4f' % time.time()
-        dsinfo[self.OUTPUT] = os.path.join(path,'dataset.attributes')
-        BasicInformationHandler().write_info(dsinfo, log)
-        
         expinfo = {}
         expinfo['PARENT-DATA-SET-CODES'] = info[self.DATASET_CODE]
-        for key in ['COMMENT','TRAML','EXTRACTION_WINDOW','RT_EXTRACTION_WINDOW','MIN_UPPER_EDGE_DIST','MPR_NUM_XVAL','IRTTRAML','MIN_RSQ']:
+        expinfo['BASE_EXPERIMENT'] = info['EXPERIMENT']
+        expinfo['QUANTIFICATION_TYPE'] = 'LABEL-FREE'
+        expinfo['PEAKPICKER'] = 'YES'
+        expinfo['MAPALIGNER'] = 'YES'
+        for key in ['COMMENT','PEPXML_FDR']:
             if key in info:
                 expinfo[key] = info[key]
-        expinfo[self.OUTPUT] = os.path.join(path,'experiment.properties')
+        expinfo[self.OUTPUT] = os.path.join(path,'quantification.properties')
         BasicInformationHandler().write_info(expinfo, log)
         
         return 0,info
