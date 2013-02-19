@@ -36,6 +36,10 @@ class Copy2DropboxQuant(IApplication):
         args_handler.add_app_args(log, 'FEATUREXMLS', 'featuretsv')
         
         args_handler.add_app_args(log, 'WORKDIR', 'wd')
+        args_handler.add_app_args(log, self.DATASET_CODE, 'dscodes')
+        args_handler.add_app_args(log, 'EXPERIMENT' , 'exp')
+        args_handler.add_app_args(log, 'COMMENT' , '')
+        args_handler.add_app_args(log, 'PEPXML_FDR' , '')
         args_handler.add_app_args(log, 'DROPBOX', 'Path to the dropbox folder used to upload data to OpenBIS.')
         args_handler.add_app_args(log, 'SPACE', 'OpenBIS space')
         args_handler.add_app_args(log, 'PROJECT', 'Project in the OpenBIS space.')
@@ -72,6 +76,7 @@ class Copy2DropboxQuant(IApplication):
         expinfo['PARENT-DATA-SET-CODES'] = info[self.DATASET_CODE]
         expinfo['BASE_EXPERIMENT'] = info['EXPERIMENT']
         expinfo['QUANTIFICATION_TYPE'] = 'LABEL-FREE'
+        expinfo['PEAKPICKER'] = 'YES'
         expinfo['PEAKPICKER'] = 'YES'
         expinfo['MAPALIGNER'] = 'YES'
         for key in ['COMMENT','PEPXML_FDR']:
