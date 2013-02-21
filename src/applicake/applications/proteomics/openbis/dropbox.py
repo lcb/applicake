@@ -146,9 +146,9 @@ class Copy2IdentDropbox(Copy2Dropbox):
                 info[key] = 'NONE'
         #ECODE ADDON
         if info.has_key('PARAM_IDX'):
-            info['EXPERIMENT-CODE'] = 'E' + info['JOB_IDX'] + '_' + info['PARAM_IDX']
+            info['experiment-code'] = 'E' + info['JOB_IDX'] + '_' + info['PARAM_IDX']
         else:
-            info['EXPERIMENT-CODE'] = 'E' + info['JOB_IDX']
+            info['experiment-code'] = 'E' + info['JOB_IDX']
         return super(Copy2IdentDropbox,self).main(info,log)
         
  
