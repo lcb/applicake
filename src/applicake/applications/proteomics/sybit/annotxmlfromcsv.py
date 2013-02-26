@@ -10,7 +10,7 @@ import re
 from applicake.framework.interfaces import IApplication
 
 
-class AnnotProtxmlFromCsv(IApplication):
+class AnnotProtxmlFromUpdatedCsv(IApplication):
     
     def main(self,info,log):
         """
@@ -19,18 +19,17 @@ class AnnotProtxmlFromCsv(IApplication):
         """
         #correct csv with right header
         mzxmls = info[self.MZXML]
-        pepcsvin = info['PEPCSV']
-        pepcsvout = os.path.join(info[self.WORKDIR],'peptides.csv')
-        self._correctcsv(pepcsvin, pepcsvout, mzxmls)
-        protcsvin = info['PROTCSV']
-        protcsvout = os.path.join(info[self.WORKDIR],'proteins.csv')
-        self._correctcsv(protcsvin, protcsvout, mzxmls)
+        pepcsvprev = info['PEPCSV']
+        info['PEPCSV'] = os.path.join(info[self.WORKDIR],'peptides.csv')
+        self._correctcsv(pepcsvprev, info['PEPCSV'], mzxmls)
+        protcsvprev = info['PROTCSV']
+        info['PROTCSV'] = os.path.join(info[self.WORKDIR],'proteins.csv')
+        self._correctcsv(protcsvprev,  info['PROTCSV'], mzxmls)
         
         #update protxml file using corrected csv files
         xml_in = info['PROTXML']
         xml_out = os.path.join(info[self.WORKDIR],os.path.basename(xml_in))
-        csv_in = info['PROTCSV']
-        prot_abundances = self._read_csv(csv_in)
+        prot_abundances = self._read_csv(info['PROTCSV'])
         self._annotate_protxml(xml_in,xml_out,prot_abundances,info['INDENT'])
         del info['INDENT']
         del info['DELIM']  

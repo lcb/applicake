@@ -24,7 +24,7 @@ from applicake.applications.proteomics.sybit.keyextract import KeyExtract
 from applicake.applications.proteomics.openms.peptideproteinprocessing.idmapper import IdMapper
 from applicake.applications.proteomics.openms.mapalignment.mappaligneridentification import MapAlignerIdentification
 from applicake.applications.proteomics.openms.quantification.proteinquantifier import ProteinQuantifier
-from applicake.applications.proteomics.sybit.annotxmlfromcsv import AnnotProtxmlFromCsv
+from applicake.applications.proteomics.sybit.annotxmlfromcsv import AnnotProtxmlFromUpdatedCsv
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
 from applicake.applications.proteomics.openms.quantification.lfqpart1 import LFQpart1
 from applicake.applications.proteomics.openms.quantification.lfqpart2 import LFQpart2
@@ -166,11 +166,11 @@ def paramgenerator(input_file_name, notused_output_file_names):
 def lfqpart2(input_file_name, output_file_name):
     wrap(LFQpart2,input_file_name,output_file_name)        
 
-@transform(lfqpart2,regex("lfqpart2.ini_"),"rewritexml.ini_")
-def rewritexml(input_file_name, output_file_name):
-    wrap(AnnotProtxmlFromCsv,input_file_name,output_file_name)
+@transform(lfqpart2,regex("lfqpart2.ini_"),"annotxml.ini_")
+def annotxml(input_file_name, output_file_name):
+    wrap(AnnotProtxmlFromUpdatedCsv,input_file_name,output_file_name)
     
-@transform(rewritexml,regex("rewritexml.ini_"),"cp2dropbox.ini_")
+@transform(rewritexml,regex("annotxml.ini_"),"cp2dropbox.ini_")
 def cp2dropbox(input_file_name, output_file_name):
     wrap(Copy2DropboxQuant,input_file_name,output_file_name)    
           
