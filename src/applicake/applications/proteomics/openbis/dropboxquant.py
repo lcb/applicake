@@ -91,7 +91,7 @@ class Copy2DropboxQuant(IApplication):
         expinfo[self.OUTPUT] = os.path.join(path,'quantification.properties')
         BasicInformationHandler().write_info(expinfo, log)
         
-        subprocess.check_call(['gzip', path+'/*.featureXML'],shell=True)
+        subprocess.check_call('gzip '+ path + '/*.featureXML',shell=True)
         
         return 0,info
         
