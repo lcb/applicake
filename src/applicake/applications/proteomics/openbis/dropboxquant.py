@@ -5,8 +5,8 @@ Created on Aug 10, 2012
 '''
 
 import shutil
+import subprocess
 import os
-import time
 from applicake.utils.fileutils import FileUtils
 from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.framework.interfaces import IApplication
@@ -66,6 +66,8 @@ class Copy2DropboxQuant(IApplication):
                     if key == 'PROTXML':
                         ppath = os.path.join(path,os.path.basename(path)+'.prot.xml')
                         shutil.copy(file,ppath)
+                    if key == 'FEATUREXMLS':
+                        shutil.copy(file,path)
                     else:
                         shutil.copy(file,path)
                         log.debug('Copy [%s] to [%s]' % (file,path))
@@ -88,6 +90,8 @@ class Copy2DropboxQuant(IApplication):
                 expinfo[key] = info[key]
         expinfo[self.OUTPUT] = os.path.join(path,'quantification.properties')
         BasicInformationHandler().write_info(expinfo, log)
+        
+        subprocess.check_call(['gzip', path+'/*.featureXML'],shell=True)
         
         return 0,info
         
