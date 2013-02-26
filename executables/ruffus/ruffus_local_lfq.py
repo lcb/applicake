@@ -170,7 +170,7 @@ def lfqpart2(input_file_name, output_file_name):
 def annotxml(input_file_name, output_file_name):
     wrap(AnnotProtxmlFromUpdatedCsv,input_file_name,output_file_name)
     
-@transform(rewritexml,regex("annotxml.ini_"),"cp2dropbox.ini_")
+@transform(annotxml,regex("annotxml.ini_"),"cp2dropbox.ini_")
 def cp2dropbox(input_file_name, output_file_name):
     wrap(Copy2DropboxQuant,input_file_name,output_file_name)    
           
