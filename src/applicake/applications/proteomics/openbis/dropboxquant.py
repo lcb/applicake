@@ -66,7 +66,7 @@ class Copy2DropboxQuant(IApplication):
                     if key == 'PROTXML':
                         ppath = os.path.join(path,os.path.basename(path)+'.prot.xml')
                         shutil.copy(file,ppath)
-                    if key == 'FEATUREXMLS':
+                    elif key == 'FEATUREXMLS':
                         shutil.copy(file,path)
                     else:
                         shutil.copy(file,path)
