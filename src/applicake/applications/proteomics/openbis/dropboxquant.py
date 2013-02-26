@@ -64,9 +64,11 @@ class Copy2DropboxQuant(IApplication):
             for file in files:
                 try:
                     if key == 'PROTXML':
-                        path = os.path.join(path,os.path.basename(path)+'.prot.xml')
-                    shutil.copy(file,path)
-                    log.debug('Copy [%s] to [%s]' % (file,path))
+                        ppath = os.path.join(path,os.path.basename(path)+'.prot.xml')
+                        shutil.copy(file,ppath)
+                    else:
+                        shutil.copy(file,path)
+                        log.debug('Copy [%s] to [%s]' % (file,path))
                 except:
                     if FileUtils.is_valid_file(log, file):
                         log.warn('Could not copy, file [%s] already exists' % file)
