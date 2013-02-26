@@ -19,14 +19,12 @@ class LFQpart1(IWrapper):
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.toppas')
         _,info = LFQpart1WorkflowTemplate().modify_template(info, log)
         wftemplate = info[self.TEMPLATE]
-        
-        info['FEATUREXMLS'] = os.path.join(wd,'TOPPAS_out/011-IDMapper/out_tmp8.featureXML')
+        outfile = os.path.join(wd,'TOPPAS_out/013-IDConflictResolver/out_tmp9.featureXML')
+        id = os.path.splitext(os.path.basename(info[self.MZXML]))[0]
+        info['FEATUREXMLS'] = os.path.join(wd,'TOPPAS_out/013-IDConflictResolver/'+id+'.featureXML')
         self._result_file = info['FEATUREXMLS']
-#        info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.trf')
-#        mod_template,info = LFQpart1InputfilesTemplate().modify_template(info, log)
-#        trftemplate = info[self.TEMPLATE]
 
-        command = 'ExecutePipeline -in %s -out_dir %s' % (wftemplate, wd)
+        command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s' % (wftemplate, wd,outfile,self._result_file)
         return command,info
 
     def set_args(self,log,args_handler):
