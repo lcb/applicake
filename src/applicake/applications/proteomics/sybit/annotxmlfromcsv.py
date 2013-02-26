@@ -109,6 +109,8 @@ class AnnotProtxmlFromCsv(IApplication):
 
     def set_args(self,log,args_handler):
         args_handler.add_app_args(log, self.WORKDIR , 'Current WD')
+        args_handler.add_app_args(log, self.MZXML , 'mzxmls')
+        
         args_handler.add_app_args(log, 'PROTCSV' , 'Path to CSV input file containing prot abundances')
         args_handler.add_app_args(log, 'PEPCSV' , 'Path to CSV input file containing peptide abundances')
         args_handler.add_app_args(log, 'PROTXML' , 'Path to protXML input file')
