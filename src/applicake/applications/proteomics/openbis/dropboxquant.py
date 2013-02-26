@@ -53,7 +53,7 @@ class Copy2DropboxQuant(IApplication):
         
         path = self._get_dropboxdir(info)
         FileUtils.makedirs_safe(log, path,clean=True)
-        
+
         keys = ['PROTXML','PEPCSV','PROTCSV','FEATUREXMLS']
         files = []
         for key in keys:
@@ -63,6 +63,8 @@ class Copy2DropboxQuant(IApplication):
                 files = [info[key]]
             for file in files:
                 try:
+                    if key == 'PROTXML':
+                        path = os.path.join(path,os.path.basename(path)+'.prot.xml')
                     shutil.copy(file,path)
                     log.debug('Copy [%s] to [%s]' % (file,path))
                 except:

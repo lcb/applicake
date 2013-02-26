@@ -100,6 +100,10 @@ SEEDLISTGENERATOR_USE_PEPTIDE_MASS = true
 EXPERIMENT = E288109
 FDR = 0.01
 THREADS = 4
+
+SPACE = LOBLUM
+PROJECT = TEST
+DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_quant
 """)
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
@@ -133,7 +137,6 @@ def dss(input_file_name, output_file_name):
 
 ################################################################################################
 
-
 @transform(dss, regex("dss.ini_"), "lfqpart1.ini_")
 def lfqpart1(input_file_name, output_file_name):
     wrap(LFQpart1,input_file_name,output_file_name)
@@ -157,7 +160,6 @@ def paramgenerator(input_file_name, notused_output_file_names):
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("paramgenerator [%s]" % exit_code)
- 
         
 @follows(paramgenerator)
 @transform(paramgenerator,regex("paramgenerate.ini_"),"lfqpart2.ini_")

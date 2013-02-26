@@ -46,8 +46,8 @@ class AnnotProtxmlFromCsv(IApplication):
                 if descstring in line:
                     newline = descstring
                     for i,fle in enumerate(mzxmls):
-                        newline += i + ": '" + os.path.splitext(os.path.basename(fle))[0] + "',"
-                    target.write(newline)
+                        newline += str(i) + ": '" + os.path.splitext(os.path.basename(fle))[0] + "', "
+                    target.write(newline+'\n')
                 else:
                     target.write(line)
                     
