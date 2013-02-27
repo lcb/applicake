@@ -115,20 +115,19 @@ class Copy2DropboxQuant(Copy2Dropbox):
         filepath = os.path.join(info['DROPBOXSTAGE'],filename)
         shutil.copy(info['PROTXML'],filepath)
 
-        expinfo = {}
+        expinfo = info.copy()
+        expinfo['USERNAME'] = subprocess.check_output('whoami')
         expinfo['PARENT-DATA-SET-CODES'] = info[self.DATASET_CODE]
         expinfo['BASE_EXPERIMENT'] = info['EXPERIMENT']
         expinfo['QUANTIFICATION_TYPE'] = 'LABEL-FREE'
         expinfo['PEAKPICKER'] = 'YES'
         expinfo['MAPALIGNER'] = 'YES'
-        for key in ['COMMENT','PEPXML_FDR']:
-            if key in info:
-                expinfo[key] = info[key]
         expinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'quantification.properties')
         BasicInformationHandler().write_info(expinfo, log)
         
-        subprocess.check_call(('gzip '+ info['DROPBOXSTAGE'] + '/*.featureXML').split,shell=True)
-        subprocess.call(('mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + info['PEPCSV'] + ' '+ info['PROTCSV'] + ' $(whoami)').split(),shell=True)
+        subprocess.check_call(('gzip -v '+ info['DROPBOXSTAGE'] + '/*.featureXML'),shell=True)
+
+        subprocess.call(('mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME']).split(),shell=True)
         
         self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'])
      
