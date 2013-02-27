@@ -98,7 +98,7 @@ class Copy2IdentDropbox(Copy2Dropbox):
         return 0,info
 
 
-class Copy2DropboxQuant(IApplication):
+class Copy2DropboxQuant(Copy2Dropbox):
     """
     Copy files to an Openbis-quantification-dropbox
     """
