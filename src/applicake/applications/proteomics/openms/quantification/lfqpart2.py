@@ -15,6 +15,11 @@ class LFQpart2(IWrapper):
 
         wd = info[self.WORKDIR]
         
+        #required because openbis requires prot.xml and openms protXML
+        protlink = os.path.join(wd,'protein.protXML')
+        os.link(info['PROTXML'], protlink)
+        info['PROTXML'] = protlink
+        
         info['FEATUREXMLLIST'] = ''
         for i in info['FEATUREXMLS']:
             info['FEATUREXMLLIST'] += '<LISTITEM value="' + i + '"/>'
