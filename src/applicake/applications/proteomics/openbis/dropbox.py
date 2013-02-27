@@ -56,7 +56,7 @@ class Copy2Dropbox(IApplication):
         shutil.move(stage,dropbox)
         
     def set_args(self,log,args_handler): 
-        log.warn("Arghandler not needed for IniFileRunner")
+        log.info("Arghandler not needed for IniFileRunner")
         return args_handler
     
 class Copy2IdentDropbox(Copy2Dropbox):
@@ -89,8 +89,9 @@ class Copy2IdentDropbox(Copy2Dropbox):
                 info[key] = 'NONE'
         info['experiment-code'] = self._get_experiment_code(info)
         
-        info[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'search.properties')
-        BasicInformationHandler().write_info(info, log)
+        sinfo = info.copy()
+        sinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'search.properties')
+        BasicInformationHandler().write_info(sinfo, log)
         
         self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'],keepCopy=True)
         
