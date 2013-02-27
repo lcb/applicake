@@ -126,7 +126,7 @@ class Copy2DropboxQuant(Copy2Dropbox):
         
         subprocess.check_call(('gzip -v '+ info['DROPBOXSTAGE'] + '/*.featureXML'),shell=True)
 
-        subprocess.call(('mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME']).split(),shell=True)
+        subprocess.call('mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME'],shell=True)
         
         self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'])
      
