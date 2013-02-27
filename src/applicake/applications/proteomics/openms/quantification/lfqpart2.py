@@ -22,14 +22,17 @@ class LFQpart2(IWrapper):
         _,info = LFQpart2WorkflowTemplate().modify_template(info, log)
         del info['FEATUREXMLLIST']
          
-        info['PROTCSV'] = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/out_tmp23.unknown')
-        info['PEPCSV'] = os.path.join(wd,'TOPPAS_out/011-ProteinQuantifier/out_tmp24.unknown')
+        rawprot = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/out_tmp*.unknown')
+        rawpep = os.path.join(wd,'TOPPAS_out/011-ProteinQuantifier/out_tmp*.unknown')
+        
+        info['PROTCSV'] = os.path.join(wd,'proteins.csv')
+        info['PEPCSV'] = os.path.join(wd,'peptides.csv')
         
         self._result_files = []
         self._result_files.append(info['PROTCSV'])
         self._result_files.append(info['PEPCSV'])
         
-        command = 'ExecutePipeline -in %s -out_dir %s' % (info[self.TEMPLATE], wd)
+        command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s && mv -v %s %s' % (info[self.TEMPLATE], wd,rawprot,info['PROTCSV'],rawpep,info['PEPCSV'])
         return command,info
 
     def set_args(self,log,args_handler):
@@ -37,7 +40,7 @@ class LFQpart2(IWrapper):
         See interface
         """
         args_handler.add_app_args(log, self.WORKDIR, 'wd')
-        args_handler.add_app_args(log, 'FEATUREXMLS', 'Path to the featureXML fileS.')
+        args_handler.add_app_args(log, 'FEATUREXMLS', 'Path to the featureXML files.')
         args_handler.add_app_args(log, 'PROTXML', 'Path to the protXML file (one).')
         
         args_handler.add_app_args(log, "MAPALIGNER_ALGORITHM__MAX_RT_SHIFT", "")
