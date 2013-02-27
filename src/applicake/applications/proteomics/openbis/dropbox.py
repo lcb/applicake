@@ -116,7 +116,6 @@ class Copy2DropboxQuant(Copy2Dropbox):
         shutil.copy(info['PROTXML'],filepath)
 
         expinfo = info.copy()
-        expinfo['USERNAME'] = subprocess.check_output('whoami')
         expinfo['PARENT-DATA-SET-CODES'] = info[self.DATASET_CODE]
         expinfo['BASE_EXPERIMENT'] = info['EXPERIMENT']
         expinfo['QUANTIFICATION_TYPE'] = 'LABEL-FREE'
