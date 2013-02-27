@@ -128,4 +128,6 @@ class Copy2DropboxQuant(IApplication):
         subprocess.check_call('gzip '+ info['DROPBOXSTAGE'] + '/*.featureXML',shell=True)
         subprocess.call('mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + info['PEPCSV'] + ' '+ info['PROTCSV'] + ' $(whoami)',shell=True)
         
+        self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'])
+     
         return 0,info
