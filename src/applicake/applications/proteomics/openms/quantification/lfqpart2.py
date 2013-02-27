@@ -17,7 +17,7 @@ class LFQpart2(IWrapper):
         
         #required because openbis requires prot.xml and openms protXML
         protlink = os.path.join(wd,'protein.protXML')
-        os.link(info['PROTXML'], protlink)
+        os.symlink(info['PROTXML'], protlink)
         info['PROTXML'] = protlink
         
         info['FEATUREXMLLIST'] = ''
