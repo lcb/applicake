@@ -172,8 +172,12 @@ def annotxml(input_file_name, output_file_name):
     
 @transform(annotxml,regex("annotxml.ini_"),"cp2dropbox.ini_")
 def cp2dropbox(input_file_name, output_file_name):
-    wrap(Copy2DropboxQuant,input_file_name,output_file_name)    
-          
+    argv = ['', '-i', input_file_name, '-o',output_file_name]
+    runner = IniFileRunner()
+    application = Copy2DropboxQuant()
+    exit_code = runner(argv, application)
+    if exit_code != 0:
+        raise Exception("paramgenerator [%s]" % exit_code)
     
 pipeline_run([cp2dropbox], multiprocess=16)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg
