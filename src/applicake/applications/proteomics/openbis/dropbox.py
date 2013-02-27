@@ -54,6 +54,7 @@ class Copy2Dropbox(IApplication):
         if keepCopy == True:
             shutil.copytree(stage,stage+'_copy')
         shutil.move(stage,dropbox)
+        #subprocess.call( ('chmod -vR 777 '+dropbox).split() )
         
     def set_args(self,log,args_handler): 
         log.info("Arghandler not needed for IniFileRunner")
@@ -126,8 +127,8 @@ class Copy2DropboxQuant(Copy2Dropbox):
         expinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'quantification.properties')
         BasicInformationHandler().write_info(expinfo, log)
         
-        subprocess.check_call('gzip '+ info['DROPBOXSTAGE'] + '/*.featureXML',shell=True)
-        subprocess.call('mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + info['PEPCSV'] + ' '+ info['PROTCSV'] + ' $(whoami)',shell=True)
+        subprocess.check_call(('gzip '+ info['DROPBOXSTAGE'] + '/*.featureXML').split,shell=True)
+        subprocess.call(('mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + info['PEPCSV'] + ' '+ info['PROTCSV'] + ' $(whoami)').split(),shell=True)
         
         self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'])
      
