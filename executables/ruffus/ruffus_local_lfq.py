@@ -103,6 +103,7 @@ THREADS = 4
 
 SPACE = LOBLUM
 PROJECT = TEST
+USERNAME = loblum
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_quant
 """)
     else:
