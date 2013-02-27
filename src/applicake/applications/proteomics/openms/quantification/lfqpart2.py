@@ -145,9 +145,9 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="out" value="" type="string" description="Output file for protein abundances" tags="output file" supported_formats="*.csv" />
         <ITEM name="peptide_out" value="" type="string" description="Output file for peptide abundances" tags="output file" supported_formats="*.csv" />
         <ITEM name="mzTab_out" value="" type="string" description="Export to mzTab.#br#Either &apos;out&apos;, &apos;peptide_out&apos;, or &apos;mzTab_out&apos; are required. They can be used together." tags="output file" supported_formats="*.csv" />
-        <ITEM name="top" value="$PROTEINQUANTIFIER_TOP_VALUE" type="int" description="Calculate protein abundance from this number of proteotypic peptides (most abundant first; &apos;0&apos; for all)" restrictions="0:" />
+        <ITEM name="top" value="$PROTEINQUANTIFIER_TOP" type="int" description="Calculate protein abundance from this number of proteotypic peptides (most abundant first; &apos;0&apos; for all)" restrictions="0:" />
         <ITEM name="average" value="median" type="string" description="Averaging method used to compute protein abundances from peptide abundances" restrictions="median,mean,sum" />
-        <ITEM name="include_all" value="$PROTEINQUANTIFIER_INCLUDE_ALL_VALUE" type="string" description="Include results for proteins with fewer proteotypic peptides than indicated by &apos;top&apos; (no effect if &apos;top&apos; is 0 or 1)" restrictions="true,false" />
+        <ITEM name="include_all" value="$PROTEINQUANTIFIER_INCLUDE_ALL" type="string" description="Include results for proteins with fewer proteotypic peptides than indicated by &apos;top&apos; (no effect if &apos;top&apos; is 0 or 1)" restrictions="true,false" />
         <ITEM name="filter_charge" value="false" type="string" description="Distinguish between charge states of a peptide. For peptides, abundances will be reported separately for each charge;#br#for proteins, abundances will be computed based only on the most prevalent charge of each peptide.#br#By default, abundances are summed over all charge states." restrictions="true,false" />
         <ITEM name="ratios" value="false" type="string" description="Prints the log2 ratios of the abundance value to the output file. (log_2(x_0/x_0) &lt;sep&gt; log_2(x_1/x_0) &lt;sep&gt; log_2(x_2/x_0) ....)" restrictions="true,false" />
         <ITEM name="ratiosSILAC" value="false" type="string" description="Prints the SILAC log2 ratios for a triple SILAC experiment to the output file. Only performed if three maps are given, otherwise nothing will be seen in the output file. (log_2(heavy/light) &lt;sep&gt; log_2(heavy/middle) &lt;sep&gt; log_2(middle/light)" restrictions="true,false" />
@@ -161,7 +161,7 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
           <ITEM name="fix_peptides" value="false" type="string" description="Use the same peptides for protein quantification across all samples.#br#With &apos;top 0&apos;, all peptides that occur in every sample are considered.#br#Otherwise (&apos;top N&apos;), the N peptides that occur in the most samples (independently of each other) are selected,#br#breaking ties by total abundance (there is no guarantee that the best co-ocurring peptides are chosen!)." restrictions="true,false" />
         </NODE>
         <NODE name="format" description="Output formatting options">
-          <ITEM name="separator" value="$PROTEINQUANTIFIER_FORMAT__SEPARATOR_VALUE" type="string" description="Character(s) used to separate fields; by default, the &apos;tab&apos; character is used" />
+          <ITEM name="separator" value="$PROTEINQUANTIFIER_FORMAT__SEPARATOR" type="string" description="Character(s) used to separate fields; by default, the &apos;tab&apos; character is used" />
           <ITEM name="quoting" value="double" type="string" description="Method for quoting of strings: &apos;none&apos; for no quoting, &apos;double&apos; for quoting with doubling of embedded quotes,#br#&apos;escape&apos; for quoting with backslash-escaping of embedded quotes" restrictions="none,double,escape" />
           <ITEM name="replacement" value="_" type="string" description="If &apos;quoting&apos; is &apos;none&apos;, used to replace occurrences of the separator in strings before writing" />
         </NODE>
@@ -251,16 +251,16 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
         <NODE name="algorithm" description="Algorithm parameters section">
           <ITEM name="second_nearest_gap" value="2" type="float" description="The distance to the second nearest neighbors must be larger by this factor than the distance to the matching element itself." restrictions="1:" />
-          <ITEM name="use_identifications" value="$FEATURELINKER_USE_IDENTIFICATIONS_VALUE" type="string" description="Never link features that are annotated with different peptides (only the best hit per peptide identification is taken into account)." restrictions="true,false" />
+          <ITEM name="use_identifications" value="$FEATURELINKER_USE_IDENTIFICATIONS" type="string" description="Never link features that are annotated with different peptides (only the best hit per peptide identification is taken into account)." restrictions="true,false" />
           <ITEM name="ignore_charge" value="false" type="string" description="Compare features normally even if their charge states are different" restrictions="true,false" />
           <NODE name="distance_RT" description="Distance component based on RT differences">
-            <ITEM name="max_difference" value="$FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE_VALUE" type="float" description="Maximum allowed difference in RT in seconds" restrictions="0:" />
+            <ITEM name="max_difference" value="$FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE" type="float" description="Maximum allowed difference in RT in seconds" restrictions="0:" />
             <ITEM name="exponent" value="1" type="float" description="Normalized RT differences are raised to this power (using 1 or 2 will be fast, everything else is REALLY slow)" tags="advanced" restrictions="0:" />
             <ITEM name="weight" value="1" type="float" description="RT distances are weighted by this factor" tags="advanced" restrictions="0:" />
           </NODE>
           <NODE name="distance_MZ" description="Distance component based on m/z differences">
-            <ITEM name="max_difference" value="$FEATURELINKER_DISTANCE_MZ__MAX_DIFFERENCE_VALUE" type="float" description="Maximum allowed difference in m/z (unit defined by &apos;unit&apos;)" restrictions="0:" />
-            <ITEM name="unit" value="$FEATURELINKER_DISTANCE_MZ__UNIT_VALUE" type="string" description="Unit of the &apos;max_difference&apos; parameter" restrictions="Da,ppm" />
+            <ITEM name="max_difference" value="$FEATURELINKER_DISTANCE_MZ__MAX_DIFFERENCE" type="float" description="Maximum allowed difference in m/z (unit defined by &apos;unit&apos;)" restrictions="0:" />
+            <ITEM name="unit" value="$FEATURELINKER_DISTANCE_MZ__UNIT" type="string" description="Unit of the &apos;max_difference&apos; parameter" restrictions="Da,ppm" />
             <ITEM name="exponent" value="2" type="float" description="Normalized m/z differences are raised to this power (using 1 or 2 will be fast, everything else is REALLY slow)" tags="advanced" restrictions="0:" />
             <ITEM name="weight" value="1" type="float" description="m/z distances are weighted by this factor" tags="advanced" restrictions="0:" />
           </NODE>

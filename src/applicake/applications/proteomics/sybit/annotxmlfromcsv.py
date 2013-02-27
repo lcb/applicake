@@ -38,7 +38,7 @@ class AnnotProtxmlFromUpdatedCsv(IApplication):
         return 0,info
     
     def _correctcsv(self,infile,outfile,mzxmls):
-        #from ProteinQuantifier.c
+        #descstring from ProteinQuantifier.c
         descstring = "# Files/samples associated with abundance values below: " 
         with open(infile) as source, open(outfile,'w') as target:
             for line in source:

@@ -31,7 +31,7 @@ from applicake.applications.proteomics.openms.quantification.lfqpart2 import LFQ
 from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.commons.inifile import Unifier
-from applicake.applications.proteomics.openbis.dropboxquant import Copy2DropboxQuant
+from applicake.applications.proteomics.openbis.dropbox import Copy2DropboxQuant
 
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
