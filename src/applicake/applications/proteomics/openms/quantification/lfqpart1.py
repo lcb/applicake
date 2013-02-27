@@ -92,7 +92,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
       <ITEM name="recycle_output" value="false" type="string" description="" />
       <ITEM name="toppas_type" value="input file list" type="string" description="" />
       <ITEMLIST name="file_names" type="string" description="">
-        <LISTITEM value="CHLUDWIG_M1107_273~20110721034730308-201103.mzXML"/>
+        <LISTITEM value="$MZXML"/>
       </ITEMLIST>
       <ITEM name="x_pos" value="-520" type="float" description="" />
       <ITEM name="y_pos" value="-440" type="float" description="" />
@@ -101,6 +101,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
       <ITEM name="recycle_output" value="false" type="string" description="" />
       <ITEM name="toppas_type" value="input file list" type="string" description="" />
       <ITEMLIST name="file_names" type="string" description="">
+        <LISTITEM value="$PEPXMLS"/>
       </ITEMLIST>
       <ITEM name="x_pos" value="0" type="float" description="" />
       <ITEM name="y_pos" value="-440" type="float" description="" />
@@ -349,7 +350,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="in" value="" type="string" description="Input file or directory containing the output of the search engine.#br#Sequest: Directory containing the .out files#br#pepXML: Single pepXML file.#br#protXML: Single protXML file.#br#mascotXML: Single Mascot xml file.#br#omssaXML: Single OMSSA xml file.#br#idXML: Single idXML file.#br#" tags="input file,required" supported_formats="*.pepXML,*.protXML,*.mascotXML,*.omssaXML,*.idXML" />
         <ITEM name="out" value="" type="string" description="Output file" tags="output file,required" supported_formats="*.idXML,*.mzid,*.pepXML,*.FASTA" />
         <ITEM name="out_type" value="idXML" type="string" description="output file type -- default: determined from file extension or content#br#" restrictions="idXML,mzid,pepXML,FASTA" />
-        <ITEM name="mz_file" value="" type="string" description="[Sequest, pepXML, mascotXML only] Retention times will be looked up in this file" />
+        <ITEM name="mz_file" value="$MZXML" type="string" description="[Sequest, pepXML, mascotXML only] Retention times will be looked up in this file" />
         <ITEM name="ignore_proteins_per_peptide" value="false" type="string" description="[Sequest only] Workaround to deal with .out files that contain e.g. &quot;+1&quot; in references column,#br#but do not list extra references in subsequent lines (try -debug 3 or 4)" tags="advanced" restrictions="true,false" />
         <ITEM name="mz_name" value="" type="string" description="[pepXML, mascotXML only] Experiment filename/path to match in the pepXML file (&apos;base_name&apos; attribute). Only necessary if different from &apos;mz_file&apos;." />
         <ITEM name="use_precursor_data" value="false" type="string" description="[pepXML, mascotXML only] Use precursor RTs (and m/z values) from &apos;mz_file&apos; for the generated peptide identifications, instead of the RTs of MS2 spectra." restrictions="true,false" />
