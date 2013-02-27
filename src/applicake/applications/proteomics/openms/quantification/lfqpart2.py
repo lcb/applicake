@@ -27,8 +27,8 @@ class LFQpart2(IWrapper):
         _,info = LFQpart2WorkflowTemplate().modify_template(info, log)
         del info['FEATUREXMLLIST']
          
-        rawprot = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/out_tmp*.unknown')
-        rawpep = os.path.join(wd,'TOPPAS_out/011-ProteinQuantifier/out_tmp*.unknown')
+        rawprot = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/out_tmp*.csv')
+        rawpep = os.path.join(wd,'TOPPAS_out/011-ProteinQuantifier/out_tmp*.csv')
         
         info['PROTCSV'] = os.path.join(wd,'proteins.csv')
         info['PEPCSV'] = os.path.join(wd,'peptides.csv')
