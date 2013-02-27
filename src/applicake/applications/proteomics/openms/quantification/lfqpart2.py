@@ -27,8 +27,8 @@ class LFQpart2(IWrapper):
         _,info = LFQpart2WorkflowTemplate().modify_template(info, log)
         del info['FEATUREXMLLIST']
          
-        rawprot = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/out_tmp*.csv')
-        rawpep = os.path.join(wd,'TOPPAS_out/011-ProteinQuantifier/out_tmp*.csv')
+        rawprot = os.path.join(wd,'TOPPAS_out/009-ProteinQuantifier/out_tmp*.csv')
+        rawpep = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/out_tmp*.csv')
         
         info['PROTCSV'] = os.path.join(wd,'proteins.csv')
         info['PEPCSV'] = os.path.join(wd,'peptides.csv')
@@ -166,7 +166,7 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
           <ITEM name="fix_peptides" value="false" type="string" description="Use the same peptides for protein quantification across all samples.#br#With &apos;top 0&apos;, all peptides that occur in every sample are considered.#br#Otherwise (&apos;top N&apos;), the N peptides that occur in the most samples (independently of each other) are selected,#br#breaking ties by total abundance (there is no guarantee that the best co-ocurring peptides are chosen!)." restrictions="true,false" />
         </NODE>
         <NODE name="format" description="Output formatting options">
-          <ITEM name="separator" value="$PROTEINQUANTIFIER_FORMAT__SEPARATOR" type="string" description="Character(s) used to separate fields; by default, the &apos;tab&apos; character is used" />
+          <ITEM name="separator" value="," type="string" description="Character(s) used to separate fields; by default, the &apos;tab&apos; character is used" />
           <ITEM name="quoting" value="double" type="string" description="Method for quoting of strings: &apos;none&apos; for no quoting, &apos;double&apos; for quoting with doubling of embedded quotes,#br#&apos;escape&apos; for quoting with backslash-escaping of embedded quotes" restrictions="none,double,escape" />
           <ITEM name="replacement" value="_" type="string" description="If &apos;quoting&apos; is &apos;none&apos;, used to replace occurrences of the separator in strings before writing" />
         </NODE>
