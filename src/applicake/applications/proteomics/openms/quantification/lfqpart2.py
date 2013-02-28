@@ -49,6 +49,7 @@ class LFQpart2(IWrapper):
         args_handler.add_app_args(log, 'PROTXML', 'Path to the protXML file (one).')
         
         args_handler.add_app_args(log, "MAPALIGNER_ALGORITHM__MAX_RT_SHIFT", "")
+        args_handler.add_app_args(log, "MAPALIGNER_ALGORITHM__MIN_RUN_OCCUR", "")
         args_handler.add_app_args(log, "MAPALIGNER_MODEL__TYPE", "")
         args_handler.add_app_args(log, "PROTEINQUANTIFIER_INCLUDE_ALL", "")
         args_handler.add_app_args(log, "PROTEINQUANTIFIER_TOP", "")
@@ -111,7 +112,7 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
         </NODE>
         <NODE name="algorithm" description="Algorithm parameters section">
           <ITEM name="peptide_score_threshold" value="0" type="float" description="Score threshold for peptide hits to be used in the alignment.#br#Select a value that allows only &apos;high confidence&apos; matches." />
-          <ITEM name="min_run_occur" value="2" type="int" description="Minimum number of runs (incl. reference, if any) a peptide must occur in to be used for the alignment.#br#Unless you have very few runs or identifications, increase this value to focus on more informative peptides." restrictions="2:" />
+          <ITEM name="min_run_occur" value="$MAPALIGNER_ALGORITHM__MIN_RUN_OCCUR" type="int" description="Minimum number of runs (incl. reference, if any) a peptide must occur in to be used for the alignment.#br#Unless you have very few runs or identifications, increase this value to focus on more informative peptides." restrictions="2:" />
           <ITEM name="max_rt_shift" value="$MAPALIGNER_ALGORITHM__MAX_RT_SHIFT" type="float" description="Maximum realistic RT difference for a peptide (median per run vs. reference). Peptides with higher shifts (outliers) are not used to compute the alignment.#br#If 0, no limit (disable filter); if &gt; 1, the final value in seconds; if &lt;= 1, taken as a fraction of the range of the reference RT scale." restrictions="0:" />
           <ITEM name="use_unassigned_peptides" value="true" type="string" description="Should unassigned peptide identifications be used when computing an alignment of feature maps? If &apos;false&apos;, only peptide IDs assigned to features will be used." restrictions="true,false" />
           <ITEM name="use_feature_rt" value="false" type="string" description="When aligning feature maps, don&apos;t use the retention time of a peptide identification directly; instead, use the retention time of the centroid of the feature (apex of the elution profile) that the peptide was matched to. If different identifications are matched to one feature, only the peptide closest to the centroid in RT is used.#br#Precludes &apos;use_unassigned_peptides&apos;." restrictions="true,false" />
