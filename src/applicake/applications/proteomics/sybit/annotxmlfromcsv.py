@@ -47,12 +47,12 @@ class AnnotProtxmlFromUpdatedCsv(IApplication):
                     newline = descstring
                     for i,fle in enumerate(mzxmls):
                         newline += str(i) + ": '" + os.path.splitext(os.path.basename(fle))[0] + "', "
-                    target.write(newline+'\n')
+                    target.write(newline+'\n#\n')
                 elif headerstring in line:
                     newline = line
                     for i,fle in enumerate(mzxmls):
                         newline = newline.replace("abundance_" + str(i), os.path.splitext(os.path.basename(fle))[0])
-                    target.write(newline+'\n')
+                    target.write(newline)
                 else:
                     target.write(line)
                     
