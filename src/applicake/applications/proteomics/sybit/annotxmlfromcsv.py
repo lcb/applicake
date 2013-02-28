@@ -40,7 +40,7 @@ class AnnotProtxmlFromUpdatedCsv(IApplication):
     def _correctcsv(self,infile,outfile,mzxmls):
         #descstring from ProteinQuantifier.c
         descstring = "# Files/samples associated with abundance values below: " 
-        headerstring = '"peptide"'
+        headerstring = '"abundance_'
         with open(infile) as source, open(outfile,'w') as target:
             for line in source:
                 if descstring in line:
@@ -48,7 +48,7 @@ class AnnotProtxmlFromUpdatedCsv(IApplication):
                     for i,fle in enumerate(mzxmls):
                         newline += str(i) + ": '" + os.path.splitext(os.path.basename(fle))[0] + "', "
                     target.write(newline+'\n')
-                elif line.startswith(headerstring):
+                elif line.contains(headerstring):
                     newline = line
                     for i,fle in enumerate(mzxmls):
                         newline = newline.replace("abundance_" + str(i), os.path.splitext(os.path.basename(fle))[0])
