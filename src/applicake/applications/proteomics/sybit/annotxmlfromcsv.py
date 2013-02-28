@@ -62,9 +62,10 @@ class AnnotProtxmlFromUpdatedCsv(IApplication):
         with open(csv_in, "rb") as source:
             #the line containing the sampleids is the line before the data starts (with a '"')
             for line in source:
+                if line.startswith('# Files/samples'):
+                    sampleline = line
                 if line.startswith('"'):
                     break
-                sampleline = line
             sample_ids = re.compile("[0-9]+: '([^']+)'").findall(sampleline)
             n_samples = len(sample_ids)
             
