@@ -105,11 +105,11 @@ class SequestInitiator(Generator):
             except:
                 raise Exception("Failed matching mzxml to samplecode")
             
-            (samplecode, datasetcode) = scdc.split(':')
+            (samplecode, datasetcode) = scdc.split('~')
             samplecode = samplecode.strip()
             datasetcode = datasetcode.strip()
             #newbasename for pepxmlcorrector
-            dict['NEWBASENAME'] = samplecode + '~' + datasetcode
+            dict['NEWBASENAME'] = scdc
             dict['DATASET_CODE'] = datasetcode
             dicts.append(dict)
 
