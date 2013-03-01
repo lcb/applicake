@@ -166,7 +166,7 @@ def paramgenerator(input_file_name, notused_output_file_names):
 @follows(paramgenerator)
 @transform(paramgenerator,regex("paramgenerate.ini_"),"lfqpart2.ini_")
 def lfqpart2(input_file_name, output_file_name):
-    wrap(LFQpart2,input_file_name,output_file_name)        
+    wrap(LFQpart2,input_file_name,output_file_name,['--QT', 'QT'])        
 
 @transform(lfqpart2,regex("lfqpart2.ini_"),"annotxml.ini_")
 def annotxml(input_file_name, output_file_name):
