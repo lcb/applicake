@@ -70,7 +70,7 @@ class SpectrastIrtCalibrator(IWrapper):
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
-        args_handler.add_app_args(log, 'RT_KIT', 'RT kit')   
+        #args_handler.add_app_args(log, 'RT_KIT', 'RT kit')   
         args_handler.add_app_args(log, self.RSQ_THRESHOLD, 'specify r-squared threshold to accept linear regression')
         return args_handler
 
@@ -94,7 +94,7 @@ class SpectrastIrtCalibratorTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """--rsq_threshold $RSQ_THRESHOLD --kit $RT_KIT
+        template = """--rsq_threshold $RSQ_THRESHOLD 
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info
