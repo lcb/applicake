@@ -481,18 +481,18 @@ class CollectorRunner(ApplicationRunner):
             collector_info = self.get_info_handler().get_info(log, pargs)
             log.debug('info from collector file [%s]' % collector_info)
             # the info is needed to create the work directory
-            keys = [self.BASEDIR,self.JOB_IDX]            
+            keys = [self.BASEDIR,self.JOB_IDX,self.LOG_LEVEL,self.STORAGE]            
             needed_info = DictUtils.extract(collector_info, keys, include=True)
-            return DictUtils.merge(log,info, needed_info, priority='left')       
+            return DictUtils.merge(log,info, needed_info, priority='right')       
     
     def create_workdir(self,info,log):
         """
         """
         if not info.has_key(self.INPUT):
             # need to extract information about workdir if no input file is given
-            log.debug('did not find [%s] key. Get additional information from first collector file. ' % self.INPUT)            
+            log.info('did not find [%s] key. Get additional information from first collector file. ' % self.INPUT)            
             info = self._add_additional_info(info, log)
-            log.debug('info with additional information [%s]' % info)
+            log.info('info with additional information [%s]' % info)
         return super(CollectorRunner,self).create_workdir(info,log)
 
     def run_app(self,app,info,log,args_handler):
