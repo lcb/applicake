@@ -61,7 +61,7 @@ class OpenSwathAnalyzer(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -rt_norm %s -swath_files %s -ini %s -out %s' % (prefix,
+        command = '%s -in %s -tr %s -min_upper_edge_dist %s -threads %s -rt_norm %s -swath_files %s -ini %s -out %s -no-strict' % (prefix,
                                                                                               info['CHROM_MZML'],
                                                                                               info['TRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
