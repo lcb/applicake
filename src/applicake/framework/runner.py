@@ -617,6 +617,11 @@ class WrapperRunner(ApplicationRunner):
                 # when using concatenated shell commands
                 log.debug('remove all [\\n] from command string')
                 command  = command.replace('\n','')   
+                #MODULE LOAD
+                if 'MODULE' in info:
+                    log.warn("Overriding module with " + info['MODULE'])
+                    command = "module purge && module load " + info['MODULE'] + " && " + command
+                    #del info['MODULE']
                 log.info('Command [%s]' % str(command))             
                 log.info('Start [%s]' % self._run.__name__)
                 run_code = self._run(command,info[self.STORAGE])

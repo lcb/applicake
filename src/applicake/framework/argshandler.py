@@ -55,7 +55,9 @@ class ArgsHandler(object):
         self._parser.add_argument('-p','--PRINT_LOG',required=False, dest="PRINT_LOG",
                                   action="store_true",default=False,
                                   help="If set, log is printed to stderr before exit. (This is independent of the storage type!).")            
-
+        
+        self._parser.add_argument('--MODULE',required=False,help="module to load. CAREFUL")
+        
     def add_app_args(self,log,name,description,action='store',default=None,choices=None,type=str):        
         name = name.upper()
         self._app_argnames.append(name)
