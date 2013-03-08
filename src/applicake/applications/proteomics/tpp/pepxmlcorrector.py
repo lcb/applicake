@@ -3,7 +3,7 @@ Created on Jul 5, 2012
 
 @author: quandtan, lorenz
 '''
-import cStringIO
+
 import os
 from applicake.framework.interfaces import IApplication
 

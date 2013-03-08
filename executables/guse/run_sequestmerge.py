@@ -7,10 +7,10 @@ Created on Jul 6, 2012
 
 import sys
 from applicake.framework.runner import ApplicationRunner
-from applicake.applications.proteomics.sequest.pepxmlcorrector import SequestPepxmlCorrector
+from applicake.applications.proteomics.sequest.merger import SequestMerger
 
 runner = ApplicationRunner()
-application = SequestPepxmlCorrector()
+application = SequestMerger()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

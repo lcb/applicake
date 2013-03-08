@@ -28,13 +28,13 @@ class SequestInitiator(Generator):
         sorcAddr = 'sorcerer@imsb-ra-sorcerer' + info['SEQUESTHOST'] + '.ethz.ch'
         sorcPath = '/home/sorcerer/output/' + info['SEQUESTRESULTPATH'] + '/original/'
         
-        info = self.addParamsToInfo(sorcAddr+":"+ sorcPath, info)
-        info = self.getAndCheckDB(sorcAddr, info,log)
-        dicts = self.getPepxmlAndCodes(info, log,sorcAddr,sorcPath);
+        info = self._addParamsToInfo(sorcAddr+":"+ sorcPath, info)
+        info = self._getAndCheckDB(sorcAddr, info,log)
+        dicts = self._getPepxmlAndCodes(info, log,sorcAddr,sorcPath);
         self.write_files(info, log, dicts)
         return 0,info
      
-    def addParamsToInfo(self,sorcpath,info):
+    def _addParamsToInfo(self,sorcpath,info):
         paramfile = os.path.join(info[self.WORKDIR], 'sequest.params')
         try:
             subprocess.check_call(['rsync', '-vrtz', sorcpath + 'sequest.params', paramfile])
@@ -61,7 +61,7 @@ class SequestInitiator(Generator):
                 info['ENZYME'] = 'Semi-Tryptic'  
         return info
     
-    def getAndCheckDB(self,sorcAddr,info,log):
+    def _getAndCheckDB(self,sorcAddr,info,log):
         info['DBASE'] = os.path.join(info[self.WORKDIR], os.path.basename(info['SEQUESTDBASE']))
         print 
         try:
@@ -75,14 +75,14 @@ class SequestInitiator(Generator):
                     hasDecoys = True;
         if not hasDecoys:
             log.critical("No DECOY_s in fasta found!")
-            sys.exit(1)
+            raise "No DECOYs in fasta found"
         return info
     
-    def getPepxmlAndCodes(self,info,log,sorcAddr,sorcPath):
+    def _getPepxmlAndCodes(self,info,log,sorcAddr,sorcPath):
         pepxmls = ''
         try:
             pepxmls = subprocess.check_output(['ssh', sorcAddr, 'find ' + sorcPath + '*.pep.xml'])
-            pepxmls = pepxmls.replace(sorcPath + 'inputlists.pep.xml', '')
+            pepxmls = pepxmls.replace(sorcPath + 'interact.pep.xml', '')
         except:
             raise Exception('Could not get list of pepxml.')
 
@@ -91,27 +91,32 @@ class SequestInitiator(Generator):
         for idx, pepxml in enumerate(pepxmls.strip().split('\n')):
             dict = info.copy()
             dict[self.FILE_IDX] = idx
-            copyin = sorcAddr + ':' + pepxml
-            copyout = os.path.join(info[self.WORKDIR])
-            dict[self.SOURCE] = copyin+" "+copyout
             
-            ###################################################
-            try:
-                mzbase = os.path.basename(pepxml)
-                mzbase = mzbase.replace('.pep.xml','')
-                if str(mzbase).endswith('_c'):
-                    mzbase = mzbase[:-2] 
-                scdc = subprocess.check_output(['searchmzxml', mzbase + '.mzXML*' ])
-            except:
-                raise Exception("Failed matching mzxml to samplecode")
+            outfile = os.path.join(info[self.WORKDIR],os.path.basename(pepxml))
+            rsync = "rsync -vrtz " +sorcAddr + ':' + pepxml + " " + outfile
+            subprocess.check_call(rsync.split())
+            dict['PEPXMLS'] = [outfile]
             
-            (samplecode, datasetcode) = scdc.split('~')
-            samplecode = samplecode.strip()
-            datasetcode = datasetcode.strip()
-            #newbasename for pepxmlcorrector
-            dict['NEWBASENAME'] = scdc
+            (mzxml, datasetcode) = self._getCode(pepxml)
+            
+            dict['MZXML'] = mzxml
             dict['DATASET_CODE'] = datasetcode
             dicts.append(dict)
-
             
         return dicts
+    
+    def _getCode(self,pepxml):
+        try:
+            mzbase = os.path.basename(pepxml).replace('.pep.xml','')
+            if str(mzbase).endswith('_c'):
+                mzbase = mzbase[:-2]  
+                #* because could be .gz
+            scdc = subprocess.check_output(['searchmzxml', mzbase + '.mzXML*' ])
+        except:
+            raise Exception("searchmzxml %s failed" % mzbase)
+        
+        mzxml = scdc.strip() + '.mzXML'
+        _, datasetcode = scdc.split('~')
+        datasetcode = datasetcode.strip()
+        
+        return mzxml , datasetcode
