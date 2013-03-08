@@ -38,6 +38,6 @@ class SequestMerger(IApplication):
         """
         See interface
         """        
-        args_handler.add_app_args(log, 'COLLECTORS', 'Engines available for doing search',action='append')
+        args_handler.add_app_args(log, 'COLLECTORS', 'Engines available for doing search')
         return args_handler
 
