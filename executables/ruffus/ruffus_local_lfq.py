@@ -111,15 +111,11 @@ def getexperiment(input,output):
 def processexperiment(input,output):
     wrap(ProcessExperiment,input,output)
 
-@follows(processexperiment)
-@files('processexperinemt.ini','pepxmlcorrect.ini')
-def pepxmlcorrect(input,output):
-    wrap(PepXMLCorrector,input,output)
 
 ################################## Picking ##################################################
 
-@follows(pepxmlcorrect)   
-@split('pepxmlcorrect.ini', "generate.ini_*")
+@follows(processexperiment)
+@split('processexperiment.ini', "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
     runner = IniFileRunner()
