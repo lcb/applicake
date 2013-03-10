@@ -15,20 +15,11 @@ from applicake.applications.commons.generator import DatasetcodeGenerator,\
     ParametersetGenerator
 from applicake.framework.interfaces import IApplication, IWrapper
 
-from applicake.applications.proteomics.openms.filehandling.fileconverter import Mzxml2Mzml
-from applicake.applications.proteomics.openms.signalprocessing.peakpickerhighres import PeakPickerHighRes
-from applicake.applications.proteomics.openms.quantification.featurefindercentroided import FeatureFinderCentroided
-from applicake.applications.proteomics.openms.filehandling.idfileconverter import ProtXml2IdXml
-from applicake.applications.proteomics.openms.peptideproteinprocessing.idfilter import IdFilter
-from applicake.applications.proteomics.sybit.keyextract import KeyExtract
-from applicake.applications.proteomics.openms.peptideproteinprocessing.idmapper import IdMapper
-from applicake.applications.proteomics.openms.mapalignment.mappaligneridentification import MapAlignerIdentification
-from applicake.applications.proteomics.openms.quantification.proteinquantifier import ProteinQuantifier
-from applicake.applications.proteomics.sybit.annotxmlfromcsv import AnnotProtxmlFromUpdatedCsv
+from applicake.applications.proteomics.openms.quantification.annotxmlfromcsv import AnnotProtxmlFromUpdatedCsv
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
+from applicake.applications.proteomics.tpp.pepxmlcorrector import PepXMLCorrector
 from applicake.applications.proteomics.openms.quantification.lfqpart1 import LFQpart1
 from applicake.applications.proteomics.openms.quantification.lfqpart2 import LFQpart2
-from applicake.applications.proteomics.openms.filehandling.idfileconverter import PepXml2IdXml
 from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.commons.inifile import Unifier
 from applicake.applications.proteomics.openbis.dropbox import Copy2DropboxQuant
@@ -120,10 +111,15 @@ def getexperiment(input,output):
 def processexperiment(input,output):
     wrap(ProcessExperiment,input,output)
 
+@follows(processexperiment)
+@files('processexperinemt.ini','pepxmlcorrect.ini')
+def pepxmlcorrect(input,output):
+    wrap(PepXMLCorrector,input,output)
+
 ################################## Picking ##################################################
 
-@follows(processexperiment)   
-@split('processexperiment.ini', "generate.ini_*")
+@follows(pepxmlcorrect)   
+@split('pepxmlcorrect.ini', "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
     argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
     runner = IniFileRunner()

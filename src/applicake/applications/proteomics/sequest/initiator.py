@@ -1,14 +1,12 @@
 '''
-Based on the original applicake WFInit as good as possible.
-It was not possible to use the original 1to1 because for sequest I need to
-do several external 'ssh' calls before I have all information to start.
-        
+Based on Lucias importFromSorcerer script
+       
 Created on Feb 20, 2012
 
 @author: lorenz
 '''
 
-import os, sys, subprocess
+import os, subprocess
  
 from applicake.applications.commons.generator import Generator
 
@@ -23,18 +21,19 @@ class SequestInitiator(Generator):
         return args_handler
     
     def main(self,info,log):
-        ##First read the info and add the additional entries from sequest.params
-        #copy params file from sorcerer
         sorcAddr = 'sorcerer@imsb-ra-sorcerer' + info['SEQUESTHOST'] + '.ethz.ch'
         sorcPath = '/home/sorcerer/output/' + info['SEQUESTRESULTPATH'] + '/original/'
         
-        info = self._addParamsToInfo(sorcAddr+":"+ sorcPath, info)
-        info = self._getAndCheckDB(sorcAddr, info,log)
-        dicts = self._getPepxmlAndCodes(info, log,sorcAddr,sorcPath);
+        info = self._addSequestParamsToInfo(info,log,sorcAddr+":"+ sorcPath)
+        info = self._getAndCheckFastaDB(info,log,sorcAddr)
+        pepxmls = self._getPepxmls(log,sorcAddr, sorcPath,info[self.WORKDIR])
+        codes = self._getCodes(log,pepxmls)
+        dicts = self._generateINIs(info, log, pepxmls, codes)
         self.write_files(info, log, dicts)
+        
         return 0,info
      
-    def _addParamsToInfo(self,sorcpath,info):
+    def _addSequestParamsToInfo(self,info,log,sorcpath):
         paramfile = os.path.join(info[self.WORKDIR], 'sequest.params')
         try:
             subprocess.check_call(['rsync', '-vrtz', sorcpath + 'sequest.params', paramfile])
@@ -59,9 +58,11 @@ class SequestInitiator(Generator):
                 info['SEQUESTDBASE'] = line.split()[2]
             if line.startswith('num_enzyme_termini = 2'):
                 info['ENZYME'] = 'Semi-Tryptic'  
+                
+        log.debug("Sucessfully added sequest parameters to info")
         return info
     
-    def _getAndCheckDB(self,sorcAddr,info,log):
+    def _getAndCheckFastaDB(self,info,log,sorcAddr):
         info['DBASE'] = os.path.join(info[self.WORKDIR], os.path.basename(info['SEQUESTDBASE']))
         print 
         try:
@@ -71,52 +72,60 @@ class SequestInitiator(Generator):
         hasDecoys = False;
         with open(info['DBASE']) as r:
             for line in r.readlines():
-                if line.find('DECOY_') != -1:
-                    hasDecoys = True;
+                if 'DECOY_' in line:
+                    hasDecoys = True
         if not hasDecoys:
             log.critical("No DECOY_s in fasta found!")
             raise "No DECOYs in fasta found"
+        
+        log.info("Got dbase %s"%info['DBASE'])
         return info
     
-    def _getPepxmlAndCodes(self,info,log,sorcAddr,sorcPath):
-        pepxmls = ''
-        try:
-            pepxmls = subprocess.check_output(['ssh', sorcAddr, 'find ' + sorcPath + '*.pep.xml'])
-            pepxmls = pepxmls.replace(sorcPath + 'interact.pep.xml', '')
+    
+    def _getPepxmls(self,log,sorcAddr,sorcPath,wd):
+        try:    
+            pepxmlstr = subprocess.check_output(['ssh', sorcAddr, 'find ' + sorcPath + '*.pep.xml'])
+            pepxmlstr = pepxmlstr.replace(sorcPath + 'interact.pep.xml', '')
+            pepxmlstr = pepxmlstr.replace(sorcPath + 'inputlists.pep.xml', '')
         except:
             raise Exception('Could not get list of pepxml.')
-
-        dicts = []
-        info[self.PARAM_IDX] = '0'
-        for idx, pepxml in enumerate(pepxmls.strip().split('\n')):
-            dict = info.copy()
-            dict[self.FILE_IDX] = idx
-            
-            outfile = os.path.join(info[self.WORKDIR],os.path.basename(pepxml))
+        
+        pepxmls = []
+        for pepxml in pepxmlstr.strip().split('\n'):
+            outfile = os.path.join(wd,os.path.basename(pepxml))
             rsync = "rsync -vrtz " +sorcAddr + ':' + pepxml + " " + outfile
+            log.debug("Copying pepxml from sorcerer "+pepxml)
             subprocess.check_call(rsync.split())
-            dict['PEPXMLS'] = [outfile]
-            
-            (mzxml, datasetcode) = self._getCode(pepxml)
-            
-            dict['MZXML'] = mzxml
-            dict['DATASET_CODE'] = datasetcode
-            dicts.append(dict)
-            
-        return dicts
+            pepxmls.append(outfile)
+         
+        log.info("Got pepxmls %s"%pepxmls)   
+        return pepxmls
     
-    def _getCode(self,pepxml):
-        try:
+    def _getCodes(self,log,pepxmls):
+        codes = []
+        for pepxml in pepxmls:
             mzbase = os.path.basename(pepxml).replace('.pep.xml','')
             if str(mzbase).endswith('_c'):
                 mzbase = mzbase[:-2]  
-                #* because could be .gz
-            scdc = subprocess.check_output(['searchmzxml', mzbase + '.mzXML*' ])
-        except:
-            raise Exception("searchmzxml %s failed" % mzbase)
+            #* because could be .gz  
+            log.debug("Getting code for",mzbase)
+            scdc = subprocess.check_output(['searchmzxml', mzbase + '.mzXML*' ]).strip()
+            codes.append(scdc)
         
-        mzxml = scdc.strip() + '.mzXML'
-        _, datasetcode = scdc.split('~')
-        datasetcode = datasetcode.strip()
+        log.info("Got codes %s"%codes)
+        return codes
+    
+    def _generateINIs(self,info,log,pepxmls,codes):
+        dicts = []
+        info[self.PARAM_IDX] = '0'
         
-        return mzxml , datasetcode
+        for idx, code, pepxml in zip(range(len(codes)),codes,pepxmls):
+            dict = info.copy()
+            dict[self.FILE_IDX] = idx
+            dict['MZXML'] = code + '.mzMXL'
+            dict['DATASET_CODE'] = code.split('~')[0]
+            dict['PEPXMLS'] = [pepxml]
+            dicts.append(dict)
+          
+        log.info("Writing %d inis"%len(dicts))  
+        return dicts
