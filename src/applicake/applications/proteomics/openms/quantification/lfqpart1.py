@@ -19,7 +19,7 @@ class LFQpart1(IWrapper):
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.toppas')
         _,info = LFQpart1WorkflowTemplate().modify_template(info, log)
         wftemplate = info[self.TEMPLATE]
-        outfile = os.path.join(wd,'TOPPAS_out/013-IDConflictResolver/out_tmp9.featureXML')
+        outfile = os.path.join(wd,'TOPPAS_out/013-IDConflictResolver/*.featureXML')
         id = os.path.splitext(os.path.basename(info[self.MZXML]))[0]
         info['FEATUREXMLS'] = os.path.join(wd,'TOPPAS_out/013-IDConflictResolver/'+id+'.featureXML')
         self._result_file = info['FEATUREXMLS']

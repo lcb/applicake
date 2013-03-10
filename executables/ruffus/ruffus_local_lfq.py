@@ -17,7 +17,6 @@ from applicake.framework.interfaces import IApplication, IWrapper
 
 from applicake.applications.proteomics.openms.quantification.annotxmlfromcsv import AnnotProtxmlFromUpdatedCsv
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
-from applicake.applications.proteomics.tpp.pepxmlcorrector import PepXMLCorrector
 from applicake.applications.proteomics.openms.quantification.lfqpart1 import LFQpart1
 from applicake.applications.proteomics.openms.quantification.lfqpart2 import LFQpart2
 from applicake.applications.commons.collector import GuseCollector
