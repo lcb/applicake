@@ -29,7 +29,7 @@ class AnnotProtxmlFromUpdatedCsv(IApplication):
         #update protxml file using corrected csv files
         xml_in = info['PROTXML']
         xml_out = os.path.join(info[self.WORKDIR],os.path.basename(xml_in))
-        prot_abundances = self._read_csv(info['PROTCSV'])
+        prot_abundances = self._read_protcsv(info['PROTCSV'])
         self._annotate_protxml(xml_in,xml_out,prot_abundances,info['INDENT'])
         del info['INDENT']
         del info['DELIM']  
@@ -38,6 +38,7 @@ class AnnotProtxmlFromUpdatedCsv(IApplication):
         return 0,info
     
     def _correctcsv(self,infile,outfile,mzxmls):
+        print "Correcting CSV"
         #descstring from ProteinQuantifier.c
         descstring = "# Files/samples associated with abundance values below: " 
         headerstring = '"abundance_'
@@ -56,31 +57,36 @@ class AnnotProtxmlFromUpdatedCsv(IApplication):
                 else:
                     target.write(line)
                     
-    def _read_csv(self,csv_in):
-        #prot_abundances[PROTEINS][SAMPLE_ID] = abundance  
-        prot_abundances = {}     
+    def _read_protcsv(self,csv_in):
+        print "Reading abundances from protcsv"
+        #final dict: all_prot_abundances[PROTEINS][SAMPLE_ID] = abundance  
+        all_prot_abundances = {}     
         with open(csv_in, "rb") as source:
-            #the line containing the sampleids is the line before the data starts (with a '"')
+            #comment line with samples start with Files/smples, header with a "
             for line in source:
                 if line.startswith('# Files/samples'):
                     sampleline = line
                 if line.startswith('"'):
                     break
-            sample_ids = re.compile("[0-9]+: '([^']+)'").findall(sampleline)
-            n_samples = len(sample_ids)
             
-            #the header is the first line starting with '"'. parse with csv.reader.next
+            sample_ids = re.compile("[0-9]+: '([^']+)'").findall(sampleline)
+            print "Sample IDs found:", sample_ids
+            
+            #the header is the first line starting with '"'. parse header with volatile csv.reader.next
             header = csv.reader([line]).next()
             for entry in csv.DictReader(source, header):
-                abundances = {}
-                for n in range(1,n_samples):
-                    abundances[sample_ids[n]] = entry[sample_ids[n]]   
-                proteins = entry['protein'].split("/")
-                for protein in proteins:
-                    prot_abundances[protein] = abundances                 
-        return prot_abundances
+                entry_proteins = entry['protein'].split("/")
+                entry_abundances = {}
+                for sample in sample_ids:
+                    entry_abundances[sample] = entry[sample]
+                for protein in entry_proteins:
+                    all_prot_abundances[protein] = entry_abundances
+            
+        print "# Protein abundances found:" , len(all_prot_abundances)                
+        return all_prot_abundances
             
     def _annotate_protxml(self,xml_in,xml_out,prot_abundances,indent):
+        print "Writing abundances to protxml"
         #this code is copied from hendriks annotate_protxml(protein_path, protxml_input, export_path)
         # annotate protXML file:
         with open(xml_in) as source:
