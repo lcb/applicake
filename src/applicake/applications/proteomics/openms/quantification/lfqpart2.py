@@ -29,15 +29,22 @@ class LFQpart2(IWrapper):
          
         rawprot = os.path.join(wd,'TOPPAS_out/009-ProteinQuantifier/*.csv')
         rawpep = os.path.join(wd,'TOPPAS_out/010-ProteinQuantifier/*.csv')
+        rawconsensusxml = os.path.join(wd,'TOPPAS_out/011-FeatureLinker*/*.consensusXML')
         
         info['PROTCSV'] = os.path.join(wd,'proteins.csv')
         info['PEPCSV'] = os.path.join(wd,'peptides.csv')
+        info['CONSENSUSXML'] = os.path.join(wd,'all.consensusXML')
         
         self._result_files = []
         self._result_files.append(info['PROTCSV'])
         self._result_files.append(info['PEPCSV'])
+        self._result_files.append(info['CONSENSUSXML'])
         
-        command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s && mv -v %s %s' % (info[self.TEMPLATE], wd,rawprot,info['PROTCSV'],rawpep,info['PEPCSV'])
+        
+        command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s && mv -v %s %s' % (info[self.TEMPLATE], wd,
+                                                                                        rawprot,info['PROTCSV'],
+                                                                                        rawpep,info['PEPCSV'],
+                                                                                        rawconsensusxml,info['CONSENSUSXML'])
         return command,info
 
     def set_args(self,log,args_handler):

@@ -106,15 +106,20 @@ class Copy2DropboxQuant(Copy2Dropbox):
     
     def main(self,info,log):
         info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
-        
-        keys = ['PEPCSV','PROTCSV','FEATUREXMLS']
+
+        #copy files        
+        keys = ['PEPCSV','PROTCSV','FEATUREXMLS','CONSENSUSXML']
         self._keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
-        
+
+        #compress XML files        
+        subprocess.check_call(('gzip -v '+ info['DROPBOXSTAGE'] + '/*XML'),shell=True)
+
         #protxml special naming
         filename = os.path.basename(info['DROPBOXSTAGE']) + '.prot.xml'
         filepath = os.path.join(info['DROPBOXSTAGE'],filename)
         shutil.copy(info['PROTXML'],filepath)
 
+        #properties file
         expinfo = info.copy()
         expinfo['PARENT-DATA-SET-CODES'] = info[self.DATASET_CODE]
         expinfo['BASE_EXPERIMENT'] = info['EXPERIMENT']
@@ -124,8 +129,7 @@ class Copy2DropboxQuant(Copy2Dropbox):
         expinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'quantification.properties')
         BasicInformationHandler().write_info(expinfo, log)
         
-        subprocess.check_call(('gzip -v '+ info['DROPBOXSTAGE'] + '/*.featureXML'),shell=True)
-
+        #create witolds LFQ report mail
         reportcmd = 'mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME']
         try:
             subprocess.call(reportcmd,shell=True)
