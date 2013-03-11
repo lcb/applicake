@@ -126,11 +126,12 @@ class Copy2DropboxQuant(Copy2Dropbox):
         
         subprocess.check_call(('gzip -v '+ info['DROPBOXSTAGE'] + '/*.featureXML'),shell=True)
 
+        reportcmd = 'mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME']
         try:
-            subprocess.call('mailLFQ.sh ' + expinfo[self.OUTPUT] + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME'],shell=True)
+            subprocess.call(reportcmd,shell=True)
             shutil.copy('analyseLFQ.pdf',info['DROPBOXSTAGE'])
         except:
-            log.warn("LFQ report failed, skipping")
+            log.warn("LFQ report command [%s] failed, skipping"%reportcmd)
         
         self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'])
      
