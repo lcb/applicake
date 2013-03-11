@@ -46,8 +46,13 @@ class ChromatogramExtractor(IWrapper):
         ppm = ''
         if info['WINDOW_UNIT'] == 'ppm':
             ppm = '-ppm'
+        
+        trafoxml = ''
+        if 'TRAFOXML' in info:
+            log.info("Using TrafoXML" + info['TRAFOXML'] )
+            trafoxml = '-rt_norm ' + info['TRAFOXML']
             
-        command = '%s -in %s -extraction_window %s %s -rt_extraction_window %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s' % (prefix,
+        command = '%s -in %s -extraction_window %s %s -rt_extraction_window %s -tr %s -min_upper_edge_dist %s -threads %s -is_swath -out %s %s' % (prefix,
                                                                                               ' '.join(info['MZML']),
                                                                                               info['EXTRACTION_WINDOW'],
                                                                                               ppm,
@@ -55,7 +60,7 @@ class ChromatogramExtractor(IWrapper):
                                                                                               info['TRAML'],
                                                                                               info['MIN_UPPER_EDGE_DIST'],
                                                                                               info['THREADS'],
-                                                                                              self.outfile)
+                                                                                              self.outfile,trafoxml)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -72,7 +77,7 @@ class ChromatogramExtractor(IWrapper):
         args_handler.add_app_args(log, 'EXTRACTION_WINDOW', 'extraction window to extract around')
         args_handler.add_app_args(log, 'WINDOW_UNIT','extraction window unit thompson/ppm')
         args_handler.add_app_args(log, 'RT_EXTRACTION_WINDOW', 'RT extraction window to extract around')
-        
+        args_handler.add_app_args(log, 'TRAFOXML', 'TrafoXML')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
