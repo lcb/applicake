@@ -6,7 +6,7 @@ Created on Apr 29, 2012
 '''
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.openms.quantification.lfqpart1 import LFQpart2
+from applicake.applications.proteomics.openms.quantification.lfqpart2 import LFQpart2
 
 
 runner = WrapperRunner()
