@@ -23,8 +23,10 @@ class LFQpart2(IWrapper):
         info['FEATUREXMLLIST'] = ''
         for i in info['FEATUREXMLS']:
             info['FEATUREXMLLIST'] += '<LISTITEM value="' + i + '"/>'
+            
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart2.toppas')
         _,info = LFQpart2WorkflowTemplate().modify_template(info, log)
+        
         del info['FEATUREXMLLIST']
          
         rawprot = os.path.join(wd,'TOPPAS_out/009-ProteinQuantifier/*.csv')
@@ -62,7 +64,7 @@ class LFQpart2(IWrapper):
         args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_MZ__UNIT", "")
         args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE", "")
         args_handler.add_app_args(log, "FEATURELINKER_USE_IDENTIFICATIONS", "")
-        args_handler.add_app_args(log, "QT", "qt",default='')
+        args_handler.add_app_args(log, "FEATURELINKER_EXECUTABLE", "which featurelinker to use")
         return args_handler
         
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -247,7 +249,7 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
     <NODE name="6" description="">
       <ITEM name="recycle_output" value="false" type="string" description="" />
       <ITEM name="toppas_type" value="tool" type="string" description="" />
-      <ITEM name="tool_name" value="FeatureLinkerUnlabeled$QT" type="string" description="" />
+      <ITEM name="tool_name" value="$FEATURELINKER_EXECUTABLE" type="string" description="" />
       <ITEM name="tool_type" value="" type="string" description="" />
       <ITEM name="x_pos" value="460" type="float" description="" />
       <ITEM name="y_pos" value="-60" type="float" description="" />
