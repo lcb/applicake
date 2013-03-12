@@ -58,7 +58,10 @@ class SpectrastIrtCalibrator(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
         prefix,info = self.get_prefix(info,log)
-        command = '%s -i %s -o %s %s' % (prefix,orig_key,info[key],mod_template)
+        rtkit = ""
+        if 'RTKIT' in info and not info['RTKIT'] == "":
+            rtkit = "-k " + info['RTKIT'].replace(";",",")
+        command = '%s -i %s -o %s %s %s' % (prefix,orig_key,info[key],rtkit,mod_template)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -70,7 +73,7 @@ class SpectrastIrtCalibrator(IWrapper):
         args_handler.add_app_args(log, self.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory')  
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
-        #args_handler.add_app_args(log, 'RT_KIT', 'RT kit')   
+        args_handler.add_app_args(log, 'RTKIT', 'RT kit')   
         args_handler.add_app_args(log, self.RSQ_THRESHOLD, 'specify r-squared threshold to accept linear regression')
         return args_handler
 
