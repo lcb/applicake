@@ -41,10 +41,8 @@ class LFQpart2(IWrapper):
         self._result_files.append(info['CONSENSUSXML'])
         
         
-        command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s && mv -v %s %s' % (info[self.TEMPLATE], wd,
-                                                                                        rawprot,info['PROTCSV'],
-                                                                                        rawpep,info['PEPCSV'],
-                                                                                        rawconsensusxml,info['CONSENSUSXML'])
+        command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s && mv -v %s %s && mv -v %s %s' % \
+            (info[self.TEMPLATE], wd,rawprot,info['PROTCSV'],rawpep,info['PEPCSV'],rawconsensusxml,info['CONSENSUSXML'])
         return command,info
 
     def set_args(self,log,args_handler):
