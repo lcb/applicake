@@ -110,6 +110,7 @@ class MailTemplate(BasicTemplateHandler):
     """
 
     def read_template(self, info, log):
+        template = ''
         try:
             tandemver = ''
             if info['RUNTANDEM'] == True:
