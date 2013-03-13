@@ -111,16 +111,16 @@ class MailTemplate(BasicTemplateHandler):
 
     def read_template(self, info, log):
         template = ''
-        try:
+        if True:
             tandemver = ''
-            if info['RUNTANDEM'] == True:
-                tandemver = subprocess.check_output(['which','tandem.exe']).split('/')[4]
+            if info['RUNTANDEM'] == 'True':
+                tandemver = 'tandem (v'+subprocess.check_output(['which','tandem.exe']).split('/')[4] +')'
             omssaver = ''
-            if info['RUNOMSSA'] == True:
-                omssaver = subprocess.check_output(['which','omssacl']).split('/')[4]
+            if info['RUNOMSSA'] == 'True':
+                omssaver = 'omssa (v'+subprocess.check_output(['which','omssacl']).split('/')[4] +')'
             myriver = ''
-            if info['RUNMYRIMATCH'] == True:
-                myriver = subprocess.check_output(['which','myrimatch']).split('/')[4]
+            if info['RUNMYRIMATCH'] == 'True':
+                myriver = 'myrimatch (v'+subprocess.check_output(['which','myrimatch']).split('/')[4] +')'
             tppver = subprocess.check_output(['which','ProteinProphet']).split('/')[4]
             info['EXPERIMENT_CODE'] = info['experiment-code']
             template = """Dear $USERNAME
@@ -132,7 +132,7 @@ https://imsb-ra-tpp.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.pe
 https://imsb-ra-tpp.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
     
 In case the links do not work (i.e. you chose RUNPETUNIA=none, or the files were already deleted) you can restore the data using the command:
-[user@imsb-ra-tpp~] % cd html; tpp2viewer2.py $EXPERIMENT_CODE
+[user@imsb-ra-tpp~] # cd html; tpp2viewer2.py $EXPERIMENT_CODE
     
 To cite this workflow use:
 The spectra were searched using the search engines %s %s %s
@@ -145,8 +145,7 @@ The iPortal team
     
 Please note that this message along with your results are stored in openbis:
 https://openbis-phosphonetx.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT""" % (tandemver,omssaver,myriver,tppver)
-        except:
-            Exception ("Creating mail summary failed")
+        
         return template,info
 
 
