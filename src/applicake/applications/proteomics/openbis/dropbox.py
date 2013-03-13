@@ -52,11 +52,14 @@ class Copy2Dropbox(IApplication):
                         raise       
 
     def _move_stage_to_dropbox(self,stage,dropbox,keepCopy=False):
+        #empty when moved, stage_copy when keepcopy
+        newstage = ""
         if keepCopy == True:
-            shutil.copytree(stage,stage+'_copy')
+            newstage = stage+'_copy'
+            shutil.copytree(stage,newstage)
         shutil.move(stage,dropbox)
-        #subprocess.call( ('chmod -vR 777 '+dropbox).split() )
-        
+        return newstage
+    
     def set_args(self,log,args_handler): 
         log.info("Arghandler not needed for IniFileRunner")
         return args_handler
@@ -97,7 +100,7 @@ class Copy2IdentDropbox(Copy2Dropbox):
         _,info = MailTemplate().modify_template(info, log)
         shutil.copy(info[self.TEMPLATE],info['DROPBOXSTAGE'])
         
-        self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'],keepCopy=True)
+        info['DROPBOXSTAGE'] = self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'],keepCopy=True)
         
         return 0,info
 
