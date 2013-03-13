@@ -4,7 +4,7 @@ Created on Jun 19, 2012
 @author: quandtan
 '''
 
-import os,subprocess,shutil
+import os,subprocess,shutil,getpass
 from applicake.framework.interfaces import IApplication
 from applicake.utils.fileutils import FileUtils
 from applicake.framework.informationhandler import BasicInformationHandler
@@ -77,13 +77,11 @@ class Copy2IdentDropbox(Copy2Dropbox):
         filepath = os.path.join(info['DROPBOXSTAGE'],filename)
         shutil.copy(info['PROTXML'],filepath)
         
-        #search.properties
+        #search.properties requires some specific fields
         info['PEPTIDEFDR'] = info['FDR']
-        del info['FDR']
-        # need to add DBASENAME
         info['DBASENAME'] = os.path.splitext(os.path.split(info['DBASE'])[1])[0]
-        # need to set PARENT-DATASET-CODES
         info['PARENT-DATA-SET-CODES']=info[self.DATASET_CODE]
+        
         # set values to NONE if they were e.g. "" before
         check_keys = ['STATIC_MODS','VARIABLE_MODS']
         for key in check_keys:
@@ -123,6 +121,7 @@ class MailTemplate(BasicTemplateHandler):
                 myriver = 'myrimatch (v'+subprocess.check_output(['which','myrimatch']).split('/')[4] +')'
             tppver = subprocess.check_output(['which','ProteinProphet']).split('/')[4]
             info['EXPERIMENT_CODE'] = info['experiment-code']
+            info['USERNAME'] = getpass.getuser()
             template = """Dear $USERNAME
     
 Your TPP search workflow finished sucessfully!
