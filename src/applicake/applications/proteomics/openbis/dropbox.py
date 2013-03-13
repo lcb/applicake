@@ -8,6 +8,7 @@ import os,subprocess,shutil
 from applicake.framework.interfaces import IApplication
 from applicake.utils.fileutils import FileUtils
 from applicake.framework.informationhandler import BasicInformationHandler
+from applicake.framework.templatehandler import BasicTemplateHandler
 
 class Copy2Dropbox(IApplication):
     '''
@@ -94,9 +95,58 @@ class Copy2IdentDropbox(Copy2Dropbox):
         sinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'search.properties')
         BasicInformationHandler().write_info(sinfo, log)
         
+        info[self.TEMPLATE] = 'mailtext.txt'
+        _,info = MailTemplate().modify_template(info, log)
+        shutil.copy(info[self.TEMPLATE],info['DROPBOXSTAGE'])
+        
         self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'],keepCopy=True)
         
         return 0,info
+
+
+class MailTemplate(BasicTemplateHandler):
+    """
+    Template handler for Mzxml2Mzml.
+    """
+
+    def read_template(self, info, log):
+        try:
+            tandemver = ''
+            if info['RUNTANDEM'] == True:
+                tandemver = subprocess.check_output(['which','tandem.exe']).split('/')[4]
+            omssaver = ''
+            if info['RUNOMSSA'] == True:
+                omssaver = subprocess.check_output(['which','omssacl']).split('/')[4]
+            myriver = ''
+            if info['RUNMYRIMATCH'] == True:
+                myriver = subprocess.check_output(['which','myrimatch']).split('/')[4]
+            tppver = subprocess.check_output(['which','ProteinProphet']).split('/')[4]
+            info['EXPERIMENT_CODE'] = info['experiment-code']
+            template = """Dear $USERNAME
+    
+Your TPP search workflow finished sucessfully!
+    
+To visualize the results with Petunia see:
+https://imsb-ra-tpp.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
+https://imsb-ra-tpp.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
+    
+In case the links do not work (i.e. you chose RUNPETUNIA=none, or the files were already deleted) you can restore the data using the command:
+[user@imsb-ra-tpp~] % cd html; tpp2viewer2.py $EXPERIMENT_CODE
+    
+To cite this workflow use:
+The spectra were searched using the search engines %s %s %s
+against the $DBASE database using $ENZYME digestion and allowing $MISSEDCLEAVAGE missed cleavages.
+Included were '$STATIC_MODS' as static and '$VARIABLE_MODS' as variable modifications. The mass tolerances were set to $PRECMASSERR $PRECMASSUNIT for precursor-ions and $FRAGMASSERR $FRAGMASSUNIT for fragment-ions.
+The identified peptides were processed and analyzed through the Trans-Proteomic Pipeline (%s) using PeptideProphet, iProphet and ProteinProphet scoring. Peptide identifications were reported at FDR of $FDR.
+    
+Yours sincerely,
+The iPortal team
+    
+Please note that this message along with your results are stored in openbis:
+https://openbis-phosphonetx.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT""" % (tandemver,omssaver,myriver,tppver)
+        except:
+            Exception ("Creating mail summary failed")
+        return template,info
 
 
 class Copy2DropboxQuant(Copy2Dropbox):
