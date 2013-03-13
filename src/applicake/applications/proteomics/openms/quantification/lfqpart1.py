@@ -16,15 +16,20 @@ class LFQpart1(IWrapper):
     def prepare_run(self,info,log):
 
         wd = info[self.WORKDIR]
+        
+        #required because openbis requires prot.xml and openms protXML
+        peplink = os.path.join(wd,'iprophet.pepXML')
+        os.symlink(info['PEPXMLS'], peplink)
+        info['PEPXMLS'] = peplink
+        
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.toppas')
         _,info = LFQpart1WorkflowTemplate().modify_template(info, log)
-        wftemplate = info[self.TEMPLATE]
-        outfile = os.path.join(wd,'TOPPAS_out/013-IDConflictResolver/*.featureXML')
-        id = os.path.splitext(os.path.basename(info[self.MZXML]))[0]
-        info['FEATUREXMLS'] = os.path.join(wd,'TOPPAS_out/013-IDConflictResolver/'+id+'.featureXML')
+        
+        rawfeatxml = os.path.join(wd,'TOPPAS_out/013-IDConflictResolver/*.featureXML')
+        info['FEATUREXMLS'] = os.path.join(wd,os.path.splitext(os.path.basename(info[self.MZXML]))[0] +'.featureXML')
         self._result_file = info['FEATUREXMLS']
 
-        command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s' % (wftemplate, wd,outfile,self._result_file)
+        command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s' % (info[self.TEMPLATE], wd,rawfeatxml,self._result_file)
         return command,info
 
     def set_args(self,log,args_handler):

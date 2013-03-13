@@ -35,7 +35,7 @@ class LFQpart2(IWrapper):
         
         info['PROTCSV'] = os.path.join(wd,'proteins.csv')
         info['PEPCSV'] = os.path.join(wd,'peptides.csv')
-        info['CONSENSUSXML'] = os.path.join(wd,'all.consensusXML')
+        info['CONSENSUSXML'] = os.path.join(wd,'FeatureLinker.consensusXML')
         
         self._result_files = []
         self._result_files.append(info['PROTCSV'])
