@@ -64,6 +64,7 @@ class LFQpart2(IWrapper):
         args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_MZ__UNIT", "")
         args_handler.add_app_args(log, "FEATURELINKER_DISTANCE_RT__MAX_DIFFERENCE", "")
         args_handler.add_app_args(log, "FEATURELINKER_USE_IDENTIFICATIONS", "")
+        args_handler.add_app_args(log, "MAPALIGNER_EXECUTABLE", "which mapaligner to use")
         args_handler.add_app_args(log, "FEATURELINKER_EXECUTABLE", "which featurelinker to use")
         return args_handler
         
@@ -98,7 +99,7 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
     <NODE name="3" description="">
       <ITEM name="recycle_output" value="false" type="string" description="" />
       <ITEM name="toppas_type" value="tool" type="string" description="" />
-      <ITEM name="tool_name" value="MapAlignerIdentification" type="string" description="" />
+      <ITEM name="tool_name" value="$MAPALIGNER_EXECUTABLE" type="string" description="" />
       <ITEM name="tool_type" value="" type="string" description="" />
       <ITEM name="x_pos" value="280" type="float" description="" />
       <ITEM name="y_pos" value="-60" type="float" description="" />
@@ -264,7 +265,6 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
         <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
         <NODE name="algorithm" description="Algorithm parameters section">
-          <ITEM name="second_nearest_gap" value="2" type="float" description="The distance to the second nearest neighbors must be larger by this factor than the distance to the matching element itself." restrictions="1:" />
           <ITEM name="use_identifications" value="$FEATURELINKER_USE_IDENTIFICATIONS" type="string" description="Never link features that are annotated with different peptides (only the best hit per peptide identification is taken into account)." restrictions="true,false" />
           <ITEM name="ignore_charge" value="false" type="string" description="Compare features normally even if their charge states are different" restrictions="true,false" />
           <NODE name="distance_RT" description="Distance component based on RT differences">

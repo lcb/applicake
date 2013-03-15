@@ -51,16 +51,12 @@ class LFQpart1(IWrapper):
         args_handler.add_app_args(log, "FEATUREFINDER_FEATURE__MIN_SCORE", "")
         args_handler.add_app_args(log, "FEATUREFINDER_FEATURE__MIN_ISOTOPE_FIT", "")
         args_handler.add_app_args(log, "FEATUREFINDER_FEATURE__MIN_TRACE_SCORE", "")
-        args_handler.add_app_args(log, "FEATUREFINDER_USER_SEED__RT_TOLERANCE", "")
-        args_handler.add_app_args(log, "FEATUREFINDER_USER_SEED__MZ_TOLERANCE", "")
-        args_handler.add_app_args(log, "FEATUREFINDER_USER_SEED__MIN_SCORE", "")
         args_handler.add_app_args(log, "FEATUREFINDER_SEED__MIN_SCORE","")
         args_handler.add_app_args(log, "FEATUREFINDER_MASS_TRACE__SLOPE_BOUND","")
         args_handler.add_app_args(log, "IDMAPPER_RT_TOLERANCE", "")
         args_handler.add_app_args(log, "IDMAPPER_MZ_TOLERANCE", "")
         args_handler.add_app_args(log, "IDMAPPER_MZ_REFERENCE", "")
         args_handler.add_app_args(log, "IDMAPPER_USE_CENTROID_MZ", "")
-        args_handler.add_app_args(log, "SEEDLISTGENERATOR_USE_PEPTIDE_MASS", "")
         return args_handler
         
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -244,7 +240,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
             <ITEM name="abundance_14N" value="99.632" type="float" description="Rel. abundance of the light nitrogen. Modify if labeled." tags="advanced" restrictions="0:100" />
           </NODE>
           <NODE name="seed" description="Settings that determine which peaks are considered a seed">
-            <ITEM name="min_score" value="$FEATUREFINDER_FEATURE__MIN_SCORE" type="float" description="Minimum seed score a peak has to reach to be used as seed.#br#The seed score is the geometric mean of intensity score, mass trace score and isotope pattern score.#br#If your features show a large deviation from the averagene isotope distribution or from an gaussian elution profile, lower this score." restrictions="0:1" />
+            <ITEM name="min_score" value="$FEATUREFINDER_SEED__MIN_SCORE" type="float" description="Minimum seed score a peak has to reach to be used as seed.#br#The seed score is the geometric mean of intensity score, mass trace score and isotope pattern score.#br#If your features show a large deviation from the averagene isotope distribution or from an gaussian elution profile, lower this score." restrictions="0:1" />
           </NODE>
           <NODE name="fit" description="Settings for the model fitting">
             <ITEM name="epsilon_abs" value="0.0001" type="float" description="Absolute epsilon used for convergence of the fit." tags="advanced" restrictions="0:" />
@@ -252,7 +248,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
             <ITEM name="max_iterations" value="500" type="int" description="Maximum number of iterations of the fit." tags="advanced" restrictions="1:" />
           </NODE>
           <NODE name="feature" description="Settings for the features (intensity, quality assessment, ...)">
-            <ITEM name="min_score" value="0.5" type="float" description="Feature score threshold for a feature to be reported.#br#The feature score is the geometric mean of the average relative deviation and the correlation between the model and the observed peaks." restrictions="0:1" />
+            <ITEM name="min_score" value="$FEATUREFINDER_FEATURE__MIN_SCORE" type="float" description="Feature score threshold for a feature to be reported.#br#The feature score is the geometric mean of the average relative deviation and the correlation between the model and the observed peaks." restrictions="0:1" />
             <ITEM name="min_isotope_fit" value="$FEATUREFINDER_FEATURE__MIN_ISOTOPE_FIT" type="float" description="Minimum isotope fit of the feature before model fitting." tags="advanced" restrictions="0:1" />
             <ITEM name="min_trace_score" value="$FEATUREFINDER_FEATURE__MIN_TRACE_SCORE" type="float" description="Trace score threshold.#br#Traces below this threshold are removed after the model fitting.#br#This parameter is important for features that overlap in m/z dimension." tags="advanced" restrictions="0:1" />
             <ITEM name="min_rt_span" value="0.333" type="float" description="Minimum RT span in relation to extended area that has to remain after model fitting." tags="advanced" restrictions="0:1" />
