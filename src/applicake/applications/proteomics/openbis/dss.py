@@ -160,6 +160,9 @@ class Dss(IWrapper):
             for outkey in self.outkeys:
                 log.debug("add '%s' %s to ini" % (outkey, dssoutput))                                
                 info[outkey.upper()] = dssoutput
+            for keys in [ 'KEEP_NAME','FAILURE_TOLERANT','QUIET','RESULT_FILE']:
+                if keys in info:
+                    del info[keys]
         except Exception, e:
             log.critical("Validation of result file failed: %s %s" % (e.__class__.__name__, e))
             exit_code = 1
