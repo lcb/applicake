@@ -35,11 +35,10 @@ class mProphet(IWrapper):
         log.debug('modify template')
         mod_template,info = th.modify_template(info, log)
 
-        prefix = 'R'
         lda = ''
         if 'MPR_USE_LDA' in info and info['MPR_USE_LDA'] == 'True':
             lda = '-use_classifier ' + info['MPR_LDA_PATH']
-        command = '%s %s %s' % (prefix,mod_template,lda)
+        command = 'mProphetScoreSelector.sh %s %s %s && R %s %s' % (info['FEATURETSV'],info['MPR_MAINVAR'],info['MPR_VARS'],mod_template,lda)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -53,6 +52,8 @@ class mProphet(IWrapper):
         args_handler.add_app_args(log, 'MPROPHET_BINDIR', 'mProphet binary dir')
         args_handler.add_app_args(log, 'MPR_USE_LDA', 'mProphet use existing LDA model')
         args_handler.add_app_args(log, 'MPR_LDA_PATH', 'mProphet use existing LDA model')
+        args_handler.add_app_args(log, 'MPR_MAINVAR', 'mProphet main score')
+        args_handler.add_app_args(log, 'MPR_VARS', 'mProphet other scores')
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):

@@ -56,6 +56,7 @@ class LFQpart2(IWrapper):
         args_handler.add_app_args(log, 'PROTXML', 'Path to the protXML file (one).')
         
         args_handler.add_app_args(log, "MAPALIGNER_ALGORITHM__MAX_RT_SHIFT", "")
+        #requested as option by olgas
         args_handler.add_app_args(log, "MAPALIGNER_ALGORITHM__MIN_RUN_OCCUR", "")
         args_handler.add_app_args(log, "MAPALIGNER_MODEL__TYPE", "")
         args_handler.add_app_args(log, "PROTEINQUANTIFIER_INCLUDE_ALL", "")
@@ -120,6 +121,7 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
           <ITEM name="index" value="0" type="int" description="Use one of the input files as reference (&apos;1&apos; for the first file, etc.).#br#If &apos;0&apos;, no explicit reference is set - the algorithm will select a reference." restrictions="0:" />
         </NODE>
         <NODE name="algorithm" description="Algorithm parameters section">
+          <ITEM name="num_used_points" value="1000" type="int" description="Maximum number of elements considered in each map (selected by intensity).  Use this to reduce the running time and to disregard weak signals during alignment.  For using all points, set this to -1." restrictions="-1:" />
           <ITEM name="peptide_score_threshold" value="0" type="float" description="Score threshold for peptide hits to be used in the alignment.#br#Select a value that allows only &apos;high confidence&apos; matches." />
           <ITEM name="min_run_occur" value="$MAPALIGNER_ALGORITHM__MIN_RUN_OCCUR" type="int" description="Minimum number of runs (incl. reference, if any) a peptide must occur in to be used for the alignment.#br#Unless you have very few runs or identifications, increase this value to focus on more informative peptides." restrictions="2:" />
           <ITEM name="max_rt_shift" value="$MAPALIGNER_ALGORITHM__MAX_RT_SHIFT" type="float" description="Maximum realistic RT difference for a peptide (median per run vs. reference). Peptides with higher shifts (outliers) are not used to compute the alignment.#br#If 0, no limit (disable filter); if &gt; 1, the final value in seconds; if &lt;= 1, taken as a fraction of the range of the reference RT scale." restrictions="0:" />
