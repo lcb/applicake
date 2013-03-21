@@ -43,7 +43,7 @@ class Runner(KeyEnum):
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
                         #set to debug if runner is changed
-                        self.LOG_LEVEL:'INFO',
+                        self.LOG_LEVEL:'DEBUG',
                         self.COPY_TO_WD: [],  
                         self.PRINT_LOG: True      
                         } 
@@ -287,7 +287,7 @@ class Runner(KeyEnum):
         # creates the directory, if it exists, it's content is removed       
         FileUtils.makedirs_safe(log,path,clean=True)
         info[self.WORKDIR] = path  
-        log.debug("added key [%s] to info object." % self.WORKDIR)    
+        log.info("created workdir [%s]" % self.WORKDIR)    
         return info                     
                     
     def get_streams(self,info,log):
