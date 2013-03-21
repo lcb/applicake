@@ -42,7 +42,8 @@ class Runner(KeyEnum):
         default_info = {
                         self.NAME: app.__class__.__name__,                        
                         self.STORAGE:'memory',
-                        self.LOG_LEVEL:'DEBUG',
+                        #set to debug if runner is changed
+                        self.LOG_LEVEL:'INFO',
                         self.COPY_TO_WD: [],  
                         self.PRINT_LOG: True      
                         } 
@@ -62,20 +63,20 @@ class Runner(KeyEnum):
             log.debug('arguments [%s]' % args[1:])
             log.debug('Runner class [%s]' % self.__class__.__name__)
             log.debug('Application class [%s]' % app.__class__.__name__)
-            log.info('Start [%s]' % self.get_args_handler.__name__)
+            log.debug('Start [%s]' % self.get_args_handler.__name__)
             args_handler = self.get_args_handler()
-            log.info('Start [%s]' % app.set_args.__name__)   
+            log.debug('Start [%s]' % app.set_args.__name__)   
             args_handler = app.set_args(log,args_handler)
-            log.info('Start [%s]' % args_handler.get_parsed_arguments.__name__)
+            log.debug('Start [%s]' % args_handler.get_parsed_arguments.__name__)
             try:
                 pargs = args_handler.get_parsed_arguments(log,args)
             except:
                 # need to reset streams in order to allow args_handler to print usage message
                 self.reset_streams() 
                 return exit_code
-            log.info('Start [%s]' % self.get_info_handler.__name__)
+            log.debug('Start [%s]' % self.get_info_handler.__name__)
             info_handler = self.get_info_handler()
-            log.info('Start [%s]' % info_handler.get_info.__name__)
+            log.debug('Start [%s]' % info_handler.get_info.__name__)
             try:
                 # overwrite previous default values
                 info = info_handler.get_info(log, pargs)
@@ -85,17 +86,17 @@ class Runner(KeyEnum):
                 info = default_info
                 log.exception(e)
                 sys.exit(1)
-            log.info('initial content of info [%s]' % info)
+            log.debug('initial content of info [%s]' % info)
             info = DictUtils.merge(log,info, default_info,priority='left')
             if isinstance(info[self.LOG_LEVEL],list):
                 info[self.LOG_LEVEL] = info[self.LOG_LEVEL][0]
             log.debug('Setting to loglevel from info: %s',info[self.LOG_LEVEL])
             log.setLevel(info[self.LOG_LEVEL])
             log.debug('Added default values to info they were not set before')            
-            log.debug('content of final info [%s]' % info)   
-            log.info('Start [%s]' % self.create_workdir.__name__)
+            log.info('content of starting info [%s]' % info)   
+            log.debug('Start [%s]' % self.create_workdir.__name__)
             info = self.create_workdir(info,log)              
-            log.info('Start [%s]' % self.get_streams.__name__)               
+            log.debug('Start [%s]' % self.get_streams.__name__)               
             (self.out_stream,self.err_stream,self.log_stream) = self.get_streams(info,log)                
             sys.stdout = self.out_stream
             log.debug('set sys.out to new out stream')
@@ -108,7 +109,7 @@ class Runner(KeyEnum):
             tmp_log_stream.seek(0)
             self.log_stream.write(tmp_log_stream.read())
             log.debug('wrote content of temporary logger to new logger')                
-            log.info('Start [%s]' % self.run_app.__name__)
+            log.debug('Start [%s]' % self.run_app.__name__)
             exit_code,info = self.run_app(app,info,log,args_handler)
             if exit_code != 0:
                 log.fatal('exit code of run_app() != 0')
@@ -117,9 +118,9 @@ class Runner(KeyEnum):
                     print self.out_stream.read()
                     print self.err_stream.read()
                 sys.exit(1)                             
-            log.info('Start [%s]' % info_handler.write_info.__name__)
+            log.debug('Start [%s]' % info_handler.write_info.__name__)
             info_handler.write_info(info,log)
-            log.info('Start [%s]' % self._cleanup.__name__)
+            log.debug('Start [%s]' % self._cleanup.__name__)
             exit_code,info,log = self._cleanup(info,log)
             log.debug('info [%s]' % info)
             log.debug('exit code [%s]' %exit_code)                 
@@ -128,7 +129,7 @@ class Runner(KeyEnum):
             log.exception(e) 
             self.reset_streams() 
         finally:
-            log.info('Start [%s]' % self.reset_streams.__name__)
+            log.debug('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams() 
             if hasattr(self, 'log_stream'): 
                 stream = self.log_stream
@@ -158,9 +159,9 @@ class Runner(KeyEnum):
         @return: Tuple of 3 objects; the exit code,the (updated) info object and the updated logger.          
         """     
         try:    
-            log.info('Start [%s]' % self.reset_streams.__name__)
+            log.debug('Start [%s]' % self.reset_streams.__name__)
             self.reset_streams()
-            log.info('Finished [%s]' % self.reset_streams.__name__)
+            log.debug('Finished [%s]' % self.reset_streams.__name__)
             log.debug('found key [%s] [%s]' % (self.WORKDIR, info.has_key(self.WORKDIR)))        
             if info.has_key(self.WORKDIR):
                 wd = info[self.WORKDIR]
@@ -404,7 +405,7 @@ class ApplicationRunner(Runner):
         """  
         exit_code = None     
         if isinstance(app,IApplication):
-            log.info('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
+            log.debug('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
             app_info = DictUtils.extract(info, args_handler.get_app_argnames())
             log.debug('app_info [%s]' % app_info)
             exit_code,app_info = app.main(app_info,log)   
@@ -492,7 +493,7 @@ class CollectorRunner(ApplicationRunner):
             # need to extract information about workdir if no input file is given
             log.info('did not find [%s] key. Get additional information from first collector file. ' % self.INPUT)            
             info = self._add_additional_info(info, log)
-            log.info('info with additional information [%s]' % info)
+            log.debug('info with additional information [%s]' % info)
         return super(CollectorRunner,self).create_workdir(info,log)
 
     def run_app(self,app,info,log,args_handler):
@@ -503,7 +504,7 @@ class CollectorRunner(ApplicationRunner):
         """  
         exit_code = None     
         if isinstance(app,IApplication):
-            log.info('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
+            log.debug('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
             app_info = DictUtils.extract(info, args_handler.get_app_argnames())
             log.debug('app_info [%s]' % app_info)
             exit_code,app_info = app.main(app_info,log)   
@@ -599,12 +600,12 @@ class WrapperRunner(ApplicationRunner):
         exit_code = None
         if isinstance(app,IWrapper):
             
-            log.info('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
+            log.debug('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
             app_info = DictUtils.extract(info, args_handler.get_app_argnames())
             log.debug('app_info [%s]' % app_info)
-            log.info('Start [%s]' % app.prepare_run.__name__)
+            log.debug('Start [%s]' % app.prepare_run.__name__)
             command,app_info = app.prepare_run(app_info,log)                 
-            log.info('Finish [%s]' % app.prepare_run.__name__)
+            log.debug('Finish [%s]' % app.prepare_run.__name__)
             log.debug('content of app_info [%s]' % app_info)    
             info = DictUtils.merge(log,info, app_info,priority='right')    
             log.debug('content of info after merge with app_info [%s]' % info)             
@@ -622,23 +623,23 @@ class WrapperRunner(ApplicationRunner):
                     log.warn("Overriding module with " + info['MODULE'])
                     command = "module purge && module load " + info['MODULE'] + " && " + command
                     #del info['MODULE']
-                log.info('Command [%s]' % str(command))             
-                log.info('Start [%s]' % self._run.__name__)
+                log.info('Executing Command [%s]' % str(command))             
+                log.debug('Start [%s]' % self._run.__name__)
                 run_code = self._run(command,info[self.STORAGE])
-                log.info('Finish [%s]' % self._run.__name__)
+                log.debug('Finish [%s]' % self._run.__name__)
                 log.info('run_code [%s]' % run_code)        
-                log.info('Start [%s]' % app.validate_run.__name__)
+                log.debug('Start [%s]' % app.validate_run.__name__)
                 # set stream pointer the start that in validate can use 
                 # them immediately with .read() to get content
                 self.out_stream.seek(0)
                 self.err_stream.seek(0)
-                log.info('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
+                log.debug('get subset of info based on following keys [%s]' % args_handler.get_app_argnames())
                 app_info = DictUtils.extract(info, args_handler.get_app_argnames())
                 log.debug('app_info [%s]' % app_info)               
                 exit_code,app_info = app.validate_run(app_info,log,run_code,self.out_stream,self.err_stream)
                 log.debug('exit code [%s]' % exit_code)
                 log.debug('content of app_info [%s]' % app_info)                        
-                log.info('Finish [%s]' % app.validate_run.__name__) 
+                log.debug('Finish [%s]' % app.validate_run.__name__) 
                 info = DictUtils.merge(log,info, app_info,priority='right')    
                 log.debug('content of info after merge with app_info [%s]' % info) 
         else:                                   
