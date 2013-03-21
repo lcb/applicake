@@ -287,7 +287,7 @@ class Runner(KeyEnum):
         # creates the directory, if it exists, it's content is removed       
         FileUtils.makedirs_safe(log,path,clean=True)
         info[self.WORKDIR] = path  
-        log.info("created workdir [%s]" % self.WORKDIR)    
+        log.info("created workdir [%s]" % path)    
         return info                     
                     
     def get_streams(self,info,log):
