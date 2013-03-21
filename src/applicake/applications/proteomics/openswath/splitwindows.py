@@ -9,7 +9,7 @@ from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
 
 class SplitWindowsConvertZip(IWrapper):
-    _default_prefix = 'split_mzXML_into_SwathMLgz.sh'
+    _default_prefix = 'mzXML_to_swathmzMLgz.sh'
     
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
@@ -21,7 +21,7 @@ class SplitWindowsConvertZip(IWrapper):
 
         self.outfolder = info[self.WORKDIR]
         prefix,info = self.get_prefix(info,log)
-        command = '%s %s %s %s noms1map %s' % (prefix,info[self.MZXML],info['WINDOWS'],self.outfolder,info[self.THREADS])
+        command = '%s -i %s -o %s -t %s -n' % (prefix,info[self.MZXML],self.outfolder,info[self.THREADS])
         del info[self.MZXML]
         return command,info
 
@@ -29,7 +29,6 @@ class SplitWindowsConvertZip(IWrapper):
         args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, self.MZXML, 'mzxml to split')
         args_handler.add_app_args(log, self.WORKDIR, 'working directory')
-        args_handler.add_app_args(log, 'WINDOWS', 'number of windows to split into', default='32')
         args_handler.add_app_args(log, self.THREADS, 'number of threads')
         return args_handler
 

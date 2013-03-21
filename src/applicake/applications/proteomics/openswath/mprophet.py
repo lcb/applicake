@@ -38,7 +38,7 @@ class mProphet(IWrapper):
         lda = ''
         if 'MPR_USE_LDA' in info and info['MPR_USE_LDA'] == 'True':
             lda = '-use_classifier ' + info['MPR_LDA_PATH']
-        command = 'mProphetScoreSelector.sh %s %s %s && R %s %s' % (info['FEATURETSV'],info['MPR_MAINVAR'],info['MPR_VARS'],mod_template,lda)
+        command = 'mProphetScoreSelector.sh %s %s %s && mProphetRunner.sh %s %s' % (info['FEATURETSV'],info['MPR_MAINVAR'],info['MPR_VARS'],mod_template,lda)
         return command,info
 
     def set_args(self,log,args_handler):
@@ -87,8 +87,7 @@ class mProphetTemplate(BasicTemplateHandler):
         See super class.
 
         """
-        template =  '--slave --file=$MPROPHET_BINDIR/mProphet.R --args bin_dir=$MPROPHET_BINDIR ' \
-                    'run_log=FALSE workflow=LABEL_FREE help=0 ' \
+        template =  'run_log=FALSE workflow=LABEL_FREE help=0 ' \
                     'num_xval=$MPR_NUM_XVAL write_classifier=1 write_all_pg=1 ' \
                     'working_dir=$WORKDIR project=mProphet mquest=$FEATURETSV'
         return template,info    
