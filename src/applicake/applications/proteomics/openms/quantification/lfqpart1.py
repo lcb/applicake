@@ -10,12 +10,15 @@ from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
+from applicake.applications.proteomics.sybit.fdr2iprob import FDR2iProphetProbability
 
 class LFQpart1(IWrapper):
 
     def prepare_run(self,info,log):
 
         wd = info[self.WORKDIR]
+        #get iProb corresponding FDR for IDFilter
+        _,info = FDR2iProphetProbability().main(info, log)
         
         #required because openbis requires prot.xml and openms protXML
         peplink = os.path.join(wd,'iprophet.pepXML')
@@ -130,7 +133,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
         <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
         <NODE name="score" description="Filtering by peptide/protein score. To enable any of the filters below, just change their default value. All active filters will be applied in order.">
-          <ITEM name="pep" value="0.9" type="float" description="The score which should be reached by a peptide hit to be kept. The score is dependent on the most recent(!) preprocessing - it could be Mascot scores (if a MascotAdapter was applied before), or an FDR (if FalseDiscoveryRate was applied before), etc." />
+          <ITEM name="pep" value="$IPROBABILITY" type="float" description="The score which should be reached by a peptide hit to be kept. The score is dependent on the most recent(!) preprocessing - it could be Mascot scores (if a MascotAdapter was applied before), or an FDR (if FalseDiscoveryRate was applied before), etc." />
           <ITEM name="prot" value="0" type="float" description="The score which should be reached by a protein hit to be kept." />
         </NODE>
         <NODE name="thresh" description="Filtering by significance threshold">
