@@ -42,6 +42,7 @@ class LFQpart1(IWrapper):
         args_handler.add_app_args(log, self.WORKDIR, 'wd')
         args_handler.add_app_args(log, 'MZXML', 'Path to the mzXML file.')
         args_handler.add_app_args(log, 'PEPXMLS', 'Path to the pepXML file.')
+        args_handler.add_app_args(log, 'FDR', 'Peptide FDR cutoff to use')
         
         args_handler.add_app_args(log, "PEAKPICKER_SIGNAL_TO_NOISE", "")
         args_handler.add_app_args(log, "PEAKPICKER_MS1_ONLY", "")
