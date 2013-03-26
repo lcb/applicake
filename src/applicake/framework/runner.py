@@ -86,7 +86,6 @@ class Runner(KeyEnum):
                 info = default_info
                 log.exception(e)
                 sys.exit(1)
-            log.debug('initial content of info [%s]' % info)
             info = DictUtils.merge(log,info, default_info,priority='left')
             if isinstance(info[self.LOG_LEVEL],list):
                 info[self.LOG_LEVEL] = info[self.LOG_LEVEL][0]
@@ -95,7 +94,7 @@ class Runner(KeyEnum):
             log.debug('Added default values to info they were not set before')            
             log.debug('content of starting info:')
             for key,value in info.items():
-                log.info('%s = %s' % (key, value))
+                log.debug('%s = %s' % (key, value))
             log.debug('Start [%s]' % self.create_workdir.__name__)
             info = self.create_workdir(info,log)              
             log.debug('Start [%s]' % self.get_streams.__name__)               
@@ -124,7 +123,7 @@ class Runner(KeyEnum):
             info_handler.write_info(info,log)
             log.debug('Start [%s]' % self._cleanup.__name__)
             exit_code,info,log = self._cleanup(info,log)
-            log.debug('info [%s]' % info)
+            log.debug('content of info after run (dump): %s' % info)
             log.debug('exit code [%s]' %exit_code)                 
         except Exception, e:
             log.fatal('error in __call__')
