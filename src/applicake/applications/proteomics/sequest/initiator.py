@@ -123,7 +123,7 @@ class SequestInitiator(Generator):
             dict = info.copy()
             dict[self.FILE_IDX] = idx
             dict['MZXML'] = code + '.mzMXL'
-            dict['DATASET_CODE'] = code.split('~')[0]
+            dict['DATASET_CODE'] = code.split('~')[1]
             dict['PEPXMLS'] = [pepxml]
             dicts.append(dict)
           
