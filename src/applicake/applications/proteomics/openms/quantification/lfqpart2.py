@@ -9,7 +9,7 @@ from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 
-class LFQpart2Fast(IWrapper):
+class LFQpart2(IWrapper):
 
     def prepare_run(self,info,log):
 
@@ -25,7 +25,7 @@ class LFQpart2Fast(IWrapper):
             info['FEATUREXMLLIST'] += '<LISTITEM value="' + i + '"/>'
             
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart2.toppas')
-        _,info = LFQpart2FastWorkflowTemplate().modify_template(info, log)
+        _,info = LFQpart2WorkflowTemplate().modify_template(info, log)
         
         del info['FEATUREXMLLIST']
          
@@ -78,7 +78,7 @@ class LFQpart2Fast(IWrapper):
         return run_code,info
 
              
-class LFQpart2FastWorkflowTemplate(BasicTemplateHandler):
+class LFQpart2WorkflowTemplate(BasicTemplateHandler):
     """
     Template handler for Mzxml2Mzml.
     """
