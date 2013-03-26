@@ -93,7 +93,9 @@ class Runner(KeyEnum):
             log.debug('Setting to loglevel from info: %s',info[self.LOG_LEVEL])
             log.setLevel(info[self.LOG_LEVEL])
             log.debug('Added default values to info they were not set before')            
-            log.debug('content of starting info [%s]' % info)   
+            log.debug('content of starting info:')
+            for key,value in info.items():
+                log.info('%s = %s' % (key, value))
             log.debug('Start [%s]' % self.create_workdir.__name__)
             info = self.create_workdir(info,log)              
             log.debug('Start [%s]' % self.get_streams.__name__)               

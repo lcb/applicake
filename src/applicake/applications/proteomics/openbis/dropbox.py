@@ -61,7 +61,7 @@ class Copy2Dropbox(IApplication):
         return newstage
     
     def set_args(self,log,args_handler): 
-        log.info("Arghandler not needed for IniFileRunner")
+        log.debug("Arghandler not needed for IniFileRunner")
         return args_handler
     
 class Copy2IdentDropbox(Copy2Dropbox):
