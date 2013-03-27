@@ -182,7 +182,9 @@ class Copy2DropboxQuant(Copy2Dropbox):
         BasicInformationHandler().write_info(expinfo, log)
         
         #create witolds LFQ report mail
-        reportcmd = 'mailLFQ.sh ' + expinfo[self.INPUT][0] + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME']
+        propcopy = os.path.join(info[self.WORKDIR],'quantification.properties')
+        shutil.copy(expinfo[self.OUTPUT],propcopy)
+        reportcmd = 'mailLFQ.sh ' +propcopy + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME']
         try:
             subprocess.call(reportcmd,shell=True)
             shutil.copy('analyseLFQ.pdf',info['DROPBOXSTAGE'])
