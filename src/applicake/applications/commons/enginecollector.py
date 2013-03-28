@@ -66,7 +66,8 @@ class GuseEngineCollector(IApplication):
             for engine in used_engines:
                 path = "%s.ini_%d" % (engine, i)
                 if not os.path.exists(path):
-                    raise Exception("Required inifile not found "+path)
+                    log.critical("Required inifile not found "+path)
+                    return 1,info
                 config = ConfigHandler().read(log,path)
                 collector_config = DictUtils.merge(log,collector_config, config,priority='append')
             

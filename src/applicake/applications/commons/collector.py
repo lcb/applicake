@@ -8,6 +8,7 @@ import glob
 from applicake.framework.interfaces import IApplication
 from applicake.framework.confighandler import ConfigHandler
 from applicake.utils.dictutils import DictUtils
+from applicake.utils.sequenceutils import SequenceUtils
 
 class BasicCollector(IApplication):
     """
@@ -60,7 +61,7 @@ class BasicCollector(IApplication):
         info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend(paths)
         if len(paths) == 0:
             log.critical('no collector files found [%s]' % paths)
-            return (1,info)            
+            return (1,info)          
         collector_config  = {}
         for path in paths:
             log.debug('path [%s]' % path)
@@ -70,7 +71,15 @@ class BasicCollector(IApplication):
             collector_config = DictUtils.merge(log,collector_config, config,priority='append')
             log.debug('collector_config [%s]' % collector_config)
         info = DictUtils.merge(log,info, collector_config, priority='left')
-        log.debug('info content [%s]' % info)       
+        
+        if info.has_key('GENERATOR_CHECKSUM'):
+            checksum = int(SequenceUtils.unify(info['GENERATOR_CHECKSUM'], reduce = reduce))
+            log.debug("Checksum %d" % checksum)
+            if checksum != len(paths):
+                log.critical("Checksum %d and number of collected files %d do not match!" % (checksum, len(paths)))
+                return 2,info
+        
+        log.debug('collected info content [%s]' % info)       
         return (0,info)
     
     def set_args(self,log,args_handler):

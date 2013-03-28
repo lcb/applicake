@@ -50,8 +50,7 @@ class ProteinProphetFDR(IWrapper):
         if minprob != '':
             log.info("Found minprob %s for FDR %s" % (minprob,info['FDR']) ) 
         else:
-            log.fatal("error point for FDR %s not found" % info['FDR'])
-            raise Exception("FDR not found")
+            raise Exception("error point for FDR %s not found" % info['FDR'])
         return minprob
     
     

@@ -48,8 +48,8 @@ class Copy2Dropbox(IApplication):
                     if FileUtils.is_valid_file(log, file):
                         log.debug('File [%s] already exists, ignore' % file)
                     else:
-                        log.fatal('Stop program because could not copy [%s] to [%s]' % (file,tgt))
-                        raise       
+                        raise Exception('Stop program because could not copy [%s] to [%s]' % (file,tgt))
+                               
 
     def _move_stage_to_dropbox(self,stage,dropbox,keepCopy=False):
         #empty when moved, stage_copy when keepcopy

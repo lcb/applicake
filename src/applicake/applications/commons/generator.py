@@ -34,6 +34,7 @@ class Generator(IApplication):
             path = "%s%s%s" % (dic[self.GENERATOR],idx_sep,idx) 
             log.debug(path)          
             dic[self.OUTPUT] = path
+            dic['GENERATOR_CHECKSUM'] = len(dicts)
             BasicInformationHandler().write_info(dic, log)
             log.debug('create file [%s]' % path)
             info[self.COPY_TO_WD].append(path)
@@ -88,6 +89,7 @@ class DatasetcodeGenerator(Generator):
         for dic in  param_dicts:            
             file_dicts = DictUtils.get_product_dicts(dic, log, escape_keys,idx_key=self.FILE_IDX)
             param_file_dicts.extend(file_dicts)
+        info['DSGENERATOR_CHECKSUM'] = len(param_file_dicts)
         log.debug('created [%s] dictionaries based on parameter and file combinations' % len(param_file_dicts))
         # write ini files
         self.write_files(info,log,param_file_dicts)

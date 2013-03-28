@@ -76,7 +76,7 @@ class SequestInitiator(Generator):
                     hasDecoys = True
         if not hasDecoys:
             log.critical("No DECOY_s in fasta found!")
-            raise "No DECOYs in fasta found"
+            raise Exception("No DECOYs in fasta found")
         
         log.info("Got dbase %s"%info['DBASE'])
         return info

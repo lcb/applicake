@@ -180,7 +180,7 @@ class CreateBinLibrary(LibraryCreator):
 
 
 ########################################
-class RawLibraryNodecoy(LibraryCreator):
+class RawTextlibNodecoy(LibraryCreator):
     def prepare_run(self,info,log):
         #have to symlink the pepxml and mzxml files first into a single directory
         symlink_files = []
@@ -206,9 +206,8 @@ class RawLibraryNodecoy(LibraryCreator):
             info[self.PROBABILITY] = self.getiProbability(log, info)
         
         root = info['LIBOUTBASE']+'_'+info['PARAM_IDX']+'_rawnodecoy'
-        info[self.SPLIB] = root + '.splib'
-        info[self.SPTXT] = root + '.sptxt'       
-        return 'spectrast -V -cP%s -cN%s %s' % (info[self.PROBABILITY],root,symlink_files[0]),info
+        info[self.SPLIB] = root + '.splib'      
+        return 'spectrast -V -c_BIN! -cP%s -cN%s %s' % (info[self.PROBABILITY],root,symlink_files[0]),info
     
     def getiProbability(self,log,info):
         minprob = ''
@@ -220,15 +219,14 @@ class RawLibraryNodecoy(LibraryCreator):
         if minprob != '':
             log.info("Found minprob %s for FDR %s" % (minprob,info['FDR']) ) 
         else:
-            log.fatal("error point for FDR %s not found" % info['FDR'])
-            raise Exception("FDR not found")
+            raise Exception("error point for FDR %s not found" % info['FDR'])
         return minprob
     
     def set_args(self,log,args_handler):
         """
         See interface
         """
-        args_handler = super(RawLibraryNodecoy, self).set_args(log,args_handler)
+        args_handler = super(RawTextlibNodecoy, self).set_args(log,args_handler)
         args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, self.MZXML, 'Peak list file in mzXML format',action='append')
         args_handler.add_app_args(log, self.PROBABILITY, 'Probability cutoff value that has to be matched') 

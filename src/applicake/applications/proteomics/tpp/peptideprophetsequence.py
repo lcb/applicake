@@ -23,7 +23,7 @@ class PeptideProphetSequence(IWrapper):
         #CORRECT
         exit_code, info = PepXMLCorrector().main(info, log)
         if exit_code != 0:
-            raise
+            raise Exception("Could not correct pepxml")
         
         #XTINERACT        
         self._result_file  = os.path.join(info[self.WORKDIR], 'interact.pep.xml')

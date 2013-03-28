@@ -6,10 +6,10 @@ Created on Dec 11, 2012
 '''
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.spectrast.libcreator import RawLibraryNodecoy
+from applicake.applications.proteomics.spectrast.libcreator import RawTextlibNodecoy
 
 runner = WrapperRunner()
-application = RawLibraryNodecoy()
+application = RawTextlibNodecoy()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)
