@@ -112,7 +112,7 @@ class SequestInitiator(Generator):
             scdc = subprocess.check_output(['searchmzxml', mzbase + '.mzXML*' ]).strip()
             codes.append(scdc)
         
-        log.info("Got codes %s"%codes)
+        log.info("Got codes [%s]" % codes)
         return codes
     
     def _generateINIs(self,info,log,pepxmls,codes):

@@ -19,11 +19,12 @@ class LFQpart1(IWrapper):
         wd = info[self.WORKDIR]
         #get iProb corresponding FDR for IDFilter
         _,info = FDR2iProphetProbability().main(info, log)
-        
+
         #required because openbis requires prot.xml and openms protXML
         peplink = os.path.join(wd,'iprophet.pepXML')
         os.symlink(info['PEPXMLS'], peplink)
         info['PEPXMLS'] = peplink
+        info['MZNAME'] = os.path.splitext(os.path.basename(info[self.MZXML]))[0]
         
         info[self.TEMPLATE] = os.path.join(wd,'LFQpart1.toppas')
         _,info = LFQpart1WorkflowTemplate().modify_template(info, log)
@@ -338,7 +339,7 @@ class LFQpart1WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="out_type" value="idXML" type="string" description="output file type -- default: determined from file extension or content#br#" restrictions="idXML,mzid,pepXML,FASTA" />
         <ITEM name="mz_file" value="$MZXML" type="string" description="[Sequest, pepXML, mascotXML only] Retention times will be looked up in this file" />
         <ITEM name="ignore_proteins_per_peptide" value="false" type="string" description="[Sequest only] Workaround to deal with .out files that contain e.g. &quot;+1&quot; in references column,#br#but do not list extra references in subsequent lines (try -debug 3 or 4)" tags="advanced" restrictions="true,false" />
-        <ITEM name="mz_name" value="" type="string" description="[pepXML, mascotXML only] Experiment filename/path to match in the pepXML file (&apos;base_name&apos; attribute). Only necessary if different from &apos;mz_file&apos;." />
+        <ITEM name="mz_name" value="$MZNAME" type="string" description="[pepXML, mascotXML only] Experiment filename/path to match in the pepXML file (&apos;base_name&apos; attribute). Only necessary if different from &apos;mz_file&apos;." />
         <ITEM name="use_precursor_data" value="false" type="string" description="[pepXML, mascotXML only] Use precursor RTs (and m/z values) from &apos;mz_file&apos; for the generated peptide identifications, instead of the RTs of MS2 spectra." restrictions="true,false" />
         <ITEM name="log" value="" type="string" description="Name of log file (created only when specified)" tags="advanced" />
         <ITEM name="debug" value="0" type="int" description="Sets the debug level" tags="advanced" />

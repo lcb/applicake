@@ -22,7 +22,7 @@ class Tandem2Xml(SearchEngine):
         Constructor
         """
         base = self.__class__.__name__
-        self._result_file = '%s.pepxml' % base # result produced by the application
+        self._result_file = '%s.pep.xml' % base # result produced by the application
 
     def get_prefix(self,info,log):
         if not info.has_key(self.PREFIX):
