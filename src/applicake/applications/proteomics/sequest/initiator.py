@@ -118,6 +118,7 @@ class SequestInitiator(Generator):
     def _generateINIs(self,info,log,pepxmls,codes):
         dicts = []
         info[self.PARAM_IDX] = '0'
+        info['GENERATOR_CHECKSUM'] = len(codes)
         
         for idx, code, pepxml in zip(range(len(codes)),codes,pepxmls):
             dict = info.copy()
