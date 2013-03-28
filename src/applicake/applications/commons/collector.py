@@ -77,7 +77,7 @@ class BasicCollector(IApplication):
         else:
             checksum = int(SequenceUtils.unify(info['GENERATOR_CHECKSUM'], reduce = reduce))
             if checksum == len(paths):
-                log.debug("Checksum %d fits" % checksum)
+                log.info("Checksum %d fits" % checksum)
             else:
                 log.critical("Checksum %d and number of collected files %d do not match!" % (checksum, len(paths)))
                 return 2,info
