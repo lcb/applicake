@@ -72,13 +72,16 @@ class BasicCollector(IApplication):
             log.debug('collector_config [%s]' % collector_config)
         info = DictUtils.merge(log,info, collector_config, priority='left')
         
-        if info.has_key('GENERATOR_CHECKSUM'):
+        if not info.has_key('GENERATOR_CHECKSUM'):
+            log.warn("No checksum found, skipping check")
+        else:
             checksum = int(SequenceUtils.unify(info['GENERATOR_CHECKSUM'], reduce = reduce))
-            log.debug("Checksum %d" % checksum)
-            if checksum != len(paths):
+            if checksum == len(paths):
+                log.debug("Checksum %d fits" % checksum)
+            else:
                 log.critical("Checksum %d and number of collected files %d do not match!" % (checksum, len(paths)))
                 return 2,info
-        
+            
         log.debug('collected info content [%s]' % info)       
         return (0,info)
     
