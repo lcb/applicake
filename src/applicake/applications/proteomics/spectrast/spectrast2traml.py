@@ -5,6 +5,7 @@ Created on Mar 28, 2012
 @author: loblum
 '''
 
+import os
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
@@ -17,10 +18,18 @@ class Spectrast2TraML(IWrapper):
     def prepare_run(self,info,log):
         info['TEMPLATE'] = 'template.tpl'
         options,info = Spectrast2TraMLTemplate().modify_template(info, log) 
-        if info.has_key('SWATH_WND_FILE'):
-                options = options + " --swathfile " + info['SWATH_WND_FILE']
-        self._result_file = info['LIBOUTBASE'] + '_' + info[self.PARAM_IDX] +  '.TraML'
-        command = 'spectrast2traml.sh --in %s --out %s %s' % (info[self.SPLIB],self._result_file,options)
+
+        consensuslib = os.path.join(info[self.WORKDIR],'consensuslib')
+        if not os.access(os.path.dirname(info['LIBOUTBASE']), os.W_OK):
+            log.warn("The folder %s is not writable, falling to workflow folder!")
+            info['LIBOUTBASE'] = os.path.join(info[self.WORKDIR], os.path.basename(info['LIBOUTBASE']))
+        self._result_file = info[self.TRAML] = info['LIBOUTBASE'] + '_' + info[self.PARAM_IDX] +  '.TraML'
+        
+        command = 'spectrast -cAC -c_BIN! -cN%s %s && spectrast2traml.sh --in %s --out %s %s' % (info[self.SPLIB],
+                                                                                                 consensuslib, 
+                                                                                                 consensuslib+'.splib',
+                                                                                                 info[self.TRAML],
+                                                                                                 options)
         return command,info
     
     def set_args(self,log,args_handler):
@@ -28,13 +37,14 @@ class Spectrast2TraML(IWrapper):
         See interface
         """        
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
+        args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
+        args_handler.add_app_args(log, 'PARAM_IDX', 'Parameter index to distinguish')   
+        
+        
         args_handler.add_app_args(log, 'MAX_NR_TR', 'maximum nr of transitions per peptide')
         args_handler.add_app_args(log, 'MIN_NR_TR', 'min nr of transitions per peptide')
         args_handler.add_app_args(log, 'LOW_MZ_CUTOFF', 'lower mz limit/cutoff')
-        args_handler.add_app_args(log, 'SWATH_WND_FILE', 'file containing swath windows')
         args_handler.add_app_args(log, 'SWDECOY_METHOD', 'decoy generation method (shuffle, pseudo-reverse, reverse, shift)')
-        args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
-        args_handler.add_app_args(log, 'PARAM_IDX', 'Parameter index to distinguish')   
         return args_handler
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):
@@ -59,6 +69,6 @@ class Spectrast2TraMLTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = "--doconsensus --max_nr_tr $MAX_NR_TR --min_nr_tr $MIN_NR_TR --low_mz_cutoff $LOW_MZ_CUTOFF --method $SWDECOY_METHOD"
+        template = "--max_nr_tr $MAX_NR_TR --min_nr_tr $MIN_NR_TR --low_mz_cutoff $LOW_MZ_CUTOFF --method $SWDECOY_METHOD"
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template,info

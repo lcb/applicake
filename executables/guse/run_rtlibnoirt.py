@@ -6,10 +6,10 @@ Created on Dec 11, 2012
 '''
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.spectrast.libcreator import RawTextlibNodecoy
+from applicake.applications.proteomics.spectrast.spectrast import RTcalibNoirt
 
 runner = WrapperRunner()
-application = RawTextlibNodecoy()
+application = RTcalibNoirt()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)
