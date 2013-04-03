@@ -58,7 +58,7 @@ class PepXMLCorrector(IApplication):
                 if len(end_scan) > 5:
                     log.critical("Scan number > 5 digits, this will kill the Prophets, aborting!")
                     return 1,info                             
-                spectrum_mod = "%s.%05d.%05d.%s" %(basename,int(start_scan),int(end_scan),assumed_charge)
+                spectrum_mod = "%s.%05d.%05d.%s" %(mzxmlbase,int(start_scan),int(end_scan),assumed_charge)
                 line = line.replace(spectrum,spectrum_mod)                                    
                                     
             fout.write(line) 

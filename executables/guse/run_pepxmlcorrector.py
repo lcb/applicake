@@ -6,10 +6,10 @@ Created on Jun 19, 2012
 '''
 
 import sys
-from applicake.framework.runner import WrapperRunner
+from applicake.framework.runner import ApplicationRunner
 from applicake.applications.proteomics.tpp.pepxmlcorrector import PepXMLCorrector
 
-runner = WrapperRunner()
+runner = ApplicationRunner()
 application = PepXMLCorrector()
 exit_code = runner(sys.argv,application)
 print exit_code
