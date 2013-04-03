@@ -37,8 +37,10 @@ class Spectrast2TraML(IWrapper):
         See interface
         """        
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
+        args_handler.add_app_args(log, self.WORKDIR, 'workdir')
+        
         args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
-        args_handler.add_app_args(log, 'PARAM_IDX', 'Parameter index to distinguish')   
+        args_handler.add_app_args(log, self.PARAM_IDX, 'Parameter index to distinguish')   
         
         
         args_handler.add_app_args(log, 'MAX_NR_TR', 'maximum nr of transitions per peptide')

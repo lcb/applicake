@@ -58,14 +58,13 @@ class RawlibNodecoy(IWrapper):
         """
         See interface
         """
+        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')     
         args_handler.add_app_args(log, self.PEPXMLS, 'List of pepXML files',action='append')
         args_handler.add_app_args(log, self.MZXML, 'Peak list file in mzXML format',action='append')
         
         args_handler.add_app_args(log, self.PROBABILITY, 'Probability cutoff value that has to be matched') 
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff (if no probability given)') 
                 
-        args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
-        args_handler.add_app_args(log, 'PARAM_IDX', 'Parameter index to distinguish')       
         return args_handler
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
@@ -97,9 +96,7 @@ class RTcalibNoirt(IWrapper):
         See interface
         """
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
-        
-        args_handler.add_app_args(log, 'LIBOUTBASE', 'Basename (folder + filenamebase) for output libraries')
-        args_handler.add_app_args(log, 'PARAM_IDX', 'Parameter index to distinguish')           
+        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')        
         return args_handler
     
     def validate_run(self,info,log, run_code,out_stream, err_stream):
