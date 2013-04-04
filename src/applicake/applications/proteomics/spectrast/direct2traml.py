@@ -32,19 +32,20 @@ class Direct2TraML(IWrapper):
     
     def set_opts(self,info):
         tsvopts = '-k openswath '
-        tsvopts += ' --limits ' + info['TSV_MASS_LIMITS'].replace("-",",")
-        tsvopts += ' --min %s --max %s ' % info['TSV_ION_LIMITS'].split("-")
-        tsvopts += ' --precision ' + info['TSV_PRECISION']
+        tsvopts += ' -l ' + info['TSV_MASS_LIMITS'].replace("-",",")
+        mini,maxi = info['TSV_ION_LIMITS'].split("-")
+        tsvopts += ' -o %s -n %s ' % (mini,maxi)
+        tsvopts += ' -p ' + info['TSV_PRECISION']
         if info.has_key('TSV_REMOVE_DUPLICATES') and info['TSV_REMOVE_DUPLICATES'] == "True":
-            tsvopts += ' --remove-duplicates'
+            tsvopts += ' -d'
         if info.has_key('TSV_EXACT') and info['TSV_EXACT'] == "True":
-            tsvopts += ' --exact'
+            tsvopts += ' -e'
         if info.has_key('TSV_CHARGE') and info['TSV_CHARGE'] != "":    
-            tsvopts += ' --charge '+info['TSV_CHARGE'].replace(";",",")
+            tsvopts += ' -x '+info['TSV_CHARGE'].replace(";",",")
         if info.has_key('TSV_GAIN') and info['TSV_GAIN'] != "":
-            tsvopts += ' --gain '+info['TSV_GAIN'].replace(";",",")           
+            tsvopts += ' -g '+info['TSV_GAIN'].replace(";",",")           
         if info.has_key('TSV_SERIES') and info['TSV_SERIES'] == "":
-            tsvopts += ' --series '+info['TSV_SERIES'].replace(";",",")
+            tsvopts += ' -s '+info['TSV_SERIES'].replace(";",",")
         
         decoyopts = '-append -exclude_similar ' 
         decoyopts += '-method ' + info['SWDECOY_METHOD']
