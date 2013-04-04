@@ -21,7 +21,7 @@ class Spectrast2TraML(IWrapper):
 
         consensuslib = os.path.join(info[self.WORKDIR],'consensuslib')
         if not os.access(os.path.dirname(info['LIBOUTBASE']), os.W_OK):
-            log.warn("The folder %s is not writable, falling to workflow folder!")
+            log.warn("The folder [%s] is not writable, falling to workflow folder [%s]!" %(info['LIBOUTBASE'],info[self.WORKDIR]))
             info['LIBOUTBASE'] = os.path.join(info[self.WORKDIR], os.path.basename(info['LIBOUTBASE']))
         self._result_file = info[self.TRAML] = info['LIBOUTBASE'] + '_' + info[self.PARAM_IDX] +  '.TraML'
         
