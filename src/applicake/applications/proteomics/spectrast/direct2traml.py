@@ -39,12 +39,12 @@ class Direct2TraML(IWrapper):
             tsvopts += ' --remove-duplicates'
         if info.has_key('TSV_EXACT') and info['TSV_EXACT'] == "True":
             tsvopts += ' --exact'
+        if info.has_key('TSV_CHARGE') and info['TSV_CHARGE'] != "":    
+            tsvopts += ' --charge '+info['TSV_CHARGE'].replace(";",",")
         if info.has_key('TSV_GAIN') and info['TSV_GAIN'] != "":
-            tsvopts += ' --gain '+info['TSV_GAIN'].replace(";",",")
-        if info.has_key('TSV_CHARGE') and info['TSV_CHARGE'] != "":
-            tsvopts += ' --charge '+info['TSV_CHARGE']
+            tsvopts += ' --gain '+info['TSV_GAIN'].replace(";",",")           
         if info.has_key('TSV_SERIES') and info['TSV_SERIES'] == "":
-            tsvopts += ' --series '+info['TSV_SERIES']
+            tsvopts += ' --series '+info['TSV_SERIES'].replace(";",",")
         
         decoyopts = '-append -exclude_similar ' 
         decoyopts += '-method ' + info['SWDECOY_METHOD']
