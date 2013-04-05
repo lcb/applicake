@@ -44,7 +44,7 @@ class Direct2TraML(IWrapper):
             tsvopts += ' -x '+info['TSV_CHARGE'].replace(";",",")
         if info.has_key('TSV_GAIN') and info['TSV_GAIN'] != "":
             tsvopts += ' -g '+info['TSV_GAIN'].replace(";",",")           
-        if info.has_key('TSV_SERIES') and info['TSV_SERIES'] == "":
+        if info.has_key('TSV_SERIES') and info['TSV_SERIES'] != "":
             tsvopts += ' -s '+info['TSV_SERIES'].replace(";",",")
         
         decoyopts = '-append -exclude_similar ' 
