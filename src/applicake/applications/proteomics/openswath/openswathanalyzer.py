@@ -139,7 +139,6 @@ class MRMAnalyzerTemplate(BasicTemplateHandler):
         <ITEM name="interpolation_type" value="cspline" type="string" description="Only for &apos;interpolated&apos; model: Type of interpolation to apply." tags="advanced" />
       </NODE>
       <NODE name="algorithm" description="Algorithm parameters section">
-        <ITEM name="stop_after_feature" value="5" type="int" description="Stop reporting after feature (ordered by quality; -1 means do not stop)." />
         <ITEM name="rt_extraction_window" value="300" type="float" description="Only extract RT around this value (-1 means extract over the whole range, a value of 500 means to extract around +/- 500 s of the expected elution). For this to work, the TraML input file needs to contain normalized RT values." />
         <ITEM name="rt_normalization_factor" value="100" type="float" description="The normalized RT is expected to be between 0 and 1. If your normalized RT has a different range, pass this here (e.g. it goes from 0 to 100, set this value to 100)" />
         <ITEM name="quantification_cutoff" value="0" type="float" description="Cutoff below which peaks should not be used for quantification any more" tags="advanced" restrictions="0:" />
@@ -155,9 +154,8 @@ class MRMAnalyzerTemplate(BasicTemplateHandler):
           <ITEM name="signal_to_noise" value="1" type="float" description="Signal to noise." restrictions="0:" />
           <ITEM name="sn_win_len" value="1000" type="float" description="Signal to noise window length." />
           <ITEM name="sn_bin_count" value="30" type="int" description="Signal to noise bin count." />
-          <ITEM name="stop_after_feature" value="-1" type="int" description="Stop finding after feature (ordered by intensity; -1 means do not stop)." />
+          <ITEM name="stop_after_feature" value="5" type="int" description="Stop finding after feature (ordered by intensity; -1 means do not stop)." />
           <ITEM name="stop_after_intensity_ratio" value="0.0001" type="float" description="Stop after reaching intensity ratio" />
-          <ITEM name="stop_report_after_feature" value="-1" type="int" description="Stop reporting after feature (ordered by quality; 1 means do not stop)." />
           <ITEM name="background_subtraction" value="none" type="string" description="Try to apply a background subtraction to the peak (experimental). The background is estimated at the peak boundaries, either the smoothed or the raw chromatogram data can be used for that." restrictions="none,smoothed,original" />
         </NODE>
         <NODE name="DIAScoring" description="">
