@@ -27,30 +27,35 @@ class Direct2TraML(IWrapper):
                                                                                    info[self.SPLIB],
                                                                                    consensuslib+'.splib',
                                                                                    info[self.TRAML],
-                                                                                   self.set_opts(info))
+                                                                                   self.set_opts(log,info))
         return command,info
     
-    def set_opts(self,info):
+    def set_opts(self,log,info):
         tsvopts = '-k openswath '
         tsvopts += ' -l ' + info['TSV_MASS_LIMITS'].replace("-",",")
         mini,maxi = info['TSV_ION_LIMITS'].split("-")
         tsvopts += ' -o %s -n %s ' % (mini,maxi)
         tsvopts += ' -p ' + info['TSV_PRECISION']
-        if info.has_key('TSV_REMOVE_DUPLICATES') and info['TSV_REMOVE_DUPLICATES'] == "True":
-            tsvopts += ' -d'
-        if info.has_key('TSV_EXACT') and info['TSV_EXACT'] == "True":
-            tsvopts += ' -e'
-        if info.has_key('TSV_CHARGE') and info['TSV_CHARGE'] != "":    
-            tsvopts += ' -x '+info['TSV_CHARGE'].replace(";",",")
-        if info.has_key('TSV_GAIN') and info['TSV_GAIN'] != "":
-            tsvopts += ' -g '+info['TSV_GAIN'].replace(";",",")           
-        if info.has_key('TSV_SERIES') and info['TSV_SERIES'] != "":
-            tsvopts += ' -s '+info['TSV_SERIES'].replace(";",",")
+        if info.has_key('TSV_REMOVE_DUPLICATES') and info['TSV_REMOVE_DUPLICATES'] == "True": tsvopts += ' -d'
+        else: log.debug("no tsv rm duplicates")
+        
+        if info.has_key('TSV_EXACT') and info['TSV_EXACT'] == "True": tsvopts += ' -e'
+        else: log.debug("no tsv exact")
+            
+        if info.has_key('TSV_CHARGE') and info['TSV_CHARGE'] != "": tsvopts += ' -x '+info['TSV_CHARGE'].replace(";",",")
+        else: log.debug("no rm duplicates")
+        
+        if info.has_key('TSV_GAIN') and info['TSV_GAIN'] != "": tsvopts += ' -g '+info['TSV_GAIN'].replace(";",",")           
+        else: log.debug("no tsv gain")
+        
+        if info.has_key('TSV_SERIES') and info['TSV_SERIES'] != "": tsvopts += ' -s '+info['TSV_SERIES'].replace(";",",")
+        else: log.debug("no tsv series")
         
         decoyopts = '-append -exclude_similar ' 
         decoyopts += '-method ' + info['SWDECOY_METHOD']
-        if info.has_key('SWDECOY_THEORETICAL') and info['SWDECOY_THEORETICAL'] == "True":
-            decoyopts += ' -theoretical'
+        decoyopts += ' -min_transitions %s -max_transitions %s ' % (mini,maxi)        
+        if info.has_key('SWDECOY_THEORETICAL') and info['SWDECOY_THEORETICAL'] == "True": decoyopts += ' -theoretical'
+        else: log.debug("no decoy theoretical")
         
         return '\''+tsvopts+'\' \''+decoyopts+'\''
     
