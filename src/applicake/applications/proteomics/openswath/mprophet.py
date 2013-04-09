@@ -66,14 +66,25 @@ class mProphet(IWrapper):
             info['MPROPHET_TSV'] = resultfile
         
         info['MPROPHET_STATS'] = []
-        for statfile in ['mProphet.pdf','mProphet_classifier.xls','mProphet_raw_stat.xls','mProphet_stat.xls']:
+        for statfile in ['mProphet.pdf','mProphet_raw_stat.xls','mProphet_stat.xls']:
             fullpath = os.path.join(info[self.WORKDIR],statfile)
             if not FileUtils.is_valid_file(log, fullpath):
                 log.critical('%s is not valid',fullpath)
                 return 1,info
             else:
                 info['MPROPHET_STATS'].append(fullpath)
-            
+        
+        if info['MPR_USE_LDA'] == 'True':
+            log.debug("Appending predefined classifier")
+            info['MPROPHET_STATS'].append(info['MPR_LDA_PATH'])
+        else:
+            classifier = os.path.join(info[self.WORKDIR],'mProphet_classifier.xls')
+            if os.path.exists(classifier):
+                info['MPROPHET_STATS'].append(classifier)
+            else:
+                log.critical("Classifier %s not found" % classifier)
+                return 1,info
+        
         return run_code,info
 
         
