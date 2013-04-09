@@ -37,7 +37,7 @@ class mProphet(IWrapper):
 
         lda = ''
         if 'MPR_USE_LDA' in info and info['MPR_USE_LDA'] == 'True':
-            lda = '-use_classifier ' + info['MPR_LDA_PATH']
+            lda = 'use_classifier=' + info['MPR_LDA_PATH']
         command = 'mProphetScoreSelector.sh %s %s %s && mProphetRunner.sh %s %s' % (info['FEATURETSV'],info['MPR_MAINVAR'],info['MPR_VARS'],mod_template,lda)
         return command,info
 
