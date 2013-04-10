@@ -160,11 +160,12 @@ class Copy2DropboxQuant(Copy2Dropbox):
         info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
 
         #copy files        
-        keys = ['PEPCSV','PROTCSV','FEATUREXMLS','CONSENSUSXML']
+        keys = ['PEPCSV','PROTCSV','CONSENSUSXML']
         self._keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
 
         #compress XML files        
-        subprocess.check_call(('gzip -v '+ info['DROPBOXSTAGE'] + '/*XML'),shell=True)
+        archive = os.path.join(info['DROPBOXSTAGE'], 'featurexmls.zip')
+        subprocess.check_call('zip -jv ' + archive + '  ' + " ".join(info['FEATUREXMLS']) ,shell=True)
 
         #protxml special naming
         filename = os.path.basename(info['DROPBOXSTAGE']) + '.prot.xml'
