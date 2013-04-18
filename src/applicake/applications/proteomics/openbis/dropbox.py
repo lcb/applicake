@@ -63,6 +63,13 @@ class Copy2Dropbox(IApplication):
     def set_args(self,log,args_handler): 
         log.debug("Arghandler not needed for IniFileRunner")
         return args_handler
+
+
+##############################################################
+##############################################################
+##############################################################
+
+
     
 class Copy2IdentDropbox(Copy2Dropbox):
     
@@ -106,9 +113,6 @@ class Copy2IdentDropbox(Copy2Dropbox):
 
 
 class MailTemplate(BasicTemplateHandler):
-    """
-    Template handler for Mzxml2Mzml.
-    """
 
     def read_template(self, info, log):
         template = ''
@@ -130,11 +134,11 @@ class MailTemplate(BasicTemplateHandler):
 Your TPP search workflow finished sucessfully!
     
 To visualize the results with Petunia see:
-https://imsb-ra-tpp.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
-https://imsb-ra-tpp.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
+https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
+https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
     
 In case the links do not work (i.e. you chose RUNPETUNIA=none, or the files were already deleted) you can restore the data using the command:
-[user@imsb-ra-tpp~] # cd html; tpp2viewer2.py $EXPERIMENT_CODE
+[user@imsb-ra-tpp~] # cd ~/html; tpp2viewer2.py $EXPERIMENT_CODE
     
 To cite this workflow use:
 The spectra were searched using the search engines %s %s %s
@@ -195,3 +199,38 @@ class Copy2DropboxQuant(Copy2Dropbox):
         self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'])
      
         return 0,info
+    
+       
+class Copy2DropboxSWATH(Copy2Dropbox):  
+    
+    def main(self,info,log):
+        
+        info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
+
+        #copy files        
+        keys = ['MPROPHET_TSV','MPROPHET_STATS','COMPRESS_OUT','FEATURETSV']
+        self._keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
+        
+        #make dataset.attributes and experiment.properties
+        dsinfo = {}
+        dsinfo['SPACE'] = info['SPACE']
+        dsinfo['PROJECT'] = info['PROJECT']
+        dsinfo['PARENT_DATASETS']= info[self.DATASET_CODE]
+        dsinfo['DATASET_TYPE'] = 'SWATH_RESULT'
+        dsinfo['EXPERIMENT_TYPE'] = 'SWATH_SEARCH'
+        dsinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'dataset.attributes')
+        BasicInformationHandler().write_info(dsinfo, log)
+        
+        expinfo = {}
+        expinfo['PARENT-DATA-SET-CODES'] = info[self.DATASET_CODE]
+        expinfo['EXPERIMENT'] = self._get_experiment_code(info)
+        for key in ['COMMENT','TRAML','EXTRACTION_WINDOW','RT_EXTRACTION_WINDOW','MIN_UPPER_EDGE_DIST','MPR_NUM_XVAL','IRTTRAML','MIN_RSQ']:
+            if key in info:
+                expinfo[key] = info[key]
+        expinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'experiment.properties')
+        BasicInformationHandler().write_info(expinfo, log)
+        
+        #final move
+        self._move_stage_to_dropbox(info['DROPBOXSTAGE'],info['DROPBOX'])
+        return 0,info
+        
