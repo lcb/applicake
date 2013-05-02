@@ -18,10 +18,10 @@ class Direct2TraML(IWrapper):
     def prepare_run(self,info,log):
 
         consensuslib = os.path.join(info[self.WORKDIR],'consensuslib')
-        if not os.access(os.path.dirname(info['LIBOUTBASE']), os.W_OK):
-            log.warn("The folder [%s] is not writable, falling to workflow folder [%s]!" %(info['LIBOUTBASE'],info[self.WORKDIR]))
-            info['LIBOUTBASE'] = os.path.join(info[self.WORKDIR], os.path.basename(info['LIBOUTBASE']))
-        info[self.TRAML] = info['LIBOUTBASE'] + '_' + info[self.PARAM_IDX] +  '.TraML'
+        if not os.access(os.path.dirname(info['LIBOUTNAME']), os.W_OK):
+            log.warn("The folder [%s] is not writable, falling to workflow folder [%s]!" %(info['LIBOUTNAME'],info[self.WORKDIR]))
+            info['LIBOUTNAME'] = os.path.join(info[self.WORKDIR], os.path.basename(info['LIBOUTNAME']))
+        info[self.TRAML] = os.path.splitext(info['LIBOUTNAME'])[0] + '_' + info[self.PARAM_IDX] +  '.TraML'
         self._result_file = info[self.TRAML]
         
         consensustype = ""  #None
@@ -76,7 +76,7 @@ class Direct2TraML(IWrapper):
         args_handler.add_app_args(log, self.SPLIB, 'Spectrast library in .splib format')
         args_handler.add_app_args(log, self.WORKDIR, 'workdir')
         
-        args_handler.add_app_args(log, 'LIBOUTBASE', 'Folder to put output libraries')
+        args_handler.add_app_args(log, 'LIBOUTNAME', 'Folder to put output libraries')
         args_handler.add_app_args(log, self.PARAM_IDX, 'Parameter index to distinguish')   
         
         args_handler.add_app_args(log, 'SWDECOY_METHOD', 'decoy generation method (shuffle, pseudo-reverse, reverse, shift)')
