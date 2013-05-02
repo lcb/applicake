@@ -21,7 +21,7 @@ class Direct2TraML(IWrapper):
         if not os.access(os.path.dirname(info['LIBOUTNAME']), os.W_OK):
             log.warn("The folder [%s] is not writable, falling to workflow folder [%s]!" %(info['LIBOUTNAME'],info[self.WORKDIR]))
             info['LIBOUTNAME'] = os.path.join(info[self.WORKDIR], os.path.basename(info['LIBOUTNAME']))
-        info[self.TRAML] = os.path.splitext(info['LIBOUTNAME'])[0] + '_' + info[self.PARAM_IDX] +  '.TraML'
+        info[self.TRAML] = os.path.splitext(info['LIBOUTNAME'])[0] + '_' + info[self.PARAM_IDX] +  '.traML'
         self._result_file = info[self.TRAML]
         
         consensustype = ""  #None
@@ -78,6 +78,8 @@ class Direct2TraML(IWrapper):
         
         args_handler.add_app_args(log, 'LIBOUTNAME', 'Folder to put output libraries')
         args_handler.add_app_args(log, self.PARAM_IDX, 'Parameter index to distinguish')   
+        
+        args_handler.add_app_args(log, 'CONSENSUS_TYPE', 'consensus type cAC cAB')
         
         args_handler.add_app_args(log, 'SWDECOY_METHOD', 'decoy generation method (shuffle, pseudo-reverse, reverse, shift)')
         args_handler.add_app_args(log, 'SWDECOY_THEORETICAL', 'Set true if only annotated transitions should be used and be corrected to the theoretical mz')        
