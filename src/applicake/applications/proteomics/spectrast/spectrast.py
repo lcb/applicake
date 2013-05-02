@@ -37,7 +37,7 @@ class RawlibNodecoy(IWrapper):
         
         root = os.path.join(info[self.WORKDIR],'RawlibNodecoy')
         self._result_file = info[self.SPLIB] = root + '.splib'
-        command = 'spectrast -c_BIN! -cP%s -cN%s %s' % (info[self.PROBABILITY],root,symlink_files[0])      
+        command = 'spectrast -c_BIN! -cP%s -cI%s -cN%s %s' % (info[self.PROBABILITY],info['MS_TYPE'],root,symlink_files[0])      
         return command,info
     
     def getiProbability(self,log,info):
@@ -64,6 +64,8 @@ class RawlibNodecoy(IWrapper):
         
         args_handler.add_app_args(log, self.PROBABILITY, 'Probability cutoff value that has to be matched') 
         args_handler.add_app_args(log, self.FDR, 'FDR cutoff (if no probability given)') 
+        args_handler.add_app_args(log, 'MS_TYPE', 'ms instrument type') 
+        
                 
         return args_handler
 

@@ -21,16 +21,16 @@ class Direct2TraML(IWrapper):
         if not os.access(os.path.dirname(info['LIBOUTBASE']), os.W_OK):
             log.warn("The folder [%s] is not writable, falling to workflow folder [%s]!" %(info['LIBOUTBASE'],info[self.WORKDIR]))
             info['LIBOUTBASE'] = os.path.join(info[self.WORKDIR], os.path.basename(info['LIBOUTBASE']))
-        self._result_file = info[self.TRAML] = info['LIBOUTBASE'] + '_' + info[self.PARAM_IDX] +  '.TraML'
+        info[self.TRAML] = info['LIBOUTBASE'] + '_' + info[self.PARAM_IDX] +  '.TraML'
+        self._result_file = info[self.TRAML]
         
-        command = 'spectrast -cAC -c_BIN! -cN%s %s && direct2traml.sh %s %s %s' % (consensuslib, 
-                                                                                   info[self.SPLIB],
-                                                                                   consensuslib+'.splib',
-                                                                                   info[self.TRAML],
-                                                                                   self.set_opts(log,info))
-        return command,info
-    
-    def set_opts(self,log,info):
+        consensustype = ""  #None
+        if info['CONSENSUS_TYPE'] == "Consensus":
+            consensustype = "C"
+        elif  info['CONSENSUS_TYPE'] == "Best replicate":
+            consensustype = "B"
+
+
         tsvopts = '-k openswath '
         tsvopts += ' -l ' + info['TSV_MASS_LIMITS'].replace("-",",")
         mini,maxi = info['TSV_ION_LIMITS'].split("-")
@@ -57,7 +57,17 @@ class Direct2TraML(IWrapper):
         if info.has_key('SWDECOY_THEORETICAL') and info['SWDECOY_THEORETICAL'] == "True": decoyopts += ' -theoretical'
         else: log.debug("no decoy theoretical")
         
-        return '\''+tsvopts+'\' \''+decoyopts+'\''
+        command = 'spectrast -c_BIN! -cA%s -cN%s %s && direct2traml.sh -s "%s" -d "%s" -i %s -o %s' % (consensustype,
+                                                                              consensuslib,
+                                                                              info['SPLIB'],
+                                                                              tsvopts, 
+                                                                              decoyopts,
+                                                                              consensuslib + '.splib',
+                                                                              info[self.TRAML])
+        
+        
+        return command,info
+    
     
     def set_args(self,log,args_handler):
         """
