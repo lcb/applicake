@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 '''
-Created on Apr 29, 2012
+Created on Nov 16, 2012
 
-@author: quandtan
+@author: loblum
 '''
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.openms.quantification.lfqpart2fast import LFQpart2Fast
-
+from applicake.applications.proteomics.openswath.rtnorm import OpenSwathRTNormalizerParallel
 
 runner = WrapperRunner()
-application = LFQpart2Fast()
+application = OpenSwathRTNormalizerParallel()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)

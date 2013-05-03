@@ -10,34 +10,19 @@ from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 
 class mProphet(IWrapper):
-    
-    def __init__(self):
-        """
-        Constructor
-        """
-        base = self.__class__.__name__
-        self._result_base = base # result produced by the application  
-            
-    def get_template_handler(self):
-        """
-        See interface
-        """
-        return mProphetTemplate()
-    
-    
+    _projectname = ''
     def prepare_run(self,info,log):
         
         wd = info[self.WORKDIR]
-        info['RESULTBASE'] = os.path.join(wd,self._result_base)
-        info['TEMPLATE'] = os.path.join(wd,self._result_base + '.tpl')
-        log.debug('get template handler')
-        th = self.get_template_handler()
-        log.debug('modify template')
-        mod_template,info = th.modify_template(info, log)
-
+        info['MPR_PROJECTNAME'] = os.path.splitext(os.path.basename(info['FEATURETSV']))[0]
+        self._projectname = info['MPR_PROJECTNAME']
+        info['TEMPLATE'] = os.path.join(wd,'mprophet.tpl')
+        mod_template,info = mProphetTemplate().modify_template(info, log)
         lda = ''
-        if 'MPR_USE_LDA' in info and info['MPR_USE_LDA'] == 'True':
+        if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != '':
+            log.warn("REUSING MPROPHET MODEL")
             lda = 'use_classifier=' + info['MPR_LDA_PATH']
+            
         command = 'mProphetScoreSelector.sh %s %s %s && mProphetRunner.sh %s %s' % (info['FEATURETSV'],info['MPR_MAINVAR'],info['MPR_VARS'],mod_template,lda)
         return command,info
 
@@ -49,8 +34,6 @@ class mProphet(IWrapper):
         args_handler.add_app_args(log, self.COPY_TO_WD,'cptowd')
         args_handler.add_app_args(log, 'MPR_NUM_XVAL', 'help')
         args_handler.add_app_args(log, 'FEATURETSV', 'featuretsv')
-        args_handler.add_app_args(log, 'MPROPHET_BINDIR', 'mProphet binary dir')
-        args_handler.add_app_args(log, 'MPR_USE_LDA', 'mProphet use existing LDA model')
         args_handler.add_app_args(log, 'MPR_LDA_PATH', 'mProphet use existing LDA model')
         args_handler.add_app_args(log, 'MPR_MAINVAR', 'mProphet main score')
         args_handler.add_app_args(log, 'MPR_VARS', 'mProphet other scores')
@@ -58,7 +41,7 @@ class mProphet(IWrapper):
 
     def validate_run(self,info,log, run_code,out_stream, err_stream):
         
-        resultfile = os.path.join(info[self.WORKDIR],'mProphet_all_peakgroups.xls')
+        resultfile = os.path.join(info[self.WORKDIR], self._projectname + '_all_peakgroups.xls')
         if not FileUtils.is_valid_file(log, resultfile):
             log.critical('%s is not valid',resultfile)
             return 1,info
@@ -66,19 +49,19 @@ class mProphet(IWrapper):
             info['MPROPHET_TSV'] = resultfile
         
         info['MPROPHET_STATS'] = []
-        for statfile in ['mProphet.pdf','mProphet_raw_stat.xls','mProphet_stat.xls']:
-            fullpath = os.path.join(info[self.WORKDIR],statfile)
+        for statfile in ['.pdf','_raw_stat.xls','_stat.xls']:
+            fullpath = os.path.join(info[self.WORKDIR],self._projectname + statfile)
             if not FileUtils.is_valid_file(log, fullpath):
                 log.critical('%s is not valid',fullpath)
                 return 1,info
             else:
                 info['MPROPHET_STATS'].append(fullpath)
         
-        if info['MPR_USE_LDA'] == 'True':
+        if info['MPR_LDA_PATH'] != '':
             log.debug("Appending predefined classifier")
             info['MPROPHET_STATS'].append(info['MPR_LDA_PATH'])
         else:
-            classifier = os.path.join(info[self.WORKDIR],'mProphet_classifier.xls')
+            classifier = os.path.join(info[self.WORKDIR],self._projectname + '_classifier.xls')
             if os.path.exists(classifier):
                 info['MPROPHET_STATS'].append(classifier)
             else:
@@ -100,6 +83,6 @@ class mProphetTemplate(BasicTemplateHandler):
         """
         template =  'run_log=FALSE workflow=LABEL_FREE help=0 ' \
                     'num_xval=$MPR_NUM_XVAL write_classifier=1 write_all_pg=1 ' \
-                    'working_dir=$WORKDIR project=mProphet mquest=$FEATURETSV'
+                    'working_dir=$WORKDIR project=$MPR_PROJECTNAME mquest=$FEATURETSV'
         return template,info    
     

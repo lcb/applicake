@@ -639,7 +639,7 @@ class WrapperRunner(ApplicationRunner):
                 app_info = DictUtils.extract(info, args_handler.get_app_argnames())
                 log.debug('app_info [%s]' % app_info)               
                 exit_code,app_info = app.validate_run(app_info,log,run_code,self.out_stream,self.err_stream)
-                log.debug('exit code [%s]' % exit_code)
+                log.info('validation exit code [%s]' % exit_code)
                 log.debug('content of app_info [%s]' % app_info)                        
                 log.debug('Finish [%s]' % app.validate_run.__name__) 
                 info = DictUtils.merge(log,info, app_info,priority='right')    

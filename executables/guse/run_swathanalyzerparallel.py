@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 '''
-Created on Sep 4, 2012
+Created on Nov 16, 2012
 
-@author: quandtan
+@author: loblum
 '''
 import sys
 from applicake.framework.runner import WrapperRunner
-from applicake.applications.proteomics.openms.peptideproteinprocessing.peptideindexer import PeptideIndexer
+from applicake.applications.proteomics.openswath.analyzerparallel import OpenSwathAnalyzerParallel
 
 runner = WrapperRunner()
-application = PeptideIndexer()
+application = OpenSwathAnalyzerParallel()
 exit_code = runner(sys.argv,application)
 print exit_code
 sys.exit(exit_code)
