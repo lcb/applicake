@@ -21,7 +21,7 @@ class Copy2SwathDropbox(Copy2Dropbox):
         self._keys_to_dropbox(log, info, keys, stagebox)
         
         #compress CSV files        
-        archive = os.path.join(info['DROPBOXSTAGE'], 'featureTSVs.zip')
+        archive = os.path.join(stagebox, 'featureTSVs.zip')
         subprocess.check_call('zip -jv ' + archive + '  ' + " ".join(info['FEATURETSV']) ,shell=True)
         
         #SPACE PROJECT given
