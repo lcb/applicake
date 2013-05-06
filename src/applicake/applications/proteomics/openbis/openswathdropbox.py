@@ -6,6 +6,7 @@ Created on Aug 10, 2012
 
 import os
 import subprocess
+
 from applicake.framework.informationhandler import BasicInformationHandler
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
 
@@ -22,7 +23,7 @@ class Copy2SwathDropbox(Copy2Dropbox):
         
         #compress CSV files        
         archive = os.path.join(stagebox, 'featureTSVs.zip')
-        subprocess.check_call('zip -jv ' + archive + '  ' + " ".join(info['FEATURETSV']) ,shell=True)
+        subprocess.check_call('zip -j ' + archive + '  ' + " ".join(info['FEATURETSV']) ,shell=True)
         
         #SPACE PROJECT given
         dsinfo = {}

@@ -256,7 +256,7 @@ class Runner(KeyEnum):
         else:   
             timestr = time.strftime('%Y%m%d_%H%M_') 
             jobdir = tempfile.mkdtemp(suffix='',prefix=timestr, dir=info[self.BASEDIR])
-            os.chmod(jobdir, 0777)
+            os.chmod(jobdir, 0775)
             info[self.JOB_IDX]=  os.path.basename(jobdir)
             log.info("added JOB_IDX = %s to info object" % info[self.JOB_IDX])
         
