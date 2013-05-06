@@ -134,8 +134,8 @@ class MailTemplate(BasicTemplateHandler):
 Your TPP search workflow finished sucessfully!
     
 To visualize the results with Petunia see:
-https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
-https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
+https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
+https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
     
 In case the links do not work (i.e. you chose RUNPETUNIA=none, or the files were already deleted) you can restore the data using the command:
 [user@imsb-ra-tpp~] # cd ~/html; tpp2viewer2.py $EXPERIMENT_CODE
