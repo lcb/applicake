@@ -9,7 +9,7 @@ Created on Nov 11, 2010
 import os
 import shutil
 import sys
-import time, random
+import time, tempfile
 from cStringIO import StringIO
 from subprocess import Popen
 from subprocess import PIPE
@@ -253,8 +253,10 @@ class Runner(KeyEnum):
         if not info.has_key(self.BASEDIR):
             log.warn("info has not key [%s]. " % self.BASEDIR +
                      "Therefore the key [%s] is not set" % (self.JOB_IDX))                       
-        else:    
-            info[self.JOB_IDX]= time.strftime('%Y%m%d_%H%M%S_') + str( random.randint(100000,999999) )
+        else:   
+            timestr = time.strftime('%Y%m%d_%H%M_') 
+            jobdir = tempfile.mkdtemp(suffix='',prefix=timestr, dir=info[self.BASEDIR])
+            info[self.JOB_IDX]=  os.path.basename(jobdir)
             log.info("added JOB_IDX = %s to info object" % info[self.JOB_IDX])
         
     def create_workdir(self,info,log):
@@ -650,42 +652,3 @@ class WrapperRunner(ApplicationRunner):
             exit_code = 1
         return exit_code,info
     
-class WrapperRunnerSubfile(WrapperRunner):
-    """
-    Like WrapperRunner but for application that uses SUBFILE_IDX
-    """
-
-    def create_workdir(self,info,log):        
-        keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX,'SUBFILE_IDX',self.NAME]
-        path_items = []    
-        for k in keys:
-            if info.has_key(k):
-                path_items.append(info[k])
-            #if one of the keys is missing then exception is thrown. good.
-        
-        # join need a list of strings.
-        # the list has to be parsed explicitly because list might contain integers       
-        path = (os.path.sep).join(map( str, path_items ) ) 
-        # creates the directory, if it exists, it's content is removed       
-        FileUtils.makedirs_safe(log,path,clean=True)
-        info[self.WORKDIR] = path  
-        log.debug("added key [%s] to info object." % self.WORKDIR)    
-        return info  
-
-class ApplicationRunnerSubfile(ApplicationRunner):
-    def create_workdir(self,info,log):        
-        keys = [self.BASEDIR,self.JOB_IDX,self.PARAM_IDX,self.FILE_IDX,'SUBFILE_IDX',self.NAME]
-        path_items = []    
-        for k in keys:
-            if info.has_key(k):
-                path_items.append(info[k])
-            #if one of the keys is missing then exception is thrown. good.
-        
-        # join need a list of strings.
-        # the list has to be parsed explicitly because list might contain integers       
-        path = (os.path.sep).join(map( str, path_items ) ) 
-        # creates the directory, if it exists, it's content is removed       
-        FileUtils.makedirs_safe(log,path,clean=True)
-        info[self.WORKDIR] = path  
-        log.debug("added key [%s] to info object." % self.WORKDIR)    
-        return info 
