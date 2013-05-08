@@ -11,7 +11,7 @@ from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
-class Direct2TraML(IWrapper):
+class Spectrast2TSV2traML(IWrapper):
     """
     Wrapper for the famous spectrast2traml.sh script
     """
@@ -22,6 +22,7 @@ class Direct2TraML(IWrapper):
             log.warn("The folder [%s] is not writable, falling to workflow folder [%s]!" %(info['LIBOUTNAME'],info[self.WORKDIR]))
             info['LIBOUTNAME'] = os.path.join(info[self.WORKDIR], os.path.basename(info['LIBOUTNAME']))
         info[self.TRAML] = os.path.splitext(info['LIBOUTNAME'])[0] + '_' + info[self.PARAM_IDX] +  '.traML'
+        info['TSV'] = os.path.splitext(info['LIBOUTNAME'])[0] + '_' + info[self.PARAM_IDX] +  '.tsv'
         self._result_file = info[self.TRAML]
         
         consensustype = ""  #None
@@ -51,19 +52,11 @@ class Direct2TraML(IWrapper):
         if info.has_key('TSV_SERIES') and info['TSV_SERIES'] != "": tsvopts += ' -s '+info['TSV_SERIES'].replace(";",",")
         else: log.debug("no tsv series")
         
-        decoyopts = '-append -exclude_similar ' 
-        decoyopts += '-method ' + info['SWDECOY_METHOD']
-        decoyopts += ' -min_transitions %s -max_transitions %s ' % (mini,maxi)        
-        if info.has_key('SWDECOY_THEORETICAL') and info['SWDECOY_THEORETICAL'] == "True": decoyopts += ' -theoretical'
-        else: log.debug("no decoy theoretical")
         
-        command = 'spectrast -c_BIN! -cA%s -cN%s %s && direct2traml.sh -s "%s" -d "%s" -i %s -o %s' % (consensustype,
-                                                                              consensuslib,
-                                                                              info['SPLIB'],
-                                                                              tsvopts, 
-                                                                              decoyopts,
-                                                                              consensuslib + '.splib',
-                                                                              info[self.TRAML])
+        command = 'spectrast -c_BIN! -cA%s -cN%s %s && spectrast2tsv.py %s -i %s -o %s && tsv2traml.sh %s %s' % (
+                                                                              consensustype,consensuslib,info['SPLIB'],
+                                                                              tsvopts,consensuslib + '.splib', info['TSV'],
+                                                                              info['TSV'], info[self.TRAML])
         
         
         return command,info
