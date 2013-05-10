@@ -66,7 +66,7 @@ class Test(unittest.TestCase):
         self.assertDictEqual(res, expected, '')       
 
     def test_merge(self):
-        res = DictUtils.merge(self.log,self.log,self.d1, self.d2, priority='left')
+        res = DictUtils.merge(self.log,self.d1, self.d2, priority='left')
         assert res == {                                       
                        'BASEDIR': '/tmp',                   
                        'COMMENT': 'hello world',
