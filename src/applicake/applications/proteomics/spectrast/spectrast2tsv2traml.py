@@ -53,9 +53,9 @@ class Spectrast2TSV2traML(IWrapper):
         else: log.debug("no tsv series")
         
         
-        command = 'spectrast -c_BIN! -cA%s -cN%s %s && spectrast2tsv.py %s -i %s -o %s && tsv2traml.sh %s %s' % (
+        command = 'spectrast -c_BIN! -cA%s -cN%s %s && spectrast2tsv.py %s -a %s %s && tsv2traml.sh %s %s' % (
                                                                               consensustype,consensuslib,info['SPLIB'],
-                                                                              tsvopts,consensuslib + '.splib', info['TSV'],
+                                                                              tsvopts,info['TSV'],consensuslib + '.splib', 
                                                                               info['TSV'], info[self.TRAML])
         
         
@@ -73,10 +73,7 @@ class Spectrast2TSV2traML(IWrapper):
         args_handler.add_app_args(log, self.PARAM_IDX, 'Parameter index to distinguish')   
         
         args_handler.add_app_args(log, 'CONSENSUS_TYPE', 'consensus type cAC cAB')
-        
-        args_handler.add_app_args(log, 'SWDECOY_METHOD', 'decoy generation method (shuffle, pseudo-reverse, reverse, shift)')
-        args_handler.add_app_args(log, 'SWDECOY_THEORETICAL', 'Set true if only annotated transitions should be used and be corrected to the theoretical mz')        
-        
+               
         args_handler.add_app_args(log, 'TSV_MASS_LIMITS','Lower and Upper mass limits.')
         args_handler.add_app_args(log, 'TSV_ION_LIMITS','Min and Max number of reported ions per peptide/z')
         args_handler.add_app_args(log, 'TSV_PRECISION','Maximum error allowed at the annotation of a fragment ion')

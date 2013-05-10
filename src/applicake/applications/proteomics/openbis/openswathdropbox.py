@@ -23,6 +23,8 @@ class Copy2SwathDropbox(Copy2Dropbox):
         
         #compress CSV files        
         archive = os.path.join(stagebox, 'featureTSVs.zip')
+        if not isinstance(info['FEATURETSV'],list):
+            info['FEATURETSV'] = [info['FEATURETSV']]
         subprocess.check_call('zip -j ' + archive + '  ' + " ".join(info['FEATURETSV']) ,shell=True)
         
         #SPACE PROJECT given
