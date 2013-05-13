@@ -55,6 +55,7 @@ class LFQpart2(IWrapper):
         args_handler.add_app_args(log, 'FEATUREXMLS', 'Path to the featureXML fileS.')
         args_handler.add_app_args(log, 'PROTXML', 'Path to the protXML file (one).')
         
+        args_handler.add_app_args(log, "PROTEINQUANTIFIER_AVERAGE", "")
         args_handler.add_app_args(log, "PROTEINQUANTIFIER_TOP", "")
         args_handler.add_app_args(log, "PROTEINQUANTIFIER_INCLUDE_ALL", "")
     
@@ -116,7 +117,7 @@ class LFQpart2WorkflowTemplate(BasicTemplateHandler):
         <ITEM name="peptide_out" value="" type="string" description="Output file for peptide abundances" tags="output file" supported_formats="*.csv" />
         <ITEM name="mzTab_out" value="" type="string" description="Export to mzTab.#br#Either &apos;out&apos;, &apos;peptide_out&apos;, or &apos;mzTab_out&apos; are required. They can be used together." tags="output file" supported_formats="*.csv" />
         <ITEM name="top" value="$PROTEINQUANTIFIER_TOP" type="int" description="Calculate protein abundance from this number of proteotypic peptides (most abundant first; &apos;0&apos; for all)" restrictions="0:" />
-        <ITEM name="average" value="median" type="string" description="Averaging method used to compute protein abundances from peptide abundances" restrictions="median,mean,sum" />
+        <ITEM name="average" value="$PROTEINQUANTIFIER_AVERAGE" type="string" description="Averaging method used to compute protein abundances from peptide abundances" restrictions="median,mean,sum" />
         <ITEM name="include_all" value="$PROTEINQUANTIFIER_INCLUDE_ALL" type="string" description="Include results for proteins with fewer proteotypic peptides than indicated by &apos;top&apos; (no effect if &apos;top&apos; is 0 or 1)" restrictions="true,false" />
         <ITEM name="filter_charge" value="false" type="string" description="Distinguish between charge states of a peptide. For peptides, abundances will be reported separately for each charge;#br#for proteins, abundances will be computed based only on the most prevalent charge of each peptide.#br#By default, abundances are summed over all charge states." restrictions="true,false" />
         <ITEM name="ratios" value="false" type="string" description="Prints the log2 ratios of the abundance value to the output file. (log_2(x_0/x_0) &lt;sep&gt; log_2(x_1/x_0) &lt;sep&gt; log_2(x_2/x_0) ....)" restrictions="true,false" />
