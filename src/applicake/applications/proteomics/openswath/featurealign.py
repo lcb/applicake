@@ -14,7 +14,7 @@ class FeatureAlignment(IWrapper):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
         
         realignruns = ""
-        if "ALIGNER_REALIGNRUNS" == "true":
+        if info["ALIGNER_REALIGNRUNS"] == "true":
             realignruns = "--realign_runs"    
             
         command = "feature_alignment.py --file_format openswath --fdr_cutoff %s --max_rt_diff %s --max_fdr_quality %s --method %s --frac_selected %s %s --out %s --out_matrix %s --in %s" %(
