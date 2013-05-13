@@ -12,13 +12,18 @@ class FeatureAlignment(IWrapper):
         self._outfiles = info['ALIGNMENT_TSV']
         if not isinstance(info["MPROPHET_TSV"],list):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
+        
+        realignruns = ""
+        if "ALIGNER_REALIGNRUNS" == "true":
+            realignruns = "--realign_runs"    
             
-        command = "feature_alignment.py --file_format openswath --fdr_cutoff %s --max_rt_diff %s --max_fdr_quality %s --method %s --frac_selected %s --out %s --out_matrix %s --in %s" %(
+        command = "feature_alignment.py --file_format openswath --fdr_cutoff %s --max_rt_diff %s --max_fdr_quality %s --method %s --frac_selected %s %s --out %s --out_matrix %s --in %s" %(
                         info['FDR'],
                         info['ALIGNER_MAX_RTDIFF'],
                         info['ALIGNER_MAX_FDRQUAL'],
                         info['ALIGNER_METHOD'],
                         info['ALIGNER_FRACSELECTED'],
+                        realignruns,
                         outfile,
                         outfilematrix,
                         " ".join(info["MPROPHET_TSV"]))
@@ -31,6 +36,7 @@ class FeatureAlignment(IWrapper):
         args_handler.add_app_args(log, 'ALIGNER_MAX_FDRQUAL', '')
         args_handler.add_app_args(log, 'ALIGNER_METHOD', '')
         args_handler.add_app_args(log, 'ALIGNER_FRACSELECTED', '')
+        args_handler.add_app_args(log, 'ALIGNER_REALIGNRUNS', '')
         
         args_handler.add_app_args(log, 'MPROPHET_TSV', '')
         return args_handler
