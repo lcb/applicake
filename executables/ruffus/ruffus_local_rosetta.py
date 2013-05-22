@@ -20,8 +20,6 @@ from applicake.applications.commons.collector import GuseCollector
 from applicake.applications.commons.inifile import Unifier
 from applicake.framework.interfaces import IApplication, IWrapper
 
-cwd = None
-
 
 #helper function
 def wrap(applic,  input_file_name, output_file_name,opts=None):
@@ -31,7 +29,6 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
     application = applic()
     if isinstance(application, IApplication):
         runner = ApplicationRunner()
-        print 'use application runner'
     elif isinstance(application, IWrapper):
         runner = WrapperRunner()
     else:
@@ -42,20 +39,19 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
         raise Exception("[%s] failed [%s]" % (applic.__name__, exit_code)) 
 
 def setup():
-    os.chdir('.')
-    subprocess.call("rm *.err *.out *ini* *.log",shell=True)
+    #subprocess.call("rm *.err *.out *ini* *.log",shell=True)
     with open("input.ini", 'w+') as f:
         f.write("""BASEDIR = /cluster/scratch/malars/workflows
-PROJECT = FRAGMENTS
 SPACE = ROSETTA
+PROJECT = FRAGMENTS
 LOG_LEVEL = DEBUG
-STORAGE = file
-DATASET_DIR = /cluster/scratch/malars/datasets
+STORAGE = memory_all
+DATASET_DIR = /cluster/scratch_xl/shareholders/imsb_ra/datasets
 DATASET_CODE = 20120301183733088-335945, 20120301154907468-332952
 WORKFLOW = ruffus_local_rosetta
-COMMENT = commentt
+COMMENT = comment
 NSTRUCT = 5
-DROPBOX = /cluster/scratch/malars/loblum/fakedropbox
+DROPBOX = /cluster/scratch_xl/shareholders/imsb_ra/openbis-dropbox
 """)       
         
 
@@ -96,7 +92,7 @@ def collector(notused_input_file_names, output_file_name):
 
 @follows(collector)
 def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE', '-s','file']
+    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
     runner = IniFileRunner2()
     application = Unifier()
     exit_code = runner(argv, application)

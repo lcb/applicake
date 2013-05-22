@@ -12,45 +12,17 @@ class Rosetta(IWrapper):
     """
     Wrapper for minirosetta.default.linuxgcc
     """
-    
-    def __init__(self):
-        base = self.__class__.__name__
-        self._default_prefix = 'minirosetta.default.linuxgccrelease'
-        self._template_file = '%s.tpl' % base 
-        self._result_file = 'default.out'     
-
-    def get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = self._default_prefix
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info  
-    
-    
+  
     def prepare_run(self,info,log):
-        """
-        See interface.      
-        @precondition: info object need the key [%s]
-        """ % self.TEMPLATE
         wd = info[self.WORKDIR]
-        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._template_file = os.path.join(wd,self._template_file) 
-        info['TEMPLATE'] = self._template_file 
-        self._result_file = os.path.join(wd,self._result_file) 
-        info['ROSETTAOUT'] = self._result_file  
-        
-        log.debug('get template handler')
-        th = RosettaTemplate()  
-        log.debug('modify template')                
-        mod_template,info = th.modify_template(info, log)        
-        prefix,info = self.get_prefix(info,log)
+        info['TEMPLATE'] = os.path.join(wd,'rosetta.tpl') 
+        info['ROSETTAOUT'] = os.path.join(wd,'default.out')                
+        _,info = RosettaTemplate().modify_template(info, log)        
         #FIXME: template db are given  by cmdline to have correct expansion to n files 
-        command = "%s @%s -in:file:template_pdb %s/*.pdb" %(prefix,info['TEMPLATE'],info['ROSETTAINPUTDIR']) 
+        command = "minirosetta.default.linuxgccrelease @%s -in:file:template_pdb %s/*.pdb" %(info['TEMPLATE'],info['ROSETTAINPUTDIR']) 
         return command,info  
     
-    def set_args(self,log,args_handler):
-        """
-        See interface
-        """    
+    def set_args(self,log,args_handler): 
         args_handler.add_app_args(log, 'ROSETTAINPUTDIR', 'Peak list file in mgf format')     
         args_handler.add_app_args(log, 'NSTRUCT', 'Number of structures created')     
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
@@ -58,22 +30,10 @@ class Rosetta(IWrapper):
         return args_handler      
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):
-        """
-        See interface
-        """
-        if 0 != run_code:
-            return run_code,info
-        return 0,info  
+        return run_code,info  
 
-# FIXME: Why inheritance here? 
 class RosettaTemplate(BasicTemplateHandler):
-    """
-    Template handler for Xtandem.  
-    """
     def read_template(self, info, log):
-        """
-        loblum: changed here
-        """
         template = """
 # module load rosetta (no need to specify the Rosetta database)
 -run:protocol threading
@@ -125,7 +85,6 @@ class RosettaTemplate(BasicTemplateHandler):
 
 -bGDT
 -evaluation:gdtmm      
-        """        
-        log.debug('read template from [%s]' % self.__class__.__name__)
+        """
         return template,info        
     
