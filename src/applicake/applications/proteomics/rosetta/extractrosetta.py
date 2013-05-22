@@ -12,13 +12,13 @@ class Extractrosetta(IWrapper):
     '''
     def prepare_run(self,info,log):
         wd = info[self.WORKDIR]
-        info['ROSETTAINPUTDIR'] = wd
+        info['ROSETTA_INPUTDIR'] = wd
         archivepath = None
         for dssout in info[self.DSSOUTPUT]:
             if dssout.endswith('tgz'):
                 archivepath = dssout  
         #goto WD extract tar, junk subdirectory  
-        command = 'cd %s && tar -xf %s --strip 1' % (wd,archivepath)
+        command = "tar -C %s -vxf %s --transform 's,.*/,,' " % (wd,archivepath)
         return command,info
 
     def set_args(self,log,args_handler):

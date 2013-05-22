@@ -11,7 +11,7 @@ from ruffus import *
 from applicake.applications.proteomics.openbis.dss import Dss
 
 from applicake.framework.runner import IniFileRunner2, ApplicationRunner,CollectorRunner,WrapperRunner, IniFileRunner
-from applicake.applications.commons.generator import DatasetcodeGenerator
+from applicake.applications.commons.generator import DatasetcodeGenerator,ParametersetGenerator
 from applicake.applications.proteomics.rosetta.rosetta import Rosetta
 from applicake.applications.proteomics.rosetta.extractrosetta import Extractrosetta
 from applicake.applications.proteomics.rosetta.mergerosetta import Mergerosetta
@@ -40,25 +40,30 @@ def wrap(applic,  input_file_name, output_file_name,opts=None):
 
 def setup():
     #subprocess.call("rm *.err *.out *ini* *.log",shell=True)
+    if os.path.exists("input.ini"):
+        return
     with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/scratch/malars/workflows
+        f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 SPACE = ROSETTA
-PROJECT = FRAGMENTS
-LOG_LEVEL = DEBUG
+PROJECT = DECOYS
+EXPERIMENT = DECOYS
+LOG_LEVEL = INFO
 STORAGE = memory_all
-DATASET_DIR = /cluster/scratch_xl/shareholders/imsb_ra/datasets
+DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DATASET_CODE = 20120301183733088-335945, 20120301154907468-332952
 WORKFLOW = ruffus_local_rosetta
 COMMENT = comment
-NSTRUCT = 5
-DROPBOX = /cluster/scratch_xl/shareholders/imsb_ra/openbis-dropbox
+NSTRUCT = 2
+DROPBOX = ./
+RANDOM_GROW_LOOPS_BY = 4
+SELECT_BEST_LOOP_FROM = 1 
 """)       
         
 
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini','-o','generator.ini']
+    argv = ['', '-i', input_file_name, '--GENERATORS', 'generate.ini']
     runner = IniFileRunner()
     application = DatasetcodeGenerator() 
     if runner(argv, application) != 0:
@@ -78,39 +83,13 @@ def extractrosetta(input_file_name, output_file_name):
 def rosetta(input_file_name, output_file_name):
     wrap(Rosetta,input_file_name, output_file_name)
 
-    
-@merge(rosetta, "collector.ini")
-#@merge(extractrosetta, "collector.ini")
-def collector(notused_input_file_names, output_file_name):
-    argv = ['', '--COLLECTORS', 'rosetta.ini', '-o', output_file_name]
-    runner = CollectorRunner()
-    application = GuseCollector()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("collector failed [%s]" % exit_code)    
-
-
-@follows(collector)
-def unifier():
-    argv = ['', '-i', 'collector.ini', '-o','unifier.ini','--UNIFIER_REDUCE']
-    runner = IniFileRunner2()
-    application = Unifier()
-    exit_code = runner(argv, application)
-    if exit_code != 0:
-        raise Exception("unifier failed [%s]" % exit_code)  
-   
-@follows(unifier)
-def mergerosetta():
-    wrap(Mergerosetta,'unifier.ini','mergerosetta.ini')
-
-
-@follows(mergerosetta)
-def copy2rosettadropbox():
-    argv = ['', '-i', 'mergerosetta.ini', '-o','copy2rosettadropbox.ini']
+@transform(rosetta, regex("rosetta.ini_"), "cp2dropbox.ini_")
+def copy2rosettadropbox(input_file_name, output_file_name):
+    argv = ['', '-i', input_file_name, '-o',output_file_name]
     runner = IniFileRunner()
     application = Copy2RosettaDropbox()
     exit_code = runner(argv, application)
     if exit_code != 0:
         raise Exception("copy2rosettadropbox failed [%s]" % exit_code)  
 
-pipeline_run([copy2rosettadropbox])
+pipeline_run([copy2rosettadropbox],verbose=5,multiprocess=3)

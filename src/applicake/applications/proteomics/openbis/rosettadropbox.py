@@ -4,47 +4,29 @@ Created on Aug 10, 2012
 @author: lorenz
 '''
 import os
-import shutil
-from applicake.utils.fileutils import FileUtils
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
 from applicake.framework.informationhandler import BasicInformationHandler
 
 class Copy2RosettaDropbox(Copy2Dropbox):
- 
-    def copy_dropbox_specific_files(self,info,log,path):
-        keys = ['ROSETTAMERGEDOUT']
-        files = []
-        for key in keys:
-            if info.has_key(key):
-                if isinstance(info[key], list):
-                    files = info[key]
-                else:
-                    files = [info[key]]
-                for file in files:
-                    try:
-                        shutil.copy(file,path)
-                        log.debug('Copy [%s] to [%s]' % (file,path))
-                    except:
-                        if FileUtils.is_valid_file(log, file):
-                            log.debug('file [%s] already exists' % file)
-                        else:
-                            log.fatal('Stop program because could not copy [%s] to [%s]' % (file,path))
-                            return(1,info,log)
-            else:
-                log.error('info did not contain key [%s]' % key)
-                return 1, info
-        return 0,info    
     
     def main(self,info,log):
-        
-        exit_code, info = super(Copy2RosettaDropbox,self).main(info,log)
-        
-        if not info.has_key('ROSETTAMERGEDOUT'):
-            log.error('Did not find mandatory key [ROSETTAMERGEDOUT]')
-            return 1, info
+        info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
+ 
+        keys = ['ROSETTA_FLAGSFILE','ROSETTA_COMPRESSEDOUT']
+        self._keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
         
         info_copy = info.copy()
-        info_copy[self.OUTPUT] = os.path.join(self._get_dropboxdir(info),'dataset.properties')
+        info_copy[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'dataset.properties')
         BasicInformationHandler().write_info(info_copy, log)
         
-        return exit_code, info
+        attrs = {}
+        attrs['DATASET_TYPE'] = 'ROSETTA_OUTFILE'
+        attrs['SPACE'] = info['SPACE']
+        attrs['PROJECT'] = info['PROJECT'] 
+        attrs['EXPERIMENT'] = info['EXPERIMENT']
+        attrs['PARENT_DATASETS']= info['DATASET_CODE']
+        attrs[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'dataset.attributes')
+        BasicInformationHandler().write_info(attrs, log)
+        
+        self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'], keepCopy=False)
+        return 0, info

@@ -15,18 +15,21 @@ class Rosetta(IWrapper):
   
     def prepare_run(self,info,log):
         wd = info[self.WORKDIR]
-        info['TEMPLATE'] = os.path.join(wd,'rosetta.tpl') 
-        info['ROSETTAOUT'] = os.path.join(wd,'default.out')                
+        info['TEMPLATE'] = info['ROSETTA_FLAGSFILE'] = os.path.join(wd,'flags') 
+        info['ROSETTA_OUT'] = os.path.join(wd,'default.out')    
+        info['ROSETTA_COMPRESSEDOUT'] = info['ROSETTA_OUT'] + '.gz'            
         _,info = RosettaTemplate().modify_template(info, log)        
         #FIXME: template db are given  by cmdline to have correct expansion to n files 
-        command = "minirosetta.default.linuxgccrelease @%s -in:file:template_pdb %s/*.pdb" %(info['TEMPLATE'],info['ROSETTAINPUTDIR']) 
+        command = "minirosetta.default.linuxgccrelease @%s -in:file:template_pdb %s/*.pdb && gzip %s" %(info['TEMPLATE'],info['ROSETTA_INPUTDIR'],info['ROSETTA_OUT']) 
         return command,info  
     
     def set_args(self,log,args_handler): 
-        args_handler.add_app_args(log, 'ROSETTAINPUTDIR', 'Peak list file in mgf format')     
-        args_handler.add_app_args(log, 'NSTRUCT', 'Number of structures created')     
+        args_handler.add_app_args(log, 'ROSETTA_INPUTDIR', '')     
         args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
         args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
+        args_handler.add_app_args(log, 'NSTRUCT', 'Number of structures created')     
+        args_handler.add_app_args(log, 'RANDOM_GROW_LOOPS_BY', '')         
+        args_handler.add_app_args(log, 'SELECT_BEST_LOOP_FROM', '')
         return args_handler      
     
     def validate_run(self,info,log,run_code, out_stream, err_stream):
@@ -40,30 +43,30 @@ class RosettaTemplate(BasicTemplateHandler):
 -run:shuffle
 
 # alignment.filt is an input file
--in:file:alignment $ROSETTAINPUTDIR/alignment.filt
+-in:file:alignment $ROSETTA_INPUTDIR/alignment.filt
 -cm:aln_format grishin
 
 # files that start with aat000 are fragment files, 03 and 09 refers to length of fragments (always same name)
--frag3 $ROSETTAINPUTDIR/aat000_03_05.200_v1_3.gz
--frag9 $ROSETTAINPUTDIR/aat000_09_05.200_v1_3.gz
+-frag3 $ROSETTA_INPUTDIR/aat000_03_05.200_v1_3.gz
+-frag9 $ROSETTA_INPUTDIR/aat000_09_05.200_v1_3.gz
 
 # fasta file is a file: t000_.fasta (always same name)
--in:file:fasta $ROSETTAINPUTDIR/t000_.fasta
+-in:file:fasta $ROSETTA_INPUTDIR/t000_.fasta
 -in:file:fullatom
 
 -loops:frag_sizes 9 3 1
 # these are the same as above (always same name)
--loops:frag_files $ROSETTAINPUTDIR/aat000_09_05.200_v1_3.gz $ROSETTAINPUTDIR/aat000_03_05.200_v1_3.gz none
+-loops:frag_files $ROSETTA_INPUTDIR/aat000_09_05.200_v1_3.gz $ROSETTA_INPUTDIR/aat000_03_05.200_v1_3.gz none
 
 
 
 # file is also a file: t000_.psipred_ss2 (always same name)
--in:file:psipred_ss2 $ROSETTAINPUTDIR/t000_.psipred_ss2
+-in:file:psipred_ss2 $ROSETTA_INPUTDIR/t000_.psipred_ss2
 -in:file:fullatom
 
 -idealize_after_loop_close
 -out:file:silent_struct_type binary
--out:file:silent $ROSETTAOUT
+-out:file:silent $ROSETTA_OUT
 -out:nstruct $NSTRUCT
 
 -loops:extended
@@ -75,8 +78,8 @@ class RosettaTemplate(BasicTemplateHandler):
 
 -silent_decoytime
 
--random_grow_loops_by 4
--select_best_loop_from 1
+-random_grow_loops_by $RANDOM_GROW_LOOPS_BY
+-select_best_loop_from $SELECT_BEST_LOOP_FROM
 
 -in:detect_disulf false
 -fail_on_bad_hbond false
