@@ -1,49 +1,41 @@
-'''
+"""
 Created on Apr 14, 2012
 
 @author: quandtan
-'''
+"""
 
 import glob
+from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IApplication
-from applicake.framework.confighandler import ConfigHandler
+from applicake.framework.informationhandler import IniInformationHandler
 from applicake.utils.dictutils import DictUtils
-from applicake.utils.sequenceutils import SequenceUtils
 
-class BasicCollector(IApplication):
+
+class IniCollector(IApplication):
     """
     Basic Collector which merges collector files by flatten the value sequence.
     """
 
-    def get_collector_files(self,info,log):
+    def get_collector_files(self, info):
         """
         Return all input files following a certain file pattern.
         
         The file pattern depends on the workflow manager and follows usually the same as the generator.
-        the list of paths is sorted alphabetically. 
-        
-        @precondition: 'info' object has to contain the '%s' key.        
-        
-        @type info: see super class
-        @param info: see super class
-        @type log: see super class
-        @param log: see super class 
-         
-        @rtype: list
-        @return:List of file paths that match the input file pattern
-        """ % self.COLLECTOR
-        
-        collectors = info[self.COLLECTOR]
-        collector_files = [] 
-        for collector in collectors: 
-            pattern = self.get_collector_pattern(collector)
-            log.debug('pattern used to search for collector files [%s]' % pattern)
-            # merges found collector files for each collector into a single list
-            collector_files.extend(glob.glob(pattern))
-        collector_files.sort()            
+        the list of paths is sorted alphabetically.
+        """
+        collector_files = []
+        pattern = self.get_collector_pattern(info[Keys.COLLECTOR])
+        collector_files.extend(glob.glob(pattern))
+        collector_files.sort()
         return collector_files
 
-    def main(self,info,log):
+    def get_collector_pattern(self, filename):
+        """
+        Return a search pattern based on a filename. 
+        """
+        return "%s_[0-9]*" % filename
+
+    def main(self, info, log):
         """
         Merge collector files into a single dictionary.
         
@@ -55,90 +47,64 @@ class BasicCollector(IApplication):
         @param info: see super class
         @type log: see super class
         @param log: see super class 
-        """ 
-        paths = self.get_collector_files(info, log)
-        # add collector files to created files in order to copy them to the work dir
-        info[self.COPY_TO_WD] = info[self.COPY_TO_WD].extend(paths)
+        """
+        #warn printing if user might have forgotten to set --INPUT collectfile_0 or cmdline arguments
+        if not Keys.BASEDIR in info or not Keys.JOB_IDX in info or (
+                info[Keys.STORAGE] == "memory" and info[Keys.LOG_LEVEL] == "DEBUG"):
+            log.warn("With Collector the keys BASEDIR, JOB_IDX, LOG_LEVEL and STORAGE "
+                     "are changed to default if not set on commandline or in inputinfo. "
+                     "To ensure consistency in the workflow it is recommended to set --INPUT collectfile_0")
+
+        #Collect infos into one large collector_config object
+        collector_config = {}
+        paths = self.get_collector_files(info)
         if len(paths) == 0:
             log.critical('no collector files found [%s]' % paths)
-            return (1,info)          
-        collector_config  = {}
+            return 1, info
         for path in paths:
-            log.debug('path [%s]' % path)
-            config = ConfigHandler().read(log,path)
-            log.debug('config [%s]' % config)
-#            collector_config = DictUtils.merge(log,collector_config, config,priority='flatten_sequence') 
-            collector_config = DictUtils.merge(log,collector_config, config,priority='append')
-            log.debug('collector_config [%s]' % collector_config)
-        info = DictUtils.merge(log,info, collector_config, priority='left')
-        
-        if not info.has_key('GENERATOR_CHECKSUM'):
+            log.debug('collecting ini file [%s]' % path)
+            config = IniInformationHandler().get_info(log, {Keys.INPUT: path})
+            collector_config = DictUtils.merge(log, collector_config, config, priority='append')
+
+        #remove any keys that might interfere with runner keys afterwards
+        for key in [Keys.BASEDIR, Keys.JOB_IDX, Keys.LOG_LEVEL, Keys.STORAGE]:
+            log.info("Removing key %s from collector_info to ensure usage of value from INPUT" % key)
+            if key in collector_config:
+                del collector_config[key]
+
+        #CHECKSUM
+        if not collector_config.has_key(Keys.GENERATOR_CHECKSUM):
             log.warn("No checksum found, skipping check")
         else:
-            checksum = int(SequenceUtils.unify(info['GENERATOR_CHECKSUM'], reduce = reduce))
+            if isinstance(collector_config[Keys.GENERATOR_CHECKSUM], list):
+                log.debug("Converting checksum list to int for checking")
+                collector_config[Keys.GENERATOR_CHECKSUM] = collector_config[Keys.GENERATOR_CHECKSUM][0]
+            checksum = int(collector_config[Keys.GENERATOR_CHECKSUM])
             if checksum == len(paths):
-                log.info("Checksum %d fits, removing to avoid confusion" % checksum)
-                del info['GENERATOR_CHECKSUM']
+                log.info("Checksum %d fits" % checksum)
             else:
                 log.critical("Checksum %d and number of collected files %d do not match!" % (checksum, len(paths)))
-                return 2,info
-            
-        log.debug('collected info content [%s]' % info)       
-        return (0,info)
-    
-    def set_args(self,log,args_handler):
+                return 2, info
+
+        log.debug('collected info content [%s]' % collector_config)
+        return 0, collector_config
+
+    def set_args(self, log, args_handler):
         """
         See interface
-        """        
-        args_handler.add_app_args(log, self.COLLECTOR, 'Base name for collecting output files (e.g. from a parameter sweep)',action='append')
-        args_handler.add_app_args(log, self.COPY_TO_WD, 'Files which are created by this application', action='append')            
+        """
+        args_handler.add_app_args(log, Keys.COLLECTOR,
+                                  'Base name for collecting output files (e.g. from a parameter sweep)')
+
+        #TODO: simplify "wholeinfo" apps
+        #args_handler.add_app_args(log, Keys.INPUT, 're-read input to access whole info')
+        args_handler.add_app_args(log, Keys.BASEDIR, 'get basedir if set or modified by runner')
+        args_handler.add_app_args(log, Keys.JOB_IDX, 'get jobidx if set or modified by runner')
+        args_handler.add_app_args(log, Keys.STORAGE, 'get storage if set or modified by runner')
+        args_handler.add_app_args(log, Keys.LOG_LEVEL, 'get loglevel if set or modified by runner')
         return args_handler
         
     
-    def get_collector_pattern(self,filename):
-        """
-        Return a search pattern based on a filename.
-        
-        The pattern is specific to the applied workflow manager
-        
-        @type basename: string
-        @param basename: Base name of a collector file which is used to generate the pattern.
-        
-        @rtype: string
-        @return: A pattern used to search for specific files.    
-        """
-        
-        raise NotImplementedError("get_collector_pattern() is not implemented.")  
 
-    
-class SimpleCollector(BasicCollector):
-    """
-    Does not extend anything
-    """
-    def get_collector_pattern(self, filename):
-        return "%s" % filename
 
-    
-class GuseCollector(BasicCollector):
-    """
-    Basic collector for the gUSE workflow manager
-    """
-    
-    def get_collector_pattern (self,filename):
-        """
-        See super class.
-        """
-        return  "%s_[0-9]*" % (filename)
-    
-    
-class PgradeCollector(BasicCollector):
-    """
-    Basic collector for the P-Grade workflow manager.
-    """   
-     
-    def get_collector_pattern (self,filename):
-        """
-        See super class.
-        """
-        return  "%s.[0-9]*" % (filename)    
     

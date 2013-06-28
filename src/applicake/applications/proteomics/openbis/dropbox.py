@@ -1,236 +1,114 @@
-'''
+"""
 Created on Jun 19, 2012
 
 @author: quandtan
-'''
+"""
 
-import os,subprocess,shutil,getpass
+import os
+import shutil
+
+from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IApplication
 from applicake.utils.fileutils import FileUtils
-from applicake.framework.informationhandler import BasicInformationHandler
-from applicake.framework.templatehandler import BasicTemplateHandler
+from applicake.framework.informationhandler import IniInformationHandler
+from applicake.utils.dictutils import DictUtils
+
 
 class Copy2Dropbox(IApplication):
-    '''
-    Copy certain files to the openbis dropbox.
-    '''
-    
-    def _get_experiment_code(self,info):
-        ecode = 'E' + info[self.JOB_IDX]  
-        if info.has_key(self.PARAM_IDX):
-            ecode = '%s_%s' % (ecode,info[self.PARAM_IDX])
-        if info.has_key(self.FILE_IDX):
-            ecode = '%s_%s' % (ecode,info[self.FILE_IDX])   
+    """
+    Minimal working example for copy to generic dropbox. Registers dataset in openBIS by
+    * copying resultfiles to stagebox
+    * creating required dataset.attributes
+    * move stage to dropbox
+    """
+
+    def main(self, info, log):
+    #TODO: simplify "wholeinfo" apps
+        #re-read INPUT to get access to whole info, needs set_args(INPUT). add runnerargs to set_args if modified by runner
+        ini = IniInformationHandler().get_info(log, info)
+        info = DictUtils.merge(log, info, ini)
+
+        stagebox = self._make_stagebox(log, info)
+
+        self._keys_to_dropbox(log, info, ['RESULTFILES'], stagebox)
+
+        dsattr = {}
+        dsattr['SPACE'] = info['SPACE']
+        dsattr['DATASET_TYPE'] = info['DATASET_TYPE']
+        dsattr[Keys.OUTPUT] = os.path.join(stagebox, 'dataset.attributes')
+        IniInformationHandler().write_info(dsattr, log)
+
+        self._move_stage_to_dropbox(stagebox, info['DROPBOX'], keepCopy=False)
+        return 0, info
+
+    def set_args(self, log, args_handler):
+        args_handler.add_app_args(log, "WORKDIR", "")
+
+        #TODO: simplify "wholeinfo" apps
+        args_handler.add_app_args(log, Keys.INPUT, 're-read input to access whole info')
+        args_handler.add_app_args(log, Keys.BASEDIR, 'get basedir if set or modified by runner')
+        args_handler.add_app_args(log, Keys.JOB_IDX, 'get jobidx if set or modified by runner')
+        args_handler.add_app_args(log, Keys.STORAGE, 'get storage if set or modified by runner')
+        args_handler.add_app_args(log, Keys.LOG_LEVEL, 'get loglevel if set or modified by runner')
+        return args_handler
+
+    ###########################################
+    ### Utility methods for derived classes ###
+    ###########################################  
+
+    def _get_experiment_code(self, info):
+        ecode = 'E' + info[Keys.JOB_IDX]
+        if info.has_key(Keys.PARAM_IDX):
+            ecode = '%s_%s' % (ecode, info[Keys.PARAM_IDX])
+        if info.has_key(Keys.FILE_IDX):
+            ecode = '%s_%s' % (ecode, info[Keys.FILE_IDX])
         return ecode
-    
-    def _make_stagebox(self,log,info):
-        ecode = self._get_experiment_code(info)  
-        dirname = '%s+%s+%s' % (info['SPACE'], info['PROJECT'],ecode)
-        dirname = os.path.join(info[self.WORKDIR],dirname)
-        
-        FileUtils.makedirs_safe(log, dirname,clean=True)
+
+    def _make_stagebox(self, log, info):
+        ecode = self._get_experiment_code(info)
+        dirname = '%s+%s+%s' % (info['SPACE'], info['PROJECT'], ecode)
+        dirname = os.path.join(info[Keys.WORKDIR], dirname)
+        log.info("dirtocreate "+dirname)
+        FileUtils.makedirs_safe(log, dirname, clean=True)
         return dirname
-    
-    def _keys_to_dropbox(self,log,info,keys,tgt):
+
+    def _keys_to_dropbox(self, log, info, keys, tgt):
+        if not isinstance(keys, list):
+            keys = [keys]
         for key in keys:
             if not info.has_key(key):
-                raise Exception('key [%s] not found in info' % key)
-            files = []
+                raise Exception('key [%s] not found in info for copying to dropbox' % key)
             if isinstance(info[key], list):
                 files = info[key]
             else:
                 files = [info[key]]
             for file in files:
                 try:
-                    log.debug('Copy [%s] to [%s]' % (file,tgt))
-                    shutil.copy(file,tgt)
+                    log.debug('Copy [%s] to [%s]' % (file, tgt))
+                    shutil.copy(file, tgt)
                 except:
                     if FileUtils.is_valid_file(log, file):
                         log.debug('File [%s] already exists, ignore' % file)
                     else:
-                        raise Exception('Stop program because could not copy [%s] to [%s]' % (file,tgt))
-                               
+                        raise Exception('Stop program because could not copy [%s] to [%s]' % (file, tgt))
 
-    def _move_stage_to_dropbox(self,stage,dropbox,keepCopy=False):
+
+    def _move_stage_to_dropbox(self, stage, dropbox, keepCopy=False):
         #empty when moved, stage_copy when keepcopy
         newstage = ""
-        if keepCopy == True:
-            newstage = stage+'_copy'
-            shutil.copytree(stage,newstage)
-        shutil.move(stage,dropbox)
+        if keepCopy:
+            newstage = stage + '_copy'
+            shutil.copytree(stage, newstage)
+
+        #extend permissions for dropbox copy job
+        os.chmod(stage, 0775)
+        for dirpath, _, filenames in os.walk(stage):
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                os.chmod(path, 0775)
+
+        shutil.move(stage, dropbox)
         return newstage
     
-    def set_args(self,log,args_handler): 
-        log.debug("Arghandler not needed for IniFileRunner")
-        return args_handler
 
 
-##############################################################
-##############################################################
-##############################################################
-
-
-    
-class Copy2IdentDropbox(Copy2Dropbox):
-    
-    def main(self,info,log):
-        """
-        See super class.
-        """
-        info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
-        
-        keys = ['PEPXMLS','PEPCSV']
-        self._keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
-        
-        #protxml special naming
-        filename = os.path.basename(info['DROPBOXSTAGE']) + '.prot.xml'
-        filepath = os.path.join(info['DROPBOXSTAGE'],filename)
-        shutil.copy(info['PROTXML'],filepath)
-        
-        #search.properties requires some specific fields
-        info['PEPTIDEFDR'] = info['FDR']
-        info['DBASENAME'] = os.path.splitext(os.path.split(info['DBASE'])[1])[0]
-        info['PARENT-DATA-SET-CODES']=info[self.DATASET_CODE]
-        
-        # set values to NONE if they were e.g. "" before
-        check_keys = ['STATIC_MODS','VARIABLE_MODS']
-        for key in check_keys:
-            if not info.has_key(key) or info[key] == "":
-                info[key] = 'NONE'
-        info['experiment-code'] = self._get_experiment_code(info)
-        
-        sinfo = info.copy()
-        sinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'search.properties')
-        BasicInformationHandler().write_info(sinfo, log)
-        
-        info[self.TEMPLATE] = 'mailtext.txt'
-        _,info = MailTemplate().modify_template(info, log)
-        shutil.copy(info[self.TEMPLATE],info['DROPBOXSTAGE'])
-        
-        info['DROPBOXSTAGE'] = self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'],keepCopy=True)
-        
-        return 0,info
-
-
-class MailTemplate(BasicTemplateHandler):
-
-    def read_template(self, info, log):
-        template = ''
-        if True:
-            tandemver = ''
-            if info['RUNTANDEM'] == 'True':
-                tandemver = 'tandem (v'+subprocess.check_output(['which','tandem.exe']).split('/')[4] +')'
-            omssaver = ''
-            if info['RUNOMSSA'] == 'True':
-                omssaver = 'omssa (v'+subprocess.check_output(['which','omssacl']).split('/')[4] +')'
-            myriver = ''
-            if info['RUNMYRIMATCH'] == 'True':
-                myriver = 'myrimatch (v'+subprocess.check_output(['which','myrimatch']).split('/')[4] +')'
-            tppver = subprocess.check_output(['which','ProteinProphet']).split('/')[4]
-            info['EXPERIMENT_CODE'] = info['experiment-code']
-            info['USERNAME'] = getpass.getuser()
-            template = """Dear $USERNAME
-    
-Your TPP search workflow finished sucessfully!
-    
-To visualize the results with Petunia see:
-https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
-https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
-    
-In case the links do not work (i.e. you chose RUNPETUNIA=none, or the files were already deleted) you can restore the data using the command:
-[user@imsb-ra-tpp~] # cd ~/html; tpp2viewer2.py $EXPERIMENT_CODE
-    
-To cite this workflow use:
-The spectra were searched using the search engines %s %s %s
-against the $DBASE database using $ENZYME digestion and allowing $MISSEDCLEAVAGE missed cleavages.
-Included were '$STATIC_MODS' as static and '$VARIABLE_MODS' as variable modifications. The mass tolerances were set to $PRECMASSERR $PRECMASSUNIT for precursor-ions and $FRAGMASSERR $FRAGMASSUNIT for fragment-ions.
-The identified peptides were processed and analyzed through the Trans-Proteomic Pipeline (%s) using PeptideProphet, iProphet and ProteinProphet scoring. Peptide identifications were reported at FDR of $FDR.
-    
-Yours sincerely,
-The iPortal team
-    
-Please note that this message along with your results are stored in openbis:
-https://openbis-phosphonetx.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT""" % (tandemver,omssaver,myriver,tppver)
-        
-        return template,info
-
-
-class Copy2DropboxQuant(Copy2Dropbox):
-    """
-    Copy files to an Openbis-quantification-dropbox
-    """
-    
-    def main(self,info,log):
-        info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
-
-        #copy files        
-        keys = ['PEPCSV','PROTCSV','CONSENSUSXML']
-        self._keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
-
-        #compress XML files        
-        archive = os.path.join(info['DROPBOXSTAGE'], 'featurexmls.zip')
-        subprocess.check_call('zip -jv ' + archive + '  ' + " ".join(info['FEATUREXMLS']) ,shell=True)
-
-        #protxml special naming
-        filename = os.path.basename(info['DROPBOXSTAGE']) + '.prot.xml'
-        filepath = os.path.join(info['DROPBOXSTAGE'],filename)
-        shutil.copy(info['PROTXML'],filepath)
-
-        #properties file
-        expinfo = info.copy()
-        expinfo['PARENT-DATA-SET-CODES'] = info[self.DATASET_CODE]
-        expinfo['BASE_EXPERIMENT'] = info['EXPERIMENT']
-        expinfo['QUANTIFICATION_TYPE'] = 'LABEL-FREE'
-        expinfo['PEAKPICKER'] = 'YES'
-        expinfo['MAPALIGNER'] = 'YES'
-        expinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'quantification.properties')
-        BasicInformationHandler().write_info(expinfo, log)
-        
-        #create witolds LFQ report mail
-        propcopy = os.path.join(info[self.WORKDIR],'quantification.properties')
-        shutil.copy(expinfo[self.OUTPUT],propcopy)
-        reportcmd = 'mailLFQ.sh ' +propcopy + ' ' + expinfo['PEPCSV'] + ' '+ expinfo['PROTCSV'] + ' '+ expinfo['USERNAME']
-        try:
-            subprocess.call(reportcmd,shell=True)
-            shutil.copy('analyseLFQ.pdf',info['DROPBOXSTAGE'])
-        except:
-            log.warn("LFQ report command [%s] failed, skipping"%reportcmd)
-        
-        self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'])
-     
-        return 0,info
-    
-       
-class Copy2DropboxSWATH(Copy2Dropbox):  
-    
-    def main(self,info,log):
-        
-        info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
-
-        #copy files        
-        keys = ['MPROPHET_TSV','MPROPHET_STATS','COMPRESS_OUT','FEATURETSV']
-        self._keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
-        
-        #make dataset.attributes and experiment.properties
-        dsinfo = {}
-        dsinfo['SPACE'] = info['SPACE']
-        dsinfo['PROJECT'] = info['PROJECT']
-        dsinfo['PARENT_DATASETS']= info[self.DATASET_CODE]
-        dsinfo['DATASET_TYPE'] = 'SWATH_RESULT'
-        dsinfo['EXPERIMENT_TYPE'] = 'SWATH_SEARCH'
-        dsinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'dataset.attributes')
-        BasicInformationHandler().write_info(dsinfo, log)
-        
-        expinfo = {}
-        expinfo['PARENT-DATA-SET-CODES'] = info[self.DATASET_CODE]
-        expinfo['EXPERIMENT'] = self._get_experiment_code(info)
-        for key in ['COMMENT','TRAML','EXTRACTION_WINDOW','RT_EXTRACTION_WINDOW','MIN_UPPER_EDGE_DIST','MPR_NUM_XVAL','IRTTRAML','MIN_RSQ']:
-            if key in info:
-                expinfo[key] = info[key]
-        expinfo[self.OUTPUT] = os.path.join(info['DROPBOXSTAGE'],'experiment.properties')
-        BasicInformationHandler().write_info(expinfo, log)
-        
-        #final move
-        self._move_stage_to_dropbox(info['DROPBOXSTAGE'],info['DROPBOX'])
-        return 0,info
-        

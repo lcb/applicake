@@ -1,8 +1,8 @@
-'''
+"""
 Created on Mar 31, 2012
 
 @author: quandtan
-'''
+"""
 
 import sys
 from applicake.utils.sequenceutils import SequenceUtils
@@ -12,9 +12,9 @@ class DictUtils(SequenceUtils):
     """
     Utilities for handling dictionaries
     """
-    
+
     @staticmethod
-    def extract(dic,keys,include=True):
+    def extract(dic, keys, include=True):
         """
         Extract subset of a dictionary based on a list of keys which are either included or excluded.
         
@@ -27,16 +27,16 @@ class DictUtils(SequenceUtils):
         
         @return: Dictionary containing the subset
         """
-        if include:        
+        if include:
             return dict((key, dic[key]) for key in keys if key in dic)
         else:
             sub_dic = dic.copy()
             for key in keys:
-                if key in sub_dic: del sub_dic[key] 
+                if key in sub_dic: del sub_dic[key]
             return sub_dic
-    
-    @staticmethod     
-    def get_product_dicts(dic, log, escape_keys,idx_key):
+
+    @staticmethod
+    def get_product_dicts(dic, log, escape_keys, idx_key):
         """
         Creates the value combinations of a dictionary with multiple values for its keys
         
@@ -56,8 +56,7 @@ class DictUtils(SequenceUtils):
         SequenceUtils.list2string(dic, escape_keys, escape_str)
         keys = dic.keys()
         values = dic.values()
-        elements = SequenceUtils.get_list_product(log,values)
-        idx = 0
+        elements = SequenceUtils.get_list_product(log, values)
         product_dicts = []
         for idx, element in enumerate(elements):
             dic = dict(zip(keys, element))
@@ -65,15 +64,14 @@ class DictUtils(SequenceUtils):
             SequenceUtils.string2list(dic, escape_keys, escape_str)
             # add to each product dictionary a new key: the index key
             dic[idx_key] = idx
-            idx += 1
-            product_dicts.append(dic)  
-        if product_dicts == []:
+            product_dicts.append(dic)
+        if not product_dicts:
             log.fatal('no product dictionaries were produced')
-            sys.exit(1)  
-        return product_dicts    
-    
-    @staticmethod  
-    def merge(log,dict_1, dict_2, priority='left'):
+            sys.exit(1)
+        return product_dicts
+
+    @staticmethod
+    def merge(log, dict_1, dict_2, priority='left'):
         """
         Merging of 2 dictionaries
         
@@ -92,30 +90,29 @@ class DictUtils(SequenceUtils):
         """
         d1 = dict_1.copy()
         d2 = dict_2.copy()
-        if priority == 'left':     
-            return dict(d2,**d1)
-        elif priority == 'right':     
-            return dict(d1,**d2)  
+        if priority == 'left':
+            return dict(d2, **d1)
+        elif priority == 'right':
+            return dict(d1, **d2)
         elif priority == 'flatten_sequence':
-            for k,v in d2.iteritems():
+            for k, v in d2.iteritems():
                 if k in d1.keys():
-                    if d1[k] != d2[k]:                        
-                        sequence = [d1[k],d2[k]]
-                        d1[k] = DictUtils.get_flatten_sequence(log,sequence)
+                    if d1[k] != d2[k]:
+                        sequence = [d1[k], d2[k]]
+                        d1[k] = DictUtils.get_flatten_sequence(log, sequence)
                 else:
-                    d1[k]=v
+                    d1[k] = v
             return d1
         elif priority == 'append':
             for key in d2.keys():
                 if key in d1.keys():
-                    val = [d1[key],d2[key]]
-                    d1[key] = DictUtils.get_flatten_sequence(log,val)
+                    val = [d1[key], d2[key]]
+                    d1[key] = DictUtils.get_flatten_sequence(log, val)
                 else:
-                    d1[key] = d2[key] 
-            return d1           
-            
+                    d1[key] = d2[key]
+            return d1
 
-        
+
     @staticmethod
     def remove_none_entries(dic):
         """
@@ -126,17 +123,17 @@ class DictUtils(SequenceUtils):
         
         @return: Copy of the input dictionary where the None key/values are removed
         """
-        copied_dict  = dic.copy()
+        copied_dict = dic.copy()
         keys = []
-        for k,v in copied_dict.iteritems():
+        for k, v in copied_dict.iteritems():
             if v is None:
                 keys.append(k)
         for k in keys:
             copied_dict.pop(k)
-        return copied_dict   
-    
+        return copied_dict
+
     @staticmethod
-    def sort(dic,by='key'):
+    def sort(dic, by='key'):
         """
         Sort a dictionary.
         
@@ -150,7 +147,7 @@ class DictUtils(SequenceUtils):
         """
         d = dic.copy()
         if by == 'key':
-            return sorted(d.items(), key=lambda t: t[1])    
+            return sorted(d.items(), key=lambda t: t[1])
         elif by == 'value':
             return sorted(d.items(), key=lambda t: t[0])   
          

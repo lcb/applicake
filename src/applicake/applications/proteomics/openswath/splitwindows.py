@@ -1,59 +1,52 @@
-'''
+"""
 Created on Oct 24, 2012
 
 @author: lorenz
-'''
-import os, re
+"""
+import os
+
+from applicake.framework.keys import Keys
 
 from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
 
+
 class SplitWindowsConvertZip(IWrapper):
-    _default_prefix = 'mzXML_to_swathmzMLgz.sh'
-    
-    def get_prefix(self,info,log):
-        if not info.has_key(self.PREFIX):
-            info[self.PREFIX] = self._default_prefix
-            log.debug('set [%s] to [%s] because it was not set before.' % (self.PREFIX,info[self.PREFIX]))
-        return info[self.PREFIX],info
 
-    def prepare_run(self,info,log):
+    def prepare_run(self, info, log):
+        #in case getdataset instead of getmsdata was used key MZXML is not set but mzXML.gz is in DSSOUTPUT list
+        if not Keys.MZXML in info:
+            log.info("No key MZXML found, getting from DSSOUTPUT list")
+            for key in info[Keys.DSSOUTPUT]:
+                if '.mzXML' in key:
+                    info[Keys.MZXML] = key
+            
+        command = '%s -i %s -o %s -t %s -n' % (info['PREFIX'], info[Keys.MZXML], info[Keys.WORKDIR], info[Keys.THREADS])
+        return command, info
 
-        self.outfolder = info[self.WORKDIR]
-        prefix,info = self.get_prefix(info,log)
-        command = '%s -i %s -o %s -t %s -n' % (prefix,info[self.MZXML],self.outfolder,info[self.THREADS])
-        del info[self.MZXML]
-        return command,info
-
-    def set_args(self,log,args_handler):
-        args_handler.add_app_args(log, self.PREFIX, 'Path to the executable')
-        args_handler.add_app_args(log, self.MZXML, 'mzxml to split')
-        args_handler.add_app_args(log, self.WORKDIR, 'working directory')
-        args_handler.add_app_args(log, self.THREADS, 'number of threads')
+    def set_args(self, log, args_handler):
+        args_handler.add_app_args(log, Keys.PREFIX, 'Path to the executable', default='mzXML_to_swathmzMLgz.sh')
+        args_handler.add_app_args(log, Keys.MZXML, 'mzxml to split')
+        args_handler.add_app_args(log, Keys.DSSOUTPUT, 'list with mzXML(.gz) to split in it (i.e. after getdataset instead of getmsdata)')
+        args_handler.add_app_args(log, Keys.WORKDIR, 'working directory')
+        args_handler.add_app_args(log, Keys.THREADS, 'number of threads')
         return args_handler
 
-    def validate_run(self,info,log, run_code,out_stream, err_stream):
+    def validate_run(self, info, log, run_code, out_stream, err_stream):
         """
         See super class.
         """
         if 0 != run_code:
-            return run_code,info
+            return run_code, info
         outfiles = []
-        for outfile in os.listdir(info[self.WORKDIR]):
-            outfile = os.path.join(info[self.WORKDIR],outfile)
+        for outfile in os.listdir(info[Keys.WORKDIR]):
+            outfile = os.path.join(info[Keys.WORKDIR], outfile)
             if str(outfile).endswith('.mzML.gz'):
                 if not FileUtils.is_valid_file(log, outfile):
-                    log.critical('[%s] is not valid' %outfile)
-                    return 1,info
+                    log.critical('[%s] is not valid' % outfile)
+                    return 1, info
                 outfiles.append(outfile)
-        
-        #sort outfiles numerically, http://code.activestate.com/recipes/135435-sort-a-string-using-numeric-order/
-        def stringSplitByNumbers(x):
-            r = re.compile('(\d+)')
-            l = r.split(x)
-            return [int(y) if y.isdigit() else y for y in l]
-        outfiles = sorted(outfiles, key=stringSplitByNumbers)
-            
-        info[self.MZML] = outfiles   
-        return 0,info
-    
+
+        info[Keys.MZML] = outfiles
+        return 0, info
+

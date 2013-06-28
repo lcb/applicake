@@ -1,39 +1,42 @@
-'''
+"""
 Created on May 10, 2012
 
 @author: loblum
-'''
+"""
 
 import os
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
+from applicake.framework.keys import Keys
+
 
 class Rosetta(IWrapper):
     """
     Wrapper for minirosetta.default.linuxgcc
     """
-  
-    def prepare_run(self,info,log):
-        wd = info[self.WORKDIR]
-        info['TEMPLATE'] = info['ROSETTA_FLAGSFILE'] = os.path.join(wd,'flags') 
-        info['ROSETTA_OUT'] = os.path.join(wd,'default.out')    
-        info['ROSETTA_COMPRESSEDOUT'] = info['ROSETTA_OUT'] + '.gz'            
-        _,info = RosettaTemplate().modify_template(info, log)        
+
+    def prepare_run(self, info, log):
+        wd = info[Keys.WORKDIR]
+        info['TEMPLATE'] = info['ROSETTA_FLAGSFILE'] = os.path.join(wd, 'flags')
+        info['ROSETTA_OUT'] = os.path.join(wd, 'default.out')
+        info['ROSETTA_COMPRESSEDOUT'] = info['ROSETTA_OUT'] + '.gz'
+        _, info = RosettaTemplate().modify_template(info, log)
         #FIXME: template db are given  by cmdline to have correct expansion to n files 
-        command = "minirosetta.default.linuxgccrelease @%s -in:file:template_pdb %s/*.pdb && gzip %s" %(info['TEMPLATE'],info['ROSETTA_INPUTDIR'],info['ROSETTA_OUT']) 
-        return command,info  
-    
-    def set_args(self,log,args_handler): 
-        args_handler.add_app_args(log, 'ROSETTA_INPUTDIR', '')     
-        args_handler.add_app_args(log, self.WORKDIR, 'Directory to store files')  
-        args_handler.add_app_args(log, self.COPY_TO_WD, 'List of files to store in the work directory') 
-        args_handler.add_app_args(log, 'NSTRUCT', 'Number of structures created')     
-        args_handler.add_app_args(log, 'RANDOM_GROW_LOOPS_BY', '')         
+        command = "minirosetta.default.linuxgccrelease @%s -in:file:template_pdb %s/*.pdb && gzip %s" % (
+        info['TEMPLATE'], info['ROSETTA_INPUTDIR'], info['ROSETTA_OUT'])
+        return command, info
+
+    def set_args(self, log, args_handler):
+        args_handler.add_app_args(log, 'ROSETTA_INPUTDIR', '')
+        args_handler.add_app_args(log, Keys.WORKDIR, 'Directory to store files')
+        args_handler.add_app_args(log, 'NSTRUCT', 'Number of structures created')
+        args_handler.add_app_args(log, 'RANDOM_GROW_LOOPS_BY', '')
         args_handler.add_app_args(log, 'SELECT_BEST_LOOP_FROM', '')
-        return args_handler      
-    
-    def validate_run(self,info,log,run_code, out_stream, err_stream):
-        return run_code,info  
+        return args_handler
+
+    def validate_run(self, info, log, run_code, out_stream, err_stream):
+        return run_code, info
+
 
 class RosettaTemplate(BasicTemplateHandler):
     def read_template(self, info, log):
@@ -89,5 +92,5 @@ class RosettaTemplate(BasicTemplateHandler):
 -bGDT
 -evaluation:gdtmm      
         """
-        return template,info        
+        return template, info
     

@@ -1,18 +1,17 @@
-'''
+"""
 Created on Mar 16, 2012
 
 @author: quandtan
-'''
-from applicake.framework.enums import KeyEnum
+"""
 
 
-class IApplication(KeyEnum):
+class IApplication(object):
     """
     Interface for application that executes python code 
-    """ 
-    
-    
-    def main(self,info,log):
+    """
+
+
+    def main(self, info, log):
         """
         Entry point used to execute the pyton code
         from the implemented interface.
@@ -27,10 +26,10 @@ class IApplication(KeyEnum):
         @rtype: (int,dict)
         @return: Tuple of 2 objects; the exit code and the (updated) info object.
         """
-        raise NotImplementedError("main() is not implemented")    
-     
+        raise NotImplementedError("main() is not implemented")
 
-    def set_args(self,log,args_handler):
+
+    def set_args(self, log, args_handler):
         """
         Method that allows to add application specific arguments to the argument handler.
         
@@ -44,15 +43,15 @@ class IApplication(KeyEnum):
         @rtype: applicake.framework.argshandler.Argshandler
         @return: Modified Argshandler()
         """
-        raise NotImplementedError("set_args() is not implemented")   
-        
+        raise NotImplementedError("set_args() is not implemented")
 
-class IInformationHandler(KeyEnum):
+
+class IInformationHandler():
     """
     Interface for applications that use a dictionary to provide all necessary information about the application.
     """
 
-    def get_info(self,log,pargs):
+    def get_info(self, log, pargs):
         """
         Generate a dictionary with the application information.
 
@@ -62,10 +61,10 @@ class IInformationHandler(KeyEnum):
         @param pargs: Dictionary with the parsed command line arguments
         @rtype: dict
         @return: Dictionary with all information needed to run the application      
-        """ 
+        """
         raise NotImplementedError("get_info() is not implemented")
-    
-    def write_info(self,info,log):
+
+    def write_info(self, info, log):
         """
         Write info object to new destination such as a file
         
@@ -77,12 +76,12 @@ class IInformationHandler(KeyEnum):
         raise NotImplementedError("write_info() is not implemented")
 
 
-class ITemplateHandler(KeyEnum):
+class ITemplateHandler(object):
     """
     Interface for handling template files in applications.
-    """         
-    
-    def read_template(self,info,log):
+    """
+
+    def read_template(self, info, log):
         """
         Read a template from a source.
         
@@ -93,10 +92,10 @@ class ITemplateHandler(KeyEnum):
         
         @rtype: (string,dict)
         @return: Tuple of 2 objects: The template as string and the (modified) info object.
-        """    
-        raise NotImplementedError("read_template() is not implemented")    
-    
-    def modify_template(self, info, log):    
+        """
+        raise NotImplementedError("read_template() is not implemented")
+
+    def modify_template(self, info, log, template):
         """
         Replace possible variables in the template string with values from the info object.
         
@@ -109,18 +108,33 @@ class ITemplateHandler(KeyEnum):
         
         @rtype: (string,dict)
         @return: Tuple of 2 objects: The modified template string and the (modified) info object.
-        """        
+        """
+
+        raise NotImplementedError("replace_vars() is not implemented")
+
+    def write_template(self, info, log, template):
+        """
+        Write template to a target location.
         
-        raise NotImplementedError("replace_vars() is not implemented")  
+        @type info: dict         
+        @param info: Dictionary object with information needed by the class
+        @type log: Logger 
+        @param log: Logger to store log messages 
         
-    
-class IWrapper(KeyEnum):   
+        @rtype: dict
+        @return: The (modified) info object
+        """
+
+        raise NotImplementedError("write_template() is not implemented")
+
+
+class IWrapper(object):
     """
     Interface for application that wraps an external application
     """
-        
-        
-    def prepare_run(self,info,log):
+
+
+    def prepare_run(self, info, log):
         """
         Prepare the execution of an external program.
         
@@ -132,9 +146,9 @@ class IWrapper(KeyEnum):
         @rtype: (string,dict)
         @return: Tuple of 2 objects; the command to execute and the (updated) info object.
         """
-        raise NotImplementedError("prepare_run() is not implemented")  
-    
-    def set_args(self,log,args_handler):
+        raise NotImplementedError("prepare_run() is not implemented")
+
+    def set_args(self, log, args_handler):
         """
         Method that allows to add application specific arguments to the argument handler.
         
@@ -148,9 +162,9 @@ class IWrapper(KeyEnum):
         @rtype: applicake.framework.argshandler.Argshandler
         @return: Modified Argshandler()
         """
-        raise NotImplementedError("set_args() is not implemented")       
-       
-    def validate_run(self,info,log, run_code,out_stream, err_stream):
+        raise NotImplementedError("set_args() is not implemented")
+
+    def validate_run(self, info, log, run_code, out_stream, err_stream):
         """
         Validate the execution of the external application. 
         (e.g. output parsing)

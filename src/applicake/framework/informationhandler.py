@@ -1,75 +1,73 @@
-'''
+"""
 Created on Apr 17, 2012
 
 @author: quandtan
-'''
+"""
 
-from applicake.framework.confighandler import ConfigHandler
-from applicake.framework.interfaces import IInformationHandler
-from applicake.utils.dictutils import DictUtils 
-from applicake.utils.fileutils import FileUtils
 import sys
 
-class BasicInformationHandler(IInformationHandler):
+from configobj import ConfigObj
+
+from applicake.framework.keys import Keys
+
+from applicake.framework.interfaces import IInformationHandler
+from applicake.utils.dictutils import DictUtils
+from applicake.utils.fileutils import FileUtils
+
+
+class IniInformationHandler(IInformationHandler):
     """    
-    Basic implementation of the IInformationHandler interface. 
-    """      
-    
+    Basic implementation (INI) of the IInformationHandler interface. 
+    """
+
     def __init__(self):
         # keys that have to be removed before writing the information object
-        self.remove_keys = [self.INPUT,self.OUTPUT,self.COPY_TO_WD,
-                       self.GENERATOR,self.COLLECTOR,self.NAME,self.PREFIX,
-                       self.TEMPLATE,self.PRINT_LOG]
-    
-    def get_info(self,log,pargs):
+        self.remove_keys = [Keys.INPUT, Keys.OUTPUT, Keys.GENERATOR, Keys.COLLECTOR, Keys.NAME, Keys.PREFIX,
+                            Keys.TEMPLATE, Keys.WORKDIR]
+
+    def get_info(self, log, pargs):
         """
         See super class.
         
         Command line arguments and arguments in the input file(s) are merged.
         Priority is on the command line arguments.
-        Input files are identified by the key %s
+        Input files are identified by INPUT
         If there are multiple input files, they are merged first by creating value lists.
         If there are no input files pargs is returned.  
-        """ % self.INPUT
-        
+        """
+
         pargs = pargs.copy()
-        if not pargs.has_key(self.INPUT):
+        if not pargs.has_key(Keys.INPUT):
             log.debug('content of pargs [%s]' % pargs)
-            log.info('pargs did not contain the following key [%s]. Therefore pargs is returned' % self.INPUT)
+            log.info('pargs did not contain the key [%s]. Therefore no info is read.' % Keys.INPUT)
             return pargs
         else:
-            inputs = {}
-            for path in pargs[self.INPUT]:
-                if not FileUtils.is_valid_file(log, path):
-                    log.fatal('Exit program because path [%s] is not valid' % path)
-                    sys.exit(1)
-                else:
-                    config = ConfigHandler().read(log, path)
-                    inputs = DictUtils.merge(log,dict_1=inputs, dict_2=config, priority='flatten_sequence')       
-            created_files = {self.COPY_TO_WD:[]}
-            inputs = DictUtils.merge(log,inputs, created_files,priority='right')
-            log.debug("Add/reset key [%s] in info object" % self.COPY_TO_WD)
-#            prefix = {self.prefix_key: None}
-#            inputs = DictUtils.merge(log,inputs, prefix,priority='right')
-#            log.debug("Add/reset key [%s] in info object" % self.prefix_key)                    
-            return DictUtils.merge(log,dict_1=pargs, dict_2=inputs, priority='left') 
-        
-    def write_info(self,info,log):
+            path = pargs[Keys.INPUT]
+            if not FileUtils.is_valid_file(log, path):
+                log.fatal('Exit program because inputfile [%s] is not valid' % path)
+                sys.exit(1)
+
+            config = ConfigObj(path)
+            return config
+
+    def write_info(self, info, log):
         """
         See super class 
         
         Info is written to a single file that is following the Windows INI format. 
-        """ 
-        if info.has_key(self.OUTPUT):
-            path = info[self.OUTPUT]
-            log.debug('output file [%s]' % path)             
-            info_write  = DictUtils.extract(info, self.remove_keys, include=False)
-            log.debug('remove following keys [%s] before writing info' % self.remove_keys)                 
-            ConfigHandler().write(info_write, path) 
-            valid = FileUtils.is_valid_file(log, path )
+        """
+        if info.has_key(Keys.OUTPUT):
+            path = info[Keys.OUTPUT]
+            log.debug('output file [%s]' % path)
+            info_write = DictUtils.extract(info, self.remove_keys, include=False)
+            log.debug('removed following keys [%s] before writing info' % self.remove_keys)
+            config = ConfigObj(info_write)
+            config.filename = path
+            config.write()
+            valid = FileUtils.is_valid_file(log, path)
             if not valid:
                 log.fatal('Exit program because output file [%s] was not valid' % path)
-                sys.exit(1)  
+                sys.exit(1)
         else:
-            log.info('info object did not countain key [%s]. Therefore no output info is written' % self.OUTPUT)                                                                                                                                    
+            log.info('info object did not contain key [%s]. Therefore no info is written' % Keys.OUTPUT)                                                                                                                                    
                                         
