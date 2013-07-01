@@ -19,7 +19,7 @@ class OpenSwathAnalyzerToTSV(IWrapper):
 
         outfile = info['CHROM_MZML'][0].split("split_")[1]
         outfile = outfile.split(".chrom.mzML")[0]
-        outfile = os.path.join(info[Keys.WORKDIR],outfile)
+        outfile = os.path.join(info[Keys.WORKDIR],outfile+".csv")
         command = """for i in %s;
         do root=$(basename $i .chrom.mzML);
         swathfile=$(ls %s/$root.*);
