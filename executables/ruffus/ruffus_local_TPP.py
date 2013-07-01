@@ -150,21 +150,14 @@ def peppromyri(input_file_name, output_file_name):
 ############################# MERGE SEARCH ENGINE RESULTS ################################## 
 #.*_(.+)$ = any char any no. times, underscore, "group" with at least one char, end of line  
 #"groups" are acessible with \n afterwards (.* is not a group!)
-@merge([pepproomssa, pepprotandem, peppromyri], 'mergeengine.ini')
+@collate([pepprotandem,pepproomssa,peppromyri],regex(r".*_(.+)$"),  r'mergeengine.ini_\1')
 def mergeEngines(input_file_names, output_file_name):
     wrap(IniEngineCollector, 'output.ini', 'mergeengine.ini',
          ['--GENERATOR', 'mergeengine.ini', '--ENGINES', 'tandem', '--ENGINES', 'myrimatch', '--ENGINES', 'omssa'])
 
-
-@follows(mergeEngines)
-@split("mergeengine.ini", "mergeengine.ini_*")
-def fakesplit(inn, outt):
-    pass
-
-
-@transform(fakesplit, regex("mergeengine.ini_"), "interprophetengines.ini_")
+@transform(mergeEngines, regex("mergeengine.ini_"), "interprophetengines.ini_")
 def interprophetengines(input_file_name, output_file_name):
-    wrap(InterProphet, input_file_name, output_file_name)
+    wrap(InterProphet, input_file_name, output_file_name,['-n', 'iproengine'])
 
 
 ############################# TAIL: PARAMGENERATE ##################################   
