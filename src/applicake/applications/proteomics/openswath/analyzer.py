@@ -17,15 +17,16 @@ class OpenSwathAnalyzerToTSV(IWrapper):
         info[Keys.TEMPLATE] = os.path.join(info[Keys.WORKDIR], 'analyzer.ini')
         _, info = AnalyzerTemplate().modify_template(info,log)
 
-        outfile = info['CHROM_MZML'][0].split("split_")[1]
-        outfile = outfile.split(".chrom.mzML")[0]
-        outfile = os.path.join(info[Keys.WORKDIR],outfile+".csv")
+        outfile = os.path.basename(info['CHROM_MZML'][0])
+        outfile = outfile[outfile.index("_")+1:outfile.rindex("_")] + ".csv"
+        outfile = os.path.join(info[Keys.WORKDIR],outfile)
+
         command = """for i in %s;
         do root=$(basename $i .chrom.mzML);
         swathfile=$(ls %s/$root.*);
         echo "OpenSwathAnalyzer -tr %s -min_upper_edge_dist %s -rt_norm %s -ini %s -no-strict -in $i -swath_files $swathfile -out %s/$root.featureXML | grep -v accession &&
         OpenSwathFeatureXMLToTSV -tr %s -short_format -in %s/$root.featureXML -out %s/$root.csv";
-        done | parallel -t -j %s --halt 1;
+        done | parallel -t -j %s --halt 1 &&
 
         awk "NR==1 || FNR!=1" %s/*_??.csv > %s""" % \
         (" ".join(info['CHROM_MZML']),
