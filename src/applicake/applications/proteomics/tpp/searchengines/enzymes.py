@@ -28,7 +28,7 @@ class EnzymeDb(object):
             _applications[2]: 'Trypsin/P:1',
             _applications[3]: 'semiTrypsin',
         },
-        'Unspecific': {
+        'Nonspecific': {
             _applications[0]: '[X]|[X]', #does not exist and therefore has to be parsed in xtandem class
             _applications[1]: '17',
             _applications[2]: 'Trypsin/P:0',

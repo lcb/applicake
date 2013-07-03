@@ -98,7 +98,7 @@ class ModificationDb(object):
         Return the program specific modification.
         """
         if name is None or name == "":
-            self.log.info("No modification used")
+            #self.log.info("No modification used")
             return ''
         try:
             name = name.strip()
