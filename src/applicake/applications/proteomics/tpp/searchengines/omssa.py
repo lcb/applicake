@@ -92,7 +92,7 @@ class Omssa(SearchEngine):
             log.debug('added [ -teppm] to modified template because the precursor mass is defined in ppm')
         prefix, app_info = self._get_prefix(app_info, log)
         
-        command = "makeblastdb -dbtype prot -in %s && MzXML2Search -mgf %s && %s %s -fm %s -op %s" % (omssadbase,mzxmllink ,prefix, mod_template, mgffile, self._result_file)       
+        command = "makeblastdb -dbtype prot -in %s && MzXML2Search -mgf %s | grep -v scan && %s %s -fm %s -op %s" % (omssadbase,mzxmllink ,prefix, mod_template, mgffile, self._result_file)       
         return command, info
 
     def set_args(self, log, args_handler):

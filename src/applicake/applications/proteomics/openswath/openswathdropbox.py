@@ -20,15 +20,15 @@ class Copy2SwathDropbox(Copy2Dropbox):
     """
 
     def main(self, info, log):
-    #TODO: simplify "wholeinfo" apps
+        #TODO: simplify "wholeinfo" apps
         #re-read INPUT to get access to whole info, needs set_args(INPUT). add runnerargs to set_args if modified by runner
         ini = IniInformationHandler().get_info(log, info)
         info = DictUtils.merge(log, info, ini)
 
         stagebox = self._make_stagebox(log, info)
-
-        #compress align.csv, but not the matrix
+        
         self._keys_to_dropbox(log, info, ['ALIGNMENT_TSV'], stagebox)
+        #patch: compress align.csv, but not the matrix
         subprocess.check_call('gzip '+stagebox+'/*',shell=True)
         self._keys_to_dropbox(log, info, ['ALIGNMENT_MATRIX'], stagebox)
 

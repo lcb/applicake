@@ -89,8 +89,8 @@ def DSSgenerator(input_file_name, notused_output_file_names):
 
 @transform(DSSgenerator, regex("dssgenerator.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):
-    thandle, tfile = tempfile.mkstemp(suffix='.out', prefix='getmsdata', dir='.')
-    wrap(Dss, input_file_name, output_file_name, ['--PREFIX', 'getmsdata', '--RESULT_FILE', tfile])
+    thandle, tfile = tempfile.mkstemp(suffix='.out', prefix='getdataset', dir='.')
+    wrap(Dss, input_file_name, output_file_name, ['--PREFIX', 'getdataset', '--RESULT_FILE', tfile])
 
 @transform(dss, regex("dss.ini_"), "splitwindows.ini_")
 def splitwindows(input_file_name, output_file_name):
