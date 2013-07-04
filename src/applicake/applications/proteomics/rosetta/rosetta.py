@@ -50,8 +50,8 @@ class RosettaTemplate(BasicTemplateHandler):
 -cm:aln_format grishin
 
 # files that start with aat000 are fragment files, 03 and 09 refers to length of fragments (always same name)
--frag3 $ROSETTA_INPUTDIR/aat000_03_05.200_v1_3.gz
--frag9 $ROSETTA_INPUTDIR/aat000_09_05.200_v1_3.gz
+-frag3 $ROSETTA_INPUTDIR/t000_.200.3mers
+-frag9 $ROSETTA_INPUTDIR/t000_.200.9mers
 
 # fasta file is a file: t000_.fasta (always same name)
 -in:file:fasta $ROSETTA_INPUTDIR/t000_.fasta
@@ -59,7 +59,7 @@ class RosettaTemplate(BasicTemplateHandler):
 
 -loops:frag_sizes 9 3 1
 # these are the same as above (always same name)
--loops:frag_files $ROSETTA_INPUTDIR/aat000_09_05.200_v1_3.gz $ROSETTA_INPUTDIR/aat000_03_05.200_v1_3.gz none
+-loops:frag_files $ROSETTA_INPUTDIR/t000_.200.9mers $ROSETTA_INPUTDIR/t000_.200.3mers none
 
 
 

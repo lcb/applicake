@@ -5,7 +5,7 @@ Created on Jun 5, 2012
 @author: quandtan
 '''
 
-import os
+import sys,os,subprocess,tempfile
 from ruffus import *
 from applicake.applications.proteomics.openbis.dss import Dss
 
@@ -36,18 +36,19 @@ def wrap(applic, input_file_name, output_file_name, opts=None):
 
 
 def setup():
-    #subprocess.call("rm *.err *.out *ini* *.log",shell=True)
-    if os.path.exists("input.ini"):
-        return
-    with open("input.ini", 'w+') as f:
-        f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
+    if len(sys.argv) > 1 and sys.argv[1] == 'restart':
+        print 'Starting from scratch by creating new input.ini'
+        subprocess.call("rm *ini* *.err *.out", shell=True)
+        with open("input.ini", 'w+') as f:
+            f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 SPACE = ROSETTA
 PROJECT = DECOYS
 EXPERIMENT = DECOYS
 LOG_LEVEL = INFO
 STORAGE = unchanged
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
-DATASET_CODE = 20120301183733088-335945, 20120301154907468-332952
+#DONOTWORK: 20130503184030626-811351 20130507150111512-812690
+DATASET_CODE = 20130528220101400-821432, 20130528221822790-821898
 WORKFLOW = ruffus_local_rosetta
 COMMENT = comment
 NSTRUCT = 2
@@ -55,6 +56,8 @@ DROPBOX = ./
 RANDOM_GROW_LOOPS_BY = 4
 SELECT_BEST_LOOP_FROM = 1 
 """)
+    else:
+        print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
 
 
 @follows(setup)
@@ -65,7 +68,8 @@ def generator(input_file_name, notused_output_file_names):
 
 @transform(generator, regex("generate.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):
-    wrap(Dss, input_file_name, output_file_name, ['--PREFIX', 'getdataset'])
+    _, tfile = tempfile.mkstemp(suffix='.out', prefix='getdataset', dir='.')
+    wrap(Dss, input_file_name, output_file_name, ['--PREFIX', 'getdataset', '--RESULT_FILE', tfile])
 
 
 @transform(dss, regex("dss.ini_"), "extractrosetta.ini_")
