@@ -29,7 +29,7 @@ class Copy2SwathDropbox(Copy2Dropbox):
         
         self._keys_to_dropbox(log, info, ['ALIGNMENT_TSV'], stagebox)
         #patch: compress align.csv, but not the matrix
-        subprocess.check_call('gzip '+stagebox+'/*',shell=True)
+        subprocess.check_call('gzip -v '+stagebox+'/*',shell=True)
         self._keys_to_dropbox(log, info, ['ALIGNMENT_MATRIX'], stagebox)
 
         #compress all mprophet files into one zip
