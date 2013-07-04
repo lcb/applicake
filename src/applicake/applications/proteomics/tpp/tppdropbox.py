@@ -82,9 +82,9 @@ class MailTemplate(BasicTemplateHandler):
             info['EXPERIMENT_CODE'] = info['experiment-code']
             info['USERNAME'] = getpass.getuser()
             if info['RUNPETUNIA'] == 'none':
-                info['WARNING'] = "RUNPETUNIA was set none. To make the links above work please run first:"
+                info['RUNMSG'] = "RUNPETUNIA was set none. To make the links above work please run first:"
             else:
-                info['WARNING'] = "In case the links do not work they can be restored with:"
+                info['RUNMSG'] = "In case the links do not work they can be restored with:"
             template = """Dear $USERNAME
     
 Your TPP search workflow finished sucessfully!
@@ -93,7 +93,7 @@ To visualize the results with Petunia see:
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
     
-$WARNING
+$RUNMSG
 [user@imsb-ra-tpp~] # cd ~/html/petunia; tpp2viewer2.py $EXPERIMENT_CODE
     
 To cite this workflow use:
@@ -108,7 +108,6 @@ The iPortal team
 Please note that this message along with your results are stored in openbis:
 https://openbis-phosphonetx.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT""" % (
             tandemver, omssaver, myriver, tppver)
-        del info['WARNING']
         
         return template, info
 
