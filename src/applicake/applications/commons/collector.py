@@ -49,8 +49,7 @@ class IniCollector(IApplication):
         @param log: see super class 
         """
         #warn printing if user might have forgotten to set --INPUT collectfile_0 or cmdline arguments
-        if not Keys.BASEDIR in info or not Keys.JOB_IDX in info or (
-                info[Keys.STORAGE] == "memory" and info[Keys.LOG_LEVEL] == "DEBUG"):
+        if not Keys.INPUT in info:
             log.warn("With Collector the keys BASEDIR, JOB_IDX, LOG_LEVEL and STORAGE "
                      "are changed to default if not set on commandline or in inputinfo. "
                      "To ensure consistency in the workflow it is recommended to set --INPUT collectfile_0")
@@ -96,8 +95,8 @@ class IniCollector(IApplication):
         args_handler.add_app_args(log, Keys.COLLECTOR,
                                   'Base name for collecting output files (e.g. from a parameter sweep)')
 
+        args_handler.add_app_args(log, Keys.INPUT, 'for checking')
         #TODO: simplify "wholeinfo" apps
-        #args_handler.add_app_args(log, Keys.INPUT, 're-read input to access whole info')
         args_handler.add_app_args(log, Keys.BASEDIR, 'get basedir if set or modified by runner')
         args_handler.add_app_args(log, Keys.JOB_IDX, 'get jobidx if set or modified by runner')
         args_handler.add_app_args(log, Keys.STORAGE, 'get storage if set or modified by runner')

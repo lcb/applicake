@@ -207,7 +207,7 @@ class XtandemTemplate(BasicTemplateHandler):
 
 <note type="heading">Protein general</note>    
     <note type="input" label="protein, taxon">no default</note>
-    <note type="input" label="protein, cleavage site">[RK]|{P}</note>
+    <note type="input" label="protein, cleavage site">$ENZYME</note>
     <note type="input" label="protein, cleavage semi">$XTANDEM_SEMI_CLEAVAGE</note>
 <!--   do not add, otherwise xinteracts generates tons of confusing modification entries
     <note type="input" label="protein, cleavage C-terminal mass change">+17.00305</note>
