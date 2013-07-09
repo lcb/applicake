@@ -17,13 +17,13 @@ class EnzymeDb(object):
 
     _enzymes = {
         'Trypsin': {
-            _applications[0]: '[RK]{P}',
+            _applications[0]: '[RK]|{P}',
             _applications[1]: '0',
             _applications[2]: 'Trypsin/P:2', #The number after the ':' is the number of MinTerminiCleavages
             _applications[3]: 'Trypsin',
         },
         'Semi-Tryptic': {
-            _applications[0]: '[RK]{P}:2', #does not exist and therefore has to be parsed in xtandem class
+            _applications[0]: '[RK]|{P}:2', #does not exist and therefore has to be parsed in xtandem class
             _applications[1]: '16',
             _applications[2]: 'Trypsin/P:1',
             _applications[3]: 'semiTrypsin',

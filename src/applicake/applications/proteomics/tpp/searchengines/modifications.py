@@ -80,6 +80,13 @@ class ModificationDb(object):
             _applications[2]: '[HW] 15.995',
             _applications[3]: '<LISTITEM value="Oxidation (HW)"/>'
         },
+             
+        'Deamidation (NQ)': {
+            _applications[0]: '0.984016@N,0.984016@Q',
+            _applications[1]: '4',
+            _applications[2]: '[NQ] 0.984016',
+            _applications[3]: '<LISTITEM value="Deamidation (NQ)"/>'
+        },
     }
 
     def __init__(self, log=None):
