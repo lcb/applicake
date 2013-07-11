@@ -45,17 +45,16 @@ SPACE = ROSETTA
 PROJECT = DECOYS
 EXPERIMENT = DECOYS
 LOG_LEVEL = INFO
-STORAGE = unchanged
+STORAGE = file
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
-#DONOTWORK: 20130503184030626-811351 20130507150111512-812690
 DATASET_CODE = 20130528220101400-821432, 20130528221822790-821898
+
 WORKFLOW = ruffus_local_rosetta
 COMMENT = comment
 NSTRUCT = 2
 DROPBOX = ./
 RANDOM_GROW_LOOPS_BY = 4
-SELECT_BEST_LOOP_FROM = 1 
-""")
+SELECT_BEST_LOOP_FROM = 1""")
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
 
@@ -63,14 +62,14 @@ SELECT_BEST_LOOP_FROM = 1
 @follows(setup)
 @split("input.ini", "generate.ini_*")
 def generator(input_file_name, notused_output_file_names):
-    wrap(IniDatasetcodeGenerator, input_file_name, "output.ini", ['--GENERATOR', 'generate.ini'])
+    wrap(IniDatasetcodeGenerator, input_file_name, "generate.ini", ['--GENERATOR', 'generate.ini'])
 
 
 @transform(generator, regex("generate.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):
     _, tfile = tempfile.mkstemp(suffix='.out', prefix='getdataset', dir='.')
     wrap(Dss, input_file_name, output_file_name, ['--PREFIX', 'getdataset', '--RESULT_FILE', tfile])
-
+    os.remove(tfile)
 
 @transform(dss, regex("dss.ini_"), "extractrosetta.ini_")
 def extractrosetta(input_file_name, output_file_name):
@@ -87,4 +86,4 @@ def copy2rosettadropbox(input_file_name, output_file_name):
     wrap(Copy2RosettaDropbox, input_file_name, output_file_name)
 
 
-pipeline_run([copy2rosettadropbox], verbose=5, multiprocess=3)
+pipeline_run([copy2rosettadropbox], verbose=2, multiprocess=6)

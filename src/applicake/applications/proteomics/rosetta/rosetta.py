@@ -5,6 +5,7 @@ Created on May 10, 2012
 """
 
 import os
+from configobj import ConfigObj 
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.framework.keys import Keys
@@ -17,18 +18,35 @@ class Rosetta(IWrapper):
 
     def prepare_run(self, info, log):
         wd = info[Keys.WORKDIR]
-        info['TEMPLATE'] = info['ROSETTA_FLAGSFILE'] = os.path.join(wd, 'flags')
+
+        for f in info[Keys.DSSOUTPUT]:
+            if "dataset.properties" in f:
+                dsprop = ConfigObj(f)
+        info.update(dsprop)
+        
+        info["PDBS"] = ""               
+        for pdb in dsprop["TEMPLATES"].split():
+            info["PDBS"] += info["ROSETTA_EXTRACTDIR"] + "/" + pdb + " "        
+
         info['ROSETTA_OUT'] = os.path.join(wd, 'default.out')
+        #necessary: output is compressed by gzip
         info['ROSETTA_COMPRESSEDOUT'] = info['ROSETTA_OUT'] + '.gz'
-        _, info = RosettaTemplate().modify_template(info, log)
-        #FIXME: template db are given  by cmdline to have correct expansion to n files 
-        command = "minirosetta.default.linuxgccrelease @%s -in:file:template_pdb %s/*.pdb && gzip %s" % (
-        info['TEMPLATE'], info['ROSETTA_INPUTDIR'], info['ROSETTA_OUT'])
+
+        app_info = info.copy()
+        app_info["THREEMERS"] = info["3MERS"] 
+        app_info["NINEMERS"] = info["9MERS"]
+        
+        app_info['TEMPLATE'] = os.path.join(wd, 'flags')
+        RosettaTemplate().modify_template(app_info, log)
+        
+        command = "%s @%s && gzip %s" % (info["PREFIX"], app_info['TEMPLATE'], app_info['ROSETTA_OUT'])
         return command, info
 
     def set_args(self, log, args_handler):
-        args_handler.add_app_args(log, 'ROSETTA_INPUTDIR', '')
+        args_handler.add_app_args(log, Keys.PREFIX, 'command to execute',default="minirosetta.default.linuxgccrelease")
+        args_handler.add_app_args(log, Keys.DSSOUTPUT, 'file list downloaded by dss')
         args_handler.add_app_args(log, Keys.WORKDIR, 'Directory to store files')
+        args_handler.add_app_args(log, 'ROSETTA_EXTRACTDIR', 'dir where rosetta dataset was extracted to')
         args_handler.add_app_args(log, 'NSTRUCT', 'Number of structures created')
         args_handler.add_app_args(log, 'RANDOM_GROW_LOOPS_BY', '')
         args_handler.add_app_args(log, 'SELECT_BEST_LOOP_FROM', '')
@@ -46,25 +64,23 @@ class RosettaTemplate(BasicTemplateHandler):
 -run:shuffle
 
 # alignment.filt is an input file
--in:file:alignment $ROSETTA_INPUTDIR/alignment.filt
+-in:file:alignment $ROSETTA_EXTRACTDIR/alignment.filt
 -cm:aln_format grishin
 
 # files that start with aat000 are fragment files, 03 and 09 refers to length of fragments (always same name)
--frag3 $ROSETTA_INPUTDIR/t000_.200.3mers
--frag9 $ROSETTA_INPUTDIR/t000_.200.9mers
+-frag3 $ROSETTA_EXTRACTDIR/$THREEMERS
+-frag9 $ROSETTA_EXTRACTDIR/$NINEMERS
 
 # fasta file is a file: t000_.fasta (always same name)
--in:file:fasta $ROSETTA_INPUTDIR/t000_.fasta
+-in:file:fasta $ROSETTA_EXTRACTDIR/t000_.fasta
 -in:file:fullatom
 
 -loops:frag_sizes 9 3 1
 # these are the same as above (always same name)
--loops:frag_files $ROSETTA_INPUTDIR/t000_.200.9mers $ROSETTA_INPUTDIR/t000_.200.3mers none
-
-
+-loops:frag_files $ROSETTA_EXTRACTDIR/$NINEMERS $ROSETTA_EXTRACTDIR/$THREEMERS none
 
 # file is also a file: t000_.psipred_ss2 (always same name)
--in:file:psipred_ss2 $ROSETTA_INPUTDIR/t000_.psipred_ss2
+-in:file:psipred_ss2 $ROSETTA_EXTRACTDIR/t000_.psipred_ss2
 -in:file:fullatom
 
 -idealize_after_loop_close
@@ -86,9 +102,8 @@ class RosettaTemplate(BasicTemplateHandler):
 
 -in:detect_disulf false
 -fail_on_bad_hbond false
-# Not the same name, use all => as cmdlinearg
 #-in:file:template_pdb 1c4oA.pdb 1d2mA.pdb 1d9zA.pdb 1t5lB.pdb 2d7dA.pdb 2fdcB.pdb 2nmvA.pdb 2q3fA.pdb 3lluA.pdb
-
+-in:file:template_pdb $PDBS
 -bGDT
 -evaluation:gdtmm      
         """

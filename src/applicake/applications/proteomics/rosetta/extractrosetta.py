@@ -15,7 +15,7 @@ class Extractrosetta(IWrapper):
 
     def prepare_run(self, info, log):
         wd = info[Keys.WORKDIR]
-        info['ROSETTA_INPUTDIR'] = wd
+        info['ROSETTA_EXTRACTDIR'] = wd
         archivepath = None
         for dssout in info[Keys.DSSOUTPUT]:
             if dssout.endswith('tgz'):
