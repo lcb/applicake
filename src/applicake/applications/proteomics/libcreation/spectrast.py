@@ -40,7 +40,7 @@ class RawlibNodecoy(IWrapper):
 
         root = os.path.join(info[Keys.WORKDIR], 'RawlibNodecoy')
         self._result_file = info[Keys.SPLIB] = root + '.splib'
-        command = 'spectrast -c_BIN! -cP%s -cI%s -cN%s %s' % (
+        command = "spectrast -c_BIN! -cf'Protein!~DECOY' -cP%s -cI%s -cN%s %s" % (
         info[Keys.PROBABILITY], info['MS_TYPE'], root, symlink_files[0])
         return command, info
 
@@ -96,7 +96,7 @@ class RTcalibNoirt(IWrapper):
 
         root = os.path.join(info[Keys.WORKDIR], 'RTcalibNoirt')
         self._result_file = info[Keys.SPLIB] = root + '.splib'
-        return "spectrast -c_BIN! -cf'Protein !~ iRT & ' -cN%s %s" % (root, self._orig_splib), info
+        return "spectrast -c_BIN! -cf'Protein!~iRT' -cN%s %s" % (root, self._orig_splib), info
 
     def set_args(self, log, args_handler):
         """
