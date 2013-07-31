@@ -8,8 +8,8 @@ class FeatureAlignment(IWrapper):
     _outfiles = []
 
     def prepare_run(self, info, log):
-        info['ALIGNMENT_TSV'] = os.path.join(info['WORKDIR'], "feature_alignment.csv")
-        info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_matrix.csv")
+        info['ALIGNMENT_TSV'] = os.path.join(info['WORKDIR'], "feature_alignment.tsv")
+        info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_matrix.tsv")
         if not isinstance(info["MPROPHET_TSV"], list):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
 
