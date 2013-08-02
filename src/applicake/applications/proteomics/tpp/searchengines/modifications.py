@@ -3,25 +3,6 @@ Created on Jun 5, 2012
 
 @author: quandtan
 
-Omssa usermods.xml for biotin:
-  <MSModSpec>
-    <MSModSpec_mod>
-      <MSMod value="usermod7">125</MSMod>
-    </MSModSpec_mod>
-    <MSModSpec_type>
-      <MSModType value="modaa">0</MSModType>
-    </MSModSpec_type>
-    <MSModSpec_name>Biotin</MSModSpec_name>
-    <MSModSpec_monomass>226.077598</MSModSpec_monomass>
-    <MSModSpec_averagemass>226.2954</MSModSpec_averagemass>
-    <MSModSpec_n15mass>0</MSModSpec_n15mass>
-    <MSModSpec_residues>
-      <MSModSpec_residues_E>K</MSModSpec_residues_E>
-    </MSModSpec_residues>
-    <MSModSpec_unimod>21</MSModSpec_unimod>
-    <MSModSpec_psi-ms>Biotin</MSModSpec_psi-ms>
-  </MSModSpec>
-
 """
 
 import sys
@@ -69,7 +50,7 @@ class ModificationDb(object):
         },
         'Biotin (K)': {
             _applications[0]: '226.077598@K',
-            _applications[1]: '125',
+            _applications[1]: '119',
             _applications[2]: 'K 226.077598',
             _applications[3]: '<LISTITEM value="Biotin (K)"/>'
         },
@@ -88,6 +69,38 @@ class ModificationDb(object):
             _applications[3]: '<LISTITEM value="Deamidation (NQ)"/>'
         },
     }
+    
+    def write_omssa_usermodxml(self,path):
+        """
+        Writes a usermods.xml file for OMSSA. This file contains all user defined modifications not
+        defined in OMSSAS default "mods.xml". Included here to be independent of the current omssa
+        installation.
+        """
+        open(path,"w").write("""<?xml version="1.0"?>
+<MSModSpecSet
+    xmlns="http://www.ncbi.nlm.nih.gov"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+    xs:schemaLocation="http://www.ncbi.nlm.nih.gov OMSSA.xsd"
+>
+  <MSModSpec>
+    <MSModSpec_mod>
+      <MSMod value="usermod1">119</MSMod>
+    </MSModSpec_mod>
+    <MSModSpec_type>
+      <MSModType value="modaa">0</MSModType>
+    </MSModSpec_type>
+    <MSModSpec_name>Biotin</MSModSpec_name>
+    <MSModSpec_monomass>226.077598</MSModSpec_monomass>
+    <MSModSpec_averagemass>226.2954</MSModSpec_averagemass>
+    <MSModSpec_n15mass>0</MSModSpec_n15mass>
+    <MSModSpec_residues>
+      <MSModSpec_residues_E>K</MSModSpec_residues_E>
+    </MSModSpec_residues>
+    <MSModSpec_unimod>21</MSModSpec_unimod>
+    <MSModSpec_psi-ms>Biotin</MSModSpec_psi-ms>
+  </MSModSpec>
+</MSModSpecSet>
+""")
 
     def __init__(self, log=None):
         """
@@ -123,4 +136,3 @@ class ModificationDb(object):
         """
         return self._mods.keys()
         
-    

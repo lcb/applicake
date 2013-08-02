@@ -10,6 +10,7 @@ from applicake.applications.proteomics.tpp.searchengines.base import SearchEngin
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
+from applicake.applications.proteomics.tpp.searchengines.modifications import ModificationDb
 
 
 class Omssa(SearchEngine):
@@ -42,8 +43,12 @@ class Omssa(SearchEngine):
             info[self.VARIABLE_MODS] = '-mv %s' % info[self.VARIABLE_MODS]
         if info[self.STATIC_MODS] is not '':
             info[self.STATIC_MODS] = '-mf %s' % info[self.STATIC_MODS]
+        
+        log.info("Overwriting OMSSA's usermods xml with an on-the-fly created file")
+        info["USERMODXML"] = os.path.join(info["WORKDIR"],"usermods.xml")
+        ModificationDb().write_omssa_usermodxml(info["USERMODXML"])
         return info
-
+        
     def get_template_handler(self):
         """
         See interface
@@ -130,10 +135,8 @@ class OmssaTemplate(BasicTemplateHandler):
     """
 
     def read_template(self, info, log):
-        """
-        See super class.
-        """
-        template = """-nt $THREADS -d $DBASE -e $ENZYME -v $MISSEDCLEAVAGE $STATIC_MODS $VARIABLE_MODS -he 100000.0 -zcc 1 -ii 0 -te $PRECMASSERR -to $FRAGMASSERR -ht 6 -hm 2 -ir 0 -h1 100 -h2 100 -hl 1
+        
+        template = """-nt $THREADS -d $DBASE -e $ENZYME -v $MISSEDCLEAVAGE $STATIC_MODS $VARIABLE_MODS -mux $USERMODXML -he 100000.0 -zcc 1 -ii 0 -te $PRECMASSERR -to $FRAGMASSERR -ht 6 -hm 2 -ir 0 -h1 100 -h2 100 -hl 1
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template, info
