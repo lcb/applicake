@@ -63,11 +63,10 @@ class PeptideProphetSequence(IWrapper):
             log.critical('[%s] is not well formed.' % self._result_file)
             return 1, info
 
-        if not 'model complete after' in out_stream.read():
-            log.error('PeptideProphet model did not complete.')
-            out_stream.seek(0)
-            log.error(out_stream.read())
-            return 1, info
+        #out_stream.seek(0)   
+        #if not 'model complete after' in out_stream.read():
+        #    log.error('PeptideProphet model did not complete.')
+        #    return 1, info
 
         info[Keys.PEPXMLS] = [self._result_file]
         return run_code, info
