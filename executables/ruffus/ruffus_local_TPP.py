@@ -7,6 +7,7 @@ Created on Aug 13, 2012
 
 import sys
 import subprocess
+import tempfile
 
 from ruffus import *
 from applicake.applications.proteomics.openbis.biopersdb import BioPersonalDB
@@ -19,13 +20,11 @@ from applicake.applications.commons.collector import IniCollector
 from applicake.applications.proteomics.tpp.enginecollector import IniEngineCollector
 from applicake.applications.proteomics.tpp.searchengines.xtandem import Xtandem
 from applicake.applications.proteomics.openbis.dss import Dss
-from applicake.applications.proteomics.tpp.tandem2xml import Tandem2Xml
 from applicake.applications.proteomics.tpp.interprophet import InterProphet
 from applicake.applications.proteomics.tpp.proteinprophetFDR import ProteinProphetFDR
 from applicake.applications.proteomics.tpp.protxml2openbissequence import ProtXml2OpenbisSequence
 from applicake.applications.proteomics.tpp.tppdropbox import Copy2IdentDropbox
 from applicake.framework.interfaces import IApplication, IWrapper
-from applicake.applications.proteomics.tpp.mzxml2search import Mzxml2Search
 from applicake.applications.proteomics.tpp.searchengines.omssa import Omssa
 from applicake.applications.proteomics.tpp.searchengines.myrimatch import Myrimatch
 from applicake.applications.proteomics.tpp.peptideprophetsequence import PeptideProphetSequence
@@ -103,9 +102,9 @@ def datasetSplit(input_file_name, notused_output_file_names):
 
 
 @transform(datasetSplit, regex("generate.ini_"), "dss.ini_")
-@jobs_limit(1)
 def dss(input_file_name, output_file_name):
-    wrap(Dss, input_file_name, output_file_name, ['--PREFIX', 'getmsdata'])
+    _, tfile = tempfile.mkstemp(suffix='.out', prefix='getdataset', dir='.')
+    wrap(Dss, input_file_name, output_file_name, ['--PREFIX', 'getmsdata','--RESULT_FILE', tfile])
 
 
 @transform(dss, regex("dss.ini_"), "engineSplit.ini_")
