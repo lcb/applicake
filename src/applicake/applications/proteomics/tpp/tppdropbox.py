@@ -71,20 +71,20 @@ class MailTemplate(BasicTemplateHandler):
         else:
             tandemver = ''
             if info['RUNTANDEM'] == 'True':
-                tandemver = 'tandem (v' + subprocess.check_output(['which', 'tandem.exe']).split('/')[4] + ')'
+                tandemver = 'tandem (version ' + subprocess.check_output("tandem a | grep TANDEM", shell=True).strip() + ')'
             omssaver = ''
             if info['RUNOMSSA'] == 'True':
-                omssaver = 'omssa (v' + subprocess.check_output(['which', 'omssacl']).split('/')[4] + ')'
+                omssaver = 'omssa (version ' + subprocess.check_output(['which', 'omssacl']).split('/')[4] + ')'
             myriver = ''
             if info['RUNMYRIMATCH'] == 'True':
-                myriver = 'myrimatch (v' + subprocess.check_output(['which', 'myrimatch']).split('/')[4] + ')'
+                myriver = 'myrimatch (version ' + subprocess.check_output(['which', 'myrimatch']).split('/')[4] + ')'
             tppver = subprocess.check_output(['which', 'ProteinProphet']).split('/')[4]
             info['EXPERIMENT_CODE'] = info['experiment-code']
             info['USERNAME'] = getpass.getuser()
             if info['RUNPETUNIA'] == 'none':
-                info['RUNMSG'] = "RUNPETUNIA was set none. To make the links above work please run first:"
+                runmsg = "RUNPETUNIA was set none. To make the links above work please run first:"
             else:
-                info['RUNMSG'] = "In case the links do not work they can be restored with:"
+                runmsg = "In case the links do not work they can be restored with:"
             template = """Dear $USERNAME
     
 Your TPP search workflow finished sucessfully!
@@ -93,7 +93,7 @@ To visualize the results with Petunia see:
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
     
-$RUNMSG
+%s
 [user@imsb-ra-tpp~] # cd ~/html/petunia; tpp2viewer2.py $EXPERIMENT_CODE
     
 To cite this workflow use:
@@ -107,7 +107,7 @@ The iPortal team
     
 Please note that this message along with your results are stored in openbis:
 https://openbis-phosphonetx.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT""" % (
-            tandemver, omssaver, myriver, tppver)
+            runmsg, tandemver, omssaver, myriver, tppver)
         
         return template, info
 
