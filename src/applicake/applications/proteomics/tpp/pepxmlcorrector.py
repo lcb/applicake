@@ -14,21 +14,17 @@ class PepXMLCorrector(IApplication):
         """
         http://www.systemsx.ch:8080/browse/TPP-12
 
-        scan numbers => different padding leads to non-matching in iProphet & errors in spectrast
-        Tandem: Tandem2XML = 00000-Padding
-        Omssa: MzXML2Search = 00000-Padding
-        Myrimatch: None
+        1) <spectrum_query spectrum=...>: different padding in scan numbers leads to mismatches in iProphet (CHLUDWIG_M1107_001.00650.00650.2 wont match CHLUDWIG_M1107_001.650.650.2)
+        Tandem: Tandem2XML makes tags with 00000-Padding (00650, 123456)
+        Omssa: MzXML2Search makes tags with 00000-Padding (00650, 123456) 
+        Myrimatch: No padding (650, 123456)
+        Fix: Add Padding for myrimatch
 
-        base_name msms_run_summary => .pep.xml in this tag leads to error in LFQ (IDFileConverter: found no experiment with name NNN)
-        Tandem2xml: /dspath/DSID
-        Omssa: /temppath/DSID.pep.xml
-        Myrimatch: DSID
-        make DSID (dspath might change) and use IDFileConverter -mz_name
-
-        search_id => missing attribute leads to error in LFQ (IDFileConverter: Required attribute 'search_id' not present!) FIXED IN v1.10
-        Tandem y
-        Omssa y
-        Myrimatch n!
+        2) <msms_run_summary base_name=...>: .pep.xml in this tag leads to error in LFQ (IDFileConverter: found no experiment with name NNN)
+        Tandem2xml: /dspath/DSID OK
+        Omssa: /temppath/DSID.pep.xml ERROR
+        Myrimatch: DSID OK
+        Fix: Remove .pep.xml for Omssa        
         """
         pepxmlin = info[Keys.PEPXMLS][0]
         pepxmlout = os.path.join(info[Keys.WORKDIR], 'corrected.pep.xml')
@@ -37,32 +33,25 @@ class PepXMLCorrector(IApplication):
 
         log.info("correcting pepxml")
         fout = open(pepxmlout, 'w')
+        sq = 0
         for line in open(pepxmlin).readlines():
-            if '<msms_run_summary base_name' in line:
-                #all engines: link to real original mzXML
-                spaces = line[:line.find('<')]
-                line = spaces + '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n' % mzxmlbase
-                log.info('changed msms_run_summary tag')
-            elif '<search_summary base_name' in line:
-                #myrimatch: no search_id
-                if line.find('search_id') == -1:
-                    line = line.replace('>', ' search_id="1">')
-                    log.info("added search_id")
-                    #omssa: superfluous .pep.xml
-                basename = self._getValue(line, 'base_name')
-                line = line.replace(basename, mzxmlbase)
-                log.info('changed search_summary')
-            elif '<spectrum_query spectrum="' in line:
+            #fix 1)
+            if '<spectrum_query spectrum="' in line:
                 spectrum = self._getValue(line, 'spectrum')
                 (basename, start_scan, end_scan, assumed_charge) = spectrum.split('.')
-                if len(end_scan) > 5:
-                    log.critical("Scan number > 5 digits, this will kill the Prophets, aborting!")
-                    return 1, info
-                spectrum_mod = "%s.%05d.%05d.%s" % (mzxmlbase, int(start_scan), int(end_scan), assumed_charge)
-                line = line.replace(spectrum, spectrum_mod)
+                if len(start_scan) < 5:
+                    spectrum_mod = "%s.%05d.%05d.%s" % (basename, int(start_scan), int(end_scan), assumed_charge)
+                    line = line.replace(spectrum, spectrum_mod)
+                    sq+=1
+            #fix 2)            
+            elif '<msms_run_summary base_name' in line and ".pep.xml" in line:
+                spaces = line[:line.find('<')]
+                line = spaces + '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n' % mzxmlbase
+                log.info('modified msms_run_summary (omssa)')
 
             fout.write(line)
         fout.close()
+        if sq != 0: log.info('modified spectrum_query %s times (myrimatch)'%sq)
 
         info['PEPXMLS'] = [pepxmlout]
         return 0, info
