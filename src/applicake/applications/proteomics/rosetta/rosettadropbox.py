@@ -4,6 +4,7 @@ Created on Aug 10, 2012
 @author: lorenz
 """
 import os
+import socket
 from applicake.framework.keys import Keys
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
 from applicake.framework.informationhandler import IniInformationHandler
@@ -29,7 +30,16 @@ class Copy2RosettaDropbox(Copy2Dropbox):
         dsattr[Keys.OUTPUT] = os.path.join(stagebox, 'dataset.attributes')
         IniInformationHandler().write_info(dsattr, log)
         
-        dsprop = info.copy()
+        dsprop = {}
+        #N_MODELS missing
+        for key in ['SEQ', 'COMMENT', 'ROSETTA_VERSION', 'RUN__PROTOCOL', 'RUN__SHUFFLE', 'INFRASTRUCTURE', 'N_MODELS', 
+                    'DATABASE', 'IN__FILE__ALIGNMENT', 'CM__ALN_FORMAT', 'FRAG3', 'FRAG9', 'IN__FILE__FASTA', 'IN__FILE__FULLATOM', 
+                    'IN__FILE__PSIPRED_SS2', 'IN__DETECT_DISULF', 'IN__FILE__TEMPLATE_PDB', 'LOOPS__FRAG_SIZES', 'LOOPS__FRAG_FILES', 
+                    'IDEALIZE_AFTER_LOOP_CLOSE', 'LOOPS__EXTENDED', 'LOOPS__BUILD_INITIAL', 'LOOPS__REMODEL', 'LOOPS__RELAX', 
+                    'RANDOM_GROW_LOOPS_BY', 'SELECT_BEST_LOOP_FROM', 'RELAX__FAST', 'RELAX__DEFAULT_REPEATS', 'SILENT_DECOYTIME', 
+                    'FAIL_ON_BAD_HBOND', 'BGDT', 'EVALUATION__GDTMM', 'OUT__FILE__SILENT_STRUCT_TYPE']:
+            dsprop[key]=info[key]
+
         dsprop[Keys.OUTPUT] = os.path.join(stagebox, 'dataset.properties')
         IniInformationHandler().write_info(dsprop, log)
 

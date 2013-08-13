@@ -45,14 +45,14 @@ SPACE = ROSETTA
 PROJECT = DECOYS
 EXPERIMENT = DECOYS
 LOG_LEVEL = INFO
-STORAGE = file
+STORAGE = unchanged
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DATASET_CODE = 20130528220101400-821432, 20130528221822790-821898
 
 WORKFLOW = ruffus_local_rosetta
 COMMENT = comment
-NSTRUCT = 2
-DROPBOX = ./
+N_MODELS = 2
+DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis-dropbox
 RANDOM_GROW_LOOPS_BY = 4
 SELECT_BEST_LOOP_FROM = 1""")
     else:
