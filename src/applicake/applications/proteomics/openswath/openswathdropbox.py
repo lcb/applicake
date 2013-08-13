@@ -59,10 +59,10 @@ class Copy2SwathDropbox(Copy2Dropbox):
 
         expinfo = {}
         expinfo['PARENT-DATA-SET-CODES'] = info[Keys.DATASET_CODE]
-        for key in ['COMMENT', 'TRAML', 'EXTRACTION_WINDOW', 'RT_EXTRACTION_WINDOW', 'MIN_UPPER_EDGE_DIST',
-                    'MPR_NUM_XVAL', 'IRTTRAML', 'MIN_RSQ', 'WORKFLOW',
-                    #'WINDOW_UNIT','MPR_MAINVARS','MPR_VARS','MPR_LDA_PATH','MIN_COVERAGE'
-        ]:
+        for key in ['WORKFLOW','COMMENT', 'TRAML', 'EXTRACTION_WINDOW', 'WINDOW_UNIT','RT_EXTRACTION_WINDOW', 
+                    'MIN_UPPER_EDGE_DIST', 'IRTTRAML', 'MIN_RSQ', 'MIN_COVERAGE', 'MPR_NUM_XVAL', 
+                    'MPR_LDA_PATH', 'MPR_MAINVAR', 'MPR_VARS', 'ALIGNER_FDR', 'ALIGNER_FRACSELECTED',
+                    'ALIGNER_MAX_RTDIFF','ALIGNER_METHOD','ALIGNER_REALIGNRUNS','ALIGNER_MAX_FDRQUAL' ]:
             if key in info:
                 expinfo[key] = info[key]
         expinfo[Keys.OUTPUT] = os.path.join(stagebox, 'experiment.properties')

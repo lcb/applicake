@@ -18,7 +18,7 @@ class FeatureAlignment(IWrapper):
             realignruns = "--realign_runs"
 
         command = "feature_alignment.py --file_format openswath --fdr_cutoff %s --max_rt_diff %s --max_fdr_quality %s --method %s --frac_selected %s %s --out %s --out_matrix %s --in %s" % (
-            info['FDR'],
+            info['ALIGNER_FDR'],
             info['ALIGNER_MAX_RTDIFF'],
             info['ALIGNER_MAX_FDRQUAL'],
             info['ALIGNER_METHOD'],
@@ -31,7 +31,7 @@ class FeatureAlignment(IWrapper):
 
     def set_args(self, log, args_handler):
         args_handler.add_app_args(log, Keys.WORKDIR, 'Directory to store files')
-        args_handler.add_app_args(log, 'FDR', '')
+        args_handler.add_app_args(log, 'ALIGNER_FDR', '')
         args_handler.add_app_args(log, 'ALIGNER_MAX_RTDIFF', '')
         args_handler.add_app_args(log, 'ALIGNER_MAX_FDRQUAL', '')
         args_handler.add_app_args(log, 'ALIGNER_METHOD', '')
