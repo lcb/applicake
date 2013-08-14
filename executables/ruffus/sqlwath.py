@@ -51,6 +51,7 @@ BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
 STORAGE = unchanged
+LOG_LEVEL = INFO
 
 SPACE = LOBLUM
 PROJECT = TEST
