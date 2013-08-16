@@ -10,6 +10,7 @@ class Copy2SequestDropbox(Copy2Dropbox):
         """
         See super class.
         """
+        info['WORKFLOW'] = self._extendWorkflowID(info['WORKFLOW'])
         info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
 
         keys = ['PEPXMLS', 'PEPCSV']

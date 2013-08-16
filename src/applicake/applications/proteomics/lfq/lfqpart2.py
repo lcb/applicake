@@ -26,6 +26,8 @@ class LFQpart2(IWrapper):
             info['FEATUREXMLLIST'] += '<LISTITEM value="' + i + '"/>'
 
         info[Keys.TEMPLATE] = os.path.join(wd, 'LFQpart2.toppas')
+        info["TOPPASFILES"].append(info[Keys.TEMPLATE])
+        
         th = LFQpart2WorkflowTemplate()
         mod_template, info = th.modify_template(info, log)
         del info['FEATUREXMLLIST']
@@ -53,6 +55,8 @@ class LFQpart2(IWrapper):
         See interface
         """
         args_handler.add_app_args(log, Keys.WORKDIR, 'wd')
+        args_handler.add_app_args(log, "TOPPASFILES", 'toppas files pathes used in lfqpart1')
+        
         args_handler.add_app_args(log, 'FEATUREXMLS', 'Path to the featureXML fileS.')
         args_handler.add_app_args(log, 'PROTXML', 'Path to the protXML file (one).')
 

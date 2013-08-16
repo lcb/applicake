@@ -6,6 +6,7 @@ Created on Jun 19, 2012
 
 import os
 import shutil
+import subprocess
 
 from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IApplication
@@ -110,5 +111,7 @@ class Copy2Dropbox(IApplication):
         shutil.move(stage, dropbox)
         return newstage
     
-
-
+    def _extendWorkflowID(self,wfstring):
+        applivers = subprocess.check_output("awk 'NR==4' /cluster/apps/guse/stable/applicake/trunk/.svn/entries",shell=True).strip()
+        imsbtoolvers = subprocess.check_output("printenv LOADEDMODULES| grep -o 'imsbtools/........'",shell=True).strip()
+        return wfstring + " " + imsbtoolvers + " applicake@" + applivers

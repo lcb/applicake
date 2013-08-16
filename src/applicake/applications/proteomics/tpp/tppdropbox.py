@@ -26,6 +26,8 @@ class Copy2IdentDropbox(Copy2Dropbox):
         #re-read INPUT to get access to whole info, needs set_args(INPUT). add runnerargs to set_args if modified by runner
         ini = IniInformationHandler().get_info(log, info)
         info = DictUtils.merge(log, info, ini)
+        
+        info['WORKFLOW'] = self._extendWorkflowID(info['WORKFLOW'])
         info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
 
         keys = ['PEPXMLS', 'PEPCSV']

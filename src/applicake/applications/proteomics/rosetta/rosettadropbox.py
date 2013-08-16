@@ -18,6 +18,7 @@ class Copy2RosettaDropbox(Copy2Dropbox):
         ini = IniInformationHandler().get_info(log, info)
         info = DictUtils.merge(log, info, ini)
 
+        info['WORKFLOW'] = self._extendWorkflowID(info['WORKFLOW'])
         stagebox = self._make_stagebox(log, info)
 
         self._keys_to_dropbox(log, info, 'ROSETTA_COMPRESSEDOUT', stagebox)

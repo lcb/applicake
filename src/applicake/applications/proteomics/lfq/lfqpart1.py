@@ -26,13 +26,13 @@ class LFQpart1(IWrapper):
         info['PEPXMLS'] = peplink
         info['MZNAME'] = os.path.splitext(os.path.basename(info[Keys.MZXML]))[0]
 
-        info[Keys.TEMPLATE] = os.path.join(wd, 'LFQpart1.toppas')
+        info["TOPPASFILES"] = info[Keys.TEMPLATE] = os.path.join(wd, 'LFQpart1.toppas')
         th = LFQpart1WorkflowTemplate()
         mod_template, info = th.modify_template(info, log)
         rawfeatxml = os.path.join(wd, 'TOPPAS_out/012-IDConflictResolver/*.featureXML')
         info['FEATUREXMLS'] = os.path.join(wd, os.path.splitext(os.path.basename(info[Keys.MZXML]))[0] + '.featureXML')
         self._result_file = info['FEATUREXMLS']
-
+        
         command = 'ExecutePipeline -in %s -out_dir %s && mv -v %s %s' % (
         info[Keys.TEMPLATE], wd, rawfeatxml, self._result_file)
         return command, info

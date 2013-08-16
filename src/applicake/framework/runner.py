@@ -11,6 +11,7 @@ import shutil
 import sys
 import time
 import tempfile
+import errno
 import subprocess
 from cStringIO import StringIO
 from applicake.framework.argshandler import ArgsHandler
@@ -87,7 +88,8 @@ class Runner(object):
             info[Keys.BASEDIR] = "."
             info[Keys.JOB_IDX] = "."
         if not Keys.JOB_IDX in info:
-            info = self._create_jobdir(info, log)
+            info[Keys.JOB_IDX] = self._create_unique_jobdir(info[Keys.BASEDIR])
+            log.info("set JOB_IDX = %s"%info[Keys.JOB_IDX])
 
         info[Keys.WORKDIR] = ''
         for key in [Keys.BASEDIR, Keys.JOB_IDX, Keys.PARAM_IDX, Keys.FILE_IDX, Keys.NAME]:
@@ -101,14 +103,20 @@ class Runner(object):
         FileUtils.makedirs_safe(log, info[Keys.WORKDIR], clean=True)
         log.debug("Created workdir [%s]" % info[Keys.WORKDIR])
         return info
-
-    def _create_jobdir(self, info, log):
-        timestr = time.strftime('%Y%m%d_%H%M_')
-        jobdir = tempfile.mkdtemp(suffix='', prefix=timestr, dir=info[Keys.BASEDIR])
-        os.chmod(jobdir, 0775)
-        info[Keys.JOB_IDX] = os.path.basename(jobdir)
-        log.debug("JOB_IDX = %s" % info[Keys.JOB_IDX])
-        return info
+        
+    def _create_unique_jobdir(self, basedir):
+        #taken from tempfile.mkdtemp(), bit more compact 
+        dirname = time.strftime("%y%m%d%H%M")
+        for seq in xrange(10000):
+            try: 
+                os.mkdir(os.path.join(basedir,dirname), 0775)
+                return dirname
+            except OSError, e:
+                if e.errno == errno.EEXIST:
+                    dirname = str(int(dirname) + 1)
+                    continue # try again
+                raise
+        raise Exception("Could not create a unique job directory")   
 
     def _create_streams(self, info):
         if info[Keys.STORAGE] == 'file':
@@ -124,9 +132,8 @@ class Runner(object):
         return out_stream, err_stream, log_stream
 
     def _create_logger(self, info, init_log_stream, log_stream):
-        init_log_stream.seek(0)
-
         #only copy >= LOG_LEVEL entries from init_log. ' - ' is little patch if INFO is somewhere else in line
+        init_log_stream.seek(0)
         for line in init_log_stream.readlines():
             for level in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']:
                 if ' - ' + level + ' - ' in line:

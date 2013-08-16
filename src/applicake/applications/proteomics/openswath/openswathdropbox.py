@@ -25,6 +25,7 @@ class Copy2SwathDropbox(Copy2Dropbox):
         ini = IniInformationHandler().get_info(log, info)
         info = DictUtils.merge(log, info, ini)
 
+        info['WORKFLOW'] = self._extendWorkflowID(info['WORKFLOW'])
         stagebox = self._make_stagebox(log, info)
         
         self._keys_to_dropbox(log, info, ['ALIGNMENT_TSV'], stagebox)

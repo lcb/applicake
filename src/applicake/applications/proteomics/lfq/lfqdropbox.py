@@ -27,12 +27,17 @@ class Copy2QuantDropbox(Copy2Dropbox):
         ini = IniInformationHandler().get_info(log, info)
         info = DictUtils.merge(log, info, ini)
 
+        info['WORKFLOW'] = self._extendWorkflowID(info['WORKFLOW'])
         info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
 
         #copy files        
         keys = ['PEPCSV', 'PROTCSV', 'CONSENSUSXML']
         self._keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
 
+        #compress TOPPAS files
+        archive = os.path.join(info['DROPBOXSTAGE'], 'toppasfiles.zip')
+        subprocess.check_call('zip -v ' + archive + '  ' + " ".join(info['TOPPASFILES']), shell=True)
+        
         #compress XML files        
         archive = os.path.join(info['DROPBOXSTAGE'], 'featurexmls.zip')
         subprocess.check_call('zip -jv ' + archive + '  ' + " ".join(info['FEATUREXMLS']), shell=True)
