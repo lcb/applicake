@@ -51,11 +51,13 @@ def setup():
         with open("input.ini", 'w+') as f:
             f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 LOG_LEVEL = INFO
+STORAGE = unchanged
+THREADS = 8
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 
 IRTTRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_DIA_iRT.TraML"
 
-DATASET_CODE = 20120713110650516-637617, 20120718172925387-640022
+DATASET_CODE = 20120713110650516-637617, 
 TRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_AQUASky_ShotgunLibrary_3t_345_sh.TraML"
 
 SPACE = LOBLUM
@@ -72,7 +74,7 @@ MPR_NUM_XVAL = 5
 MPR_LDA_PATH = 
 MPR_MAINVAR = xx_swath_prelim_score
 MPR_VARS = bseries_score elution_model_fit_score intensity_score isotope_correlation_score isotope_overlap_score library_corr library_rmsd log_sn_score massdev_score massdev_score_weighted norm_rt_score xcorr_coelution xcorr_coelution_weighted xcorr_shape xcorr_shape_weighted yseries_score
-FDR = 0.01
+ALIGNER_FDR = 0.01
 ALIGNER_MAX_RTDIFF = 30
 ALIGNER_MAX_FDRQUAL = 0.2
 ALIGNER_METHOD = best_overall

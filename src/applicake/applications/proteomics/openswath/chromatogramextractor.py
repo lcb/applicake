@@ -26,6 +26,11 @@ class OpenSwathChromatogramExtractor(IWrapper):
             log.info("Using TrafoXML" + info['TRAFOXML'])
             trafoxml = '-rt_norm ' + info['TRAFOXML']
 
+        #outfiles will be here
+        info["CHROM_MZML"] = []
+        for i in info['MZML']:
+            info["CHROM_MZML"].append(os.path.join(info[Keys.WORKDIR],os.path.basename(i).replace("mzML.gz","chrom.mzML")))
+        
         command = """for i in %s;
         do root=$(basename $i .mzML.gz);
         echo %s -is_swath -extraction_window %s %s -rt_extraction_window %s -tr %s -min_upper_edge_dist %s %s -in $i -out %s/$root.chrom.mzML;
@@ -57,10 +62,7 @@ class OpenSwathChromatogramExtractor(IWrapper):
         if 0 != run_code:
             return run_code, info
 
-        info['CHROM_MZML'] = []
-        for outfile in os.listdir(info[Keys.WORKDIR]):
-            outfile = os.path.join(info[Keys.WORKDIR], outfile)
-            info['CHROM_MZML'].append(outfile)
+        for outfile in info['CHROM_MZML']:
             if not FileUtils.is_valid_file(log, outfile):
                 log.critical('[%s] is not valid' % outfile)
                 return 1, info

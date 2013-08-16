@@ -9,6 +9,7 @@ from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
+from applicake.utils.xmlutils import XmlValidator
 
 
 class OpenSwathAnalyzerToTSV(IWrapper):
@@ -21,13 +22,17 @@ class OpenSwathAnalyzerToTSV(IWrapper):
         outfile = outfile[outfile.index("_")+1:outfile.rindex("_")] + ".csv"
         outfile = os.path.join(info[Keys.WORKDIR],outfile)
 
+        info['FEATUREXMLS'] = []
+        for i in info['MZML']:
+            info["FEATUREXMLS"].append(os.path.join(info[Keys.WORKDIR],os.path.basename(i).replace("mzML.gz","featureXML")))
+
+        print info["FEATUREXMLS"]
         command = """for i in %s;
         do root=$(basename $i .chrom.mzML);
         swathfile=$(ls %s/$root.*);
         echo "OpenSwathAnalyzer -tr %s -min_upper_edge_dist %s -rt_norm %s -ini %s -no-strict -in $i -swath_files $swathfile -out %s/$root.featureXML | grep -v accession &&
         OpenSwathFeatureXMLToTSV -tr %s -short_format -in %s/$root.featureXML -out %s/$root.csv";
-        done | parallel -t -j %s --halt 1 &&
-
+        done | parallel -t -j %s --halt 1 && 
         awk "NR==1 || FNR!=1" %s/*_??.csv > %s""" % \
         (" ".join(info['CHROM_MZML']),
          os.path.dirname(info[Keys.MZML][0]),
@@ -57,6 +62,15 @@ class OpenSwathAnalyzerToTSV(IWrapper):
     def validate_run(self, info, log, run_code, out_stream, err_stream):
         if 0 != run_code:
             return run_code, info
+        
+        for outfile in info['FEATUREXMLS']:
+            if not FileUtils.is_valid_file(log, outfile):
+                log.critical('[%s] is not valid' % outfile)
+                return 1, info
+            if not XmlValidator.is_wellformed(outfile):
+                log.critical('[%s] is not well formed.' % outfile)
+                return 1, info
+            
         if not FileUtils.is_valid_file(log, info['FEATURETSV'] ):
             log.critical('[%s] is not valid' % info['FEATURETSV'] )
         return 0, info

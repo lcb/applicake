@@ -105,7 +105,7 @@ class Runner(object):
         return info
         
     def _create_unique_jobdir(self, basedir):
-        #taken from tempfile.mkdtemp(), bit more compact 
+        #taken from tempfile.mkdtemp(), more compact. limit: no more than 10'000 WF submission per day!
         dirname = time.strftime("%y%m%d%H%M")
         for seq in xrange(10000):
             try: 
