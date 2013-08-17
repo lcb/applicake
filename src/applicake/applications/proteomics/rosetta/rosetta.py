@@ -122,7 +122,7 @@ $IN__FILE__FULLATOM
 
 # file is also a file: t000_.psipred_ss2 (always same name)
 -in:file:psipred_ss2 $IN__FILE__PSIPRED_SS2
-$IN__FILE_FULLATOM
+$IN__FILE__FULLATOM
 
 $IDEALIZE_AFTER_LOOP_CLOSE
 -out:file:silent_struct_type $OUT__FILE__SILENT_STRUCT_TYPE 
