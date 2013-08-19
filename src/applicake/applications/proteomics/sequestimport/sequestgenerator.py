@@ -123,7 +123,7 @@ class SequestGenerator(IniGenerator):
             if str(mzbase).endswith('_c'):
                 mzbase = mzbase[:-2]
                 #* because could be .gz
-            log.debug("Getting code for", mzbase)
+            log.debug("Getting code for %s" % mzbase)
             scdc = subprocess.check_output(['searchmzxml', mzbase + '.mzXML*']).strip()
             codes.append(scdc)
 
