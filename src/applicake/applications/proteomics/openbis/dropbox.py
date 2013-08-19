@@ -59,10 +59,10 @@ class Copy2Dropbox(IApplication):
 
     def _get_experiment_code(self, info):
         ecode = 'E' + info[Keys.JOB_IDX]
-        if info.has_key(Keys.PARAM_IDX):
+        if info.has_key(Keys.PARAM_IDX) and info[Keys.PARAM_IDX] != "0":
             ecode = '%s_%s' % (ecode, info[Keys.PARAM_IDX])
-        if info.has_key(Keys.FILE_IDX):
-            ecode = '%s_%s' % (ecode, info[Keys.FILE_IDX])
+        if info.has_key(Keys.FILE_IDX) and info[Keys.FILE_IDX] != "0":
+            ecode = '%s-%s' % (ecode, info[Keys.FILE_IDX])
         return ecode
 
     def _make_stagebox(self, log, info):
