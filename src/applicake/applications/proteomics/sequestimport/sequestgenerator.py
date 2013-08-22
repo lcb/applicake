@@ -122,8 +122,8 @@ class SequestGenerator(IniGenerator):
             mzbase = os.path.basename(pepxml).replace('.pep.xml', '')
             if str(mzbase).endswith('_c'):
                 mzbase = mzbase[:-2]
-                #* because could be .gz
             log.debug("Getting code for %s" % mzbase)
+            #asterisk because could be .gz
             scdc = subprocess.check_output(['searchmzxml', mzbase + '.mzXML*']).strip()
             codes.append(scdc)
 
