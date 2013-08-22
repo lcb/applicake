@@ -142,7 +142,7 @@ class Dss(IWrapper):
         See interface
         """
         exit_code = 0
-        for (stream, logf, logt) in [[out_stream, log.debug, 'OUTPUT'], [err_stream, log.error, 'ERROR']]:
+        for (stream, logf, logt) in [[out_stream, log.debug, 'OUTPUT'], [err_stream, log.info, 'ERROR']]:
             try:
                 strd = stream.read()
                 if len(strd) > 0:
