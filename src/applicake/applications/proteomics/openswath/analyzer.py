@@ -26,7 +26,6 @@ class OpenSwathAnalyzerToTSV(IWrapper):
         for i in info['MZML']:
             info["FEATUREXMLS"].append(os.path.join(info[Keys.WORKDIR],os.path.basename(i).replace("mzML.gz","featureXML")))
 
-        print info["FEATUREXMLS"]
         command = """for i in %s;
         do root=$(basename $i .chrom.mzML);
         swathfile=$(ls %s/$root.*);
