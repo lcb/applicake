@@ -39,7 +39,7 @@ class Copy2IdentDropbox(Copy2Dropbox):
         shutil.copy(info['PROTXML'], filepath)
 
         #search.properties requires some specific fields
-        info['PEPTIDEFDR'] = info['FDR']
+        info['PEPTIDEFDR'] = info['PEPTIDEFDR']
         info['DBASENAME'] = os.path.splitext(os.path.split(info['DBASE'])[1])[0]
         info['PARENT-DATA-SET-CODES'] = info[Keys.DATASET_CODE]
 
