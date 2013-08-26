@@ -73,7 +73,7 @@ class MailTemplate(BasicTemplateHandler):
         else:
             tandemver = ''
             if info['RUNTANDEM'] == 'True':
-                tandemver = 'tandem (version ' + subprocess.check_output("tandem.exe a | grep TANDEM", shell=True).strip() + ')'
+                tandemver = 'tandem (version ' + subprocess.check_output("tandem a | grep TANDEM", shell=True).strip() + ')'
             omssaver = ''
             if info['RUNOMSSA'] == 'True':
                 omssaver = 'omssa (version ' + subprocess.check_output(['which', 'omssacl']).split('/')[4] + ')'

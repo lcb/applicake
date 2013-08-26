@@ -22,7 +22,7 @@ class Xtandem(SearchEngine):
         Constructor
         """
         super(Xtandem, self).__init__()
-        self._default_prefix = 'tandem.exe' # default prefix, usually the name of the application        
+        self._default_prefix = 'tandem' # default prefix, usually the name of the application        
         base = self.__class__.__name__
         self._taxonomy_file = '%s.taxonomy' % base
         self._input_file = '%s.input' % base
