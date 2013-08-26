@@ -126,7 +126,7 @@ class Xtandem(SearchEngine):
         #addin conversion
         pepxml = os.path.join(wd, 'xtandem.pep.xml')
         info[Keys.PEPXMLS] = [pepxml]
-        command = '%s %s | grep -v writing && Tandem2XML %s %s ' % (prefix, self._input_file, self._result_file, pepxml)
+        command = '%s %s && Tandem2XML %s %s ' % (prefix, self._input_file, self._result_file, pepxml)
         # update original info object with new keys from working copy
         #info = DictUtils.merge(log, info, app_info, priority='left')        
         return command, info
