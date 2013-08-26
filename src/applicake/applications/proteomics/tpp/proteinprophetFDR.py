@@ -12,6 +12,7 @@ from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
 
+
 class ProteinProphetFDR(IWrapper):
     """
     Wrapper for TPP-tool ProteinProphet.
@@ -44,14 +45,14 @@ class ProteinProphetFDR(IWrapper):
     def getiProbability(self, log, info):
         minprob = ''
         for line in open(info['PEPXMLS']):
-            if line.startswith('<error_point error="%s' % info['FDR']):
+            if line.startswith('<error_point error="%s' % info['PEPTIDEFDR']):
                 minprob = line.split(" ")[2].split("=")[1].replace('"', '')
                 break
 
         if minprob != '':
-            log.info("Found minprob %s for FDR %s" % (minprob, info['FDR']))
+            log.info("Found minprob/iprobability %s for PEPTIDEFDR %s" % (minprob, info['PEPTIDEFDR']))
         else:
-            raise Exception("error point for FDR %s not found" % info['FDR'])
+            raise Exception("error point for PEPTIDEFDR %s not found" % info['PEPTIDEFDR'])
         return minprob
 
 
@@ -64,7 +65,7 @@ class ProteinProphetFDR(IWrapper):
         info['ORGPEPXMLS'] = info['PEPXMLS']
         # creates a stringlist with ' ' as separator 
         info['PEPXMLS'] = info['PEPXMLS'][0]
-        info['PROBABILITY'] = self.getiProbability(log, info)
+        info[Keys.IPROBABILITY] = self.getiProbability(log, info)
         wd = info[Keys.WORKDIR]
         self._result_file = os.path.join(wd, self._result_file)
         info['PROTXML'] = self._result_file
@@ -92,7 +93,7 @@ class ProteinProphetFDR(IWrapper):
         args_handler.add_app_args(log, Keys.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, Keys.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, Keys.PEPXMLS, 'Single iProphet inputfile', action='append')
-        args_handler.add_app_args(log, Keys.FDR, 'FDR cutoff')
+        args_handler.add_app_args(log, Keys.PEPTIDEFDR, 'Peptide FDR cutoff')
 
         return args_handler
 
@@ -134,7 +135,7 @@ class ProtProphetFDRTemplate(BasicTemplateHandler):
         """
         See super class.
         """
-        template = """$PEPXMLS $PROTXML IPROPHET MINPROB$PROBABILITY
+        template = """$PEPXMLS $PROTXML IPROPHET MINPROB$IPROBABILITY
 """
         log.debug('read template from [%s]' % self.__class__.__name__)
         return template, info

@@ -8,7 +8,7 @@ import os
 from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
-
+from applicake.applications.proteomics.tpp.proteinprophetFDR import ProteinProphetFDR
 
 class RawlibNodecoy(IWrapper):
     """
@@ -34,29 +34,14 @@ class RawlibNodecoy(IWrapper):
             os.symlink(f, dest)
             symlink_files[i] = dest
 
-        if not info.has_key(Keys.PROBABILITY):
-            log.info("No probability given, trying to get probability from FDR")
-            info[Keys.PROBABILITY] = self.getiProbability(log, info)
+        #get iProb corresponding FDR for IDFilter
+        info[Keys.IPROBABILITY] = ProteinProphetFDR().getiProbability(log, info)
 
         root = os.path.join(info[Keys.WORKDIR], 'RawlibNodecoy')
         self._result_file = info[Keys.SPLIB] = root + '.splib'
         command = "spectrast -c_BIN! -cf'Protein!~DECOY' -cP%s -cI%s -cN%s %s" % (
-        info[Keys.PROBABILITY], info['MS_TYPE'], root, symlink_files[0])
+        info[Keys.IPROBABILITY], info['MS_TYPE'], root, symlink_files[0])
         return command, info
-
-    def getiProbability(self, log, info):
-        minprob = ''
-        for line in open(info['PEPXMLS']):
-            if line.startswith('<error_point error="%s' % info['FDR']):
-                minprob = line.split(" ")[2].split("=")[1].replace('"', '')
-                break
-
-        if minprob != '':
-            log.info("Found minprob %s for FDR %s" % (minprob, info['FDR']))
-        else:
-            log.fatal("error point for FDR %s not found" % info['FDR'])
-            raise Exception("FDR not found")
-        return minprob
 
     def set_args(self, log, args_handler):
         """
@@ -66,8 +51,7 @@ class RawlibNodecoy(IWrapper):
         args_handler.add_app_args(log, Keys.PEPXMLS, 'List of pepXML files', action='append')
         args_handler.add_app_args(log, Keys.MZXML, 'Peak list file in mzXML format', action='append')
 
-        args_handler.add_app_args(log, Keys.PROBABILITY, 'Probability cutoff value that has to be matched')
-        args_handler.add_app_args(log, Keys.FDR, 'FDR cutoff (if no probability given)')
+        args_handler.add_app_args(log, Keys.PEPTIDEFDR, 'Peptide FDR cutoff (if no probability given)')
         args_handler.add_app_args(log, 'MS_TYPE', 'ms instrument type')
 
         return args_handler

@@ -54,7 +54,7 @@ BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_quant
 
-FDR = 0.01
+PEPTIDEFDR = 0.01
 FEATUREFINDER_MASS_TRACE__MZ_TOLERANCE = 0.03
 FEATUREFINDER_MASS_TRACE__MIN_SPECTRA = 10
 FEATUREFINDER_MASS_TRACE__MAX_MISSING = 1

@@ -18,7 +18,7 @@ class LFQpart1(IWrapper):
 
         wd = info[Keys.WORKDIR]
         #get iProb corresponding FDR for IDFilter
-        info['IPROBABILITY'] = ProteinProphetFDR().getiProbability(log, info)
+        info[Keys.IPROBABILITY] = ProteinProphetFDR().getiProbability(log, info)
 
         #required because openbis requires prot.xml and openms protXML
         peplink = os.path.join(wd, 'iprophet.pepXML')
@@ -44,7 +44,7 @@ class LFQpart1(IWrapper):
         args_handler.add_app_args(log, Keys.WORKDIR, 'wd')
         args_handler.add_app_args(log, 'MZXML', 'Path to the mzXML file.')
         args_handler.add_app_args(log, 'PEPXMLS', 'Path to the pepXML file.')
-        args_handler.add_app_args(log, 'FDR', 'Peptide FDR cutoff to use')
+        args_handler.add_app_args(log, Keys.PEPTIDEFDR, 'Peptide FDR cutoff to use')
 
         args_handler.add_app_args(log, "PEAKPICKER_SIGNAL_TO_NOISE", "")
         args_handler.add_app_args(log, "PEAKPICKER_MS1_ONLY", "")

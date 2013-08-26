@@ -56,7 +56,7 @@ def setup():
 PRECMASSERR = 15
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 STORAGE = unchanged
-FDR = 0.01
+PEPTIDEFDR = 0.01
 RUNTANDEM = True
 PRECMASSUNIT = ppm
 COMMENT = TPP of UPS1 ruffus

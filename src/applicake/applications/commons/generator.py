@@ -174,8 +174,8 @@ class IniParametersetGenerator(IniGenerator):
                         param_dict[key] = value
                     elif len(value) != len(param_idxs):
                         log.info(
-                            'length of value [%s] does not correspond to length of param indices [%s]. key possibly not coming from input file' % (
-                            len(value), len(param_idxs)))
+                            'length of key %s [%s] does not correspond to length of param indices [%s]. key possibly not coming from input file' % (
+                            key, len(value), len(param_idxs)))
                         param_dict[key] = SequenceUtils.unify(value, reduce=True)
                     else:
                         values = [value[pos] for pos in positions]
