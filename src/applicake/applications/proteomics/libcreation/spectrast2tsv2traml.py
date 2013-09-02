@@ -19,14 +19,11 @@ class Spectrast2TSV2traML(IWrapper):
 
     def prepare_run(self, info, log):
 
-        consensuslib = os.path.join(info[Keys.WORKDIR], 'consensuslib')
-        if not os.access(os.path.dirname(info['LIBOUTNAME']), os.W_OK):
-            log.warn(
-                "The folder [%s] is not writable, fallback to workdir [%s]!" % (info['LIBOUTNAME'], info[Keys.WORKDIR]))
-            info['LIBOUTNAME'] = os.path.join(info[Keys.WORKDIR], os.path.basename(info['LIBOUTNAME']))
-        info[Keys.TRAML] = os.path.splitext(info['LIBOUTNAME'])[0] + '_' + info[Keys.PARAM_IDX] + '.traML'
-        info['TSV'] = os.path.splitext(info['LIBOUTNAME'])[0] + '_' + info[Keys.PARAM_IDX] + '.tsv'
-        self._result_file = info[Keys.TRAML]
+        insplib = info[Keys.SPLIB]
+        consensuslib = os.path.join(info[Keys.WORKDIR], 'consensus')
+        info[Keys.SPLIB] = consensuslib + '.splib'
+        info['TSV'] = os.path.join(info[Keys.WORKDIR], 'spectrast2tsv.tsv')        
+        info[Keys.TRAML] = os.path.join(info[Keys.WORKDIR], 'ConvertTSVToTraML.TraML')
 
         consensustype = ""  #None
         if info['CONSENSUS_TYPE'] == "Consensus":
@@ -65,8 +62,8 @@ class Spectrast2TSV2traML(IWrapper):
             log.debug("no tsv series")
 
         command = 'spectrast -c_BIN! -cA%s -cN%s %s && spectrast2tsv.py %s -a %s %s && tsv2traml.sh %s %s' % (
-            consensustype, consensuslib, info['SPLIB'],
-            tsvopts, info['TSV'], consensuslib + '.splib',
+            consensustype, consensuslib, insplib,
+            tsvopts, info['TSV'], info['SPLIB'],
             info['TSV'], info[Keys.TRAML])
 
         return command, info
@@ -79,7 +76,6 @@ class Spectrast2TSV2traML(IWrapper):
         args_handler.add_app_args(log, Keys.SPLIB, 'Spectrast library in .splib format')
         args_handler.add_app_args(log, Keys.WORKDIR, 'workdir')
 
-        args_handler.add_app_args(log, 'LIBOUTNAME', 'Folder to put output libraries')
         args_handler.add_app_args(log, Keys.PARAM_IDX, 'Parameter index to distinguish')
 
         args_handler.add_app_args(log, 'CONSENSUS_TYPE', 'consensus type cAC cAB')
@@ -101,11 +97,17 @@ class Spectrast2TSV2traML(IWrapper):
         if 0 != run_code:
             return run_code, info
 
-        if not FileUtils.is_valid_file(log, self._result_file):
-            log.critical('[%s] is not valid' % self._result_file)
+        if not FileUtils.is_valid_file(log, info[Keys.SPLIB]):
+            log.critical('[%s] is not valid' % info[Keys.SPLIB])
             return 1, info
-        if not XmlValidator.is_wellformed(self._result_file):
-            log.critical('[%s] is not well formed.' % self._result_file)
+        if not FileUtils.is_valid_file(log, info['TSV']):
+            log.critical('[%s] is not valid' % info['TSV'])
+            return 1, info
+        if not FileUtils.is_valid_file(log, info[Keys.TRAML]):
+            log.critical('[%s] is not valid' % info[Keys.TRAML])
+            return 1, info
+        if not XmlValidator.is_wellformed(info[Keys.TRAML]):
+            log.critical('[%s] is not well formed.' % info[Keys.TRAML])
             return 1, info
         return 0, info
 

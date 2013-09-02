@@ -23,7 +23,7 @@ class OpenSwathRTNormalizer(IWrapper):
         mergedchrom = os.path.join(info[Keys.WORKDIR], 'merged.chrom.mzML')
 
         command = "FileMerger -in %s -out %s && " \
-                  "OpenSwathRTNormalizer -tr %s -min_rsq %s -min_coverage %s -in %s -out %s" % \
+                  "OpenSwathRTNormalizer -no_progress -tr %s -min_rsq %s -min_coverage %s -in %s -out %s" % \
                   (" ".join(info['CHROM_MZML']), mergedchrom,
                    info['IRTTRAML'], info['MIN_RSQ'], info['MIN_COVERAGE'], mergedchrom, info['TRAFOXML'])
         return command, info

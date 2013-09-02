@@ -19,6 +19,7 @@ from applicake.applications.commons.collector import IniCollector
 from applicake.framework.interfaces import IApplication, IWrapper
 
 #workflow specific inputs 
+from applicake.applications.proteomics.openbis.biopersdb import BioPersonalDB
 from applicake.applications.commons.generator import IniDatasetcodeGenerator, IniParametersetGenerator
 from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.openswath.mprophet import mProphet
@@ -53,16 +54,23 @@ def setup():
 LOG_LEVEL = INFO
 STORAGE = unchanged
 THREADS = 8
+WORKFLOW = ruffus_local_openswath
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
+DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
+
 
 IRTTRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_DIA_iRT.TraML"
 
-DATASET_CODE = 20120713110650516-637617, 
-TRAML = "/cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_AQUASky_ShotgunLibrary_3t_345_sh.TraML"
+DATASET_CODE = 20130110215707264-761830, 20130110232929822-761848, 
+
+DB_SOURCE = PersonalDB
+#DATABASE_PACKAGE = LOBLUM
+#DATABASE_VERSION = newUPS1
+#DATABASE_DB = 20130822104504
+DBASE = 20130823112244490-872696
 
 SPACE = LOBLUM
 PROJECT = TEST
-DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
 
 EXTRACTION_WINDOW = 0.05
 WINDOW_UNIT = Thomson
@@ -84,10 +92,14 @@ ALIGNER_FRACSELECTED = 0
 
 
 @follows(setup)
-@split("input.ini", "dssgenerator.ini_*")
+@files("input.ini","personaldb.ini")
+def personaldb(infile, outfile):
+    wrap(BioPersonalDB, infile, outfile)
+
+@follows(personaldb)
+@split("personaldb.ini", "dssgenerator.ini_*")
 def DSSgenerator(input_file_name, notused_output_file_names):
     wrap(IniDatasetcodeGenerator, input_file_name, 'dssgenerator.ini', ['--GENERATOR', 'dssgenerator.ini'])
-
 
 @transform(DSSgenerator, regex("dssgenerator.ini_"), "dss.ini_")
 def dss(input_file_name, output_file_name):
@@ -144,9 +156,9 @@ def copytodropbox(input_file_name, output_file_name):
 #split:  1h 8cpu - 10m const
 #rtce:   1h 8cpu - 2m const
 #rtnorm: 1h 1cpu  8000 - 1m const
-#ce:     8h 8cpu  3600 - 30m var
-#analy:  8h 8cpu  3600 - 1h var
-#mpro:   36 1cpu  15000 - 4h var
+#ce:     8h 8cpu  3600 - 30m var |  6000ram
+#analy:  8h 8cpu  3600 - 1h var | 6000ram
+#mpro:   36 1cpu  15000 - 4h var | 30000ram
 
 pipeline_run([copytodropbox], multiprocess=2, verbose=3)
     

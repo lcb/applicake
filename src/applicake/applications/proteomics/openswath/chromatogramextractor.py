@@ -33,8 +33,8 @@ class OpenSwathChromatogramExtractor(IWrapper):
         
         command = """for i in %s;
         do root=$(basename $i .mzML.gz);
-        echo %s -is_swath -extraction_window %s %s -rt_extraction_window %s -tr %s -min_upper_edge_dist %s %s -in $i -out %s/$root.chrom.mzML;
-        done | parallel -t -j %s --halt 1""" % \
+        echo %s -no_progress -is_swath -extraction_window %s %s -rt_extraction_window %s -tr %s -min_upper_edge_dist %s %s -in $i -out %s/$root.chrom.mzML;
+        done | parallel -t -j %s --halt 2""" % \
         (' '.join(info['MZML']),
          info['PREFIX'],info['EXTRACTION_WINDOW'],ppm, info['RT_EXTRACTION_WINDOW'],info['TRAML'], info['MIN_UPPER_EDGE_DIST'], trafoxml, info[Keys.WORKDIR],
          info['THREADS'])

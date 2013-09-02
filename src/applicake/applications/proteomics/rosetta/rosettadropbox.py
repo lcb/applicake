@@ -26,7 +26,7 @@ class Copy2RosettaDropbox(Copy2Dropbox):
         dsattr = {}
         dsattr['SPACE'] = info['SPACE']
         dsattr['PROJECT'] = info['PROJECT']
-        dsattr['EXPERIMENT'] = info['EXPERIMENT']
+        dsattr['EXPERIMENT'] = info['OUTEXPERIMENT']
         dsattr['DATASET_TYPE'] = 'ROSETTA_OUTFILE'
         dsattr[Keys.OUTPUT] = os.path.join(stagebox, 'dataset.attributes')
         IniInformationHandler().write_info(dsattr, log)

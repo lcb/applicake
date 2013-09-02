@@ -39,7 +39,7 @@ class RawlibNodecoy(IWrapper):
 
         root = os.path.join(info[Keys.WORKDIR], 'RawlibNodecoy')
         self._result_file = info[Keys.SPLIB] = root + '.splib'
-        command = "spectrast -c_BIN! -cf'Protein!~DECOY' -cP%s -cI%s -cN%s %s" % (
+        command = "spectrast -c_BIN! -cf'Protein!~DECOY_' -cP%s -cI%s -cN%s %s" % (
         info[Keys.IPROBABILITY], info['MS_TYPE'], root, symlink_files[0])
         return command, info
 

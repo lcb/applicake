@@ -17,10 +17,9 @@ class BioPersonalDB(IWrapper):
 
     def prepare_run(self, info, log):
         if info["DB_SOURCE"] == "BioDB":
-            command = "echo %s" % info["DBASE"]
+            command = "true"
         elif info["DB_SOURCE"] == "PersonalDB":
-            command = "getdataset -r getdataset.out -o %s %s && grep fasta getdataset.out | cut -f2" % \
-                      (info["WORKDIR"], info["DBASE"])
+            command = "getdataset -r getdataset.out -o %s %s" % (info["WORKDIR"], info["DBASE"])
         else:
             raise Exception("Unkwnown DB_SOURCE " + info["DB_SOURCE"])
         return command, info
@@ -29,6 +28,17 @@ class BioPersonalDB(IWrapper):
         if run_code != 0:
             return run_code, info
 
-        out_stream.seek(0)
-        info["DBASE"] = out_stream.readlines()[-1].strip()
+        if info["DB_SOURCE"] == "BioDB":
+            pass
+        else:
+            f = open("getdataset.out")
+            for line in f.readlines():
+                #if info['DB_TYPE'].lower in line.lower():
+                if 'fasta' in line.lower():
+                    info['DBASE'] = line.split()[1]
+                if 'traml' in line.lower():
+                    info['TRAML'] = line.split()[1]
+            f.close()
+                    
+        log.info("Database is "+info["DBASE"])
         return run_code, info

@@ -25,7 +25,7 @@ class Copy2SqlwathDropbox(Copy2Dropbox):
         dsattr = {}
         dsattr['SPACE'] = info['SPACE']
         dsattr['PROJECT'] = info['PROJECT']
-        dsattr['EXPERIMENT'] = info['EXPERIMENT']
+        dsattr['EXPERIMENT'] = info['OUTEXPERIMENT']
         dsattr['DATASET_TYPE'] = 'SWATH_SQL'
         dsattr[Keys.OUTPUT] = os.path.join(stagebox, 'dataset.attributes')
         IniInformationHandler().write_info(dsattr, log)

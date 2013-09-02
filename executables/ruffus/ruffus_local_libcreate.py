@@ -20,6 +20,7 @@ from applicake.framework.interfaces import IApplication, IWrapper
 from applicake.applications.proteomics.libcreation.spectrast import RawlibNodecoy, RTcalibNoirt
 from applicake.applications.proteomics.libcreation.spectrast2tsv2traml import Spectrast2TSV2traML
 from applicake.applications.proteomics.libcreation.spectrastirtcalibrator import SpectrastIrtCalibrator
+from applicake.applications.proteomics.libcreation.libcreatedropbox import Copy2LibcreateDropbox
 from applicake.applications.commons.collector import IniCollector
 
 
@@ -49,13 +50,18 @@ def setup():
             f.write("""
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
+DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
+
 LOG_LEVEL = INFO
 STORAGE = unchanged
 WORKFLOW = traml_create
-EXPERIMENT = E287786
-FDR = 0.01,0.02
 
-LIBOUTNAME = /path/does/not/exist
+EXPERIMENT = E287786
+DATASET_CODE = 20120320163951515-361883, 20120320163653755-361882, 20120320164249179-361886
+PEPTIDEFDR = 0.01
+
+COMMENT = newUPS1
+DESCRIPTION = newUPS measurement 3 technical replicates
 MS_TYPE = CID-QTOF
 
 RSQ_THRESHOLD = 0.95
@@ -73,6 +79,7 @@ TSV_GAIN =
 TSV_SERIES = 
 CONSENSUS_TYPE = Consensus
 RUNRT = True
+
 """)
     else:
         print 'Continuing with existing input.ini (Ruffus should skip to the right place automatically)'
@@ -87,7 +94,7 @@ def getexperiment(input_file_name, output_file_name):
 @follows(getexperiment)
 @files('getexperiment.ini', 'processexperiment.ini')
 def processexperiment(input_file_name, output_file_name):
-    wrap(ProcessExperiment, input_file_name, output_file_name, ['--GETCODES'])
+    wrap(ProcessExperiment, input_file_name, output_file_name)
 
 
 @follows(processexperiment)
@@ -130,9 +137,13 @@ def rtcalibnoirt(input_file_name, output_file_name):
 
 
 #########DONE BY DEFAULT########################
-@transform(rtcalibnoirt, regex('rtcalibnoirt.ini_'), 'trameler.ini_')
-def trameler(input_file_name, output_file_name):
+@transform(rtcalibnoirt, regex('rtcalibnoirt.ini_'), 'spectrast2traml.ini_')
+def spectrast2traml(input_file_name, output_file_name):
     wrap(Spectrast2TSV2traML, input_file_name, output_file_name)
 
+@transform(spectrast2traml, regex('spectrast2traml.ini_'), 'copy2dropbox.ini_')
+def copy2box(input_file_name, output_file_name):
+    wrap(Copy2LibcreateDropbox, input_file_name, output_file_name)
 
-pipeline_run([trameler], verbose=2, multiprocess=8)
+
+pipeline_run([copy2box], verbose=2, multiprocess=8)

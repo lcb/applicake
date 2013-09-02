@@ -29,9 +29,9 @@ class OpenSwathAnalyzerToTSV(IWrapper):
         command = """for i in %s;
         do root=$(basename $i .chrom.mzML);
         swathfile=$(ls %s/$root.*);
-        echo "OpenSwathAnalyzer -tr %s -min_upper_edge_dist %s -rt_norm %s -ini %s -no-strict -in $i -swath_files $swathfile -out %s/$root.featureXML | grep -v accession &&
-        OpenSwathFeatureXMLToTSV -tr %s -short_format -in %s/$root.featureXML -out %s/$root.csv";
-        done | parallel -t -j %s --halt 1 && 
+        echo "OpenSwathAnalyzer -no_progress -tr %s -min_upper_edge_dist %s -rt_norm %s -ini %s -no-strict -in $i -swath_files $swathfile -out %s/$root.featureXML | grep -v accession && 
+        OpenSwathFeatureXMLToTSV -no_progress -tr %s -short_format -in %s/$root.featureXML -out %s/$root.csv";
+        done | parallel -t -j %s --halt 2 && 
         awk "NR==1 || FNR!=1" %s/*_??.csv > %s""" % \
         (" ".join(info['CHROM_MZML']),
          os.path.dirname(info[Keys.MZML][0]),
@@ -62,6 +62,7 @@ class OpenSwathAnalyzerToTSV(IWrapper):
         if 0 != run_code:
             return run_code, info
         
+        out_stream.seek(0)
         for outfile in info['FEATUREXMLS']:
             if not FileUtils.is_valid_file(log, outfile):
                 log.critical('[%s] is not valid' % outfile)

@@ -58,6 +58,7 @@ class Copy2Dropbox(IApplication):
     ###########################################  
 
     def _get_experiment_code(self, info):
+        #caveat: fails if no job_idx defined.
         ecode = 'E' + info[Keys.JOB_IDX]
         if info.has_key(Keys.PARAM_IDX) and info[Keys.PARAM_IDX] != "0":
             ecode = '%s_%s' % (ecode, info[Keys.PARAM_IDX])
@@ -66,10 +67,14 @@ class Copy2Dropbox(IApplication):
         return ecode
 
     def _make_stagebox(self, log, info):
-        ecode = self._get_experiment_code(info)
-        dirname = '%s+%s+%s' % (info['SPACE'], info['PROJECT'], ecode)
+        dirname = ""
+        if 'SPACE' in info:
+            dirname+=info['SPACE'] + "+"
+        if 'PROJECT' in info:
+            dirname+=info['PROJECT'] + "+"
+        dirname+=self._get_experiment_code(info)
         dirname = os.path.join(info[Keys.WORKDIR], dirname)
-        log.info("dirtocreate "+dirname)
+        log.info("stagebox is "+dirname)
         FileUtils.makedirs_safe(log, dirname, clean=True)
         return dirname
 
