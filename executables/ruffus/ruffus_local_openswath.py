@@ -153,12 +153,12 @@ def copytodropbox(input_file_name, output_file_name):
     wrap(Copy2SwathDropbox, input_file_name, output_file_name)
 
 ########################################################
-#split:  1h 8cpu - 10m const
-#rtce:   1h 8cpu - 2m const
-#rtnorm: 1h 1cpu  8000 - 1m const
-#ce:     8h 8cpu  3600 - 30m var |  6000ram
-#analy:  8h 8cpu  3600 - 1h var | 6000ram
-#mpro:   36 1cpu  15000 - 4h var | 30000ram
-
+#split:  10m const 1h 8cpu
+#rtce:   2m const  1h 8cpu
+#rtnorm: 1m const  1h 1cpu 8000ram
+#ce:     >30m      8h 8cpu 6000ram (was3600)
+#analy:  >1h       8h 8cpu 6000ram (was3600) 
+#mpro:   >4h       36 1cpu 30k ram (was15000)
+#align:            8h 1cpu 30k ram
 pipeline_run([copytodropbox], multiprocess=2, verbose=3)
     

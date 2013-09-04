@@ -21,7 +21,9 @@ class Copy2LibcreateDropbox(Copy2Dropbox):
         info['WORKFLOW'] = self._extendWorkflowID(info['WORKFLOW'])
         stagebox = self._make_stagebox(log, info)
         
-        self._keys_to_dropbox(log, info, [Keys.SPLIB,'TSV', Keys.TRAML], stagebox)
+        info['PEPIDX'] = info[Keys.SPLIB].replace(".splib",".pepidx")
+        info['SPIDX'] = info[Keys.SPLIB].replace(".splib",".spidx")
+        self._keys_to_dropbox(log, info, [Keys.SPLIB,'PEPIDX','SPIDX','TSV', Keys.TRAML], stagebox)
 
         dsattr = {}
         dsattr['SPACE'] = 'PERSONAL_DB'

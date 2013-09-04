@@ -38,6 +38,7 @@ class BioPersonalDB(IWrapper):
                     info['DBASE'] = line.split()[1]
                 if 'traml' in line.lower():
                     info['TRAML'] = line.split()[1]
+                    log.info("TraML is "+info["TRAML"])
             f.close()
                     
         log.info("Database is "+info["DBASE"])
