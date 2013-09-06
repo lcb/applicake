@@ -148,6 +148,10 @@ def annotxml(input_file_name, output_file_name):
 def cp2dropbox(input_file_name, output_file_name):
     wrap(Copy2QuantDropbox, input_file_name, output_file_name)
 
+################################################################################################
+#resourcetests | old set        | PA1         | oldUPS      | carone      | olga        | newset
+#part1 pp-ff   | 8h 9Gram 9Gscr | 2.0Gs 1700r | 3.8Gs 5881r | 7.1Gs 2672r | 4.6Gs 2738r | 8h 6000ram 8000scr
+#part2 ma-fl   | 36h 8Gr 16Gs   | 66s 1411r   | 833s 2353r  | 2.1Gs 3518r | 1.8Gs 3400r | 36h 4000ram 4000scr   
 
 pipeline_run([cp2dropbox], multiprocess=2)
 #pipeline_printout_graph ('flowchart.png','png',[idfilter],no_key_legend = False) #svg

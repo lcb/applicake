@@ -21,7 +21,7 @@ class SplitWindowsConvertZip(IWrapper):
                 if '.mzXML' in key:
                     info[Keys.MZXML] = key
             
-        command = '%s -i %s -o %s -t %s -n' % (info['PREFIX'], info[Keys.MZXML], info[Keys.WORKDIR], info[Keys.THREADS])
+        command = '%s -i %s -o %s -t %s -w %s -n' % (info['PREFIX'], info[Keys.MZXML], info[Keys.WORKDIR], info[Keys.THREADS],info['NUMBER_OF_SWATHES'])
         return command, info
 
     def set_args(self, log, args_handler):
@@ -30,6 +30,8 @@ class SplitWindowsConvertZip(IWrapper):
         args_handler.add_app_args(log, Keys.DSSOUTPUT, 'list with mzXML(.gz) to split in it (i.e. after getdataset instead of getmsdata)')
         args_handler.add_app_args(log, Keys.WORKDIR, 'working directory')
         args_handler.add_app_args(log, Keys.THREADS, 'number of threads')
+        args_handler.add_app_args(log, 'NUMBER_OF_SWATHES', 'number of swathes',default=32)
+        
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
