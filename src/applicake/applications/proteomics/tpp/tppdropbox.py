@@ -102,7 +102,7 @@ To cite this workflow use:
 The spectra were searched using the search engines %s %s %s
 against the $DBASE database using $ENZYME digestion and allowing $MISSEDCLEAVAGE missed cleavages.
 Included were '$STATIC_MODS' as static and '$VARIABLE_MODS' as variable modifications. The mass tolerances were set to $PRECMASSERR $PRECMASSUNIT for precursor-ions and $FRAGMASSERR $FRAGMASSUNIT for fragment-ions.
-The identified peptides were processed and analyzed through the Trans-Proteomic Pipeline (%s) using PeptideProphet, iProphet and ProteinProphet scoring. Peptide identifications were reported at FDR of $FDR.
+The identified peptides were processed and analyzed through the Trans-Proteomic Pipeline (%s) using PeptideProphet, iProphet and ProteinProphet scoring. Peptide identifications were reported at FDR of $PEPTIDEFDR.
     
 Yours sincerely,
 The iPortal team

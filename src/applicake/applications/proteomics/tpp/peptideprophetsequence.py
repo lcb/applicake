@@ -29,16 +29,13 @@ class PeptideProphetSequence(IWrapper):
         #XTINERACT        
         self._result_file = os.path.join(info[Keys.WORKDIR], 'interact.pep.xml')
         db_filename = info['DBASE']
-        omssafix = ''
-        if info.has_key('OMSSAFIX'):
-            omssafix = "-C -P"
-
+        
         info['TEMPLATE'] = os.path.join(info[Keys.WORKDIR], 'interact.tpl')
         template, info = PeptideProphetSequenceTemplate().modify_template(info, log)
         paramarr = template.splitlines()
 
         cmds = []
-        cmds.append('InteractParser %s %s %s %s' % (self._result_file, info[Keys.PEPXMLS][0], paramarr[0], omssafix))
+        cmds.append('InteractParser %s %s %s' % (self._result_file, info[Keys.PEPXMLS][0], paramarr[0]))
         cmds.append('RefreshParser %s %s %s' % (self._result_file, db_filename, paramarr[1]))
         cmds.append('PeptideProphetParser %s %s' % (self._result_file, paramarr[2]))
         return ' && '.join(cmds), info
@@ -48,7 +45,6 @@ class PeptideProphetSequence(IWrapper):
         args_handler.add_app_args(log, Keys.PEPXMLS, 'List of pepXML files', action='append')
         args_handler.add_app_args(log, 'ENZYME', 'Enzyme used for digest')
         args_handler.add_app_args(log, 'DBASE', 'FASTA dbase')
-        args_handler.add_app_args(log, 'OMSSAFIX', 'Fix omssa', action="store_true")
         args_handler.add_app_args(log, 'MZXML', 'Path to the original MZXML inputfile')
         return args_handler
 

@@ -230,24 +230,6 @@ class IniApplicationRunner(Runner):
         return exit_code, info
 
 
-class IniInfoRunner(Runner):
-    """    
-    Runner class that supports apps which require whole info object
-    """
-
-    def get_info_handler(self):
-        return IniInformationHandler()
-
-    def run_app(self, app, info, log, args_handler, out_stream, err_stream):
-        if not isinstance(app, IApplication):
-            log.critical('%s is not instance of IApplicataion' % app.__class__.__name__)
-            return 1, info
-
-        exit_code, app_info = app.main(info, log)
-        info = DictUtils.merge(log, info, app_info, priority='right')
-        return exit_code, info
-
-
 class IniWrapperRunner(Runner):
     """
     Runner class that supports application that implement the IWrapper interface      

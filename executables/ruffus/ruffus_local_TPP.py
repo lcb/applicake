@@ -117,7 +117,7 @@ def engineSplit(input_file_name, output_file_name):
 
 @transform(engineSplit, regex("engineSplit.ini_"), "xtandem.ini_")
 def tandem(input_file_name, output_file_name):
-    wrap(Xtandem, input_file_name, output_file_name, ['--PREFIX', 'tandem.exe'])
+    wrap(Xtandem, input_file_name, output_file_name,['--THREADS','4'])
 
 @transform(tandem, regex("xtandem.ini_"), "tandem.ini_")
 def pepprotandem(input_file_name, output_file_name):
@@ -127,19 +127,19 @@ def pepprotandem(input_file_name, output_file_name):
 
 @transform(engineSplit, regex("engineSplit.ini_"), "omssarun.ini_")
 def omssa(input_file_name, output_file_name):
-    wrap(Omssa, input_file_name, output_file_name)
+    wrap(Omssa, input_file_name, output_file_name,['--THREADS','4'])
 
 
 @transform(omssa, regex("omssarun.ini_"), "omssa.ini_")
 def pepproomssa(input_file_name, output_file_name):
-    wrap(PeptideProphetSequence, input_file_name, output_file_name, ['-n', 'pepomssa', '--OMSSAFIX'])
+    wrap(PeptideProphetSequence, input_file_name, output_file_name, ['-n', 'pepomssa'])
 
 ###################################################################################
 
 
 @transform(engineSplit, regex("engineSplit.ini_"), "myri.ini_")
 def myrimatch(input_file_name, output_file_name):
-    wrap(Myrimatch, input_file_name, output_file_name)
+    wrap(Myrimatch, input_file_name, output_file_name,['--THREADS','4'])
 
 
 @transform(myrimatch, regex("myri.ini_"), "myrimatch.ini_")
