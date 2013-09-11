@@ -36,6 +36,7 @@ class Spectrast2TSV2traML(IWrapper):
         mini, maxi = info['TSV_ION_LIMITS'].split("-")
         tsvopts += ' -o %s -n %s ' % (mini, maxi)
         tsvopts += ' -p ' + info['TSV_PRECISION']
+
         if info.has_key('TSV_REMOVE_DUPLICATES') and info['TSV_REMOVE_DUPLICATES'] == "True":
             tsvopts += ' -d'
         else:
@@ -49,7 +50,12 @@ class Spectrast2TSV2traML(IWrapper):
         if info.has_key('TSV_CHARGE') and info['TSV_CHARGE'] != "":
             tsvopts += ' -x ' + info['TSV_CHARGE'].replace(";", ",")
         else:
-            log.debug("no rm duplicates")
+            log.debug("no tsv charge")
+
+        if info.has_key('SWATH_WINDOW_FILE') and info['SWATH_WINDOW_FILE'] != "":
+            tsvopts += ' -w ' + info['SWATH_WINDOW_FILE']
+        else:
+            log.debug("no swath window file")
 
         if info.has_key('TSV_GAIN') and info['TSV_GAIN'] != "":
             tsvopts += ' -g ' + info['TSV_GAIN'].replace(";", ",")
@@ -90,6 +96,8 @@ class Spectrast2TSV2traML(IWrapper):
                                   'List of allowed fragment mass modifications. Useful for phosphorilation.')
         args_handler.add_app_args(log, 'TSV_CHARGE', 'Fragment ion charge states allowed.')
         args_handler.add_app_args(log, 'TSV_SERIES', 'List of ion series to be used')
+        args_handler.add_app_args(log, 'SWATH_WINDOW_FILE', 'swath window file')
+
 
         return args_handler
 
