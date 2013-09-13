@@ -96,7 +96,11 @@ class Omssa(SearchEngine):
             mod_template += ' -teppm'
             log.debug('added [ -teppm] to modified template because the precursor mass is defined in ppm')
         prefix, app_info = self._get_prefix(app_info, log)
-        
+
+        if app_info['FRAGMASSUNIT'].lower() == "ppm":
+            log.error('OMSSA does not support frag mass unit ppm, only Da!')
+            raise Exception("OMSSA does not support frag mass unit ppm, only Da!")
+
         command = "makeblastdb -dbtype prot -in %s && MzXML2Search -mgf %s | grep -v scan && %s %s -fm %s -op %s" % (omssadbase,mzxmllink ,prefix, mod_template, mgffile, self._result_file)       
         return command, info
 
