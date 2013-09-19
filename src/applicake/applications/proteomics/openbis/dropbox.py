@@ -118,5 +118,5 @@ class Copy2Dropbox(IApplication):
     
     def _extendWorkflowID(self,wfstring):
         applivers = subprocess.check_output("awk 'NR==4' /cluster/apps/guse/stable/applicake/trunk/.svn/entries",shell=True).strip()
-        imsbtoolvers = subprocess.check_output("printenv LOADEDMODULES| grep -o 'imsbtools/........'",shell=True).strip()
+        imsbtoolvers = subprocess.check_output("printenv LOADEDMODULES| grep -o 'imsbtools/........' | tail -1",shell=True).strip()
         return wfstring + " " + imsbtoolvers + " applicake@" + applivers
