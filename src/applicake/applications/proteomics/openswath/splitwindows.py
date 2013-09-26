@@ -48,7 +48,11 @@ class SplitWindowsConvertZip(IWrapper):
                     log.critical('[%s] is not valid' % outfile)
                     return 1, info
                 outfiles.append(outfile)
-
         info[Keys.MZML] = outfiles
+
+        if len(outfiles) != info["NUMBER_OF_SWATHES"]:
+            log.critical("Number of mzML.gz %d does not correspond NUM_SWATHES %d" % (len(outfiles),info["NUMBER_OF_SWATHES"]) )
+            return 1, info
+
         return 0, info
 
