@@ -38,7 +38,7 @@ class ProtXml2OpenbisSequence(IWrapper):
         info['ORGPROTXML'] = info['PROTXML']
         info['ORGPEPXMLS'] = info['PEPXMLS']
         info['PEPXMLS'] = " ".join(info['PEPXMLS'])
-        info['PEPCSV'] = os.path.join(wd, 'peptides.csv')
+        info['PEPCSV'] = os.path.join(wd, 'peptides.tsv')
         info['COUNTPROTXML'] = os.path.join(wd, 'spectralcount.prot.xml')
         info['MODPROTXML'] = os.path.join(wd, 'modifications.prot.xml')
         info['PROTXML'] = os.path.join(wd, 'Protxml2Openbis.prot.xml')
