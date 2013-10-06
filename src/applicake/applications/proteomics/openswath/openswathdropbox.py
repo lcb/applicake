@@ -34,6 +34,8 @@ class Copy2SwathDropbox(Copy2Dropbox):
         self._keys_to_dropbox(log, info, ['ALIGNMENT_MATRIX'], stagebox)
 
         for key in ['FEATURETSV','MPROPHET_TSV','MPROPHET_STATS']:
+            if not isinstance(info[key],list):
+                info[key] = [info[key]]
             upentry = []
             for entry in info[key]:
                 if "/"+info["JOB_IDX"] + "/" + info["PARAM_IDX"] + "/" in entry:
