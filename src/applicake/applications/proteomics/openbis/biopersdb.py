@@ -29,17 +29,23 @@ class BioPersonalDB(IWrapper):
             return run_code, info
 
         if info["DB_SOURCE"] == "BioDB":
-            pass
+            log.info("Database remains "+info["DBASE"])
         else:
             f = open("getdataset.out")
+            found = False
             for line in f.readlines():
                 #if info['DB_TYPE'].lower in line.lower():
-                if 'fasta' in line.lower():
+                if '.fasta' in line.lower():
                     info['DBASE'] = line.split()[1]
-                if 'traml' in line.lower():
+                    log.info("Database found "+info["DBASE"])
+                    found = True
+                if '.traml' in line.lower():
                     info['TRAML'] = line.split()[1]
-                    log.info("TraML is "+info["TRAML"])
+                    log.info("TraML found "+info["TRAML"])
+                    found = True
             f.close()
-                    
-        log.info("Database is "+info["DBASE"])
+            if not found:
+                log.error("No matching database (.fasta or .traml) found in dataset!")
+                return 1,info
+
         return run_code, info
