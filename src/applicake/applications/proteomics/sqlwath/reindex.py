@@ -39,8 +39,11 @@ class ReindexMzxml(IWrapper):
 
         infile =info['MZXML']
         base =info['MZXML'].split("/")[-1].split(".")[0]
-        info['MZXML'] = os.path.join(info[Keys.WORKDIR], base + ".mzXML")
-        command = "%s --outdir %s --mzXML -z %s" % (info[Keys.PREFIX],info[Keys.WORKDIR],infile)
+        outfile = os.path.join(info[Keys.WORKDIR], base + ".mzXML")
+
+        command = "%s --outfile %s --mzXML -z %s" % (info[Keys.PREFIX],outfile,infile)
+
+        info['MZXML'] = outfile
         return command, info
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
