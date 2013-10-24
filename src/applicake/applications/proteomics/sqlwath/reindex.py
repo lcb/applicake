@@ -37,7 +37,7 @@ class ReindexMzxml(IWrapper):
                 if '.mzXML' in key:
                     info[Keys.MZXML] = key
 
-        infile =info['MZXML']
+        infile = info['MZXML']
         outfile = info['MZXML'].split("/")[-1].split(".")[0] + ".mzXML"
         info['MZXML'] = os.path.join(info[Keys.WORKDIR], outfile)
 

@@ -13,13 +13,15 @@ class BioPersonalDB(IWrapper):
         args_handler.add_app_args(log, Keys.WORKDIR, 'workdir')
         args_handler.add_app_args(log, "DB_SOURCE", 'workdir')
         args_handler.add_app_args(log, "DBASE", 'workdir')
+        args_handler.add_app_args(log, "DATASET_DIR", 'dataset cache')
+
         return args_handler
 
     def prepare_run(self, info, log):
         if info["DB_SOURCE"] == "BioDB":
             command = "true"
         elif info["DB_SOURCE"] == "PersonalDB":
-            command = "getdataset -r getdataset.out -o %s %s" % (info["WORKDIR"], info["DBASE"])
+            command = "getdataset -r getdataset.out -o %s %s" % (info["DATASET_DIR"], info["DBASE"])
         else:
             raise Exception("Unkwnown DB_SOURCE " + info["DB_SOURCE"])
         return command, info

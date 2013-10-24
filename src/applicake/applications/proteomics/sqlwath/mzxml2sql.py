@@ -13,7 +13,7 @@ from applicake.utils.fileutils import FileUtils
 
 class Mzxml2Sql(IWrapper):
     def set_args(self, log, args_handler):
-        args_handler.add_app_args(log, Keys.PREFIX, 'executable to run', default="testPipeline")
+        args_handler.add_app_args(log, Keys.PREFIX, 'executable to run', default="findMF")
         
         args_handler.add_app_args(log, Keys.WORKDIR, "")
         args_handler.add_app_args(log, Keys.MZXML, "")
