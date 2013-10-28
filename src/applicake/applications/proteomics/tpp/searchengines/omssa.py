@@ -101,8 +101,6 @@ class Omssa(SearchEngine):
             log.warn('OMSSA does not support frag mass unit ppm, converting ppm to Da!')
             app_info["FRAGMASSERR"] = float(app_info["FRAGMASSERR"]) / 400.0 * 1000000.0
 
-            raise Exception("OMSSA does not support frag mass unit ppm, only Da!")
-
         command = "makeblastdb -dbtype prot -in %s && MzXML2Search -mgf %s | grep -v scan && %s %s -fm %s -op %s" % (omssadbase,mzxmllink ,prefix, mod_template, mgffile, self._result_file)       
         return command, info
 
