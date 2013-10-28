@@ -35,7 +35,7 @@ class RawlibNodecoy(IWrapper):
             symlink_files[i] = dest
 
         #get iProb corresponding FDR for IDFilter
-        if not Keys.IPROBABILITY in info:
+        if not Keys.IPROBABILITY in info or info[Keys.IPROBABILITY] == "":
             info[Keys.IPROBABILITY] = ProteinProphetFDR().getiProbability(log, info)
 
         root = os.path.join(info[Keys.WORKDIR], 'RawlibNodecoy')
