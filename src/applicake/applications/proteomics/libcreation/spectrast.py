@@ -35,7 +35,8 @@ class RawlibNodecoy(IWrapper):
             symlink_files[i] = dest
 
         #get iProb corresponding FDR for IDFilter
-        info[Keys.IPROBABILITY] = ProteinProphetFDR().getiProbability(log, info)
+        if not Keys.IPROBABILITY in info:
+            info[Keys.IPROBABILITY] = ProteinProphetFDR().getiProbability(log, info)
 
         root = os.path.join(info[Keys.WORKDIR], 'RawlibNodecoy')
         self._result_file = info[Keys.SPLIB] = root + '.splib'
@@ -52,6 +53,7 @@ class RawlibNodecoy(IWrapper):
         args_handler.add_app_args(log, Keys.MZXML, 'Peak list file in mzXML format', action='append')
 
         args_handler.add_app_args(log, Keys.PEPTIDEFDR, 'Peptide FDR cutoff (if no probability given)')
+        args_handler.add_app_args(log, Keys.IPROBABILITY, 'Iprobability cutoff. Overrides PeptideFDR')
         args_handler.add_app_args(log, 'MS_TYPE', 'ms instrument type')
 
         return args_handler

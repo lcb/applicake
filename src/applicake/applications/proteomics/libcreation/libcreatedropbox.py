@@ -30,7 +30,7 @@ class Copy2LibcreateDropbox(Copy2Dropbox):
         dsattr['EXPERIMENT'] = getpass.getuser().upper()
         dsattr['EXPERIMENT_TYPE'] = "PLAIN"
         dsattr['DATASET_TYPE'] = 'TRAML_DB'   
-        dsattr['PARENT_DATASETS'] = info[Keys.DATASET_CODE]
+        dsattr['PARENT_DATASETS'] = os.path.basename(os.path.dirname(info[Keys.PEPXMLS]))
         dsattr[Keys.OUTPUT] = os.path.join(stagebox, 'dataset.attributes')
         IniInformationHandler().write_info(dsattr, log)
         
