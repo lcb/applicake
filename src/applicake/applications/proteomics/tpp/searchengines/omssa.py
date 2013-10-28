@@ -83,6 +83,12 @@ class Omssa(SearchEngine):
         # with app specific definitions
         app_info = info.copy()
         app_info['DBASE'] = omssadbase
+
+        if app_info['FRAGMASSUNIT'].lower() == "ppm":
+            app_info["FRAGMASSERR"] = float(app_info["FRAGMASSERR"]) * 400.0 / 1000000.0
+            log.warn('OMSSA does not support frag mass unit ppm, converting ppm to %s Da!' % app_info["FRAGMASSERR"])
+
+
         log.debug('define modifications')
         app_info = self.define_mods(app_info, log)
         log.debug('define enzyme')
@@ -97,9 +103,6 @@ class Omssa(SearchEngine):
             log.debug('added [ -teppm] to modified template because the precursor mass is defined in ppm')
         prefix, app_info = self._get_prefix(app_info, log)
 
-        if app_info['FRAGMASSUNIT'].lower() == "ppm":
-            log.warn('OMSSA does not support frag mass unit ppm, converting ppm to Da!')
-            app_info["FRAGMASSERR"] = float(app_info["FRAGMASSERR"]) / 400.0 * 1000000.0
 
         command = "makeblastdb -dbtype prot -in %s && MzXML2Search -mgf %s | grep -v scan && %s %s -fm %s -op %s" % (omssadbase,mzxmllink ,prefix, mod_template, mgffile, self._result_file)       
         return command, info
