@@ -85,7 +85,8 @@ class Omssa(SearchEngine):
         app_info['DBASE'] = omssadbase
 
         if app_info['FRAGMASSUNIT'].lower() == "ppm":
-            app_info["FRAGMASSERR"] = float(app_info["FRAGMASSERR"]) * 400.0 / 1000000.0
+            app_info["FRAGMASSERR"] = float(app_info["FRAGMASSERR"]) * 400.0 / 100000.0
+            app_info["FRAGMASSUNIT"] = 'Da'
             log.warn('OMSSA does not support frag mass unit ppm, converting ppm to %s Da!' % app_info["FRAGMASSERR"])
 
 
