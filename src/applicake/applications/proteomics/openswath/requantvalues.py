@@ -17,7 +17,7 @@ class RequantValues(IWrapper):
     _outfiles = []
 
     def prepare_run(self, info, log):
-        if 'SKIP_CHROMML_REQUANT' in info and info['SKIP_CHROMML_REQUANT'] == "true":
+        if 'DO_CHROMML_REQUANT' in info and info['DO_CHROMML_REQUANT'] == "false":
             log.warning("Found flag, skipping requantification!")
             return "true", info
 
@@ -61,7 +61,7 @@ class RequantValues(IWrapper):
 
 
         args_handler.add_app_args(log, 'BORDER_OPTION', '',default='max_width')
-        args_handler.add_app_args(log, 'SKIP_CHROMML_REQUANT', '')
+        args_handler.add_app_args(log, 'DO_CHROMML_REQUANT', '')
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):

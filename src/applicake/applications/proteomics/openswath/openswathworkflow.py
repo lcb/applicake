@@ -32,7 +32,7 @@ class OpenSwathWorkflow(IWrapper):
 
         #check for skip
         chromml = ""
-        if 'SKIP_CHROMML_REQUANT' in info and info['SKIP_CHROMML_REQUANT'] == "true":
+        if 'DO_CHROMML_REQUANT' in info and info['DO_CHROMML_REQUANT'] == "false":
             log.info("Skipping creation of chromMZML")
         else:
             info['CHROM_MZML'] = os.path.join(info[Keys.WORKDIR],samplename + '.chrom.mzML')
@@ -82,7 +82,7 @@ class OpenSwathWorkflow(IWrapper):
 
         args_handler.add_app_args(log, 'READ_OPTS', 'reading options', default='cache')
         args_handler.add_app_args(log, 'BATCH_SIZE', 'mem batch size', default=4000)
-        args_handler.add_app_args(log, 'SKIP_CHROMML_REQUANT', '')
+        args_handler.add_app_args(log, 'DO_CHROMML_REQUANT', '')
 
         return args_handler
 
