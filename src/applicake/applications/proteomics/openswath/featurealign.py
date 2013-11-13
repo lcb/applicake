@@ -22,9 +22,7 @@ class FeatureAlignment(IWrapper):
         if not isinstance(info["MPROPHET_TSV"], list):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
 
-        realignruns = ""
-        if info["ALIGNER_REALIGNRUNS"] == "true":
-            realignruns = "--realign_runs"
+        tmpdir = os.environ.get('TMPDIR',info[Keys.WORKDIR]) + '/'
 
         dfilter = ""
         if "ALIGNER_DSCORE_CUTOFF" in info and info["ALIGNER_DSCORE_CUTOFF"] != "":
@@ -37,18 +35,11 @@ class FeatureAlignment(IWrapper):
             oldfdr += " --fdr_cutoff " + str(info['ALIGNER_FDR'])
 
         command = "feature_alignment.py --use_external_r --file_format openswath --in %s --out %s --out_matrix %s " \
-                  "%s --max_rt_diff %s %s --method %s --frac_selected %s " \
-                  "%s %s --target_fdr %s --tmpdir $TMPDIR/" % (
-            " ".join(info["MPROPHET_TSV"]),
-            info['ALIGNMENT_TSV'],
-            info['ALIGNMENT_MATRIX'],
-
-            realignruns,
-            info['ALIGNER_MAX_RTDIFF'],
-            oldfdr,
-            info['ALIGNER_METHOD'],
-            info['ALIGNER_FRACSELECTED'],
-            realignruns, dfilter, info['ALIGNER_TARGETFDR'])
+                  "--realign_runs --max_rt_diff %s %s --method %s --frac_selected %s " \
+                  "%s --target_fdr %s --tmpdir %s" % (
+            " ".join(info["MPROPHET_TSV"]),info['ALIGNMENT_TSV'],info['ALIGNMENT_MATRIX'],
+            info['ALIGNER_MAX_RTDIFF'],oldfdr,info['ALIGNER_METHOD'],info['ALIGNER_FRACSELECTED'],
+            dfilter, info['ALIGNER_TARGETFDR'],tmpdir)
 
         return command, info
 
@@ -78,7 +69,7 @@ class FeatureAlignment(IWrapper):
             return 1, info
 
         out2log = os.path.join(info[Keys.WORKDIR],"feature_alignment.out.txt")
-        f = open(out2log)
+        f = open(out2log,"w")
         f.write(out_stream.read())
         f.close()
         info["ALIGNER_STDOUT"] = out2log

@@ -66,7 +66,7 @@ class Copy2SwathDropbox(Copy2Dropbox):
         for key in ['WORKFLOW','COMMENT', 'TRAML', 'EXTRACTION_WINDOW', 'WINDOW_UNIT','RT_EXTRACTION_WINDOW',
                     'MIN_UPPER_EDGE_DIST', 'IRTTRAML', 'MIN_RSQ', 'MIN_COVERAGE', 'MPR_NUM_XVAL',
                     'MPR_LDA_PATH', 'MPR_MAINVAR', 'MPR_VARS', 'ALIGNER_FRACSELECTED', 'ALIGNER_MAX_RTDIFF',
-                    'ALIGNER_METHOD', 'ALIGNER_REALIGNRUNS', 'ALIGNER_DSCORE_CUTOFF'
+                    'ALIGNER_METHOD', 'ALIGNER_DSCORE_CUTOFF'
                     'ALIGNER_FDR', 'ALIGNER_MAX_FDRQUAL', 'ALIGNER_TARGETFDR' ]:
             if key in info and info[key] != "":
                 expinfo[key] = info[key]
