@@ -32,7 +32,7 @@ class OpenSwathWorkflow(IWrapper):
 
         #check for skip
         chromml = ""
-        if 'DO_CHROMML_REQUANT' in info and info['DO_CHROMML_REQUANT'] == "false":
+        if info.get('DO_CHROMML_REQUANT',"") == "false":
             log.info("Skipping creation of chromMZML")
         else:
             info['CHROM_MZML'] = os.path.join(info[Keys.WORKDIR],samplename + '.chrom.mzML')

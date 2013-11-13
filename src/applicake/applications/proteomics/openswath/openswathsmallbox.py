@@ -32,6 +32,8 @@ class Copy2SwathDropbox(Copy2Dropbox):
         self._keys_to_dropbox(log, info, ['ALIGNMENT_TSV'], stagebox)
         subprocess.check_call('gzip -v '+stagebox+'/*',shell=True)
         self._keys_to_dropbox(log, info, ['ALIGNMENT_MATRIX'], stagebox)
+        if 'ALIGNER_STDOUT' in info:
+            self._keys_to_dropbox(log,info,'ALIGNER_STDOUT',stagebox)
 
         #compress all mprophet files into one zip
         archive = os.path.join(stagebox, 'mprophet_stats.zip')
@@ -51,6 +53,8 @@ class Copy2SwathDropbox(Copy2Dropbox):
         dsinfo['SPACE'] = info['SPACE']
         dsinfo['PROJECT'] = info['PROJECT']
         dsinfo['PARENT_DATASETS'] = info[Keys.DATASET_CODE]
+        if info.get("DB_SOURCE","") == "PersonalDB":
+             dsinfo['PARENT_DATASETS'].append(info["DBASE"])
         dsinfo['DATASET_TYPE'] = 'SWATH_RESULT'
         dsinfo['EXPERIMENT_TYPE'] = 'SWATH_SEARCH'
         dsinfo['EXPERIMENT'] = self._get_experiment_code(info)
@@ -58,13 +62,13 @@ class Copy2SwathDropbox(Copy2Dropbox):
         IniInformationHandler().write_info(dsinfo, log)
 
         expinfo = {}
-        expinfo['PARENT-DATA-SET-CODES'] = info[Keys.DATASET_CODE]
+        expinfo['PARENT-DATA-SET-CODES'] = dsinfo['PARENT_DATASETS']
         for key in ['WORKFLOW','COMMENT', 'TRAML', 'EXTRACTION_WINDOW', 'WINDOW_UNIT','RT_EXTRACTION_WINDOW',
                     'MIN_UPPER_EDGE_DIST', 'IRTTRAML', 'MIN_RSQ', 'MIN_COVERAGE', 'MPR_NUM_XVAL',
                     'MPR_LDA_PATH', 'MPR_MAINVAR', 'MPR_VARS', 'ALIGNER_FRACSELECTED', 'ALIGNER_MAX_RTDIFF',
                     'ALIGNER_METHOD', 'ALIGNER_REALIGNRUNS', 'ALIGNER_DSCORE_CUTOFF'
                     'ALIGNER_FDR', 'ALIGNER_MAX_FDRQUAL', 'ALIGNER_TARGETFDR' ]:
-            if key in info:
+            if key in info and info[key] != "":
                 expinfo[key] = info[key]
         expinfo[Keys.OUTPUT] = os.path.join(stagebox, 'experiment.properties')
         IniInformationHandler().write_info(expinfo, log)

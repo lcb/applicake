@@ -17,7 +17,7 @@ class RequantValues(IWrapper):
     _outfiles = []
 
     def prepare_run(self, info, log):
-        if 'DO_CHROMML_REQUANT' in info and info['DO_CHROMML_REQUANT'] == "false":
+        if info.get('DO_CHROMML_REQUANT',"") == "false":
             log.warning("Found flag, skipping requantification!")
             return "true", info
 

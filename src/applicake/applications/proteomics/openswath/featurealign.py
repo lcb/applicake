@@ -32,13 +32,13 @@ class FeatureAlignment(IWrapper):
 
         oldfdr = ""
         if 'ALIGNER_MAX_FDRQUAL' in info and info['ALIGNER_MAX_FDRQUAL'] != "":
-            oldfdr = "--max_fdr_quality " + info['ALIGNER_MAX_FDRQUAL']
+            oldfdr = "--max_fdr_quality " + str(info['ALIGNER_MAX_FDRQUAL'])
         if 'ALIGNER_FDR' in info and info['ALIGNER_FDR'] != "":
-            oldfdr += " --fdr_cutoff " + info['ALIGNER_FDR']
+            oldfdr += " --fdr_cutoff " + str(info['ALIGNER_FDR'])
 
         command = "feature_alignment.py --use_external_r --file_format openswath --in %s --out %s --out_matrix %s " \
                   "%s --max_rt_diff %s %s --method %s --frac_selected %s " \
-                  "%s %s --target_fdr %s" % (
+                  "%s %s --target_fdr %s --tmpdir $TMPDIR/" % (
             " ".join(info["MPROPHET_TSV"]),
             info['ALIGNMENT_TSV'],
             info['ALIGNMENT_MATRIX'],
@@ -58,9 +58,9 @@ class FeatureAlignment(IWrapper):
         args_handler.add_app_args(log, 'ALIGNER_FRACSELECTED', '')
         args_handler.add_app_args(log, 'ALIGNER_REALIGNRUNS', 'true=realign, false=use iRT. faster but less accurate',default="true")
         args_handler.add_app_args(log, 'ALIGNER_MAX_RTDIFF', '')
-        args_handler.add_app_args(log, 'ALIGNER_INPUTFDR', '',default=0.01)
+        args_handler.add_app_args(log, 'ALIGNER_FDR', '')
 
-        args_handler.add_app_args(log, 'ALIGNER_MAX_FDRQUAL', '',default=-1)
+        args_handler.add_app_args(log, 'ALIGNER_MAX_FDRQUAL', '')
 
         args_handler.add_app_args(log, 'ALIGNER_TARGETFDR', '', default=-1)
         args_handler.add_app_args(log, 'ALIGNER_DSCORE_CUTOFF', 'if not set dont filter. if set use dscore cutoff')
@@ -76,6 +76,12 @@ class FeatureAlignment(IWrapper):
             return 1, info
         if not FileUtils.is_valid_file(log, info['ALIGNMENT_MATRIX']):
             return 1, info
+
+        out2log = os.path.join(info[Keys.WORKDIR],"feature_alignment.out.txt")
+        f = open(out2log)
+        f.write(out_stream.read())
+        f.close()
+        info["ALIGNER_STDOUT"] = out2log
 
         #TRAFO ML PATCH
         info["TRAFO_FILES"] = []
