@@ -66,6 +66,9 @@ class IniDatasetcodeGenerator(IniGenerator):
         ini = IniInformationHandler().get_info(log, info)
         basedic = DictUtils.merge(log, info, ini)
 
+        if "COMMENT" in info:
+            info["COMMENT"] = str(info["COMMENT"]).replace(",","_")
+
         #check if value DATASE_CODE is defined as list
         dsc = basedic[Keys.DATASET_CODE]
         if not isinstance(dsc, list):

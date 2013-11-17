@@ -67,7 +67,7 @@ class Copy2SwathDropbox(Copy2Dropbox):
                     'MIN_UPPER_EDGE_DIST', 'IRTTRAML', 'MIN_RSQ', 'MIN_COVERAGE', 'MPR_NUM_XVAL',
                     'MPR_LDA_PATH', 'MPR_MAINVAR', 'MPR_VARS', 'ALIGNER_FRACSELECTED', 'ALIGNER_MAX_RTDIFF',
                     'ALIGNER_METHOD', 'ALIGNER_DSCORE_CUTOFF'
-                    'ALIGNER_FDR', 'ALIGNER_MAX_FDRQUAL', 'ALIGNER_TARGETFDR' ]:
+                    'ALIGNER_FDR', 'ALIGNER_MAX_FDRQUAL', 'ALIGNER_TARGETFDR','DO_CHROMML_REQUANT' ]:
             if key in info and info[key] != "":
                 expinfo[key] = info[key]
         expinfo[Keys.OUTPUT] = os.path.join(stagebox, 'experiment.properties')
