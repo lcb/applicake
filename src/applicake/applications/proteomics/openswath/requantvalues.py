@@ -24,6 +24,11 @@ class RequantValues(IWrapper):
         intsv = info['ALIGNMENT_TSV']
 
         localtrs = []
+        #dont do comparison if only one mzml
+        if not isinstance(info["CHROM_MZML"], list):
+            info["CHROM_MZML"] = [info["CHROM_MZML"]]
+        if not isinstance(info["TRAFO_FILES"], list):
+            info["TRAFO_FILES"] = [info["TRAFO_FILES"]]
         if len(info["CHROM_MZML"]) != len(info["TRAFO_FILES"]):
             raise Exception("not same amount of mzML and tr files!")
         for i in range(len(info["CHROM_MZML"])):
