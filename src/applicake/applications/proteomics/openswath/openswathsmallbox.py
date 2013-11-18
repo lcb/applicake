@@ -54,7 +54,11 @@ class Copy2SwathDropbox(Copy2Dropbox):
         dsinfo['PROJECT'] = info['PROJECT']
         dsinfo['PARENT_DATASETS'] = info[Keys.DATASET_CODE]
         if info.get("DB_SOURCE","") == "PersonalDB":
-             dsinfo['PARENT_DATASETS'].append(info["DBASE"])
+            if isinstance(dsinfo['PARENT_DATASETS'],list):
+                dsinfo['PARENT_DATASETS'].append(info["DBASE"])
+            else:
+                dsinfo['PARENT_DATASETS'] = [dsinfo['PARENT_DATASETS'],info['DBASE']]
+
         dsinfo['DATASET_TYPE'] = 'SWATH_RESULT'
         dsinfo['EXPERIMENT_TYPE'] = 'SWATH_SEARCH'
         dsinfo['EXPERIMENT'] = self._get_experiment_code(info)
