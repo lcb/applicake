@@ -19,7 +19,7 @@ class pyProphet(IWrapper):
 
     def prepare_run(self, info, log):
 
-        command = 'mProphetScoreSelector.sh %s %s %s && pyprophet --target.dir=%s --xeval.num_iter=%s %s' % (
+        command = 'mProphetScoreSelector.sh %s %s %s && pyprophet --ignore.invalid_score_columns --target.dir=%s --xeval.num_iter=%s %s' % (
         info['FEATURETSV'], info['MPR_MAINVAR'], info['MPR_VARS'],
         info['WORKDIR'], info['MPR_NUM_XVAL'],info['FEATURETSV'])
         return command, info
