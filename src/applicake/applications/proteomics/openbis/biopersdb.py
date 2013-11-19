@@ -37,7 +37,7 @@ class BioPersonalDB(IWrapper):
             found = False
             for line in f.readlines():
                 #if info['DB_TYPE'].lower in line.lower():
-                if '.fasta' in line.lower():
+                if '.fasta' in line.lower() or '.txt' in line.lower():
                     info['DBASE'] = line.split()[1]
                     log.info("Database found "+info["DBASE"])
                     found = True
