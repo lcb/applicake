@@ -65,7 +65,7 @@ class RequantValues(IWrapper):
         args_handler.add_app_args(log, 'THREADS', '')
 
 
-        args_handler.add_app_args(log, 'BORDER_OPTION', '',default='max_width')
+        args_handler.add_app_args(log, 'BORDER_OPTION', '',default='median')
         args_handler.add_app_args(log, 'DO_CHROMML_REQUANT', '')
         return args_handler
 
