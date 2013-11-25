@@ -8,6 +8,7 @@ with dscore cutoff and external R: 2h20m, 5G RAM
 """
 
 import os,glob
+import shutil
 from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
@@ -76,13 +77,14 @@ class FeatureAlignment(IWrapper):
 
         #TRAFO ML PATCH
         info["TRAFO_FILES"] = []
-        for file in info["MPROPHET_TSV"]:
-            expr = os.path.dirname(file) + "/" + os.path.splitext(os.path.basename(file))[0] + "*.tr"
-            trfiles = glob.glob(expr)
-            if len(trfiles) != 1:
-                log.error("More than one .tr file found!")
+        for fil in info["MPROPHET_TSV"]:
+            trfile = glob.glob(os.path.dirname(fil) + "/*.tr")
+            if len(trfile) != 1:
+                log.error("More than one .tr file for "+fil)
                 return 1,info
-            info["TRAFO_FILES"].append(trfiles[0])
+            trtgt = os.path.join(info['WORKDIR'],os.path.basename(trfile[0]))
+            shutil.move(trfile[0],trtgt)
+            info["TRAFO_FILES"].append(trtgt)
 
         return 0, info
 
