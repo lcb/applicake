@@ -18,10 +18,12 @@ class pyProphet(IWrapper):
     _projectname = ''
 
     def prepare_run(self, info, log):
-
+        classify=''
+        if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
+            classify = " --apply "+info['MPR_LDA_PATH']
         command = 'mProphetScoreSelector.sh %s %s %s && pyprophet --ignore.invalid_score_columns --target.dir=%s --xeval.num_iter=%s %s' % (
         info['FEATURETSV'], info['MPR_MAINVAR'], info['MPR_VARS'],
-        info['WORKDIR'], info['MPR_NUM_XVAL'],info['FEATURETSV'])
+        info['WORKDIR'], info['MPR_NUM_XVAL'],classify,info['FEATURETSV'])
         return command, info
 
     def set_args(self, log, args_handler):
@@ -34,6 +36,7 @@ class pyProphet(IWrapper):
         args_handler.add_app_args(log, 'MPR_NUM_XVAL', 'num cross validations')
         args_handler.add_app_args(log, 'MPR_MAINVAR', 'mProphet main score')
         args_handler.add_app_args(log, 'MPR_VARS', 'mProphet other scores')
+        args_handler.add_app_args(log, 'MPR_LDA_PATH', 'mProphet use existing LDA model')
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):

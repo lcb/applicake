@@ -48,5 +48,5 @@ class BasicTemplateHandler(ITemplateHandler):
         fh = open(info[Keys.TEMPLATE], 'w+')
         fh.write(template)
         fh.close()
-        return info         
+        return info
     

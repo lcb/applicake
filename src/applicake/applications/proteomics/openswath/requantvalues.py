@@ -47,7 +47,7 @@ class RequantValues(IWrapper):
         info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_requant_matrix.tsv")
 
         command = "requantAlignedParallel.sh --in %s --peakgroups_infile %s --out %s --out_matrix %s " \
-                  "--border_option %s --threads %s" % (
+                  "--border_option %s --threads %s | grep -v 'does not cover full range'" % (
             " ".join(localtrs),
             intsv,
             info['ALIGNMENT_TSV'],

@@ -36,7 +36,7 @@ class Copy2SwathDropbox(Copy2Dropbox):
             self._keys_to_dropbox(log,info,'ALIGNER_STDOUT',stagebox)
 
         #compress all mprophet files into one zip
-        archive = os.path.join(stagebox, 'mprophet_stats.zip')
+        archive = os.path.join(stagebox, 'pyprophet_stats.zip')
         if not isinstance(info['MPROPHET_STATS'], list):
             info['MPROPHET_STATS'] = [info['MPROPHET_STATS']]
         #subprocess.check_call('zip -j ' + archive + ' ' + " ".join(info['MPROPHET_STATS']) ,shell=True)
