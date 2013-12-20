@@ -36,16 +36,20 @@ class Copy2SwathDropbox(Copy2Dropbox):
             self._keys_to_dropbox(log,info,'ALIGNER_STDOUT',stagebox)
 
         #compress all mprophet files into one zip
+        #PATCH: no mprophet stats if classifier used
         if not 'MPROPHET_STATS' in info:
             info['MPROPHET_STATS'] = []
+        #PATCH: reimport old classifier if existing was used
+        if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
+            info['MPROPHET_STATS'].append(info['MPR_LDA_PATH'])
+
         archive = os.path.join(stagebox, 'pyprophet_stats.zip')
         if not isinstance(info['MPROPHET_STATS'], list):
             info['MPROPHET_STATS'] = [info['MPROPHET_STATS']]
-        #subprocess.check_call('zip -j ' + archive + ' ' + " ".join(info['MPROPHET_STATS']) ,shell=True)
         #patch: filter out other params
         for entry in info['MPROPHET_STATS']:
             if "/"+info["JOB_IDX"] + "/" + info["PARAM_IDX"] + "/" in entry:
-                subprocess.check_call('zip -j ' + archive + ' ' + entry ,shell=True)
+                subprocess.check_call('zip -j ' + archive + ' ' + entry, shell=True)
             else:
                 log.info("Filtering out entry from pther param "+entry)
 
@@ -72,7 +76,7 @@ class Copy2SwathDropbox(Copy2Dropbox):
         for key in ['WORKFLOW','COMMENT', 'TRAML', 'EXTRACTION_WINDOW', 'WINDOW_UNIT','RT_EXTRACTION_WINDOW',
                     'MIN_UPPER_EDGE_DIST', 'IRTTRAML', 'MIN_RSQ', 'MIN_COVERAGE', 'MPR_NUM_XVAL',
                     'MPR_LDA_PATH', 'MPR_MAINVAR', 'MPR_VARS', 'ALIGNER_FRACSELECTED', 'ALIGNER_MAX_RTDIFF',
-                    'ALIGNER_METHOD', 'ALIGNER_DSCORE_CUTOFF'
+                    'ALIGNER_METHOD', 'ALIGNER_DSCORE_CUTOFF',
                     'ALIGNER_FDR', 'ALIGNER_MAX_FDRQUAL', 'ALIGNER_TARGETFDR','DO_CHROMML_REQUANT' ]:
             if key in info and info[key] != "":
                 expinfo[key] = info[key]
