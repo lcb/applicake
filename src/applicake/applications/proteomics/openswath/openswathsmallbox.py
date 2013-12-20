@@ -39,19 +39,20 @@ class Copy2SwathDropbox(Copy2Dropbox):
         #PATCH: no mprophet stats if classifier used
         if not 'MPROPHET_STATS' in info:
             info['MPROPHET_STATS'] = []
-        #PATCH: reimport old classifier if existing was used
-        if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
-            info['MPROPHET_STATS'].append(info['MPR_LDA_PATH'])
-
-        archive = os.path.join(stagebox, 'pyprophet_stats.zip')
         if not isinstance(info['MPROPHET_STATS'], list):
             info['MPROPHET_STATS'] = [info['MPROPHET_STATS']]
+
+        archive = os.path.join(stagebox, 'pyprophet_stats.zip')
         #patch: filter out other params
         for entry in info['MPROPHET_STATS']:
             if "/"+info["JOB_IDX"] + "/" + info["PARAM_IDX"] + "/" in entry:
                 subprocess.check_call('zip -j ' + archive + ' ' + entry, shell=True)
             else:
                 log.info("Filtering out entry from pther param "+entry)
+
+        #PATCH: reimport old classifier if existing was used
+        if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
+            subprocess.check_call('zip -j ' + archive + ' ' + info['MPR_LDA_PATH'], shell=True)
 
 
         #SPACE PROJECT given
