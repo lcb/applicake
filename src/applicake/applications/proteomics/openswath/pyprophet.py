@@ -20,8 +20,8 @@ class pyProphet(IWrapper):
     def prepare_run(self, info, log):
         classify=''
         if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
-            classify = " --apply "+info['MPR_LDA_PATH']
-        command = 'mProphetScoreSelector.sh %s %s %s && pyprophet --ignore.invalid_score_columns --target.dir=%s --xeval.num_iter=%s %s' % (
+            classify = " --apply="+info['MPR_LDA_PATH']
+        command = 'mProphetScoreSelector.sh %s %s %s && pyprophet --ignore.invalid_score_columns --target.dir=%s --xeval.num_iter=%s %s %s' % (
         info['FEATURETSV'], info['MPR_MAINVAR'], info['MPR_VARS'],
         info['WORKDIR'], info['MPR_NUM_XVAL'],classify,info['FEATURETSV'])
         return command, info
@@ -52,8 +52,12 @@ class pyProphet(IWrapper):
         info['MPROPHET_STATS'] = []
         for end in ["_full_stat.csv","_summary_stat.csv","_scorer.bin","_report.pdf" ]:
             f = base + end
-            if FileUtils.is_valid_file(log,f):
-                log.debug("Adding mprophet stat file "+f)
+            if not FileUtils.is_valid_file(log,f):
+                log.debug("Ignoring above message, not adding")
+            else:
+                log.debug("Adding pyprophet stat file "+f)
                 info['MPROPHET_STATS'].append(f)
 
+        if not info['MPROPHET_STATS']:
+            del info['MPROPHET_STATS']
         return run_code, info

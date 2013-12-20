@@ -40,6 +40,10 @@ class OpenSwathWorkflow(IWrapper):
         tmpmzxml = os.path.join(tmpdir, os.path.basename(info['MZXML']))
         tmptsv = os.path.join(tmpdir, samplename + '.tsv.tmp')
 
+        extraextract = ''
+        if 'EXTRA_RT_EXTRACTION_WINDOW' in info and info['EXTRA_RT_EXTRACTION_WINDOW'] != "":
+            extraextract = "-extra_rt_extraction_window "+info['EXTRA_RT_EXTRACTION_WINDOW']
+
         if info.get('DO_CHROMML_REQUANT', "") == "false":
             log.info("Skipping creation of chromMZML")
             chrommlflag = ""
@@ -53,13 +57,13 @@ class OpenSwathWorkflow(IWrapper):
         command = """cp -v %s %s &&
         OpenSwathWorkflow -in %s -tr %s -tr_irt %s -out_tsv %s %s
         -min_rsq %s -min_coverage %s
-        -min_upper_edge_dist %s -mz_extraction_window %s %s -rt_extraction_window %s
+        -min_upper_edge_dist %s -mz_extraction_window %s %s -rt_extraction_window %s %s
         -tempDirectory %s -readOptions %s  -threads %s -batchSize %s
         && mv -v %s %s && %s""" % \
                   (info["MZXML"], tmpmzxml,
                    tmpmzxml, library, info['IRTTRAML'], tmptsv, chrommlflag,
                    info['MIN_RSQ'], info['MIN_COVERAGE'],
-                   info['MIN_UPPER_EDGE_DIST'], info['EXTRACTION_WINDOW'], ppm, info['RT_EXTRACTION_WINDOW'],
+                   info['MIN_UPPER_EDGE_DIST'], info['EXTRACTION_WINDOW'], ppm, info['RT_EXTRACTION_WINDOW'], extraextract,
                    tmpdir, info["READ_OPTS"], info['THREADS'], info['BATCH_SIZE'],
                    tmptsv, info['FEATURETSV'], chrommlmv
                   )
@@ -85,6 +89,7 @@ class OpenSwathWorkflow(IWrapper):
 
         args_handler.add_app_args(log, 'MIN_UPPER_EDGE_DIST', 'minimum upper edge distance parameter')
         args_handler.add_app_args(log, 'EXTRACTION_WINDOW', 'extraction window to extract around')
+        args_handler.add_app_args(log, 'EXTRA_RT_EXTRACTION_WINDOW', 'extra RT extraction window to extract around')
         args_handler.add_app_args(log, 'RT_EXTRACTION_WINDOW', 'RT extraction window to extract around')
         args_handler.add_app_args(log, 'WINDOW_UNIT', 'extraction window unit thompson/ppm')
 
