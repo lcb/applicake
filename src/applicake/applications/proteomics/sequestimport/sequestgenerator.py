@@ -87,7 +87,7 @@ class SequestGenerator(IniGenerator):
         hasDecoys = False
         with open(info['DBASE']) as r:
             for line in r.readlines():
-                if 'DECOY_' in line:
+                if '>DECOY_' in line:
                     hasDecoys = True
         if not hasDecoys:
             log.critical("No DECOY_s in fasta found!")
