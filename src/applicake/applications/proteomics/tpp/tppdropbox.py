@@ -59,11 +59,6 @@ class Copy2IdentDropbox(Copy2Dropbox):
         _, info = th.modify_template(info, log)
         shutil.copy(info[Keys.TEMPLATE], info['DROPBOXSTAGE'])
 
-        #fix too large protxml
-        if os.path.getsize(info['PROTXML']) > 256000000:
-            log.error("Protxml TOO LARGE this will crash openbis!")
-            return 1,info
-
         info['DROPBOXSTAGE'] = self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'], keepCopy=True)
 
         return 0, info
