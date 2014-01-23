@@ -10,20 +10,17 @@ phl2 3.7GB file: 7min 6600M RAM
 import os
 from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IWrapper
-from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 
 
 class pyProphet(IWrapper):
-    _projectname = ''
-
     def prepare_run(self, info, log):
-        classify=''
+        classify = ''
         if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
-            classify = " --apply="+info['MPR_LDA_PATH']
+            classify = " --apply=" + info['MPR_LDA_PATH']
         command = 'mProphetScoreSelector.sh %s %s %s && pyprophet --ignore.invalid_score_columns --target.dir=%s --xeval.num_iter=%s %s %s' % (
-        info['FEATURETSV'], info['MPR_MAINVAR'], info['MPR_VARS'],
-        info['WORKDIR'], info['MPR_NUM_XVAL'],classify,info['FEATURETSV'])
+            info['FEATURETSV'], info['MPR_MAINVAR'], info['MPR_VARS'],
+            info['WORKDIR'], info['MPR_NUM_XVAL'], classify, info['FEATURETSV'])
         return command, info
 
     def set_args(self, log, args_handler):
@@ -31,7 +28,7 @@ class pyProphet(IWrapper):
         See interface
         """
         args_handler.add_app_args(log, 'WORKDIR', 'wd')
-        args_handler.add_app_args(log, 'THREADS', 'number of threads',default='1')
+        args_handler.add_app_args(log, 'THREADS', 'number of threads', default='1')
         args_handler.add_app_args(log, 'FEATURETSV', 'featuretsv')
         args_handler.add_app_args(log, 'MPR_NUM_XVAL', 'num cross validations')
         args_handler.add_app_args(log, 'MPR_MAINVAR', 'mProphet main score')
@@ -41,7 +38,7 @@ class pyProphet(IWrapper):
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
 
-        base = os.path.join(info[Keys.WORKDIR], os.path.splitext(os.path.basename(info['FEATURETSV']))[0] )
+        base = os.path.join(info[Keys.WORKDIR], os.path.splitext(os.path.basename(info['FEATURETSV']))[0])
         resultfile = base + "_with_dscore.csv"
         if not FileUtils.is_valid_file(log, resultfile):
             log.critical('%s is not valid', resultfile)
@@ -50,12 +47,13 @@ class pyProphet(IWrapper):
             info['MPROPHET_TSV'] = resultfile
 
         info['MPROPHET_STATS'] = []
-        for end in ["_full_stat.csv","_summary_stat.csv","_scorer.bin","_report.pdf" ]:
+        for end in ["_full_stat.csv", "_scorer.bin", "_report.pdf",
+                    "_dscores_top_target_peaks.txt", "_dscores_top_decoy_peaks.txt"]:
             f = base + end
-            if not FileUtils.is_valid_file(log,f):
+            if not FileUtils.is_valid_file(log, f):
                 log.debug("Ignoring above message, not adding")
             else:
-                log.debug("Adding pyprophet stat file "+f)
+                log.debug("Adding pyprophet stat file " + f)
                 info['MPROPHET_STATS'].append(f)
 
         if not info['MPROPHET_STATS']:
