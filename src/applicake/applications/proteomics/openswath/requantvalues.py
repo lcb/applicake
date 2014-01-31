@@ -25,22 +25,26 @@ class RequantValues(IWrapper):
 
         localtrs = []
         #dont do comparison if only one mzml
-        if not isinstance(info["CHROM_MZML"], list):
-            info["CHROM_MZML"] = [info["CHROM_MZML"]]
+        if not isinstance(info["CHROMML_GZ"], list):
+            info["CHROMML_GZ"] = [info["CHROMML_GZ"]]
         if not isinstance(info["TRAFO_FILES"], list):
             info["TRAFO_FILES"] = [info["TRAFO_FILES"]]
-        if len(info["CHROM_MZML"]) != len(info["TRAFO_FILES"]):
+        if len(info["CHROMML_GZ"]) != len(info["TRAFO_FILES"]):
             raise Exception("not same amount of mzML and tr files!")
-        for i in range(len(info["CHROM_MZML"])):
-            idir = os.path.join(info[Keys.WORKDIR],str(i))
+
+
+        for i in range(len(info["TRAFO_FILES"])):
+            idir = os.path.join(os.environ.get("TMPDIR", info[Keys.WORKDIR]),str(i))
             os.mkdir(idir)
-            mzml = info["CHROM_MZML"][i]
-            localmzml = os.path.join(idir,os.path.basename(mzml))
-            os.symlink(mzml,localmzml)
+
             tr = info["TRAFO_FILES"][i]
             localtr = os.path.join(idir,os.path.basename(tr))
             os.symlink(tr,localtr)
             localtrs.append(localtr)
+
+            mzml = info["CHROMML_GZ"][i]
+            localmzml = os.path.join(idir,os.path.basename(mzml))
+            os.symlink(mzml,localmzml)
 
 
         info['ALIGNMENT_TSV'] = os.path.join(info['WORKDIR'], "feature_alignment_requant.tsv")
@@ -58,7 +62,7 @@ class RequantValues(IWrapper):
 
     def set_args(self, log, args_handler):
         args_handler.add_app_args(log, Keys.WORKDIR, 'Directory to store files')
-        args_handler.add_app_args(log, 'CHROM_MZML', '')
+        args_handler.add_app_args(log, 'CHROMML_GZ', '')
         args_handler.add_app_args(log, 'ALIGNMENT_TSV', '')
         args_handler.add_app_args(log, 'ALIGNMENT_MATRIX', '')
         args_handler.add_app_args(log, 'TRAFO_FILES', '')

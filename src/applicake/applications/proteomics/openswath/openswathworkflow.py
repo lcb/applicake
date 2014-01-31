@@ -42,31 +42,33 @@ class OpenSwathWorkflow(IWrapper):
 
         extraextract = ''
         if 'EXTRA_RT_EXTRACTION_WINDOW' in info and info['EXTRA_RT_EXTRACTION_WINDOW'] != "":
-            extraextract = "-extra_rt_extraction_window "+info['EXTRA_RT_EXTRACTION_WINDOW']
+            extraextract = "-extra_rt_extraction_window " + info['EXTRA_RT_EXTRACTION_WINDOW']
 
         if info.get('DO_CHROMML_REQUANT', "") == "false":
             log.info("Skipping creation of chromMZML")
             chrommlflag = ""
             chrommlmv = "/bin/true"
         else:
-            info['CHROM_MZML'] = os.path.join(info[Keys.WORKDIR], samplename + '.chrom.mzML')
+            info['CHROMML_GZ'] = os.path.join(info[Keys.WORKDIR], samplename + '.chrom.mzML.gz')
             tmpchromml = os.path.join(tmpdir, samplename + '.chrom.mzML.tmp')
             chrommlflag = "-out_chrom " + tmpchromml
-            chrommlmv = " mv -v " + tmpchromml + " " + info['CHROM_MZML']
+            chrommlmv = " gzip -c %s > %s " % (tmpchromml, info['CHROMML_GZ'])
 
         command = """cp -v %s %s &&
         OpenSwathWorkflow -in %s -tr %s -tr_irt %s -out_tsv %s %s
         -min_rsq %s -min_coverage %s
         -min_upper_edge_dist %s -mz_extraction_window %s %s -rt_extraction_window %s %s
         -tempDirectory %s -readOptions %s  -threads %s -batchSize %s
-        && mv -v %s %s && %s""" % \
-                  (info["MZXML"], tmpmzxml,
-                   tmpmzxml, library, info['IRTTRAML'], tmptsv, chrommlflag,
-                   info['MIN_RSQ'], info['MIN_COVERAGE'],
-                   info['MIN_UPPER_EDGE_DIST'], info['EXTRACTION_WINDOW'], ppm, info['RT_EXTRACTION_WINDOW'], extraextract,
-                   tmpdir, info["READ_OPTS"], info['THREADS'], info['BATCH_SIZE'],
-                   tmptsv, info['FEATURETSV'], chrommlmv
-                  )
+        && mv -v %s %s &&
+        %s""" % (info["MZXML"], tmpmzxml,
+                 tmpmzxml, library, info['IRTTRAML'], tmptsv, chrommlflag,
+                 info['MIN_RSQ'], info['MIN_COVERAGE'],
+                 info['MIN_UPPER_EDGE_DIST'], info['EXTRACTION_WINDOW'], ppm, info['RT_EXTRACTION_WINDOW'],
+                 extraextract,
+                 tmpdir, info["READ_OPTS"], info['THREADS'], info['BATCH_SIZE'],
+                 tmptsv, info['FEATURETSV'],
+                 chrommlmv
+        )
 
         return command, info
 
