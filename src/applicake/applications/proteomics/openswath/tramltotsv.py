@@ -34,8 +34,4 @@ class ConvertTramlToTsv(IWrapper):
             log.critical('%s is not valid', resultfile)
             return 1, info
 
-        if 37 * os.path.getsize(info["TRAML_CSV"]) * len(info["DATASET_CODE"]) > 5*1024*1024*1024*1024:
-            log.warn("Your workflow is too big, skipping requantification!")
-            info["DO_CHROMML_REQUANT"] = "false"
-
         return run_code, info
