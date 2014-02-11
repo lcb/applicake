@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import jsonrpclib,os
+import jsonrpclib,os,subprocess
 from applicake.framework.interfaces import IApplication
 from applicake.framework.keys import Keys
 
@@ -35,7 +35,8 @@ class GetAnnotations(IApplication):
 
     def get_sample_assoc(self):
         server = jsonrpclib.Server('https://ra-openbis.ethz.ch:8443/openbis/openbis/rmi-query-v1.json')
-        sessionToken = server.tryToAuthenticateAtQueryServer("p-grade", "s$fh63bw*(62h")
+        pwd = subprocess.check_output("conc")
+        sessionToken = server.tryToAuthenticateAtQueryServer("p-grade", pwd)
 
         #find required query ID
         queries = server.listQueries(sessionToken)
