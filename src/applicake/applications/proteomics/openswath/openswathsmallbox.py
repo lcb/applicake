@@ -26,6 +26,9 @@ class Copy2SwathDropbox(Copy2Dropbox):
         info = DictUtils.merge(log, info, ini)
 
         info['WORKFLOW'] = self._extendWorkflowID(info['WORKFLOW'])
+        info['WORKFLOW'] += " msproteomicstools@"+subprocess.check_output("awk 'NR==4' /cluster/apps/imsbtools/stable/msproteomicstools/trunk/.svn/entries",shell=True).strip()
+        info['WORKFLOW'] += " openms@"+subprocess.check_output("git --git-dir=/cluster/apps/openms/svn-current/OpenMS/.git rev-parse HEAD",shell=True).strip()
+
         stagebox = self._make_stagebox(log, info)
 
         #copy and compress align.csv, but not the matrix

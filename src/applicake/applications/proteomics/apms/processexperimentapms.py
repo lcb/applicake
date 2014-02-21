@@ -17,11 +17,12 @@ class ProcessExperimentApms(IApplication):
 
     def main(self, info, log):
         for entry in info[Keys.SEARCH]:
+            if entry.endswith('peptides.tsv'):
+                info['PEPCSV'] = entry
             if entry.endswith('.properties'):
                 propfile = entry
 
         propinfo = ConfigObj(propfile)
-        info['PEPCSV'] = propinfo['PEPCSV']
         info['DBASE'] = propinfo['DBASE']
 
         #remove these guys to prevent parameter sweep

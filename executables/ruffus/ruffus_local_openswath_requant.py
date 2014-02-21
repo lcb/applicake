@@ -23,7 +23,7 @@ from applicake.applications.proteomics.openbis.dss import Dss
 from applicake.applications.proteomics.openswath.openswathworkflow import OpenSwathWorkflow
 from applicake.applications.proteomics.openswath.pyprophet import pyProphet
 from applicake.applications.proteomics.openswath.featurealign import FeatureAlignment
-from applicake.applications.proteomics.openswath.openswathdropbox import Copy2SwathDropbox
+from applicake.applications.proteomics.openswath.openswathsmallbox import Copy2SwathDropbox
 
 #helper function
 from applicake.applications.proteomics.openswath.tramltotsv import ConvertTramlToTsv
@@ -83,12 +83,9 @@ MPR_LDA_PATH =
 MPR_MAINVAR = xx_swath_prelim_score
 MPR_VARS = bseries_score elution_model_fit_score intensity_score isotope_correlation_score isotope_overlap_score library_corr library_rmsd log_sn_score massdev_score massdev_score_weighted norm_rt_score xcorr_coelution xcorr_coelution_weighted xcorr_shape xcorr_shape_weighted yseries_score
 
-ALIGNER_INPUTFDR = 0.01
 ALIGNER_TARGETFDR = 0.01
-
 ALIGNER_MAX_RTDIFF = 30
 ALIGNER_METHOD = best_overall
-ALIGNER_REALIGNRUNS = true
 ALIGNER_FRACSELECTED = 0
 
 ALIGNER_DSCORE_CUTOFF = 0.5
@@ -149,5 +146,5 @@ def copytodropbox(input_file_name, output_file_name):
     wrap(Copy2SwathDropbox, input_file_name, output_file_name)
 
 ########################################################
-pipeline_run([copytodropbox], multiprocess=1, verbose=2)
+pipeline_run([requant], multiprocess=1, verbose=2)
     

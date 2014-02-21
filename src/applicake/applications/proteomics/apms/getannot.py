@@ -35,7 +35,7 @@ class GetAnnotations(IApplication):
 
     def get_sample_assoc(self):
         server = jsonrpclib.Server('https://ra-openbis.ethz.ch:8443/openbis/openbis/rmi-query-v1.json')
-        pwd = subprocess.check_output("conc")
+        pwd = subprocess.check_output("konk p-grade",shell=True).strip()
         sessionToken = server.tryToAuthenticateAtQueryServer("p-grade", pwd)
 
         #find required query ID

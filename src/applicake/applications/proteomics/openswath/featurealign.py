@@ -20,6 +20,7 @@ class FeatureAlignment(IWrapper):
     def prepare_run(self, info, log):
         info['ALIGNMENT_TSV'] = os.path.join(info['WORKDIR'], "feature_alignment.tsv")
         info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_matrix.tsv")
+        info['ALIGNMENT_YAML'] = os.path.join(info['WORKDIR'], "feature_alignment.yaml")
         if not isinstance(info["MPROPHET_TSV"], list):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
 
@@ -37,27 +38,26 @@ class FeatureAlignment(IWrapper):
 
         command = "feature_alignment.py --use_external_r --file_format openswath --in %s --out %s --out_matrix %s " \
                   "--realign_runs --max_rt_diff %s %s --method %s --frac_selected %s " \
-                  "%s --target_fdr %s --tmpdir %s" % (
+                  "%s --target_fdr %s --tmpdir %s --out_meta %s" % (
             " ".join(info["MPROPHET_TSV"]),info['ALIGNMENT_TSV'],info['ALIGNMENT_MATRIX'],
             info['ALIGNER_MAX_RTDIFF'],oldfdr,info['ALIGNER_METHOD'],info['ALIGNER_FRACSELECTED'],
-            dfilter, info['ALIGNER_TARGETFDR'],tmpdir)
+            dfilter, info['ALIGNER_TARGETFDR'],tmpdir,info['ALIGNMENT_YAML'])
 
         return command, info
 
     def set_args(self, log, args_handler):
         args_handler.add_app_args(log, Keys.WORKDIR, 'Directory to store files')
+        args_handler.add_app_args(log, 'MPROPHET_TSV', '')
         args_handler.add_app_args(log, 'ALIGNER_METHOD', '')
         args_handler.add_app_args(log, 'ALIGNER_FRACSELECTED', '')
-        args_handler.add_app_args(log, 'ALIGNER_REALIGNRUNS', 'true=realign, false=use iRT. faster but less accurate',default="true")
         args_handler.add_app_args(log, 'ALIGNER_MAX_RTDIFF', '')
-        args_handler.add_app_args(log, 'ALIGNER_FDR', '')
-
-        args_handler.add_app_args(log, 'ALIGNER_MAX_FDRQUAL', '')
-
         args_handler.add_app_args(log, 'ALIGNER_TARGETFDR', '', default=-1)
         args_handler.add_app_args(log, 'ALIGNER_DSCORE_CUTOFF', 'if not set dont filter. if set use dscore cutoff')
 
-        args_handler.add_app_args(log, 'MPROPHET_TSV', '')
+        #use targetfdr options instead!
+        args_handler.add_app_args(log, 'ALIGNER_FDR', '')
+        args_handler.add_app_args(log, 'ALIGNER_MAX_FDRQUAL', '')
+        args_handler.add_app_args(log, 'ALIGNER_REALIGNRUNS', 'true=realign, false=use iRT. faster but less accurate',default="true")
 
         return args_handler
 

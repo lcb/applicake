@@ -7,7 +7,7 @@ Created on Aug 10, 2012
 @author: lorenz
 """
 
-import os
+import os,yaml
 from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
@@ -48,15 +48,19 @@ class RequantValues(IWrapper):
 
 
         info['ALIGNMENT_TSV'] = os.path.join(info['WORKDIR'], "feature_alignment_requant.tsv")
-        info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_requant_matrix.tsv")
+        info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_requant_matrix."+info['MATRIX_FORMAT'])
+        y = yaml.load(open(info['ALIGNMENT_YAML']))
+        mscore = y['AlignedSwathRuns']['Parameters']['m_score_cutoff']
 
         command = "requantAlignedParallel.sh --in %s --peakgroups_infile %s --out %s --out_matrix %s " \
-                  "--border_option %s --threads %s | grep -v 'does not cover full range'" % (
+                  "--border_option %s --threads %s | grep -v 'does not cover full range' && " \
+                  "compute_full_matrix.py --in %s --out_matrix %s --aligner_mscore_threshold %s" % (
             " ".join(localtrs),
             intsv,
             info['ALIGNMENT_TSV'],
             info['ALIGNMENT_MATRIX'],
-            info['BORDER_OPTION'],info['THREADS'])
+            info['BORDER_OPTION'],info['THREADS'],
+            info['ALIGNMENT_TSV'], info['ALIGNMENT_MATRIX'], mscore)
 
         return command, info
 
@@ -65,12 +69,14 @@ class RequantValues(IWrapper):
         args_handler.add_app_args(log, 'CHROMML_GZ', '')
         args_handler.add_app_args(log, 'ALIGNMENT_TSV', '')
         args_handler.add_app_args(log, 'ALIGNMENT_MATRIX', '')
+        args_handler.add_app_args(log, 'ALIGNMENT_YAML', '')
         args_handler.add_app_args(log, 'TRAFO_FILES', '')
         args_handler.add_app_args(log, 'THREADS', '')
 
 
         args_handler.add_app_args(log, 'BORDER_OPTION', '',default='median')
         args_handler.add_app_args(log, 'DO_CHROMML_REQUANT', '')
+        args_handler.add_app_args(log, 'MATRIX_FORMAT', '',default="xls")
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
