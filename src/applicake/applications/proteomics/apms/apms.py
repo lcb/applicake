@@ -24,7 +24,7 @@ class Apms(IWrapper):
         info['APMS_OUT'] = []
         for i in ['comppass','gfpratio','merged']:
             info['APMS_OUT'].append(os.path.join(wd,'iaLFQ_%s.csv'%i))
-        return 'cd %s && %s pepxml2csv.csv assoc.txt fasta.fasta %s %s %s' % (wd,info['PREFIX'], info[Keys.IPROBABILITY],info['COMPPASS_CONFIDENCE']), info
+        return 'cd %s && %s pepxml2csv.csv assoc.txt fasta.fasta %s %s' % (wd,info['PREFIX'], info[Keys.IPROBABILITY],info['COMPPASS_CONFIDENCE']), info
 
     def set_args(self, log, args_handler):
         args_handler.add_app_args(log, Keys.PREFIX, 'executable', default="alfq.R")

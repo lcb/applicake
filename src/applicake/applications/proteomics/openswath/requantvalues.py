@@ -50,17 +50,17 @@ class RequantValues(IWrapper):
         info['ALIGNMENT_TSV'] = os.path.join(info['WORKDIR'], "feature_alignment_requant.tsv")
         info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_requant_matrix."+info['MATRIX_FORMAT'])
         y = yaml.load(open(info['ALIGNMENT_YAML']))
-        mscore = y['AlignedSwathRuns']['Parameters']['m_score_cutoff']
+        info['ALIGNER_MSCORE_THRESHOLD'] = y['AlignedSwathRuns']['Parameters']['m_score_cutoff']
 
         command = "requantAlignedParallel.sh --in %s --peakgroups_infile %s --out %s --out_matrix %s " \
                   "--border_option %s --threads %s | grep -v 'does not cover full range' && " \
-                  "compute_full_matrix.py --in %s --out_matrix %s --aligner_mscore_threshold %s" % (
+                  "compute_full_matrix.py --in %s --out_matrix %s --aligner_mscore_threshold %s --output_method RT" % (
             " ".join(localtrs),
             intsv,
             info['ALIGNMENT_TSV'],
             info['ALIGNMENT_MATRIX'],
             info['BORDER_OPTION'],info['THREADS'],
-            info['ALIGNMENT_TSV'], info['ALIGNMENT_MATRIX'], mscore)
+            info['ALIGNMENT_TSV'], info['ALIGNMENT_MATRIX'], info['ALIGNER_MSCORE_THRESHOLD'])
 
         return command, info
 
