@@ -68,6 +68,13 @@ class ModificationDb(object):
             _applications[2]: '[NQ] 0.984016',
             _applications[3]: '<LISTITEM value="Deamidation (NQ)"/>'
         },
+
+        'hebhardt_B044 (C)': {
+            _applications[0]: '451.15@C',
+            _applications[1]: '120',
+            _applications[2]: 'C 451.15',
+            _applications[3]: '<LISTITEM value="hebhardt_B044 (C)"/>'
+        },
     }
     
     def write_omssa_usermodxml(self,path):
@@ -98,6 +105,21 @@ class ModificationDb(object):
     </MSModSpec_residues>
     <MSModSpec_unimod>21</MSModSpec_unimod>
     <MSModSpec_psi-ms>Biotin</MSModSpec_psi-ms>
+  </MSModSpec>
+  <MSModSpec>
+    <MSModSpec_mod>
+      <MSMod value="usermod2">120</MSMod>
+    </MSModSpec_mod>
+    <MSModSpec_type>
+      <MSModType value="modaa">0</MSModType>
+    </MSModSpec_type>
+    <MSModSpec_name>hebhardt_B044</MSModSpec_name>
+    <MSModSpec_monomass>451.15</MSModSpec_monomass>
+    <MSModSpec_averagemass>451.15</MSModSpec_averagemass>
+    <MSModSpec_n15mass>0</MSModSpec_n15mass>
+    <MSModSpec_residues>
+      <MSModSpec_residues_E>C</MSModSpec_residues_E>
+    </MSModSpec_residues>
   </MSModSpec>
 </MSModSpecSet>
 """)
