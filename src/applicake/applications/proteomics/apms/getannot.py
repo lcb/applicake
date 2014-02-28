@@ -41,21 +41,24 @@ class GetAnnotations(IApplication):
         #find required query ID
         queries = server.listQueries(sessionToken)
         for q in queries:
-            if q["name"] == 'BIOL_APMS Samples plus Conditions':
+            if q["name"] == 'BIOL_APMS mini table':
                 id = q["id"]
+
 
         #execute query, gives back a dictionary where key 'rows' is interesting
         report = server.executeQuery(sessionToken, id, {})
         smplcode_assocline = {}
         for entry in report["rows"]:
             #each row is stored as list of dictionaries, where only the "values" of the dicts are interesting
-            #0 DATASET_CODE,1 APMS,2 MS-Injection,3 Bait,4 Uniprot ID,5 Name,6 Condition Type,7 Condition Desc,
-            #8 Condition Value,9 Condition Code
+            #0 msinjection,1 uniprotid,2 name,3 iscontrol
             cleandlst = []
             for listitem in entry:
                 ascii = listitem["value"].encode('ascii', 'ignore')
                 cleandlst.append(ascii)
-            smplcode_assocline[cleandlst[2]] = "%s\t%s\t%s_%s"%(cleandlst[2], cleandlst[4] , cleandlst[5], cleandlst[9])
+            if "YES" in cleandlst[3] or "TRUE" in cleandlst[3]:
+                smplcode_assocline[cleandlst[0]] = "%s\tcontrolrun\t%s"%(cleandlst[0], cleandlst[2])
+            else:
+                smplcode_assocline[cleandlst[0]] = "%s\t%s\t%s"%(cleandlst[0], cleandlst[1] , cleandlst[2])
         server.logout(sessionToken)
 
         return smplcode_assocline
