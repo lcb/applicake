@@ -142,13 +142,13 @@ class Dss(IWrapper):
         See interface
         """
         exit_code = 0
-        for (stream, logf, logt) in [[out_stream, log.debug, 'OUTPUT'], [err_stream, log.info, 'ERROR']]:
-            try:
-                strd = stream.read()
-                if len(strd) > 0:
-                    logf("%s from dss-client:\n%s" % (logt, strd))
-            except:
-                pass
+        #for (stream, logf, logt) in [[out_stream, log.debug, 'OUTPUT'], [err_stream, log.info, 'ERROR']]:
+        #    try:
+        #        strd = stream.read()
+        #        if len(strd) > 0:
+        #            logf("%s from dss-client:\n%s" % (logt, strd))
+        #    except:
+        #        pass
         try:
             dsfls = dict()
             with open(self._result_filename, 'r') as resfil:

@@ -67,15 +67,15 @@ class Runner(object):
 
         log.debug("Info before running app: %s" % info)
         exit_code, info = self.run_app(app, info, log, args_handler, out_stream, err_stream)
-        if exit_code != 0:
-            log.error('Exit code was [%d], something went wrong above!'%exit_code)
-            self._flush_logs(info, out_stream, err_stream, log_stream)
-            return exit_code
 
         #cleanup
         info_handler.write_info(info, log)
-        self._copy_infos_to_workdir(info, log) #input output
         self._flush_logs(info, out_stream, err_stream, log_stream)
+        #only copy infos to wdir if everything went fine
+        if exit_code == 0:
+            self._copy_infos_to_workdir(info, log) #input output
+        else:
+            log.error('Exit code was [%d], something went wrong above!'%exit_code)
         return exit_code
 
     def _create_workdir(self, log, info):
