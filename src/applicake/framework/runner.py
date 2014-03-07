@@ -263,22 +263,22 @@ class IniWrapperRunner(Runner):
         command = command.replace('\n', '')
         #MODULE LOAD
         if 'MODULE' in info:
-            log.warn("Overriding module with " + info['MODULE'])
+            log.debug("Overriding module with " + info['MODULE'])
             command = "module purge && module load " + info['MODULE'] + " && " + command
 
         #http://stackoverflow.com/a/165662
-        log.info("executing command [%s]" % command)
+        log.debug("running command [ %s ]" % command)
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = p.communicate()
         out_stream.write(output)
         err_stream.write(error)
         run_code = p.returncode
-        log.info('run exit code [%s]' % run_code)
+        log.debug('run exit code [%s]' % run_code)
 
         out_stream.seek(0)
         err_stream.seek(0)
         validate_code, app_info = app.validate_run(app_info, log, run_code, out_stream, err_stream)
-        log.info('validation exit code [%s]' % validate_code)
+        log.debug('validation exit code [%s]' % validate_code)
         info = DictUtils.merge(log, info, app_info, priority='right')
         return validate_code, info
 

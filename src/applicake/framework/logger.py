@@ -19,10 +19,7 @@ class Logger(object):
         logger = logging.getLogger(name + str(random.random()))
         logger.setLevel(level)
         ch = logging.StreamHandler(stream)
-        if level == 'DEBUG':
-            formatter = logging.Formatter("%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] %(message)s")
-        else:
-            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter("- %(levelname)s - %(message)s")
         ch.setFormatter(formatter)
         logger.addHandler(ch)
         return logger
