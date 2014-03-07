@@ -19,7 +19,7 @@ class Logger(object):
         logger = logging.getLogger(name + str(random.random()))
         logger.setLevel(level)
         ch = logging.StreamHandler(stream)
-        formatter = logging.Formatter("- %(levelname)s - %(message)s")
+        formatter = logging.Formatter("- %(levelname)s - %(filename)s: %(message)s")
         ch.setFormatter(formatter)
         logger.addHandler(ch)
         return logger

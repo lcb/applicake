@@ -68,7 +68,7 @@ class Runner(object):
         log.debug("Info before running app: %s" % info)
         exit_code, info = self.run_app(app, info, log, args_handler, out_stream, err_stream)
         if exit_code != 0:
-            log.fatal('Exit code of run_app() != 0')
+            log.error('Exit code was [%d], something went wrong above!'%exit_code)
             self._flush_logs(info, out_stream, err_stream, log_stream)
             return exit_code
 
@@ -267,7 +267,7 @@ class IniWrapperRunner(Runner):
             command = "module purge && module load " + info['MODULE'] + " && " + command
 
         #http://stackoverflow.com/a/165662
-        log.debug("running command [ %s ]" % command)
+        log.info("command is [ %s ]" % command)
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = p.communicate()
         out_stream.write(output)
