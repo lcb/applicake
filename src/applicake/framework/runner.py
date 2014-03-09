@@ -73,9 +73,10 @@ class Runner(object):
         self._flush_logs(info, out_stream, err_stream, log_stream)
         #only copy infos to wdir if everything went fine
         if exit_code == 0:
+            log.info('Finished sucessfully (return code 0)')
             self._copy_infos_to_workdir(info, log) #input output
         else:
-            log.error('Exit code was [%d], something went wrong above!'%exit_code)
+            log.error('An error occured (return code %d)!'%exit_code)
         return exit_code
 
     def _create_workdir(self, log, info):
@@ -267,7 +268,7 @@ class IniWrapperRunner(Runner):
             command = "module purge && module load " + info['MODULE'] + " && " + command
 
         #http://stackoverflow.com/a/165662
-        log.info("command is [ %s ]" % command)
+        log.debug("command is [ %s ]" % command)
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = p.communicate()
         out_stream.write(output)
@@ -278,7 +279,7 @@ class IniWrapperRunner(Runner):
         out_stream.seek(0)
         err_stream.seek(0)
         validate_code, app_info = app.validate_run(app_info, log, run_code, out_stream, err_stream)
-        log.debug('validation exit code [%s]' % validate_code)
+        log.debug('validation return code [%s]' % validate_code)
         info = DictUtils.merge(log, info, app_info, priority='right')
         return validate_code, info
 
