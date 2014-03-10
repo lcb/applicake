@@ -69,11 +69,11 @@ class Runner(object):
         exit_code, info = self.run_app(app, info, log, args_handler, out_stream, err_stream)
 
         #cleanup
-        info_handler.write_info(info, log)
         self._flush_logs(info, out_stream, err_stream, log_stream)
-        #only copy infos to wdir if everything went fine
         if exit_code == 0:
             log.info('Finished sucessfully (return code 0)')
+            #only copy infos to wdir if everything went fine
+            info_handler.write_info(info, log)
             self._copy_infos_to_workdir(info, log) #input output
         else:
             log.error('An error occured (return code %d)!'%exit_code)
