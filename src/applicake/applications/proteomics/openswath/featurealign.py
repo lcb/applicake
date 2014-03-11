@@ -19,12 +19,12 @@ class FeatureAlignment(IWrapper):
 
     def prepare_run(self, info, log):
         info['ALIGNMENT_TSV'] = os.path.join(info['WORKDIR'], "feature_alignment.tsv")
-        info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_matrix.xls")
+        info['ALIGNMENT_MATRIX'] = os.path.join(info['WORKDIR'], "feature_alignment_matrix."+info['MATRIX_FORMAT'])
         info['ALIGNMENT_YAML'] = os.path.join(info['WORKDIR'], "feature_alignment.yaml")
         if not isinstance(info["MPROPHET_TSV"], list):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
 
-        tmpdir = os.environ.get('TMPDIR',info[Keys.WORKDIR]) + '/'
+        tmpdir = os.environ.enzymestr_to_engine('TMPDIR',info[Keys.WORKDIR]) + '/'
 
         dfilter = ""
         if "ALIGNER_DSCORE_CUTOFF" in info and info["ALIGNER_DSCORE_CUTOFF"] != "":
@@ -53,6 +53,7 @@ class FeatureAlignment(IWrapper):
         args_handler.add_app_args(log, 'ALIGNER_MAX_RTDIFF', '')
         args_handler.add_app_args(log, 'ALIGNER_TARGETFDR', '', default=-1)
         args_handler.add_app_args(log, 'ALIGNER_DSCORE_CUTOFF', 'if not set dont filter. if set use dscore cutoff')
+        args_handler.add_app_args(log, 'MATRIX_FORMAT', '',default="xls")
 
         #use targetfdr options instead!
         args_handler.add_app_args(log, 'ALIGNER_FDR', '')
