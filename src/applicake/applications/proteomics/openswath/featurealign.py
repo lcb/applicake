@@ -24,7 +24,7 @@ class FeatureAlignment(IWrapper):
         if not isinstance(info["MPROPHET_TSV"], list):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
 
-        tmpdir = os.environ.enzymestr_to_engine('TMPDIR',info[Keys.WORKDIR]) + '/'
+        tmpdir = os.environ.get('TMPDIR',info[Keys.WORKDIR]) + '/'
 
         dfilter = ""
         if "ALIGNER_DSCORE_CUTOFF" in info and info["ALIGNER_DSCORE_CUTOFF"] != "":
