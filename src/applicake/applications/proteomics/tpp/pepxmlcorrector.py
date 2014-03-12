@@ -5,6 +5,7 @@ Created on Jul 5, 2012
 """
 
 import os
+import re
 from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IApplication
 
@@ -34,6 +35,7 @@ class PepXMLCorrector(IApplication):
         log.info("correcting pepxml")
         fout = open(pepxmlout, 'w')
         sq = 0
+        sn = 0
         for line in open(pepxmlin).readlines():
             #fix 1)
             if '<spectrum_query spectrum="' in line:
@@ -43,16 +45,21 @@ class PepXMLCorrector(IApplication):
                     spectrum_mod = "%s.%05d.%05d.%s" % (basename, int(start_scan), int(end_scan), assumed_charge)
                     line = line.replace(spectrum, spectrum_mod)
                     sq+=1
+                if 'spectrumNativeID' in line:
+                    line = re.sub('spectrumNativeID="[^"]*"','',line)
+                    sn+=1
             #fix 2)            
             elif '<msms_run_summary base_name' in line and ".pep.xml" in line:
                 spaces = line[:line.find('<')]
                 line = spaces + '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n' % mzxmlbase
-                log.info('modified msms_run_summary (omssa)')
+                log.info('modified msms_run_summary (fixes omssa for IDFileConverter)')
+
+
 
             fout.write(line)
         fout.close()
-        if sq != 0: log.info('modified spectrum_query %s times (myrimatch)'%sq)
-
+        if sq != 0: log.info('modified spectrum_query %s times (fixes myrimatch for iprophet)'%sq)
+        if sn != 0: log.info('modified spectrumNativeID %s times (fixes myrimatch for xinteract'%sn)
         info['PEPXMLS'] = [pepxmlout]
         return 0, info
 

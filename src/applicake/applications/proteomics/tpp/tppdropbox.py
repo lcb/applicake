@@ -12,7 +12,6 @@ import getpass
 from applicake.framework.keys import Keys
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.applications.proteomics.openbis.dropbox import Copy2Dropbox
-
 from applicake.framework.informationhandler import IniInformationHandler
 from applicake.utils.dictutils import DictUtils
 
@@ -26,7 +25,7 @@ class Copy2IdentDropbox(Copy2Dropbox):
         #re-read INPUT to get access to whole info, needs set_args(INPUT). add runnerargs to set_args if modified by runner
         ini = IniInformationHandler().get_info(log, info)
         info = DictUtils.merge(log, info, ini)
-        
+
         info['WORKFLOW'] = self._extendWorkflowID(info['WORKFLOW'])
         info['DROPBOXSTAGE'] = self._make_stagebox(log, info)
 
@@ -54,10 +53,28 @@ class Copy2IdentDropbox(Copy2Dropbox):
         sinfo[Keys.OUTPUT] = os.path.join(info['DROPBOXSTAGE'], 'search.properties')
         IniInformationHandler().write_info(sinfo, log)
 
-        info[Keys.TEMPLATE] = 'mailtext.txt'
-        th = MailTemplate()
-        _, info = th.modify_template(info, log)
-        shutil.copy(info[Keys.TEMPLATE], info['DROPBOXSTAGE'])
+        info['EXPERIMENT_CODE'] = info['experiment-code']
+        info['ENGINES_VERSIONS'] = ''
+        if 'RUNTANDEM' in info and info['RUNTANDEM'] == 'True':
+            info['ENGINES_VERSIONS'] += subprocess.check_output("tandem a | grep TANDEM",
+                                                                shell=True)
+
+        if 'RUNOMSSA' in info and info['RUNOMSSA'] == 'True':
+            info['ENGINES_VERSIONS'] += subprocess.check_output("omssacl -version", shell=True).replace(
+                "2.1.8", "2.1.9")
+
+        if 'RUNMYRIMATCH' in info and info['RUNMYRIMATCH'] == 'True':
+            info['ENGINES_VERSIONS'] += subprocess.check_output("myrimatch 2>&1 | grep MyriMatch",
+                                                                shell=True)
+
+        if 'RUNCOMET' in info and info['RUNCOMET'] == 'True':
+            info['ENGINES_VERSIONS'] += subprocess.check_output("comet 2>&1 | grep version", shell=True)
+
+        info['TPPVERSION'] = subprocess.check_output("InteractParser 2>&1 | grep TPP", shell=True).split("(")[1]
+        info['USERNAME'] = getpass.getuser()
+
+        info[Keys.TEMPLATE] = os.path.join(info['DROPBOXSTAGE'], 'mailtext.txt')
+        _, info = MailTemplate().modify_template(info, log)
 
         info['DROPBOXSTAGE'] = self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'], keepCopy=True)
 
@@ -66,51 +83,47 @@ class Copy2IdentDropbox(Copy2Dropbox):
 
 class MailTemplate(BasicTemplateHandler):
     def read_template(self, info, log):
-        template = ''
         if not 'RUNTANDEM' in info:
-            #template is empty if TPP-petunia specific key is not found (e.g. sequest or mascot import)
             log.info("No key RUNTANDEM found, skipping mail creation")
-        else:
-            tandemver = ''
-            if info['RUNTANDEM'] == 'True':
-                tandemver = 'tandem (version ' + subprocess.check_output("tandem a | grep TANDEM", shell=True).strip() + ')'
-            omssaver = ''
-            if info['RUNOMSSA'] == 'True':
-                omssaver = 'omssa (version ' + subprocess.check_output(['which', 'omssacl']).split('/')[4] + ')'
-            myriver = ''
-            if info['RUNMYRIMATCH'] == 'True':
-                myriver = 'myrimatch (version ' + subprocess.check_output(['which', 'myrimatch']).split('/')[4] + ')'
-            tppver = subprocess.check_output(['which', 'ProteinProphet']).split('/')[4]
-            info['EXPERIMENT_CODE'] = info['experiment-code']
-            info['USERNAME'] = getpass.getuser()
-            if info['RUNPETUNIA'] == 'none':
-                runmsg = "RUNPETUNIA was set none. To make the links above work please run first:"
-            else:
-                runmsg = "In case the links do not work they can be restored with:"
-            template = """Dear $USERNAME
-    
+            return
+
+        template = """Dear $USERNAME
+
 Your TPP search workflow finished sucessfully!
 
-To visualize the results with Petunia see:
+"""
+
+        if info['RUNPETUNIA'] == 'none':
+            template += """RUNPETUNIA was set none. To make the links work please run first:
+[user@imsb-ra-tpp~] # cd ~/html/petunia; tpp2viewer2.py $EXPERIMENT_CODE
+
+Then you can access the results using these links:
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
-    
-%s
+
+"""
+        else:
+            template += """To visualize the results with Petunia see:
+https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
+https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
+
+In case the links do not work they can be restored with:
 [user@imsb-ra-tpp~] # cd ~/html/petunia; tpp2viewer2.py $EXPERIMENT_CODE
-    
-To cite this workflow use:
-The spectra were searched using the search engines %s %s %s
-against the $DBASE database using $ENZYME digestion and allowing $MISSEDCLEAVAGE missed cleavages.
+
+"""
+
+        template += """To cite this workflow use:
+The spectra were searched using the search engines
+${ENGINES_VERSIONS}against the $DBASE database using $ENZYME digestion and allowing $MISSEDCLEAVAGE missed cleavages.
 Included were '$STATIC_MODS' as static and '$VARIABLE_MODS' as variable modifications. The mass tolerances were set to $PRECMASSERR $PRECMASSUNIT for precursor-ions and $FRAGMASSERR $FRAGMASSUNIT for fragment-ions.
-The identified peptides were processed and analyzed through the Trans-Proteomic Pipeline (%s) using PeptideProphet, iProphet and ProteinProphet scoring. Peptide identifications were reported at FDR of $PEPTIDEFDR.
+The identified peptides were processed and analyzed through the Trans-Proteomic Pipeline ($TPPVERSION) using PeptideProphet, iProphet and ProteinProphet scoring. Peptide identifications were reported at FDR of $PEPTIDEFDR.
     
 Yours sincerely,
 The iPortal team
     
 Please note that this message along with your results are stored in openbis:
-https://openbis-phosphonetx.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT""" % (
-            runmsg, tandemver, omssaver, myriver, tppver)
-        
+https://openbis-phosphonetx.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT"""
+
         return template, info
 
 

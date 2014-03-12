@@ -11,6 +11,7 @@ import tempfile
 
 from ruffus import *
 from applicake.applications.proteomics.openbis.biopersdb import BioPersonalDB
+from applicake.applications.proteomics.tpp.searchengines.comet import Comet
 
 from applicake.framework.runner import IniApplicationRunner, IniWrapperRunner
 from applicake.applications.commons.generator import IniDatasetcodeGenerator, \
@@ -53,7 +54,7 @@ def setup():
         subprocess.call("rm *ini* *.err *.out", shell=True)
         with open("input.ini", 'w+') as f:
             f.write("""DATASET_CODE = 20120320163951515-361883, 20120320163653755-361882, 20120320164249179-361886
-PRECMASSERR = 15
+PRECMASSERR = 25
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 STORAGE = unchanged
 PEPTIDEFDR = 0.01
@@ -63,11 +64,11 @@ COMMENT = TPP of UPS1 ruffus
 RUNMYRIMATCH = True
 LOG_LEVEL = INFO
 MISSEDCLEAVAGE = 1
-FRAGMASSERR = 0.4
+FRAGMASSERR = 0.2
 WORKFLOW = TPP_ruffus
-DB_SOURCE = PersonalDB
-DBASE = PERSONAL_DB-BEHULLAR-LOBLUM_UPS1-972
-#DBASE = /cluster/scratch_xl/shareholder/imsb_ra/bin/newbiodb/data/ex_pd/current/decoy/loblum_UPS1_iRT.fasta
+DB_SOURCE = BioDB
+#DBASE = PERSONAL_DB-BEHULLAR-LOBLUM_UPS1-972
+DBASE = /cluster/scratch_xl/shareholder/imsb_ra/bin/newbiodb/data/ex_pd/current/decoy/loblum_UPS1_iRT.fasta
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_ident
 DATABASE_VERSION = 20130117
 XTANDEM_SCORE = k-score
@@ -76,6 +77,7 @@ DECOY_STRING = DECOY_
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
 PROJECT = TEST
 STATIC_MODS = Carbamidomethyl (C)
+VARIABLE_MODS =
 DATABASE_PACKAGE = ex_pd
 XINTERACT_ARGS = -dDECOY_ -OAPdlIw (dummy)
 DATABASE_DB = loblum_UPS1_iRT
@@ -146,14 +148,26 @@ def myrimatch(input_file_name, output_file_name):
 def peppromyri(input_file_name, output_file_name):
     wrap(PeptideProphetSequence, input_file_name, output_file_name, ['-n', 'pepmyri'])
 
+###################################################################################
+
+
+@transform(engineSplit, regex("engineSplit.ini_"), "cmt.ini_")
+def comet(input_file_name, output_file_name):
+    wrap(Comet, input_file_name, output_file_name,['--THREADS','4'])
+
+
+@transform(comet, regex("cmt.ini_"), "comet.ini_")
+def pepprocomet(input_file_name, output_file_name):
+    wrap(PeptideProphetSequence, input_file_name, output_file_name, ['-n', 'pepcomet'])
+
 
 ############################# MERGE SEARCH ENGINE RESULTS ################################## 
 #.*_(.+)$ = any char any no. times, underscore, "group" with at least one char, end of line  
 #"groups" are acessible with \n afterwards (.* is not a group!)
-@collate([pepprotandem,pepproomssa,peppromyri],regex(r".*_(.+)$"),  r'mergeengine.ini_\1')
+@collate([pepprotandem,pepproomssa],regex(r".*_(.+)$"),  r'mergeengine.ini_\1')
 def mergeEngines(input_file_names, output_file_name):
     wrap(IniEngineCollector, 'output.ini', 'mergeengine.ini',
-         ['--GENERATOR', 'mergeengine.ini', '--ENGINES', 'tandem', '--ENGINES', 'myrimatch', '--ENGINES', 'omssa'])
+         ['--GENERATOR', 'mergeengine.ini', '--ENGINES', 'tandem', '--ENGINES', 'myrimatch', '--ENGINES', 'omssa', '--ENGINES', 'comet'])
 
 @transform(mergeEngines, regex("mergeengine.ini_"), "interprophetengines.ini_")
 def interprophetengines(input_file_name, output_file_name):
@@ -193,6 +207,6 @@ def copy2dropbox(input_file_name, output_file_name):
     wrap(Copy2IdentDropbox, input_file_name, output_file_name)
 
 
-pipeline_run([copy2dropbox], multiprocess=9)
+pipeline_run([copy2dropbox], multiprocess=12)
 
 #pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg

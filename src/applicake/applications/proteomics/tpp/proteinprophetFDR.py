@@ -18,32 +18,9 @@ class ProteinProphetFDR(IWrapper):
     Wrapper for TPP-tool ProteinProphet.
     """
 
-    _template_file = ''
-    _result_file = ''
-    _default_prefix = 'ProteinProphet'
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        base = self.__class__.__name__
-        self._template_file = '%s.tpl' % base # application specific config file
-        self._result_file = '%s.prot.xml' % base # result produced by the application
-
-    def get_prefix(self, info, log):
-        if not info.has_key(Keys.PREFIX):
-            info[Keys.PREFIX] = self._default_prefix
-            log.debug('set [%s] to [%s] because it was not set before.' % (Keys.PREFIX, info[Keys.PREFIX]))
-        return info[Keys.PREFIX], info
-
-    def get_template_handler(self):
-        """
-        See interface
-        """
-        return ProtProphetFDRTemplate()
-
     def getiProbability(self, log, info):
         minprob = ''
+
         for line in open(info['PEPXMLS']):
             if line.startswith('<error_point error="%s' % info['PEPTIDEFDR']):
                 minprob = line.split(" ")[2].split("=")[1].replace('"', '')
@@ -61,26 +38,14 @@ class ProteinProphetFDR(IWrapper):
             log.fatal("This ProteinProphet only takes one iProphet inputfile!")
             return 1, info
 
-        # store original values in temporary key
-        info['ORGPEPXMLS'] = info['PEPXMLS']
-        # creates a stringlist with ' ' as separator 
-        info['PEPXMLS'] = info['PEPXMLS'][0]
-        info[Keys.IPROBABILITY] = self.getiProbability(log, info)
+        ifocp = info.copy()
+        ifocp['PEPXMLS'] = ifocp['PEPXMLS'][0]
+        info[Keys.IPROBABILITY] = self.getiProbability(log, ifocp)
+        info['PROTEINPROPHET'] = 'IPROPHET MINPROB%s' % info[Keys.IPROBABILITY]
         wd = info[Keys.WORKDIR]
-        self._result_file = os.path.join(wd, self._result_file)
-        info['PROTXML'] = self._result_file
-        self._template_file = os.path.join(wd, self._template_file)
-        info['TEMPLATE'] = self._template_file
-        log.debug('get template handler')
-        th = self.get_template_handler()
-        log.debug('modify template')
-        mod_template, info = th.modify_template(info, log)
-
-        # revert temporary key
-        info[Keys.PEPXMLS] = info['ORGPEPXMLS']
-        del info['ORGPEPXMLS']
-        prefix, info = self.get_prefix(info, log)
-        command = '%s %s' % (prefix, mod_template)
+        info['PROTXML'] = os.path.join(wd, 'ProteinProphet.prot.xml')
+        prefix = info.get('PREFIX', 'ProteinProphet')
+        command = '%s %s %s %s' % (prefix, info['PEPXMLS'][0], info['PROTXML'], info['PROTEINPROPHET'])
         return command, info
 
     def set_args(self, log, args_handler):
@@ -91,7 +56,6 @@ class ProteinProphetFDR(IWrapper):
         """
         args_handler.add_app_args(log, Keys.WORKDIR, 'Directory to store files')
         args_handler.add_app_args(log, Keys.PREFIX, 'Path to the executable')
-        args_handler.add_app_args(log, Keys.TEMPLATE, 'Path to the template file')
         args_handler.add_app_args(log, Keys.PEPXMLS, 'Single iProphet inputfile', action='append')
         args_handler.add_app_args(log, Keys.PEPTIDEFDR, 'Peptide FDR cutoff')
 
@@ -115,27 +79,11 @@ class ProteinProphetFDR(IWrapper):
                 return 1, info
             else:
                 log.debug('ProteinProphet: passed check [%s]' % msg)
-        if not FileUtils.is_valid_file(log, self._result_file):
-            log.critical('[%s] is not valid' % self._result_file)
+
+        if not FileUtils.is_valid_file(log, info['PROTXML']):
+            log.critical('[%s] is not valid' % info['PROTXML'])
             return 1, info
-        if not XmlValidator.is_wellformed(self._result_file):
-            log.critical('[%s] is not well formed.' % self._result_file)
+        if not XmlValidator.is_wellformed(info['PROTXML']):
+            log.critical('[%s] is not well formed.' % info['PROTXML'])
             return 1, info
         return 0, info
-
-
-class ProtProphetFDRTemplate(BasicTemplateHandler):
-    """
-    Template handler for ProteinProphet.
-    
-    Calculations are done on iprophet score.
-    """
-
-    def read_template(self, info, log):
-        """
-        See super class.
-        """
-        template = """$PEPXMLS $PROTXML IPROPHET MINPROB$IPROBABILITY
-"""
-        log.debug('read template from [%s]' % self.__class__.__name__)
-        return template, info

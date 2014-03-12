@@ -10,10 +10,10 @@ import os
 import shutil
 import sys
 import time
-import tempfile
 import errno
 import subprocess
 from cStringIO import StringIO
+
 from applicake.framework.argshandler import ArgsHandler
 from applicake.framework.keys import Keys
 from applicake.framework.logger import Logger
@@ -46,8 +46,8 @@ class Runner(object):
 
         #parse command line arguments
         args_handler = ArgsHandler()
-        args_handler = self.set_args(args_handler) #runner args
-        args_handler = app.set_args(init_log, args_handler) #application args
+        args_handler = self.set_args(args_handler)  #runner args
+        args_handler = app.set_args(init_log, args_handler)  #application args
         parsed_args, default_args = args_handler.get_parsed_arguments(init_log, args)
 
         #parse info object
@@ -61,9 +61,9 @@ class Runner(object):
         info = DictUtils.merge(init_log, parsed_args, info, priority='left')
 
         #setup environment
-        info = self._create_workdir(init_log, info) #basedir jobidx paramidx fileidx name
-        out_stream, err_stream, log_stream = self._create_streams(info) #workdir storage      
-        log = self._create_logger(info, init_log_stream, log_stream) #loglevel name
+        info = self._create_workdir(init_log, info)  #basedir jobidx paramidx fileidx name
+        out_stream, err_stream, log_stream = self._create_streams(info)  #workdir storage
+        log = self._create_logger(info, init_log_stream, log_stream)  #loglevel name
 
         log.debug("Info before running app: %s" % info)
         exit_code, info = self.run_app(app, info, log, args_handler, out_stream, err_stream)
@@ -74,14 +74,18 @@ class Runner(object):
             log.info('Finished sucessfully (return code 0)')
             #only copy infos to wdir if everything went fine
             info_handler.write_info(info, log)
-            self._copy_infos_to_workdir(info, log) #input output
+            self._copy_infos_to_workdir(info, log)  #input output
         else:
-            log.error('An error occured (return code %d)!'%exit_code)
+            log.error('An error occured (return code %s)!' % exit_code)
         return exit_code
 
     def _create_workdir(self, log, info):
         if info[Keys.STORAGE] == 'memory':
             log.debug("Memory storage, not creating workdir")
+            return info
+
+        if Keys.WORKDIR in info and info[Keys.WORKDIR]:
+            log.debug("Workdir explicitly set to [%s]" % info[Keys.WORKDIR])
             return info
 
         if not Keys.BASEDIR in info:
@@ -90,7 +94,7 @@ class Runner(object):
             info[Keys.JOB_IDX] = "."
         if not Keys.JOB_IDX in info:
             info[Keys.JOB_IDX] = self._create_unique_jobdir(info[Keys.BASEDIR])
-            log.info("set JOB_IDX = %s"%info[Keys.JOB_IDX])
+            log.info("set JOB_IDX = %s" % info[Keys.JOB_IDX])
 
         info[Keys.WORKDIR] = ''
         for key in [Keys.BASEDIR, Keys.JOB_IDX, Keys.PARAM_IDX, Keys.FILE_IDX, Keys.NAME]:
@@ -104,20 +108,20 @@ class Runner(object):
         FileUtils.makedirs_safe(log, info[Keys.WORKDIR], clean=True)
         log.debug("Created workdir [%s]" % info[Keys.WORKDIR])
         return info
-        
+
     def _create_unique_jobdir(self, basedir):
         #taken from tempfile.mkdtemp(), more compact. limit: no more than 10'000 WF submission per day!
         dirname = time.strftime("%y%m%d%H%M")
         for seq in xrange(10000):
-            try: 
-                os.mkdir(os.path.join(basedir,dirname), 0775)
+            try:
+                os.mkdir(os.path.join(basedir, dirname), 0775)
                 return dirname
             except OSError, e:
                 if e.errno == errno.EEXIST:
                     dirname = str(int(dirname) + 1)
-                    continue # try again
+                    continue  # try again
                 raise
-        raise Exception("Could not create a unique job directory")   
+        raise Exception("Could not create a unique job directory")
 
     def _create_streams(self, info):
         if info[Keys.STORAGE] == 'file':
@@ -167,11 +171,11 @@ class Runner(object):
             log_stream.close()
         else:
             #STORAGE=memory/unchgd: log stream already in stderr
-            print '=== stdout ==='
+            #print '=== stdout ==='
             out_stream.seek(0)
             print out_stream.read()
             out_stream.close()
-            print '=== stderr ==='
+            #print '=== stderr ==='
             err_stream.seek(0)
             print err_stream.read()
             err_stream.close()
@@ -267,17 +271,22 @@ class IniWrapperRunner(Runner):
             log.debug("Overriding module with " + info['MODULE'])
             command = "module purge && module load " + info['MODULE'] + " && " + command
 
-        #http://stackoverflow.com/a/165662
+        #http://stackoverflow.com/a/17698359
         log.debug("command is [ %s ]" % command)
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = p.communicate()
-        out_stream.write(output)
-        err_stream.write(error)
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+        output = ""
+        for line in iter(p.stdout.readline, ''):
+            print line.strip()
+            output += line
+        p.communicate()
+
         run_code = p.returncode
         log.debug('run exit code [%s]' % run_code)
 
+        out_stream.write(output)
+        #err_stream.write(error)
         out_stream.seek(0)
-        err_stream.seek(0)
+        #err_stream.seek(0)
         validate_code, app_info = app.validate_run(app_info, log, run_code, out_stream, err_stream)
         log.debug('validation return code [%s]' % validate_code)
         info = DictUtils.merge(log, info, app_info, priority='right')

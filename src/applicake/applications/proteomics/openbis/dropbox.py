@@ -24,7 +24,7 @@ class Copy2Dropbox(IApplication):
     """
 
     def main(self, info, log):
-    #TODO: simplify "wholeinfo" apps
+        #TODO: simplify "wholeinfo" apps
         #re-read INPUT to get access to whole info, needs set_args(INPUT). add runnerargs to set_args if modified by runner
         ini = IniInformationHandler().get_info(log, info)
         info = DictUtils.merge(log, info, ini)
@@ -69,12 +69,12 @@ class Copy2Dropbox(IApplication):
     def _make_stagebox(self, log, info):
         dirname = ""
         if 'SPACE' in info:
-            dirname+=info['SPACE'] + "+"
+            dirname += info['SPACE'] + "+"
         if 'PROJECT' in info:
-            dirname+=info['PROJECT'] + "+"
-        dirname+=self._get_experiment_code(info)
+            dirname += info['PROJECT'] + "+"
+        dirname += self._get_experiment_code(info)
         dirname = os.path.join(info[Keys.WORKDIR], dirname)
-        log.info("stagebox is "+dirname)
+        log.info("stagebox is " + dirname)
         FileUtils.makedirs_safe(log, dirname, clean=True)
         return dirname
 
@@ -115,8 +115,10 @@ class Copy2Dropbox(IApplication):
 
         shutil.move(stage, dropbox)
         return newstage
-    
-    def _extendWorkflowID(self,wfstring):
-        applivers = subprocess.check_output("awk 'NR==4' /cluster/apps/guse/stable/applicake/trunk/.svn/entries",shell=True).strip()
-        imsbtoolvers = subprocess.check_output("printenv LOADEDMODULES| grep -o 'imsbtools/........' | tail -1",shell=True).strip()
+
+    def _extendWorkflowID(self, wfstring):
+        applivers = subprocess.check_output("awk 'NR==4' /cluster/apps/guse/stable/applicake/trunk/.svn/entries",
+                                            shell=True).strip()
+        imsbtoolvers = subprocess.check_output("printenv LOADEDMODULES| grep -o 'imsbtools/[^:]*' | tail -1",
+                                               shell=True).strip()
         return wfstring + " " + imsbtoolvers + " applicake@" + applivers

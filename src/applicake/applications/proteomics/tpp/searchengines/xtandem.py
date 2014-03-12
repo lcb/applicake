@@ -4,31 +4,67 @@ Created on May 24, 2012
 @author: quandtan
 """
 import os
+
+from applicake.applications.proteomics.tpp.searchengines.enzymes import enzymestr_to_engine
+from applicake.applications.proteomics.tpp.searchengines.modifications import modstr_to_engine
+from applicake.framework.interfaces import IWrapper
 from applicake.framework.keys import Keys
-from applicake.applications.proteomics.tpp.searchengines.base import SearchEngine
 from applicake.framework.templatehandler import BasicTemplateHandler
 from applicake.utils.fileutils import FileUtils
 from applicake.utils.xmlutils import XmlValidator
 
 
-class Xtandem(SearchEngine):
+class Xtandem(IWrapper):
     """
     Wrapper for the search engine X!Tandem.
     """
 
+    def set_args(self, log, args_handler):
+        args_handler.add_app_args(log, Keys.PREFIX, 'Path to the executable')
+        args_handler.add_app_args(log, 'FRAGMASSERR', 'Fragment mass error')
+        args_handler.add_app_args(log, 'FRAGMASSUNIT', 'Unit of the fragment mass error')
+        args_handler.add_app_args(log, 'PRECMASSERR', 'Precursor mass error')
+        args_handler.add_app_args(log, 'PRECMASSUNIT', 'Unit of the precursor mass error')
+        args_handler.add_app_args(log, 'MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages')
+        args_handler.add_app_args(log, 'DBASE', 'Sequence database file with target/decoy entries')
+        args_handler.add_app_args(log, Keys.ENZYME, 'Enzyme used to digest the proteins')
+        args_handler.add_app_args(log, Keys.STATIC_MODS, 'List of static modifications')
+        args_handler.add_app_args(log, Keys.VARIABLE_MODS, 'List of variable modifications')
+        args_handler.add_app_args(log, Keys.THREADS, 'Number of threads used in the process.')
+        args_handler.add_app_args(log, Keys.WORKDIR, 'Directory to store files')
+        args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')
+        args_handler.add_app_args(log, 'XTANDEM_SCORE', 'Scoring algorithm used in the search.',
+                                  choices=['default', 'k-score', 'c-score', 'hrk-score', ])
+        return args_handler
 
-    def __init__(self):
-        """
-        Constructor
-        """
-        super(Xtandem, self).__init__()
-        self._default_prefix = 'tandem' # default prefix, usually the name of the application        
-        base = self.__class__.__name__
-        self._taxonomy_file = '%s.taxonomy' % base
-        self._input_file = '%s.input' % base
+    def prepare_run(self, info, log):
+        wd = info[Keys.WORKDIR]
+        # need to create a working copy to prevent replacement or generic definitions
+        # with app specific definitions
+        app_info = info.copy()
+        app_info['XTANDEM_INPUT'] = os.path.join(wd, 'xtandem.input')
+        app_info['TEMPLATE'] = os.path.join(wd, 'xtandem.params')
+        app_info['XTANDEM_RESULT'] = os.path.join(wd, 'xtandem.result')
+        app_info['XTANDEM_TAXONOMY'] = os.path.join(wd, 'xtandem.taxonomy')
 
+        app_info = self._define_score(app_info, log)
 
-    def _define_score(self, info, log):
+        app_info["STATIC_MODS"], app_info["VARIABLE_MODS"], _ = modstr_to_engine(info["STATIC_MODS"],
+                                                                                 info["VARIABLE_MODS"], 'XTandem')
+        app_info[Keys.ENZYME], app_info['XTANDEM_SEMI_CLEAVAGE'] = enzymestr_to_engine(info[Keys.ENZYME], 'XTandem')
+        _, app_info = XtandemTemplate().modify_template(app_info, log)
+        self._write_input_files(app_info, log)
+
+        prefix = info.get(Keys.PREFIX, 'tandem')
+
+        #addin conversion
+        pepxml = os.path.join(wd, 'xtandem.pep.xml')
+        info[Keys.PEPXMLS] = [pepxml]
+        command = '%s %s && Tandem2XML %s %s ' % (prefix, app_info['XTANDEM_INPUT'], app_info['XTANDEM_RESULT'], pepxml)
+        return command, info
+
+    @staticmethod
+    def _define_score(info, log):
         if not info.has_key('XTANDEM_SCORE'):
             log.info('No score given, using default score')
             info['XTANDEM_SCORE'] = ''
@@ -48,120 +84,40 @@ class Xtandem(SearchEngine):
             info['XTANDEM_SCORE'] = '<note label="scoring, algorithm" type="input">%s</note>' % info['XTANDEM_SCORE']
         return info
 
-    def _write_input_files(self, info, log):
-        db_file = os.path.join(info[Keys.WORKDIR], info['DBASE'])
-        self._taxonomy_file = os.path.join(info[Keys.WORKDIR], self._taxonomy_file)
-        with open(self._taxonomy_file, "w") as sink:
-            sink.write('<?xml version="1.0"?>\n')
-            sink.write('<bioml>\n<taxon label="database">')
-            sink.write('<file format="peptide" URL="%s"/>' % db_file)
-            sink.write("</taxon>\n</bioml>")
-        log.debug('Created [%s]' % self._taxonomy_file)
-        self._input_file = os.path.join(info[Keys.WORKDIR], self._input_file)
-        with open(self._input_file, "w") as sink:
-            sink.write('<?xml version="1.0"?>\n')
-            sink.write("<bioml>\n<note type='input' label='list path, default parameters'>" + info[
-                Keys.TEMPLATE] + "</note>\n")
-            sink.write(
-                "<note type='input' label='output, xsl path' />\n<note type='input' label='output, path'>" + self._result_file + "</note>\n")
-            sink.write(
-                "<note type='input' label='list path, taxonomy information'>" + self._taxonomy_file + "</note>\n")
-            sink.write("<note type='input' label='spectrum, path'>" + info['MZXML'] + "</note>\n")
-            sink.write("<note type='input' label='protein, taxon'>database</note>\n</bioml>\n")
-        log.debug('Created [%s]' % self._input_file)
+    @staticmethod
+    def _write_input_files(info, log):
+        open(info['XTANDEM_TAXONOMY'], "w").write(
+            '<?xml version="1.0"?>\n<bioml>\n'
+            '<taxon label="database"><file format="peptide" URL="%s"/></taxon>'
+            '\n</bioml>' % info['DBASE']
+        )
+
+        open(info['XTANDEM_INPUT'], "w").write(
+            '<?xml version="1.0"?>\n'
+            '<bioml>\n<note type="input" label="list path, default parameters">%s</note>\n'
+            '<note type="input" label="output, xsl path" />\n'
+            '<note type="input" label="output, path">%s</note>\n'
+            '<note type="input" label="list path, taxonomy information">%s</note>\n'
+            '<note type="input" label="spectrum, path">%s</note>\n'
+            '<note type="input" label="protein, taxon">database</note>\n</bioml>\n' % \
+            (info['TEMPLATE'], info['XTANDEM_RESULT'], info['XTANDEM_TAXONOMY'], info['MZXML'])
+        )
         return info
 
-    def define_enzyme(self, info, log):
-        """
-        See super class.
-        
-        For X!Tandem, the method has to additionally check for semi cleavage
-        """
-        info = super(Xtandem, self).define_enzyme(info, log)
-        if info[Keys.ENZYME].endswith(':2'):
-            info[Keys.ENZYME] = info[Keys.ENZYME][:-2]
-            info['XTANDEM_SEMI_CLEAVAGE'] = 'yes'
-        else:
-            info['XTANDEM_SEMI_CLEAVAGE'] = 'no'
-        return info
-
-    def prepare_run(self, info, log):
-        """
-        See interface.
-        
-        - Read the template from the handler
-        - Convert scoring and modifications into the specific format
-        - Convert enzyme into the specific format        
-        - modifies the template from the handler
-        - writes the files needed to execute the program 
-        
-        @precondition: info object need the key [TEMPLATE]
-        """
-        wd = info[Keys.WORKDIR]
-        log.debug('reset path of application files from current dir to work dir [%s]' % wd)
-        self._template_file = os.path.join(wd, self._template_file)
-        info['TEMPLATE'] = self._template_file
-        self._result_file = os.path.join(wd, self._result_file)
-        self._taxonomy_file = os.path.join(wd, self._taxonomy_file)
-        log.debug('add key [XTANDEM_RESULT] to info')
-        info['XTANDEM_RESULT'] = self._result_file
-
-        # need to create a working copy to prevent replacement or generic definitions
-        # with app specific definitions
-        app_info = info.copy()
-        app_info = self._define_score(app_info, log)
-        log.debug('define modifications')
-        app_info = self.define_mods(app_info, log)
-        log.debug('define enzyme')
-        app_info = self.define_enzyme(app_info, log)
-        log.debug('get template handler')
-        th = XtandemTemplate()
-        log.debug('define score value')
-        log.debug('modify template')
-        _, app_info = th.modify_template(app_info, log)
-        log.debug('write input files')
-        app_info = self._write_input_files(app_info, log)
-        prefix, app_info = self.get_prefix(app_info, log)
-        
-        #addin conversion
-        pepxml = os.path.join(wd, 'xtandem.pep.xml')
-        info[Keys.PEPXMLS] = [pepxml]
-        command = '%s %s && Tandem2XML %s %s ' % (prefix, self._input_file, self._result_file, pepxml)
-        # update original info object with new keys from working copy
-        #info = DictUtils.merge(log, info, app_info, priority='left')        
-        return command, info
-
-    def set_args(self, log, args_handler):
-        """
-        See interface
-        """
-        args_handler = super(Xtandem, self).set_args(log, args_handler)
-        args_handler.add_app_args(log, 'MZXML', 'Peak list file in mzXML format')
-        args_handler.add_app_args(log, 'XTANDEM_SCORE', 'Scoring algorithm used in the search.',
-                                  choices=['default', 'k-score', 'c-score', 'hrk-score', ])
-        return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
-        """
-        See super class.
-        
-        Check the following:
-        - more than 0 valid models found
-        - result file is valid
-        - result file is a well-formed xml
-        """
-        exit_code, info = super(Xtandem, self).validate_run(info, log, run_code, out_stream, err_stream)
         if 0 != run_code:
-            return exit_code, info
+            return run_code, info
         out_stream.seek(0)
         if 'Valid models = 0' in out_stream.read():
             log.critical('No valid model found')
             return 1, info
-        if not FileUtils.is_valid_file(log, self._result_file):
-            log.critical('[%s] is not valid' % self._result_file)
+        result_file = info[Keys.PEPXMLS][0]
+        if not FileUtils.is_valid_file(log, result_file):
+            log.critical('[%s] is not valid' % result_file)
             return 1, info
-        if not XmlValidator.is_wellformed(self._result_file):
-            log.critical('[%s] is not well formed.' % self._result_file)
+        if not XmlValidator.is_wellformed(result_file):
+            log.critical('[%s] is not well formed.' % result_file)
             return 1, info
         return 0, info
 
@@ -255,5 +211,4 @@ class XtandemTemplate(BasicTemplateHandler):
 
 </bioml>
 """
-        log.debug('read template from [%s]' % self.__class__.__name__)
         return template, info
