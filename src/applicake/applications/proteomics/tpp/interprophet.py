@@ -59,7 +59,7 @@ class InterProphet(IWrapper):
         args_handler.add_app_args(log, Keys.PREFIX, 'Path to the executable')
         args_handler.add_app_args(log, Keys.WORKDIR, 'Directory to store files')
         args_handler.add_app_args(log, Keys.PEPXMLS, 'List of pepXML files', action='append')
-        args_handler.add_app_args(log, 'IPROPHET_ARGS', 'Arguments for InterProphetParser')
+        args_handler.add_app_args(log, 'IPROPHET_ARGS', 'Arguments for InterProphetParser',default='MINPROB=0')
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
