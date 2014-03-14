@@ -94,21 +94,21 @@ Your TPP search workflow finished sucessfully!
 """
 
         if info['RUNPETUNIA'] == 'none':
-            template += """RUNPETUNIA was set none. To make the links work please run first:
-[user@imsb-ra-tpp~] # cd ~/html/petunia; tpp2viewer2.py $EXPERIMENT_CODE
+            template += """RUNPETUNIA was none. If you want to visualize the results, run the tpp2viewer2.py script on tpp2:
+[user@imsb-ra-tpp2~] # cd ~/html/petunia; tpp2viewer2.py $EXPERIMENT_CODE
 
-Then you can access the results using these links:
+Then use these links:
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
 
 """
         else:
-            template += """To visualize the results with Petunia see:
+            template += """To visualize the results use:
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.pep.shtml
 https://imsb-ra-tpp2.ethz.ch/browse/$USERNAME/html/petunia/tpp2viewer_$EXPERIMENT_CODE.prot.shtml
 
-In case the links do not work they can be restored with:
-[user@imsb-ra-tpp~] # cd ~/html/petunia; tpp2viewer2.py $EXPERIMENT_CODE
+In case the links do not work run the tpp2viewer2.py script on tpp2:
+[user@imsb-ra-tpp2~] # cd ~/html/petunia; tpp2viewer2.py $EXPERIMENT_CODE
 
 """
 
@@ -122,7 +122,7 @@ Yours sincerely,
 The iPortal team
     
 Please note that this message along with your results are stored in openbis:
-https://openbis-phosphonetx.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT"""
+https://ra-openbis.ethz.ch/openbis/#action=BROWSE&entity=EXPERIMENT&project=/$SPACE/$PROJECT"""
 
         return template, info
 
