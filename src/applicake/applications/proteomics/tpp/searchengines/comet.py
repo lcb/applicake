@@ -5,9 +5,9 @@ Created on Jun 14, 2012
 """
 
 import os
+
 from applicake.applications.proteomics.tpp.searchengines.enzymes import enzymestr_to_engine
 from applicake.applications.proteomics.tpp.searchengines.modifications import modstr_to_engine
-from applicake.applications.proteomics.tpp.searchengines.omssa import Omssa
 from applicake.framework.interfaces import IWrapper
 from applicake.framework.keys import Keys
 from applicake.framework.templatehandler import BasicTemplateHandler
@@ -19,11 +19,12 @@ class Comet(IWrapper):
     """
     Wrapper for the search engine OMSSA.
     """
+
     def prepare_run(self, info, log):
         wd = info[Keys.WORKDIR]
 
-        basename = os.path.join(wd,os.path.splitext(os.path.split(info['MZXML'])[1])[0])
-        info['PEPXMLS'] = [basename+'.pep.xml']
+        basename = os.path.join(wd, os.path.splitext(os.path.split(info['MZXML'])[1])[0])
+        info['PEPXMLS'] = [basename + '.pep.xml']
 
         #mk copy of info before destroying it
         app_info = info.copy()
@@ -33,23 +34,23 @@ class Comet(IWrapper):
         elif info['PRECMASSUNIT'] == 'ppm':
             app_info['PRECMASSUNIT'] = '2'
         else:
-            log.error("Precmassunit %s unknown"%info['PRECMASSUNIT'])
+            log.error("Precmassunit %s unknown" % info['PRECMASSUNIT'])
 
         if info['FRAGMASSUNIT'] == 'ppm':
             log.fatal("Comet does not support frag mass error unit PPM")
             return "false", info
 
-        if float(app_info['FRAGMASSERR']) < 0.01 or float(app_info['FRAGMASSERR']) > 1.0:
-            log.warn('Very high or low ')
+        if float(app_info['FRAGMASSERR']) < 0.01 or float(app_info['FRAGMASSERR']) > 1.1:
+            log.warn('Very high or low fragmasserror ' + app_info['FRAGMASSERR'])
 
-
-        app_info["STATIC_MODS"], app_info["VARIABLE_MODS"], _ = modstr_to_engine(info["STATIC_MODS"], info["VARIABLE_MODS"], 'Comet')
+        app_info["STATIC_MODS"], app_info["VARIABLE_MODS"], _ = modstr_to_engine(info["STATIC_MODS"],
+                                                                                 info["VARIABLE_MODS"], 'Comet')
         app_info['ENZYME'], app_info['NUM_TERM_CLEAVAGES'] = enzymestr_to_engine(info[Keys.ENZYME], 'Comet')
-        app_info['TEMPLATE'] = os.path.join(wd,'comet.params')
+        app_info['TEMPLATE'] = os.path.join(wd, 'comet.params')
         CometTemplate().modify_template(app_info, log)
-        prefix = app_info.get('PREFIX','comet')
+        prefix = app_info.get('PREFIX', 'comet')
 
-        command = "%s -N%s -P%s %s" % (prefix,basename,app_info['TEMPLATE'],info['MZXML'])
+        command = "%s -N%s -P%s %s" % (prefix, basename, app_info['TEMPLATE'], info['MZXML'])
         return command, info
 
     def set_args(self, log, args_handler):
