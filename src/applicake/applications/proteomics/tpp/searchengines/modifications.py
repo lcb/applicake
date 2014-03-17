@@ -153,11 +153,14 @@ class CometModConverter(AbstractModConverter):
         for mod in _modstr_to_list(static_modstr):
             name, mono, avg, residues = mod
             for residue in residues:
-                smods += "add_%s_%s = %f\n" % (residue, self.__fullnames[residue], mono)
+                try:
+                    smods += "add_%s_%s = %f\n" % (residue, self.__fullnames[residue], mono)
+                except KeyError, e:
+                    raise Exception("Residue "+e.message+" not known")
 
         vmods = ""
         for i, mod in enumerate(_modstr_to_list(var_modstr)):
-            if i > 5: raise Exception("Comet only supports 6 variable mods")
+            if i > 5: raise Exception("Comet only supports up to 6 variable mods")
             name, mono, avg, residues = mod
             vmods += "variable_mod%s = %f %s 0 3\n" % (i + 1, mono, "".join(residues))
 
