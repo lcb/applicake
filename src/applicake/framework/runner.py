@@ -172,12 +172,12 @@ class Runner(object):
         else:
             #STORAGE=memory/unchgd: log stream already in stderr
             #print '=== stdout ==='
-            out_stream.seek(0)
-            print out_stream.read()
+            #out_stream.seek(0)
+            #print out_stream.read()
             out_stream.close()
             #print '=== stderr ==='
-            err_stream.seek(0)
-            print err_stream.read()
+            #err_stream.seek(0)
+            #print err_stream.read()
             err_stream.close()
 
 
