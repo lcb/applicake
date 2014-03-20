@@ -12,6 +12,7 @@ import tempfile
 from ruffus import *
 from applicake.applications.proteomics.openbis.biopersdb import BioPersonalDB
 from applicake.applications.proteomics.tpp.searchengines.comet import Comet
+from applicake.applications.proteomics.tpp.tpp2viewer import Tpp2Viewer
 
 from applicake.framework.runner import IniApplicationRunner, IniWrapperRunner
 from applicake.applications.commons.generator import IniDatasetcodeGenerator, \
@@ -62,35 +63,26 @@ RUNTANDEM = True
 PRECMASSUNIT = ppm
 COMMENT = TPP of UPS1 ruffus
 RUNMYRIMATCH = True
-LOG_LEVEL = INFO
+LOG_LEVEL = DEBUG
 MISSEDCLEAVAGE = 1
 FRAGMASSERR = 0.2
 WORKFLOW = TPP_ruffus
-DB_SOURCE = BioDB
-#DBASE = PERSONAL_DB-BEHULLAR-LOBLUM_UPS1-972
-DBASE = /cluster/scratch_xl/shareholder/imsb_ra/bin/newbiodb/data/ex_pd/current/decoy/loblum_UPS1_iRT.fasta
+DB_SOURCE = PersonalDB
+DBASE = PDB-BEHULLAR-LOBLUM_UPS1-20130912113123
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_ident
-DATABASE_VERSION = 20130117
 XTANDEM_SCORE = k-score
 SPACE = LOBLUM
 DECOY_STRING = DECOY_
 BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
-PROJECT = TEST
+PROJECT = JUNK
 STATIC_MODS = Carbamidomethyl (C)
 VARIABLE_MODS =
-DATABASE_PACKAGE = ex_pd
-XINTERACT_ARGS = -dDECOY_ -OAPdlIw (dummy)
-DATABASE_DB = loblum_UPS1_iRT
 FRAGMASSUNIT = Da
 ENZYME = Trypsin
-IPROPHET_ARGS = MINPROB=0
 RUNOMSSA = True
-THREADS = 4"""
-                #,20120603165413998-510432,
-                # 20120606045538225-517638 -> b10-01219.p.mzxml
-                # 20120603160111752-510155 -> b10-01219.c.mzxml
-                # 20120124102254267-296925,20120124121656335-296961 -> orbi silac hela from petri
-            )
+RUNCOMET = False
+RUNTPP2VIEWER = fast
+THREADS = 4""")
 
 
 @follows(setup)
@@ -164,10 +156,10 @@ def pepprocomet(input_file_name, output_file_name):
 ############################# MERGE SEARCH ENGINE RESULTS ################################## 
 #.*_(.+)$ = any char any no. times, underscore, "group" with at least one char, end of line  
 #"groups" are acessible with \n afterwards (.* is not a group!)
-@collate([pepprotandem,pepproomssa],regex(r".*_(.+)$"),  r'mergeengine.ini_\1')
+@collate([pepprotandem,pepproomssa,peppromyri],regex(r".*_(.+)$"),  r'mergeengine.ini_\1')
 def mergeEngines(input_file_names, output_file_name):
     wrap(IniEngineCollector, 'output.ini', 'mergeengine.ini',
-         ['--GENERATOR', 'mergeengine.ini', '--ENGINES', 'tandem', '--ENGINES', 'myrimatch', '--ENGINES', 'omssa', '--ENGINES', 'comet'])
+         ['--GENERATOR', 'mergeengine.ini', '--ENGINES', 'tandem', '--ENGINES', 'myrimatch', '--ENGINES', 'omssa'])
 
 @transform(mergeEngines, regex("mergeengine.ini_"), "interprophetengines.ini_")
 def interprophetengines(input_file_name, output_file_name):
@@ -206,7 +198,10 @@ def protxml2openbis(input_file_name, output_file_name):
 def copy2dropbox(input_file_name, output_file_name):
     wrap(Copy2IdentDropbox, input_file_name, output_file_name)
 
+@transform(copy2dropbox, regex("copy2dropbox.ini_"), "tpp2view.ini_")
+def tpp2view(input_file_name, output_file_name):
+    wrap(Tpp2Viewer, input_file_name, output_file_name)
 
-pipeline_run([copy2dropbox], multiprocess=12)
+pipeline_run([tpp2view], multiprocess=3)
 
 #pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg

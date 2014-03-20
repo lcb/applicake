@@ -102,7 +102,6 @@ class OpenSwathWorkflow(IWrapper):
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
-        out_stream.seek(0)
         for line in out_stream.readlines():
             if 'is below limit of ' in line:
                 log.error('iRT calibration failed for '+os.path.basename(info['MZXML'])+"!\n"+line)

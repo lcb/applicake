@@ -52,14 +52,13 @@ class PepXMLCorrector(IApplication):
             elif '<msms_run_summary base_name' in line and ".pep.xml" in line:
                 spaces = line[:line.find('<')]
                 line = spaces + '<msms_run_summary base_name="%s" raw_data_type="" raw_data=".mzXML">\n' % mzxmlbase
-                log.info('modified msms_run_summary (fixes omssa for IDFileConverter)')
-
-
+                log.debug('modified msms_run_summary (fixes omssa for IDFileConverter)')
 
             fout.write(line)
+
         fout.close()
-        if sq != 0: log.info('modified spectrum_query %s times (fixes myrimatch for iprophet)'%sq)
-        if sn != 0: log.info('modified spectrumNativeID %s times (fixes myrimatch for xinteract'%sn)
+        if sq != 0: log.debug('modified spectrum_query %s times (fixes myrimatch for iprophet)'%sq)
+        if sn != 0: log.debug('modified spectrumNativeID %s times (fixes myrimatch for xinteract 4.7.0)'%sn)
         info['PEPXMLS'] = [pepxmlout]
         return 0, info
 

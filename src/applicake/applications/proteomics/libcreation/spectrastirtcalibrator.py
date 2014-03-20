@@ -63,11 +63,15 @@ class SpectrastIrtCalibrator(IWrapper):
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
-        """
-        See super class.
-        """
+        found = False
+        for line in out_stream.readlines():
+            if 'below the threshold of' in line:
+                log.error("iRT calibration failed: "+line.strip())
+                found = True
+        if found:
+            return 1, info
+
         if 0 != run_code:
             return run_code, info
-            #out_stream.seek(0)
-            #err_stream.seek(0)
+
         return 0, info
