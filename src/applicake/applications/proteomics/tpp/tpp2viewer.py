@@ -26,7 +26,8 @@ class Tpp2Viewer(IWrapper):
         else:
             sonaspath = info['BASEPATH'] % getpass.getuser()
             if not os.path.exists(sonaspath):
-                os.makedirs(sonaspath, 0777)
+                os.makedirs(sonaspath)
+                os.chmod(sonaspath,0777)
                 log.debug("Created petunia folder " + sonaspath)
             tgt = os.path.join(sonaspath, info['EXPERIMENT_CODE'])
             if not os.path.exists(tgt):

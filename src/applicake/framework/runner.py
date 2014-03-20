@@ -114,7 +114,9 @@ class Runner(object):
         dirname = time.strftime("%y%m%d%H%M")
         for seq in xrange(10000):
             try:
-                os.mkdir(os.path.join(basedir, dirname), 0775)
+                path = os.path.join(basedir, dirname)
+                os.mkdir(path)
+                os.chmod(path,0775)
                 return dirname
             except OSError, e:
                 if e.errno == errno.EEXIST:
