@@ -98,7 +98,7 @@ Your TPP search workflow finished sucessfully!
 
 """
         if info['RUNTPP2VIEWER'] == 'no':
-            mailtext += "RUNTPP2VIEWER was 'none'. If you want to visualize the results "
+            mailtext += "RUNTPP2VIEWER was 'no'. If you want to visualize the results "
         else:
             mailtext += """To visualize the results use:
 https://imsb-ra-tpp.ethz.ch/tpp/cgi-bin/PepXMLViewer.cgi?xmlFileName=$VIEWPEP
