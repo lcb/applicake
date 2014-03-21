@@ -21,7 +21,7 @@ class Tpp2Viewer(IWrapper):
         return args_handler
 
     def prepare_run(self, info, log):
-        if info['RUNTPP2VIEWER'] == 'no':
+        if not 'RUNTPP2VIEWER' in info or info['RUNTPP2VIEWER'] == 'no':
             command = "echo skipping tpp2viewer"
         else:
             sonaspath = info['BASEPATH'] % getpass.getuser()
