@@ -37,7 +37,7 @@ class FeatureAlignment(IWrapper):
             oldfdr += " --fdr_cutoff " + str(info['ALIGNER_FDR'])
 
         command = "feature_alignment.py --use_external_r --file_format openswath --in %s --out %s --out_matrix %s " \
-                  "--realign_runs --max_rt_diff %s %s --method %s --frac_selected %s " \
+                  "--matrix_output_method full --realign_runs --max_rt_diff %s %s --method %s --frac_selected %s " \
                   "%s --target_fdr %s --tmpdir %s --out_meta %s" % (
             " ".join(info["MPROPHET_TSV"]),info['ALIGNMENT_TSV'],info['ALIGNMENT_MATRIX'],
             info['ALIGNER_MAX_RTDIFF'],oldfdr,info['ALIGNER_METHOD'],info['ALIGNER_FRACSELECTED'],

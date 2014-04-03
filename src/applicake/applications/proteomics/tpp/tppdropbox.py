@@ -57,7 +57,7 @@ class Copy2IdentDropbox(Copy2Dropbox):
         info[Keys.TEMPLATE] = os.path.join(info['DROPBOXSTAGE'], 'mailtext.txt')
         _, info = MailTemplate().modify_template(info, log)
 
-        info['DROPBOXSTAGE'] = self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'],keepCopy=True)
+        info['DROPBOXSTAGE'] = self._move_stage_to_dropbox(info['DROPBOXSTAGE'], info['DROPBOX'], keepCopy=True)
 
         return 0, info
 
@@ -67,7 +67,7 @@ class MailTemplate(BasicTemplateHandler):
         info['USERNAME'] = getpass.getuser()
         info['EXPERIMENT_CODE'] = info['experiment-code']
 
-        basepath =  '/IMSB/ra/' + info['USERNAME'] + '/html/petunia/tpp2viewer3_' + info['EXPERIMENT_CODE']
+        basepath = '/IMSB/ra/' + info['USERNAME'] + '/html/petunia/tpp2viewer3_' + info['EXPERIMENT_CODE']
         info['VIEWPEP'] = basepath + '.pep.xml'
         info['VIEWPROT'] = basepath + '.prot.xml'
 
@@ -81,8 +81,7 @@ class MailTemplate(BasicTemplateHandler):
                 "2.1.8", "2.1.9")
 
         if 'RUNMYRIMATCH' in info and info['RUNMYRIMATCH'] == 'True':
-            info['ENGINES_VERSIONS'] += subprocess.check_output("myrimatch 2>&1 | grep MyriMatch",
-                                                                shell=True)
+            info['ENGINES_VERSIONS'] += subprocess.check_output("myrimatch 2>&1 | grep MyriMatch",  shell=True)
 
         if 'RUNCOMET' in info and info['RUNCOMET'] == 'True':
             info['ENGINES_VERSIONS'] += subprocess.check_output("comet 2>&1 | grep version", shell=True)

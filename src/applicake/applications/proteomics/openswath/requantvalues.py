@@ -54,7 +54,7 @@ class RequantValues(IWrapper):
 
         command = "requantAlignedParallel.sh --in %s --peakgroups_infile %s --out %s --out_matrix %s " \
                   "--border_option %s --threads %s | grep -v 'does not cover full range' && " \
-                  "compute_full_matrix.py --in %s --out_matrix %s --aligner_mscore_threshold %s --output_method RT" % (
+                  "compute_full_matrix.py --in %s --out_matrix %s --aligner_mscore_threshold %s --output_method full" % (
             " ".join(localtrs),
             intsv,
             info['ALIGNMENT_TSV'],
