@@ -13,6 +13,7 @@ Created on Jun 15, 2012
 8.  Glu_C                  1      DE          P
 9.  PepsinA                1      FL          P
 10. Chymotrypsin           1      FWYL        P
+num_enz_termini: This parameter is unused if a no-enzyme search is specified.
 
 OMSSA.xsd
               <xs:enumeration value="trypsin" ncbi:intvalue="0"/>
@@ -48,6 +49,13 @@ XTandem & Myrimatch use rules
 """
 
 _enzymes = {
+    #'Enzyme': {
+    # 'XTandem':   [ cut_rule  , semi_yesno ],
+    # 'Myrimatch': [ myri_name , num_enzymatic_termini_012 ],
+    # 'Comet':     [ comet_num , num_enz_termini_nothing12 ],
+    # 'Omssa':     [ ommsa_num , None],
+    # 'InteractParser': [ interact_name , None],
+    #},
     'Trypsin': {
         'XTandem': ['[RK]|{P}', 'no'],
         'Myrimatch': ['Trypsin/P', '2'],
@@ -69,7 +77,20 @@ _enzymes = {
         'Omssa': ['17', None],
         'InteractParser': ['nonspecific', None],
     },
-
+    'Asp-N': {
+        'XTandem': ['[X]|[D]', 'no'],
+        'Myrimatch': ['Asp-N', '2'],
+        'Comet': ['6', '2'],
+        'Omssa': ['12', None],
+        'InteractParser': ['AspN', None],
+    },
+    'Lys-C': {
+        'XTandem': ['[K]|[X]', 'no'],
+        'Myrimatch': ['Lys-C', '2'],
+        'Comet': ['3', '2'],
+        'Omssa': ['5', None],
+        'InteractParser': ['LysC', None],
+    },
 }
 
 
