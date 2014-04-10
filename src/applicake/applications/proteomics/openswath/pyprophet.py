@@ -42,6 +42,12 @@ class pyProphet(IWrapper):
             log.error('Ran out of memory!')
             return 1,info
 
+        out_stream.seek(0)
+        for line in out_stream.readlines():
+            if line.startswith("Exception:"):
+                log.error(line)
+                return 1,info
+
         base = os.path.join(info[Keys.WORKDIR], os.path.splitext(os.path.basename(info['FEATURETSV']))[0])
         resultfile = base + "_with_dscore.csv"
         if not FileUtils.is_valid_file(log, resultfile):

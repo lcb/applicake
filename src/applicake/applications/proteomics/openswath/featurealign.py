@@ -63,6 +63,12 @@ class FeatureAlignment(IWrapper):
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
+
+        for line in out_stream.readlines():
+            if line.startswith("Exception:"):
+                log.error(line)
+                return 1,info
+
         if 0 != run_code:
             return run_code, info
         if not FileUtils.is_valid_file(log, info['ALIGNMENT_TSV']):
