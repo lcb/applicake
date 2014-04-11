@@ -40,7 +40,7 @@ class FeatureAlignment(IWrapper):
                   "--matrix_output_method full --realign_runs --max_rt_diff %s %s --method %s --frac_selected %s " \
                   "%s --target_fdr %s --tmpdir %s --out_meta %s" % (
             " ".join(info["MPROPHET_TSV"]),info['ALIGNMENT_TSV'],info['ALIGNMENT_MATRIX'],
-            info['ALIGNER_MAX_RTDIFF'],oldfdr,info['ALIGNER_METHOD'],info['ALIGNER_FRACSELECTED'],
+            info['ALIGNER_MAX_RT_DIFF'],oldfdr,info['ALIGNER_METHOD'],info['ALIGNER_FRACSELECTED'],
             dfilter, info['ALIGNER_TARGETFDR'],tmpdir,info['ALIGNMENT_YAML'])
 
         return command, info
@@ -50,7 +50,7 @@ class FeatureAlignment(IWrapper):
         args_handler.add_app_args(log, 'MPROPHET_TSV', '')
         args_handler.add_app_args(log, 'ALIGNER_METHOD', '')
         args_handler.add_app_args(log, 'ALIGNER_FRACSELECTED', '')
-        args_handler.add_app_args(log, 'ALIGNER_MAX_RTDIFF', '')
+        args_handler.add_app_args(log, 'ALIGNER_MAX_RT_DIFF', '')
         args_handler.add_app_args(log, 'ALIGNER_TARGETFDR', '', default=-1)
         args_handler.add_app_args(log, 'ALIGNER_DSCORE_CUTOFF', 'if not set dont filter. if set use dscore cutoff')
         args_handler.add_app_args(log, 'MATRIX_FORMAT', '',default="xls")
