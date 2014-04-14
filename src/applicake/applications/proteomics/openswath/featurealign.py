@@ -53,7 +53,7 @@ class FeatureAlignment(IWrapper):
         args_handler.add_app_args(log, 'ALIGNER_MAX_RT_DIFF', '')
         args_handler.add_app_args(log, 'ALIGNER_TARGETFDR', '', default=-1)
         args_handler.add_app_args(log, 'ALIGNER_DSCORE_CUTOFF', 'if not set dont filter. if set use dscore cutoff')
-        args_handler.add_app_args(log, 'MATRIX_FORMAT', '',default="xls")
+        args_handler.add_app_args(log, 'MATRIX_FORMAT', '',default="xlsx")
 
         #use targetfdr options instead!
         args_handler.add_app_args(log, 'ALIGNER_FDR', '')

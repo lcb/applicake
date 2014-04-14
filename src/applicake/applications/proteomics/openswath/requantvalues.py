@@ -76,7 +76,7 @@ class RequantValues(IWrapper):
 
         args_handler.add_app_args(log, 'BORDER_OPTION', '',default='median')
         args_handler.add_app_args(log, 'DO_CHROMML_REQUANT', '')
-        args_handler.add_app_args(log, 'MATRIX_FORMAT', '',default="xls")
+        args_handler.add_app_args(log, 'MATRIX_FORMAT', '',default="xlsx")
         return args_handler
 
     def validate_run(self, info, log, run_code, out_stream, err_stream):
