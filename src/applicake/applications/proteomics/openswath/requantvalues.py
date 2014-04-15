@@ -82,6 +82,11 @@ class RequantValues(IWrapper):
     def validate_run(self, info, log, run_code, out_stream, err_stream):
         if 0 != run_code:
             return run_code, info
+
+        #no check if requant is false
+        if info.get('DO_CHROMML_REQUANT',"") == "false":
+            return 0,info
+
         if not FileUtils.is_valid_file(log, info['ALIGNMENT_TSV']):
             return 1, info
         if not FileUtils.is_valid_file(log, info['ALIGNMENT_MATRIX']):
