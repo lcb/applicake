@@ -7,15 +7,16 @@ with dscore cutoff and external R: 2h20m, 5G RAM
 @author: lorenz
 """
 
-import os,glob
+import os
+import glob
 import shutil
+
 from applicake.framework.keys import Keys
 from applicake.framework.interfaces import IWrapper
 from applicake.utils.fileutils import FileUtils
 
 
 class FeatureAlignment(IWrapper):
-    _outfiles = []
 
     def prepare_run(self, info, log):
         info['ALIGNMENT_TSV'] = os.path.join(info['WORKDIR'], "feature_alignment.tsv")
@@ -26,22 +27,31 @@ class FeatureAlignment(IWrapper):
 
         tmpdir = os.environ.get('TMPDIR',info[Keys.WORKDIR]) + '/'
 
+        realignruns = ""
+        if info['ALIGNER_REALIGNRUNS'] == "true":
+            realignruns = '--realign_runs'
+
+        alignfdr = ''
+        if 'ALIGNER_FDR' in info and info['ALIGNER_FDR'] != "":
+            alignfdr = "--fdr_cutoff " + str(info['ALIGNER_FDR'])
+
+        maxfdrqual = ""
+        if 'ALIGNER_MAX_FDRQUAL' in info and info['ALIGNER_MAX_FDRQUAL'] != "":
+            maxfdrqual = "--max_fdr_quality " + str(info['ALIGNER_MAX_FDRQUAL'])
+
         dfilter = ""
         if "ALIGNER_DSCORE_CUTOFF" in info and info["ALIGNER_DSCORE_CUTOFF"] != "":
-            dfilter = "--use_dscore_filter  --dscore_cutoff " + info["ALIGNER_DSCORE_CUTOFF"]
-
-        oldfdr = ""
-        if 'ALIGNER_MAX_FDRQUAL' in info and info['ALIGNER_MAX_FDRQUAL'] != "":
-            oldfdr = "--max_fdr_quality " + str(info['ALIGNER_MAX_FDRQUAL'])
-        if 'ALIGNER_FDR' in info and info['ALIGNER_FDR'] != "":
-            oldfdr += " --fdr_cutoff " + str(info['ALIGNER_FDR'])
+            dfilter = "--use_dscore_filter --dscore_cutoff " + info["ALIGNER_DSCORE_CUTOFF"]
 
         command = "feature_alignment.py --use_external_r --file_format openswath --in %s --out %s --out_matrix %s " \
-                  "--matrix_output_method full --realign_runs --max_rt_diff %s %s --method %s --frac_selected %s " \
+                  "%s %s %s " \
+                  "--matrix_output_method full --max_rt_diff %s --method %s --frac_selected %s " \
                   "%s --target_fdr %s --tmpdir %s --out_meta %s" % (
-            " ".join(info["MPROPHET_TSV"]),info['ALIGNMENT_TSV'],info['ALIGNMENT_MATRIX'],
-            info['ALIGNER_MAX_RT_DIFF'],oldfdr,info['ALIGNER_METHOD'],info['ALIGNER_FRACSELECTED'],
-            dfilter, info['ALIGNER_TARGETFDR'],tmpdir,info['ALIGNMENT_YAML'])
+                      " ".join(info["MPROPHET_TSV"]), info['ALIGNMENT_TSV'], info['ALIGNMENT_MATRIX'],
+                      realignruns, alignfdr, maxfdrqual,
+                      info['ALIGNER_MAX_RT_DIFF'], info['ALIGNER_METHOD'],
+                      info['ALIGNER_FRACSELECTED'],
+                      dfilter, info['ALIGNER_TARGETFDR'], tmpdir, info['ALIGNMENT_YAML'])
 
         return command, info
 
@@ -55,10 +65,10 @@ class FeatureAlignment(IWrapper):
         args_handler.add_app_args(log, 'ALIGNER_DSCORE_CUTOFF', 'if not set dont filter. if set use dscore cutoff')
         args_handler.add_app_args(log, 'MATRIX_FORMAT', '',default="xlsx")
 
-        #use targetfdr options instead!
-        args_handler.add_app_args(log, 'ALIGNER_FDR', '')
-        args_handler.add_app_args(log, 'ALIGNER_MAX_FDRQUAL', '')
-        args_handler.add_app_args(log, 'ALIGNER_REALIGNRUNS', 'true=realign, false=use iRT. faster but less accurate',default="true")
+        args_handler.add_app_args(log, 'ALIGNER_FDR', 'seeding m_score (FDR) cutoff , what is used as starting points')
+        args_handler.add_app_args(log, 'ALIGNER_MAX_FDRQUAL', 'extension m_score (FDR) cutoff, what is used for realignment points')
+        args_handler.add_app_args(log, 'ALIGNER_REALIGNRUNS', 'true=realign, false=use iRT. faster but less accurate',
+                                  default="true")
 
         return args_handler
 
