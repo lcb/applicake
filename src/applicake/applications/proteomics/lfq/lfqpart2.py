@@ -21,6 +21,10 @@ class LFQpart2(IWrapper):
         os.symlink(info['PROTXML'], protlink)
         info['PROTXML'] = protlink
 
+        if not isinstance(info['FEATUREXMLS'],list):
+            log.error("LFQ requires at least 2 samples")
+            return "false", info
+
         info['FEATUREXMLLIST'] = ''
         for i in info['FEATUREXMLS']:
             info['FEATUREXMLLIST'] += '<LISTITEM value="' + i + '"/>'
