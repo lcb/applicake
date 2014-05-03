@@ -1,11 +1,19 @@
-"""
-@author: loblum
-unimod avg = mono * 1.001191917
-"""
+#!/usr/bin/env python
 from string import Template
 
 
-def modstr_to_engine(static_modstr, var_modstr, engine):
+def modstr_to_engine(static_genmodstr, var_genmodstr, engine):
+    """
+    Main method you should use this
+    Converts "generic" modification string into engine specific strings
+    unimod avg = mono * 1.001191917
+
+    @param static_genmodstr: generic mod string for static modifications to use
+    @param var_genmodstr: generic mod string for variable modifications to use
+    @param engine: search engine
+
+    @return: engine_specific_static_mod_string, engine_specific_variable_mod_string, template(omssa)
+    """
     if engine is "XTandem":
         conv = XTandemModConverter()
     elif engine is "Omssa":
@@ -18,53 +26,69 @@ def modstr_to_engine(static_modstr, var_modstr, engine):
         raise Exception("No converter found for engine " + engine)
 
     try:
-        return conv.modlist_to_engine(static_modstr, var_modstr)
+        return conv.genmodstrs_to_engine(static_genmodstr, var_genmodstr)
     except Exception, e:
-        raise Exception("Malformed modification string! "+e.message)
-
-
-def _get_mass_from_unimod_or_string(key):
-    from Unimod.unimod import database
-
-    entry = database.get_label(key)
-    if entry:
-        return float(entry['delta_mono_mass']), float(entry['delta_avge_mass'])
-    else:
-        #if its not a unimod entry try to parse masses from name itself
-        try:
-            mm, am = key.split("/")
-            return float(mm), float(am)
-        except:
-            raise Exception(key + ": not found unimod and no valid mono/avg mass pair")
-
-
-def _modstr_to_list(modstr):
-    modlist = []
-    for mod in modstr.split(";"):
-        if not mod: return modlist
-        name, residues = mod.split(" ")
-        mono, avg = _get_mass_from_unimod_or_string(name)
-        residuesarr = list(residues)[1:-1]
-        if len(residuesarr) < 1: raise Exception("Could not get residues in string "+residues)
-        modlist.append([name, mono, avg, residuesarr])
-    return modlist
+        raise Exception("Malformed modification string! " + e.message)
 
 
 class AbstractModConverter(object):
-    def modlist_to_engine(static_modstr, var_modstr):
+    def genmodstrs_to_engine(self, static_genmodstr, var_genmodstr):
+        """
+        Method to overwrite in child classes. Is expected to convert generic modification strings to engine
+        specifig strings
+
+        @param static_genmodstr: generic mod string for static
+        @param var_genmodstr: generic mod string for variable
+        @return static_mods, var_mods, template(needed e.g. for omssa)
+        """
         raise NotImplementedError
+
+    def _get_nameresiduelist_from_modstr(self, modstr):
+        try:
+            rawname, rawresidues = modstr.split("(")
+            name = rawname.strip()
+            residues = list(rawresidues.replace(")", "").strip())
+            return name, residues
+        except Exception, e:
+            raise Exception("Malformed modification string [%s]. Should be 'Name (Residues)'" % modstr)
+
+    def _get_mass_from_unimod_or_string(self, key):
+        from Unimod.unimod import database
+
+        entry = database.get_label(key)
+        if entry:
+            return float(entry['delta_mono_mass']), float(entry['delta_avge_mass'])
+        else:
+            #if its not a unimod entry try to parse masses from name itself
+            try:
+                mm, am = key.split("/")
+                return float(mm), float(am)
+            except:
+                raise Exception(key + ": not found unimod and no valid mono/avg mass pair")
+
+
+    def _modstr_to_list(self, modstr):
+        modlist = []
+        for mod in modstr.split(";"):
+             #skip if empty ;;
+            if not mod:
+                continue
+            name, residuearr = self._get_nameresiduelist_from_modstr(mod)
+            mono, avg = self._get_mass_from_unimod_or_string(name)
+            modlist.append([name, mono, avg, residuearr])
+        return modlist
 
 
 class XTandemModConverter(AbstractModConverter):
-    def modlist_to_engine(self, static_modstr, var_modstr):
+    def genmodstrs_to_engine(self, static_genmodstr, var_genmodstr):
         smods = []
-        for mod in _modstr_to_list(static_modstr):
+        for mod in self._modstr_to_list(static_genmodstr):
             name, mono, avg, residues = mod
             for residue in residues:
                 smods.append("%f@%s" % (mono, residue))
 
         vmods = []
-        for mod in _modstr_to_list(var_modstr):
+        for mod in self._modstr_to_list(var_genmodstr):
             name, mono, avg, residues = mod
             for residue in residues:
                 vmods.append("%f@%s" % (mono, residue))
@@ -96,11 +120,11 @@ class OmssaModConverter(AbstractModConverter):
   </MSModSpec>"""
     __tpltail = """</MSModSpecSet>"""
 
-    def modlist_to_engine(self, static_modstr, var_modstr):
+    def genmodstrs_to_engine(self, static_genmodstr, var_genmodstr):
         modtpl = self.__tplheader
         i = 0
         smods = []
-        for mod in _modstr_to_list(static_modstr):
+        for mod in self._modstr_to_list(static_genmodstr):
             name, mono, avg, residues = mod
             for res in residues:
                 i += 1
@@ -111,7 +135,7 @@ class OmssaModConverter(AbstractModConverter):
                 modtpl += Template(self.__tpl).safe_substitute(dict_)
 
         vmods = []
-        for mod in _modstr_to_list(var_modstr):
+        for mod in self._modstr_to_list(var_genmodstr):
             name, mono, avg, residues = mod
             for res in residues:
                 i += 1
@@ -126,15 +150,15 @@ class OmssaModConverter(AbstractModConverter):
 
 
 class MyrimatchModConverter(AbstractModConverter):
-    def modlist_to_engine(self, static_modstr, var_modstr):
+    def genmodstrs_to_engine(self, static_genmodstr, var_genmodstr):
         smods = []
-        for mod in _modstr_to_list(static_modstr):
+        for mod in self._modstr_to_list(static_genmodstr):
             name, mono, avg, residues = mod
             for residue in residues:
                 smods.append("%s %f" % (residue, mono))
 
         vmods = []
-        for mod in _modstr_to_list(var_modstr):
+        for mod in self._modstr_to_list(var_genmodstr):
             name, mono, avg, residues = mod
             vmods.append("[%s] * %f" % ("".join(residues), mono))
 
@@ -148,18 +172,18 @@ class CometModConverter(AbstractModConverter):
                    "R": "arginine", "S": "serine", "T": "threonine", "V": "valine", "W": "tryptophan",
                    "Y": "tyrosine", }
 
-    def modlist_to_engine(self, static_modstr, var_modstr):
+    def genmodstrs_to_engine(self, static_genmodstr, var_genmodstr):
         smods = ""
-        for mod in _modstr_to_list(static_modstr):
+        for mod in self._modstr_to_list(static_genmodstr):
             name, mono, avg, residues = mod
             for residue in residues:
                 try:
                     smods += "add_%s_%s = %f\n" % (residue, self.__fullnames[residue], mono)
                 except KeyError, e:
-                    raise Exception("Residue "+e.message+" not known")
+                    raise Exception("Residue " + e.message + " not known")
 
         vmods = ""
-        for i, mod in enumerate(_modstr_to_list(var_modstr)):
+        for i, mod in enumerate(self._modstr_to_list(var_genmodstr)):
             if i > 5: raise Exception("Comet only supports up to 6 variable mods")
             name, mono, avg, residues = mod
             vmods += "variable_mod%s = %f %s 0 3\n" % (i + 1, mono, "".join(residues))

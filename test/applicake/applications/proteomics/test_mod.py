@@ -8,7 +8,7 @@ from applicake.applications.proteomics.tpp.searchengines.modifications import mo
 
 class Test(unittest.TestCase):
     def test_mod(self):
-        print modstr_to_engine("Carbamidomethyl (C)", "442/442.5 (STY)", "XTandem")
+        print modstr_to_engine("Carbamidomethyl (C);; Biotin(K);", "442/442.5 (STY)", "XTandem")
 
 
 if __name__ == "__main__":
