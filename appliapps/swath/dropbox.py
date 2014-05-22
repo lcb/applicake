@@ -35,22 +35,20 @@ class Copy2SwathDropbox(BasicApp):
         #copy and compress align.csv, but not the matrix
         dropbox.keys_to_dropbox(log, info, ['ALIGNMENT_TSV'], stagebox)
         subprocess.check_call('gzip -v ' + stagebox + '/*', shell=True)
-        dropbox.keys_to_dropbox(log, info, ['ALIGNMENT_MATRIX'], stagebox)
-        if 'ALIGNER_STDOUT' in info:
-            dropbox.keys_to_dropbox(log, info, 'ALIGNER_STDOUT', stagebox)
+        dropbox.keys_to_dropbox(log, info, ['ALIGNMENT_MATRIX','ALIGNER_STDOUT'], stagebox)
 
         #compress all mprophet files into one zip
-        #PATCH: no mprophet stats if classifier used
+        archive = os.path.join(stagebox, 'pyprophet_stats.zip')
         if not 'MPROPHET_STATS' in info:
             info['MPROPHET_STATS'] = []
         if not isinstance(info['MPROPHET_STATS'], list):
             info['MPROPHET_STATS'] = [info['MPROPHET_STATS']]
+        for entry in info['MPROPHET_STATS']:
+            subprocess.check_call('zip -j ' + archive + ' ' + entry, shell=True)
 
-        archive = os.path.join(stagebox, 'pyprophet_stats.zip')
         #PATCH: reimport old classifier if existing was used
         if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
             subprocess.check_call('zip -j ' + archive + ' ' + info['MPR_LDA_PATH'], shell=True)
-
 
         #SPACE PROJECT given
         dsinfo = {}
@@ -87,10 +85,10 @@ class Copy2SwathDropbox(BasicApp):
         dropbox.move_stage_to_dropbox(log, stagebox, info['DROPBOX'], keepCopy=False)
 
         try:
-            command = "echo %s | mail -s 'SWATH analysis %s finished' %s@ethz.ch" % (
-                "Your SWATH analysis finished and will show up in openBIS soon!",
-                dsinfo['EXPERIMENT'],
-                getpass.getuser())
+            command = 'echo "Your SWATH analysis [%s] finished and will show up in openBIS soon!" | ' \
+                      'mail -s "SWATH analysis %s finished" %s@ethz.ch' % (
+                          dsinfo['COMMENT'],
+                          dsinfo['EXPERIMENT'], getpass.getuser())
             subprocess.check_call(command, shell=True)
         except Exception, e:
             log.warn("Sending mail failed: " + e.message)

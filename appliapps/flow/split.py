@@ -18,7 +18,7 @@ class Split(BasicApp):
     def run(self, log, info):
         basename = info[Keys.SPLIT]
         key = info[Keys.SPLIT_KEY]
-        value = info[key]
+        value = info.get(key,"")
         if not isinstance(value, list):
             value = [value]
 
