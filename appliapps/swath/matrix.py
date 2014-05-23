@@ -38,7 +38,7 @@ class WriteMatrix(WrappedApp):
 
         command = "awk 'NR==1 || FNR!=1' %s %s > %s && " \
                   "compute_full_matrix.py --in %s --out_matrix %s --aligner_mscore_threshold %s --output_method full" % (
-                      intsv, requantsv, merge,
+                      intsv, " ".join(requantsv), merge,
                       merge, info['ALIGNMENT_MATRIX'], info['ALIGNER_MSCORE_THRESHOLD']
                   )
 

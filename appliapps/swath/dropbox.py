@@ -87,7 +87,7 @@ class Copy2SwathDropbox(BasicApp):
         try:
             command = 'echo "Your SWATH analysis [%s] finished and will show up in openBIS soon!" | ' \
                       'mail -s "SWATH analysis %s finished" %s@ethz.ch' % (
-                          dsinfo['COMMENT'],
+                          info['COMMENT'],
                           dsinfo['EXPERIMENT'], getpass.getuser())
             subprocess.check_call(command, shell=True)
         except Exception, e:
