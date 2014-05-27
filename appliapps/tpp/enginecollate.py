@@ -22,20 +22,23 @@ class EngineCollate(BasicApp):
 
     def run(self, log, info):
         used_engines = []
-        log.debug("Available engines: %s", info['ENGINES'])
+        log.debug("All available engines: %s", info['ENGINES'])
         for engine in info['ENGINES'].split(" "):
             key = 'RUN' + engine.upper()
             if key in info and info[key] == 'True':
                 used_engines.append(engine)
-        log.debug("Used engines: %s" % used_engines)
+        log.debug("Effectively used engines: %s" % used_engines)
 
         runs = len(info[Keys.DATASET_CODE])
+        log.debug("Number of samples: %d" % runs)
         for i in range(runs):
             collectedconfig = {}
             for engine in used_engines:
                 path = "%s.ini_%d" % (engine, i)
                 if not os.path.exists(path):
-                    raise RuntimeError("Required inifile not found " + path)
+                    raise RuntimeError("Required infofile not found " + path)
+                else:
+                    log.debug("Found infofile "+path)
                 engineconfig = infohandler.get_handler(path).read(path)
                 collectedconfig = dicts.merge(collectedconfig, engineconfig, priority='append')
 
