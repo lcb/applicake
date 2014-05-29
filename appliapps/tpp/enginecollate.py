@@ -29,6 +29,8 @@ class EngineCollate(BasicApp):
                 used_engines.append(engine)
         log.debug("Effectively used engines: %s" % used_engines)
 
+        if not isinstance(info[Keys.DATASET_CODE]):
+            info[Keys.DATASET_CODE] = [info[Keys.DATASET_CODE]]
         runs = len(info[Keys.DATASET_CODE])
         log.debug("Number of samples: %d" % runs)
         for i in range(runs):

@@ -11,7 +11,10 @@ class RTforward(BasicApp):
 
         if "RUNRT = True" in open("uncalib.ini_0").read():
             print "RUNRT WAS SET TRUE. TRYING TO CONTINUE USING RT-CALIBRATED INPUT"
-            shutil.copy("rtcalib.ini_0", "output.ini")
+            try:
+                shutil.copy("rtcalib.ini_0", "output.ini")
+            except Exception, e:
+                raise RuntimeError("cannot copy rtcalibrated input. probably error happened before. "+e.message)
         else:
             print "RUNRT WAS SET FALSE. TRYING TO CONTINUE USING NON-CALIBRATED INPUT"
             shutil.copy("uncalib.ini_0", "output.ini")
