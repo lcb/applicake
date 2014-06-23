@@ -11,8 +11,8 @@ def check_exitcode(log, exit_code):
 
 def check_stdout(log, stdout):
     for line in stdout.splitlines():
-        if any(x in line for x in ["Exception:", "std::bad_alloc", "MemoryError:"]):
-            raise RuntimeError("Found error message: " + line)
+        if any(x in line for x in ["Exception:", "std::bad_alloc", "MemoryError", "IOError"]):
+            raise RuntimeError("Found error message: [%s]! Please check stdout for more details!" % line.strip())
     log.debug("No known error message in stdout")
 
 
@@ -35,4 +35,4 @@ def check_xml(log, path):
         parser = expat.ParserCreate()
         parser.ParseFile(open(path, "r"))
     except Exception, e:
-        raise RuntimeError("Invalid XML [%s]: %s" % (path,e.message))
+        raise RuntimeError("Invalid XML [%s]: %s" % (path, e.message))

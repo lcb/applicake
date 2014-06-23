@@ -90,6 +90,7 @@ class Copy2SwathDropbox(BasicApp):
                           info['COMMENT'],
                           dsinfo['EXPERIMENT'], getpass.getuser())
             subprocess.check_call(command, shell=True)
+            log.debug("Sending mail succeded!")
         except Exception, e:
             log.warn("Sending mail failed: " + e.message)
 

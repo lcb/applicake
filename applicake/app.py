@@ -109,6 +109,13 @@ class BasicApp(IApp):
         #setup logging
         log = Logger.create(info[Keys.LOG_LEVEL])
 
+        #request by malars
+        if Keys.DATASET_CODE in info:
+            if isinstance(info[Keys.DATASET_CODE],list):
+                log.debug("Datasets are %s",info[Keys.DATASET_CODE])
+            else:
+                log.info("Dataset is %s",info[Keys.DATASET_CODE])
+
         #WORKDIR: create WORKDIR (only after mk log)
         info = dirs.create_workdir(log, info)
 

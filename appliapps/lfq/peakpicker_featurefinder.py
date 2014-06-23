@@ -63,6 +63,7 @@ class PeakpickerFeaturefinder(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, run_code, out):
+        validation.check_stdout(log,out)
         validation.check_exitcode(log, run_code)
         validation.check_xml(log, info['FEATUREXML'])
         return info
