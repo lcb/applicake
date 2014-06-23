@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 
@@ -67,13 +68,13 @@ class BasicApp(IApp):
             app_args = ci.add_args()
             log, req_info, info = ci.setup(app_args)
             ret_info = ci.run(log, req_info)
-            info = dicts.merge(info,ret_info,priority='right')
+            info = dicts.merge(info, ret_info, priority='right')
             ci.teardown(log, info)
         except Exception, e:
             msg = cls.__name__ + " failed: " + str(e)
             if isinstance(e, KeyError):
                 msg += " key not found in info"
-            #if app fails before logger is created use sys.exit for message
+            # if app fails before logger is created use sys.exit for message
             if not log:
                 sys.exit(msg)
             log.error(msg)
@@ -83,14 +84,14 @@ class BasicApp(IApp):
         raise NotImplementedError("add_args() not implemented")
 
     def setup(self, app_args):
-        #basic arguments for every node
+        # basic arguments for every node
         basic_args = [Argument(Keys.INPUT, KeyHelp.INPUT, default=''),
                       Argument(Keys.OUTPUT, KeyHelp.OUTPUT, default=''),
-                      Argument(Keys.MODULE,KeyHelp.MODULE,default=''),
+                      Argument(Keys.MODULE, KeyHelp.MODULE, default=''),
                       Argument(Keys.LOG_LEVEL, KeyHelp.LOG_LEVEL, default="DEBUG")]
 
-        #Fixme: Prettify WORKDIR creation system
-        #WORKDIR: if WORKDIR is defined add related args
+        # Fixme: Prettify WORKDIR creation system
+        # WORKDIR: if WORKDIR is defined add related args
         for i, arg in enumerate(app_args):
             if arg.name == Keys.WORKDIR:
                 app_args.insert(i + 1, Argument(Keys.BASEDIR, KeyHelp.BASEDIR, default='.'))
@@ -101,27 +102,31 @@ class BasicApp(IApp):
 
         defaults, cliargs = parse_sysargs(basic_args + app_args)
 
-        #construct info from defaults < info < commandlineargs
+        # construct info from defaults < info < commandlineargs
         ih = get_handler(cliargs.get(Keys.INPUT, None))
         fileinfo = ih.read(cliargs.get(Keys.INPUT, None))
         info = dicts.merge(cliargs, dicts.merge(fileinfo, defaults))
 
-        #setup logging
+        # setup logging
         log = Logger.create(info[Keys.LOG_LEVEL])
 
-        #request by malars
+        #request by malars: show dataset prominent in logger
         if Keys.DATASET_CODE in info:
-            if isinstance(info[Keys.DATASET_CODE],list):
-                log.debug("Datasets are %s",info[Keys.DATASET_CODE])
+            if not isinstance(info[Keys.DATASET_CODE], list):
+                if Keys.MZXML in info and not isinstance(info[Keys.MZXML],list):
+                    log.info("Dataset is %s (%s)" % (info[Keys.DATASET_CODE], os.path.basename(info[Keys.MZXML])))
+                else:
+                    log.info("Dataset is %s" % info[Keys.DATASET_CODE])
             else:
-                log.info("Dataset is %s",info[Keys.DATASET_CODE])
+                log.debug("Datasets are %s" % info[Keys.DATASET_CODE])
+
 
         #WORKDIR: create WORKDIR (only after mk log)
         info = dirs.create_workdir(log, info)
 
         #filter to requested args
         if Keys.ALL_ARGS in info:
-             #if ALL_ARGS is set give whole info to app...
+            #if ALL_ARGS is set give whole info to app...
             req_info = info
         else:
             req_info = {}
@@ -129,7 +134,7 @@ class BasicApp(IApp):
             for key in [arg.name for arg in basic_args + app_args]:
                 if key in info:
                     req_info[key] = info[key]
-        log.debug("info for app: %s"%req_info)
+        log.debug("info for app: %s" % req_info)
 
         return log, req_info, info
 
@@ -153,16 +158,16 @@ class WrappedApp(BasicApp):
         raise NotImplementedError("prepare_run() not implemented")
 
     def execute_run(self, log, info, cmd):
-        #Fixme: Prettify/document MODULE load system
-        #if MODULE is set load specific module before running cmd. requires http://modules.sourceforge.net/
-        if info.get('MODULE','') != '':
+        # Fixme: Prettify/document MODULE load system
+        # if MODULE is set load specific module before running cmd. requires http://modules.sourceforge.net/
+        if info.get('MODULE', '') != '':
             cmd = "module purge && module load %s && %s" % (info['MODULE'], cmd)
 
         cmd = cmd.replace("\n", "")
         log.debug("command is [%s]" % cmd)
-        #stderr to stdout: http://docs.python.org/2/library/subprocess.html#subprocess.STDOUT
-        #read input "streaming" from subprocess: http://stackoverflow.com/a/17698359
-        #get exitcode: http://docs.python.org/2/library/subprocess.html#subprocess.Popen.returncode
+        # stderr to stdout: http://docs.python.org/2/library/subprocess.html#subprocess.STDOUT
+        # read input "streaming" from subprocess: http://stackoverflow.com/a/17698359
+        # get exitcode: http://docs.python.org/2/library/subprocess.html#subprocess.Popen.returncode
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
         out = ""
         for line in iter(p.stdout.readline, ''):
