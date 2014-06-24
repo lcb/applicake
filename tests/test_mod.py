@@ -8,7 +8,9 @@ from appliapps.tpp.searchengines.modifications import genmodstr_to_engine
 
 class Test(unittest.TestCase):
     def test_mod(self):
-        static, var, _ = genmodstr_to_engine("Carbamidomethyl (C);; Biotin(K)", "300/300.1 (STY)", "Myrimatch")
+        static, var, _ = genmodstr_to_engine("Carbamidomethyl (C);; Biotin(K) ;",
+                                             "300/300.1 (STY);Label:13C(6)15N(4) (H)",
+                                             "Myrimatch")
         print static, var
         with self.assertRaises(Exception):
             genmodstr_to_engine("Doesnotexist (C)", "", "Myrimatch")
@@ -22,7 +24,7 @@ if __name__ == "__main__":
             for i in ['XTandem', 'Omssa', 'Myrimatch', 'Comet']:
                 genmodstr_to_engine(mod, "", i)
                 genmodstr_to_engine("", mod, i)
-            #print out one example to show masses. myri varmod is most compact
+            # print out one example to show masses. myri varmod is most compact
             _, p, _ = genmodstr_to_engine("", mod, 'Myrimatch')
             print p
             print "OK"

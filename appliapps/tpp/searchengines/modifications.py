@@ -1,3 +1,4 @@
+import re
 from string import Template
 
 
@@ -44,12 +45,14 @@ class AbstractModConverter(object):
 
     def _get_nameresiduelist_from_modstr(self, modstr):
         try:
-            rawname, rawresidues = modstr.split("(")
+            p = re.compile("(.+) *\((.*)\)$")
+            m = p.match(modstr.strip())
+            rawname, rawresidues = m.group(1), m.group(2)
             name = rawname.strip()
             residues = list(rawresidues.replace(")", "").strip())
             return name, residues
         except Exception, e:
-            raise Exception("Malformed modification string [%s]. Should be 'Name (Residues)'" % modstr)
+            raise Exception("Malformed modification string '%s'. Should be 'Name (Residues)'" % modstr)
 
     def _get_mass_from_unimod_or_string(self, key):
         from Unimod.unimod import database
