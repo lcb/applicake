@@ -84,8 +84,7 @@ class Omssa(WrappedApp):
         app_info['DBASE'] = omssadbase
 
         if info['FRAGMASSUNIT'] == 'ppm':
-            log.fatal("OMSSA does not support frag mass error unit PPM")
-            return "false", info
+            raise RuntimeError("OMSSA does not support frag mass error unit PPM")
 
         app_info['USERMODXML'] = os.path.join(wd, 'usermod.xml')
         app_info["STATIC_MODS"], app_info["VARIABLE_MODS"], tpl = genmodstr_to_engine(info["STATIC_MODS"],
