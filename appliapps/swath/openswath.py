@@ -47,6 +47,7 @@ class OpenSwathWorkflow(WrappedApp):
             for key in info['DSSOUT']:
                 if '.mzXML' in key:
                     info[Keys.MZXML] = key
+                    log.info("MZXML is "+os.path.basename(key))
 
         if info.get('TRAML_CSV', "") == "":
             log.warn("No tsv library found, using traml library. Affects mem usage significantly!")

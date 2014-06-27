@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import getpass
 import os
+import shutil
 import subprocess
 
 from applicake.app import BasicApp
@@ -82,17 +83,17 @@ class Copy2SwathDropbox(BasicApp):
         #put a copy of the whole ini into the dropbox. copy() to prevent OUTPUT being removed from main ini
         IniInfoHandler().write(info.copy(), os.path.join(stagebox, 'input.ini'))
 
-        dropbox.move_stage_to_dropbox(log, stagebox, info['DROPBOX'], keepCopy=False)
-
+        #create witolds SWATH report mail
+        reportcmd = 'mailSWATH.sh "%s" "%s"' % (info['ALIGNMENT_TSV'], info['COMMENT'])
+        if Keys.MODULE in info:
+            reportcmd = 'module load %s && %s'%(info[Keys.MODULE],reportcmd)
         try:
-            command = 'echo "Your SWATH analysis [%s] finished and will show up in openBIS soon!" | ' \
-                      'mail -s "SWATH analysis %s finished" %s@ethz.ch' % (
-                          info['COMMENT'],
-                          dsinfo['EXPERIMENT'], getpass.getuser())
-            subprocess.check_call(command, shell=True)
-            log.debug("Sending mail succeded!")
-        except Exception, e:
-            log.warn("Sending mail failed: " + e.message)
+            subprocess.call(reportcmd, shell=True)
+            shutil.copy('analyseSWATH.pdf', stagebox)
+        except:
+            log.warn("SWATH report command [%s] failed, skipping" % reportcmd)
+
+        dropbox.move_stage_to_dropbox(log, stagebox, info['DROPBOX'], keepCopy=False)
 
         return info
 
