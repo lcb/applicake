@@ -79,8 +79,8 @@ class Spectrast2TSV2traML(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):
-        validation.check_exitcode(log, exit_code)
         validation.check_stdout(log,stdout)
+        validation.check_exitcode(log, exit_code)
         validation.check_file(log, info['SPLIB'])
         validation.check_file(log, info['TSV'])
         validation.check_xml(log, info['TRAML'])
