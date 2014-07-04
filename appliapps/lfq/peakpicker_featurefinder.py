@@ -56,7 +56,7 @@ class PeakpickerFeaturefinder(WrappedApp):
         rawfeatxml = os.path.join(wd, 'TOPPAS_out/012-IDConflictResolver/*.featureXML')
         info['FEATUREXML'] = os.path.join(wd, os.path.splitext(os.path.basename(info[Keys.MZXML]))[0] + '.featureXML')
 
-        command = 'ExecutePipeline -in %s -out_dir %s && ' \
+        command = 'ExecutePipeline -in %s -out_dir %s  | grep -v "^WARNING" && ' \
                   'mv -v %s %s' % (
                       tpl, wd,
                       rawfeatxml, info['FEATUREXML'])
