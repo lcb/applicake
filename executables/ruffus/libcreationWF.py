@@ -17,7 +17,7 @@ def setup():
         subprocess.call("rm *ini* *.log", shell=True)
         with open("input.ini", 'w+') as f:
             f.write("""
-BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
+BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
 

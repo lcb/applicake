@@ -21,7 +21,7 @@ WORKFLOW = LFQ_110_ruffus
 COMMENT = ruffus LFQ
 LOG_LEVEL = DEBUG
 
-BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
+BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows/
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_quant
 

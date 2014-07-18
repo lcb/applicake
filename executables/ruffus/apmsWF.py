@@ -16,7 +16,7 @@ def setup():
         subprocess.call("rm *ini* *.log", shell=True)
         with open("input.ini", 'w+') as f:
             f.write("""
-BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
+BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
 
@@ -26,7 +26,7 @@ COMMENT = ruffus_apms_comment
 
 EXPERIMENT = E1401171608
 DATASET_CODE = 20130729145922792-841677, 20130729155525874-841729, 20130729163423281-841745, 20130729162326487-841742, 20130729162327816-841743, 20130729153430766-841715, 20130729162323826-841741, 20130729154425101-841722, 20130729155623876-841731, 20130729145825371-841676, 20130729151122281-841692, 20130729162422452-841744
-IPROBABILITY = 0.901
+IPROB = 0.901
 COMPPASS_CONFIDENCE = 0.951
 
 SPACE = LOBLUM
