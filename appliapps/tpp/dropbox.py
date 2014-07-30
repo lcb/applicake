@@ -22,19 +22,19 @@ class Copy2IdentDropbox(BasicApp):
 
         info['WORKFLOW'] = dropbox.extendWorkflowID(info['WORKFLOW'])
         info['DROPBOXSTAGE'] = dropbox.make_stagebox(log, info)
-        info['EXPERIMENT_CODE']= dropbox.get_experiment_code(info)
+        info['EXPERIMENT_CODE'] = dropbox.get_experiment_code(info)
 
-        keys = [Keys.PEPXML, 'PEPCSV']
+        keys = [Keys.PEPXML, 'PEPCSV', 'MAYUOUT']
         dropbox.keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
 
-        #protxml special naming
+        # protxml special naming
         filename = os.path.basename(info['DROPBOXSTAGE']) + '.prot.xml'
         filepath = os.path.join(info['DROPBOXSTAGE'], filename)
         shutil.copy(info['PROTXML'], filepath)
 
         #search.properties requires some specific fields
         sinfo = info.copy()
-        sinfo['PEPTIDEFDR'] = info['PEPTIDEFDR']
+        sinfo['FDR'] = info['FDR']
         sinfo['DBASENAME'] = os.path.splitext(os.path.split(info['DBASE'])[1])[0]
         sinfo['PARENT-DATA-SET-CODES'] = info[Keys.DATASET_CODE]
 

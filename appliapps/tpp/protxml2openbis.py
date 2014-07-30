@@ -19,7 +19,7 @@ class ProtXml2OpenbisSequence(WrappedApp):
             Argument(Keys.PEPXML, KeyHelp.PEPXML),
             Argument('PROTXML', 'Path to a file in protXML format'),
             Argument('DBASE', 'Sequence database file with target/decoy entries'),
-            Argument('IPROBABILITY','iprob cutoff corresponding PEPTIDEFDR. run after protprophet!')
+            Argument('IPROB','Use same iprob cutoff as used in ProteinProphet (before).')
         ]
 
     def prepare_run(self, log, info):
@@ -34,7 +34,7 @@ class ProtXml2OpenbisSequence(WrappedApp):
         protxml2spectralcount -CSV=%s -OUT=%s %s &&
         protxml2modifications -CSV=%s -OUT=%s %s &&
         protxml2openbis -DB=%s -OUT=%s %s""" % (
-            info['IPROBABILITY'], info['PEPCSV'], info[Keys.PEPXML],
+            info['IPROB'], info['PEPCSV'], info[Keys.PEPXML],
             info['PEPCSV'], countprotxml, info['PROTXML'],
             info['PEPCSV'], modprotxml, countprotxml,
             info['DBASE'], bisprotxml, modprotxml )

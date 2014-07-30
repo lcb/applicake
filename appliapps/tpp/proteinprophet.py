@@ -5,9 +5,10 @@ from applicake.app import WrappedApp
 from applicake.apputils import validation
 from applicake.coreutils.arguments import Argument
 from applicake.coreutils.keys import Keys, KeyHelp
+from appliapps.tpp.fdr import get_iprob_for_fdr
 
 
-class ProteinProphetFDR(WrappedApp):
+class ProteinProphet(WrappedApp):
     """
     Wrapper for TPP-tool ProteinProphet.
     """
@@ -16,30 +17,21 @@ class ProteinProphetFDR(WrappedApp):
         return [
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument(Keys.EXECUTABLE, KeyHelp.EXECUTABLE),
-            Argument(Keys.PEPXML,KeyHelp.PEPXML),
-            Argument('PEPTIDEFDR', 'Peptide FDR cutoff')
+
+            Argument(Keys.PEPXML, KeyHelp.PEPXML),
+            Argument('MAYUOUT','mayu out csv'),
+            Argument('FDR_TYPE', "type of FDR: iprophet/mayu m/pep/protFDR"),
+            Argument("FDR_CUTOFF", "cutoff for FDR"),
         ]
 
-    def getiProbability(self, log, info):
-        minprob = ''
-
-        for line in open(info[Keys.PEPXML]):
-            if line.startswith('<error_point error="%s' % info['PEPTIDEFDR']):
-                minprob = line.split(" ")[2].split("=")[1].replace('"', '')
-                break
-
-        if minprob != '':
-            log.info("Found minprob/iprobability %s for PEPTIDEFDR %s" % (minprob, info['PEPTIDEFDR']))
-        else:
-            raise Exception("error point for PEPTIDEFDR %s not found" % info['PEPTIDEFDR'])
-        return minprob
-
     def prepare_run(self, log, info):
-        if isinstance(info[Keys.PEPXML],list):
+        if isinstance(info[Keys.PEPXML], list):
             raise RuntimeError("This ProteinProphet only takes one iProphet inputfile!")
 
-        info['IPROBABILITY'] = self.getiProbability(log, info)
-        info['PROTEINPROPHET'] = 'IPROPHET MINPROB%s' % info['IPROBABILITY']
+        info['IPROB'],info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'], mayuout=info['MAYUOUT'],
+                                                      pepxml=info[Keys.PEPXML])
+
+        info['PROTEINPROPHET'] = 'IPROPHET MINPROB%s' % info['IPROB']
         wd = info[Keys.WORKDIR]
         info['PROTXML'] = os.path.join(wd, 'ProteinProphet.prot.xml')
         exe = info.get(Keys.EXECUTABLE, 'ProteinProphet')
@@ -58,5 +50,6 @@ class ProteinProphetFDR(WrappedApp):
         validation.check_xml(log, info[Keys.PEPXML])
         return info
 
+
 if __name__ == "__main__":
-    ProteinProphetFDR.main()
+    ProteinProphet.main()

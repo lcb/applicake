@@ -48,7 +48,7 @@
         <ITEM name="no_progress" value="false" type="string" description="Disables progress logging to command line" tags="advanced" restrictions="true,false" />
         <ITEM name="test" value="false" type="string" description="Enables the test mode (needed for internal use only)" tags="advanced" restrictions="true,false" />
         <NODE name="score" description="Filtering by peptide/protein score. To enable any of the filters below, just change their default value. All active filters will be applied in order.">
-          <ITEM name="pep" value="$IPROBABILITY" type="float" description="The score which should be reached by a peptide hit to be kept. The score is dependent on the most recent(!) preprocessing - it could be Mascot scores (if a MascotAdapter was applied before), or an FDR (if FalseDiscoveryRate was applied before), etc." />
+          <ITEM name="pep" value="$IPROB" type="float" description="The score which should be reached by a peptide hit to be kept. The score is dependent on the most recent(!) preprocessing - it could be Mascot scores (if a MascotAdapter was applied before), or an FDR (if FalseDiscoveryRate was applied before), etc." />
           <ITEM name="prot" value="0" type="float" description="The score which should be reached by a protein hit to be kept." />
         </NODE>
         <NODE name="thresh" description="Filtering by significance threshold">

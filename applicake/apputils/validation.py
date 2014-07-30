@@ -11,7 +11,9 @@ def check_exitcode(log, exit_code):
 
 def check_stdout(log, stdout):
     for line in stdout.splitlines():
-        if any(x in line for x in ["Exception:", "std::bad_alloc", "MemoryError", "IOError"]):
+        if any(x in line for x in ["std::bad_alloc", "MemoryError"]):
+            raise RuntimeError("The job run out of RAM. Ask admin to increase limit! (Error was [%s]) " % line.strip())
+        if any(x in line for x in ["Exception:",  "IOError"]):
             raise RuntimeError("Found error message: [%s]! Please check stdout for more details!" % line.strip())
     log.debug("No known error message in stdout")
 

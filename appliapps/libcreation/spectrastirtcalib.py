@@ -50,6 +50,7 @@ class SpectrastIrtCalibrator(WrappedApp):
                 raise RuntimeError("iRT calibration failed: " + line.strip())
         validation.check_exitcode(log, exit_code)
         validation.check_file(log,info['SPLIB'])
+        validation.check_file(log,info['SPLIB'].replace('.splib','.pepidx'))
         return info
 
 if __name__ == "__main__":

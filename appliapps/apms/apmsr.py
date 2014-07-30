@@ -14,7 +14,7 @@ class ApmsR(WrappedApp):
             Argument('DBASE', 'fasta dbase'),
             Argument('ASSOC_FILE', 'assoc table'),
             Argument('PEPCSV', 'pepxml2csv'),
-            Argument('IPROBABILITY', 'iprob', default='0.9'),
+            Argument('IPROB', 'iprob', default='0.9'),
             Argument('COMPPASS_CONFIDENCE', 'confidence', default='0.95'),
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
         ]
@@ -32,7 +32,7 @@ class ApmsR(WrappedApp):
         for i in ['comppass', 'gfpratio', 'merged']:
             info['APMS_OUT'].append(os.path.join(wd, 'iaLFQ_%s.csv' % i))
         command = 'cd %s && %s pepxml2csv.csv assoc.txt fasta.fasta %s %s' % (wd, info[Keys.EXECUTABLE],
-                                                                              info['IPROBABILITY'],
+                                                                              info['IPROB'],
                                                                               info['COMPPASS_CONFIDENCE'])
         return info, command
 

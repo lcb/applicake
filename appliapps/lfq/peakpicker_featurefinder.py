@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 import os
 
+from appliapps.tpp.fdr import get_iprob_for_fdr
 from applicake.app import WrappedApp
 from applicake.apputils import validation
 from applicake.coreutils.arguments import Argument
-
 from applicake.coreutils.keys import Keys, KeyHelp
 from applicake.apputils import templates
-from appliapps.tpp.proteinprophet import ProteinProphetFDR
 
 
 class PeakpickerFeaturefinder(WrappedApp):
@@ -15,8 +14,11 @@ class PeakpickerFeaturefinder(WrappedApp):
         return [
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument(Keys.MZXML, KeyHelp.MZXML),
+
             Argument(Keys.PEPXML, KeyHelp.PEPXML),
-            Argument(Keys.PEPTIDEFDR, Keys.PEPTIDEFDR),
+            Argument('MAYUOUT','mayu out csv'),
+            Argument('FDR_TYPE', "type of FDR: iprophet/mayu m/pep/protFDR"),
+            Argument("FDR_CUTOFF", "cutoff for FDR"),
 
             Argument("PEAKPICKER_SIGNAL_TO_NOISE", ""),
             Argument("PEAKPICKER_MS1_ONLY", ""),
@@ -39,10 +41,11 @@ class PeakpickerFeaturefinder(WrappedApp):
 
     def prepare_run(self, log, info):
         wd = info[Keys.WORKDIR]
-        #get iProb corresponding FDR for IDFilter
-        info['IPROBABILITY'] = ProteinProphetFDR().getiProbability(log, info)
+        # get iProb corresponding FDR for IDFilter
+        info['IPROB'], info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'], mayuout=info['MAYUOUT'],
+                                                      pepxml=info[Keys.PEPXML])
 
-        #required because openbis requires prot.xml and openms protXML
+        # required because openbis requires prot.xml and openms protXML
         peplink = os.path.join(wd, 'iprophet.pepXML')
         os.symlink(info[Keys.PEPXML], peplink)
         info[Keys.PEPXML] = peplink
@@ -63,7 +66,10 @@ class PeakpickerFeaturefinder(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, run_code, out):
-        validation.check_stdout(log,out)
+        for line in out.splitlines():
+            if "OpenMS peak type estimation indicates that this is not profile data!" in line:
+                raise RuntimeError("Found centroid data but LFQ must be run on profile mode data!")
+        validation.check_stdout(log, out)
         validation.check_exitcode(log, run_code)
         validation.check_xml(log, info['FEATUREXML'])
         return info

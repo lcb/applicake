@@ -86,7 +86,7 @@ class OpenSwathWorkflow(WrappedApp):
         OpenSwathWorkflow -in %s -tr %s -tr_irt %s -out_tsv %s %s
         -min_rsq %s -min_coverage %s
         -min_upper_edge_dist %s -mz_extraction_window %s %s -rt_extraction_window %s %s
-        -tempDirectory %s -readOptions cache -batchSize 4000 -threads %s &&
+        -tempDirectory %s -readOptions cache -batchSize 4000 -threads %s | grep -v "^WARNING" &&
         mv -v %s %s &&
         %s""" % (
             info["MZXML"], tmpmzxml,
