@@ -21,23 +21,23 @@ BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
 
-LOG_LEVEL = INFO
+LOG_LEVEL = DEBUG
 STORAGE = unchanged
 WORKFLOW = traml_create
 
 EXPERIMENT = E287786
 DATASET_CODE = 20120320163951515-361883, 20120320163653755-361882, 20120320164249179-361886
-PEPTIDEFDR = 0.01
+FDR_CUTOFF = 0.01
+FDR_TYPE = iprophet-pepFDR
 
 COMMENT = newUPS1
 DESCRIPTION = newUPS measurement 3 technical replicates
-MS_TYPE = CID-QTOF
 
-RSQ_THRESHOLD = 0.95
-RTKIT = 
-APPLYCHAUVENET = False
-PRECURSORLEVEL = False
-SPECTRALEVEL = False
+MS_TYPE = CID-QTOF
+RTCALIB_TYPE = linear
+RTKIT = /cluster/apps/imsbtools/stable/files/irtkit.txt
+CONSENSUS_TYPE = Consensus
+
 TSV_MASS_LIMITS = 400-2000
 TSV_ION_LIMITS = 2-6
 TSV_PRECISION = 0.05
@@ -46,8 +46,7 @@ TSV_REMOVE_DUPLICATES = True
 TSV_EXACT = False
 TSV_GAIN =  
 TSV_SERIES = 
-CONSENSUS_TYPE = Consensus
-RUNRT = True
+SWATH_WINDOW_FILE = /cluster/apps/imsbtools/stable/files/swath_wnd_32.txt
 
 """)
 
@@ -87,30 +86,15 @@ def merge_dataset(unused_infile, unused_outfile):
 ################################################################################################
 
 @follows(merge_dataset)
-@files("mergedataset.ini_0", "raw.ini")
-def rawlib(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/libcreation/spectrastraw.py',
-                           '--INPUT', infile, '--OUTPUT', outfile])
-
-#########OPTIONAL################
-
-@follows(rawlib)
-@files("raw.ini", "calib.ini")
-def irtcalibration(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/libcreation/spectrastirtcalib.py',
-                           '--INPUT', infile, '--OUTPUT', outfile])
-
-
-@follows(irtcalibration)
-@files("calib.ini", "noirt.ini")
-def noirt(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/libcreation/spectrastnoirt.py',
+@files("mergedataset.ini_0", "rtcalib.ini")
+def rtcalib(infile, outfile):
+    subprocess.check_call(['python', basepath + 'appliapps/libcreation/spectrastrtcalib.py',
                            '--INPUT', infile, '--OUTPUT', outfile])
 
 #########DONE BY DEFAULT########################
 
-@follows(noirt)
-@files("noirt.ini", "totraml.ini")
+@follows(rtcalib)
+@files("rtcalib.ini", "totraml.ini")
 def totraml(infile, outfile):
     subprocess.check_call(['python', basepath + 'appliapps/libcreation/spectrast2tsv2traml.py',
                            '--INPUT', infile, '--OUTPUT', outfile])

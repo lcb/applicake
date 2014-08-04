@@ -44,10 +44,9 @@ class Copy2LibcreateDropbox(BasicApp):
         dsprop['WORKFLOW'] = info['WORKFLOW']
         dsprop['HASSPLIB'] = "true"
 
-        for key in ["FDR", "MS_TYPE", "RSQ_THRESHOLD", "RTKIT", "APPLYCHAUVENET", "PRECURSORLEVEL",
-                    "SPECTRALEVEL",
+        for key in ["FDR", "MS_TYPE", "RTCALIB_TYPE", "RTKIT",
                     "TSV_MASS_LIMITS", "TSV_ION_LIMITS", "TSV_PRECISION", "TSV_CHARGE", "TSV_REMOVE_DUPLICATES",
-                    "TSV_EXACT", "TSV_GAIN", "TSV_SERIES", "CONSENSUS_TYPE", "RUNRT"]:
+                    "TSV_EXACT", "TSV_GAIN", "TSV_SERIES", "CONSENSUS_TYPE"]:
             dsprop[key] = info[key]
 
         #cannot use IniInfoHandlerHere because it writes NAME

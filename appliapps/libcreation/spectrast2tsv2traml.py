@@ -33,17 +33,8 @@ class Spectrast2TSV2traML(WrappedApp):
 
     def prepare_run(self, log, info):
 
-        insplib = info['SPLIB']
-        consensuslib = os.path.join(info[Keys.WORKDIR], 'consensus')
-        info['SPLIB'] = consensuslib + '.splib'
         info['TSV'] = os.path.join(info[Keys.WORKDIR], 'spectrast2tsv.tsv')
         info['TRAML'] = os.path.join(info[Keys.WORKDIR], 'ConvertTSVToTraML.TraML')
-
-        consensustype = ""  #None
-        if info['CONSENSUS_TYPE'] == "Consensus":
-            consensustype = "C"
-        elif info['CONSENSUS_TYPE'] == "Best replicate":
-            consensustype = "B"
 
         tsvopts = '-k openswath '
         tsvopts += ' -l ' + info['TSV_MASS_LIMITS'].replace("-", ",")
@@ -69,10 +60,8 @@ class Spectrast2TSV2traML(WrappedApp):
         if info.get('TSV_SERIES', "") != "":
             tsvopts += ' -s ' + info['TSV_SERIES'].replace(";", ",")
 
-        command = 'spectrast -c_BIN! -cA%s -cN%s %s && ' \
-                  'spectrast2tsv.py %s -a %s %s && ' \
+        command = 'spectrast2tsv.py %s -a %s %s && ' \
                   'tsv2traml.sh %s %s' % (
-                      consensustype, consensuslib, insplib,
                       tsvopts, info['TSV'], info['SPLIB'],
                       info['TSV'], info['TRAML'])
 
