@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import csv
+import os
 
 precision = 6
+
 
 def get_iprob_for_fdr(requested_fdr, tool_type, mayuout=None, pepxml=None):
     """
@@ -24,11 +26,11 @@ def get_iprob_for_fdr(requested_fdr, tool_type, mayuout=None, pepxml=None):
     else:
         raise RuntimeError("Unknown tool " + tool)
 
-    #harmonize to 6digits after comma (%g without trailing zeroes)
+    # harmonize to 6digits after comma (%g without trailing zeroes)
     iprob = round(iprob, precision)
-    effective_fdr = round(effective_fdr,precision)
+    effective_fdr = round(effective_fdr, precision)
     fdr_str = "%g %s (=%g iprob)" % (effective_fdr, tool_type, iprob)
-    print "Requested",requested_fdr,'got',fdr_str
+    print "Requested", requested_fdr, 'got', fdr_str
     return iprob, fdr_str
 
 
@@ -59,6 +61,8 @@ def _get_iprob_for_fdr_mayu(requested_fdr, type, source):
     iprob = None
     effective_fdr = None
     mindiff = 1.0
+    if not source or not os.path.exists(source):
+        raise RuntimeError("Mayu file not available. Please make sure to run latest TPP first.")
     reader = csv.DictReader(open(source, "rb"))
     for line in reader:
         linefdr = float(line[type])
@@ -68,7 +72,7 @@ def _get_iprob_for_fdr_mayu(requested_fdr, type, source):
             effective_fdr = linefdr
             iprob = float(line['IP/PPs'])
 
-    #if mindiff > 0.01:
+    # if mindiff > 0.01:
     #    raise RuntimeError("No close match found for %s mayu-%s" % (fdr, type))
     if not iprob:
         raise RuntimeError("No iprob found for %s mayu-%s" % (requested_fdr, type))

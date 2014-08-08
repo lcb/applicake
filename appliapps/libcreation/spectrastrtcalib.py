@@ -44,15 +44,16 @@ class SpectrastRTcalib(WrappedApp):
             log.debug('create symlink [%s] -> [%s]' % (f, dest))
             os.symlink(f, dest)
 
-        consensustype = ""  #None
+        consensustype = ""  # None
         if info['CONSENSUS_TYPE'] == "Consensus":
             consensustype = "C"
         elif info['CONSENSUS_TYPE'] == "Best replicate":
             consensustype = "B"
 
-        #get iProb corresponding FDR for IDFilter
-        info['IPROB'], info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'], mayuout=info.get('MAYUOUT'),
-                                                      pepxml=info.get(Keys.PEPXML))
+        # get iProb corresponding FDR for IDFilter
+        info['IPROB'], info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'],
+                                                       mayuout=info.get('MAYUOUT'),
+                                                       pepxml=info.get(Keys.PEPXML))
 
         if info.get("RTCALIB_TYPE") == "spline":
             rtcorrect = "-c_IRT%s " % info['RTKIT']
@@ -64,7 +65,7 @@ class SpectrastRTcalib(WrappedApp):
         basename = os.path.join(info[Keys.WORKDIR], 'SpectrastNodecoyRTcalib')
 
         command = "spectrast -c_BIN! -c_RDYDECOY -cI%s -cP%s -cA%s %s -cN%s %s" % (
-            info['MS_TYPE'], info['IPROB'] ,consensustype, rtcorrect, basename, peplink)
+            info['MS_TYPE'], info['IPROB'], consensustype, rtcorrect, basename, peplink)
 
         info['SPLIB'] = basename + '.splib'
 
@@ -78,8 +79,7 @@ class SpectrastRTcalib(WrappedApp):
                 notenough += prevline.split(" ")[-2] + " "
             prevline = line
         if notenough:
-            raise RuntimeError("Not enough iRT peptides found in samples: "+notenough)
-
+            raise RuntimeError("Not enough iRT peptides found in samples: " + notenough)
         if not " without error." in stdout:
             raise RuntimeError("SpectraST finished with errors!")
         validation.check_exitcode(log, exit_code)

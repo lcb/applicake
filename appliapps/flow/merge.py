@@ -22,6 +22,8 @@ class Merge(BasicApp):
         #read in
         config_container = {}
         nofiles = len(paths)
+        if nofiles == 0:
+            raise RuntimeError("No files to merge found!")
         for path in paths:
             log.debug("Reading " + path)
             config = infohandler.get_handler(path).read(path)
