@@ -6,6 +6,7 @@ from applicake.app import BasicApp
 class MergeToLine(BasicApp):
     @classmethod
     def main(cls):
+        #TODO make real appliapp
         #merges input.ini to one line (for guse conditional execution check) and copies input to output
         merge = open('input.ini').read().replace('\n', '')
         print merge

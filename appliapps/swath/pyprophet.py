@@ -36,6 +36,7 @@ class PyProphet(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):
+        validation.check_stdout(log,stdout)
         validation.check_exitcode(log, exit_code)
 
         base = os.path.join(info[Keys.WORKDIR], os.path.splitext(os.path.basename(info['FEATURETSV']))[0])
