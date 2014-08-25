@@ -24,6 +24,7 @@ class SpectrastRTcalib(WrappedApp):
             Argument("FDR_CUTOFF", "cutoff for FDR"),
 
             Argument('RTCALIB_TYPE', "iRT calibration type [linear/spline/none]"),
+            Argument('RSQ_THRESHOLD', 'specify r-squared threshold to accept linear regression'),
             Argument('RTKIT', 'RT kit (file)'),
             Argument('MS_TYPE', 'ms instrument type'),
             Argument('CONSENSUS_TYPE', 'consensus type cAC cAB'),
@@ -64,7 +65,7 @@ class SpectrastRTcalib(WrappedApp):
 
         basename = os.path.join(info[Keys.WORKDIR], 'SpectrastNodecoyRTcalib')
 
-        command = "spectrast -c_BIN! -c_RDYDECOY -cI%s -cP%s -cA%s %s -cN%s %s" % (
+        command = "spectrast -Lspectrast.log -c_BIN! -c_RDYDECOY -cI%s -cP%s -cA%s %s -cN%s %s" % (
             info['MS_TYPE'], info['IPROB'], consensustype, rtcorrect, basename, peplink)
 
         info['SPLIB'] = basename + '.splib'
@@ -72,14 +73,24 @@ class SpectrastRTcalib(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):
-        notenough = ""
-        prevline = ""
+        notenough = []
+        prevline = None
         for line in open("spectrast.log").readlines():
+            if 'Advanced option "-c_RDYDECOY is undefined. Ignored.' in line:
+                raise RuntimeError("Old spectrast version used which cannot do iRT calibration!")
+            if "Final fitted equation:" in line:
+                #Final fitted equation: iRT = (rRT - 1383) / (41.05); R^2 = 0.9995; 1 outliers removed.
+                if float(line.split()[-4].replace(";","")) < float(info['RSQ_THRESHOLD']):
+                    raise RuntimeError("R^2 below threshold of %s!"%info['RSQ_THRESHOLD'])
+
             if "Too few landmarks with distinct iRTs to perform RT normalization." in line:
-                notenough += prevline.split(" ")[-2] + " "
-            prevline = line
+                notenough.append(prevline.split(" ")[-2])
+            else:
+                prevline = line
+
         if notenough:
             raise RuntimeError("Not enough iRT peptides found in samples: " + notenough)
+
         if not " without error." in stdout:
             raise RuntimeError("SpectraST finished with errors!")
         validation.check_exitcode(log, exit_code)

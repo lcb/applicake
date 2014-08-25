@@ -55,7 +55,7 @@ class Copy2QuantDropbox(BasicApp):
         IniInfoHandler().write(expinfo, proppath)
 
         #create witolds LFQ report mail
-        reportcmd = 'mailLFQ.sh %s %s %s %s' % (proppath, expinfo['PEPCSV'], expinfo['PROTCSV'], getpass.getuser())
+        reportcmd = 'mailLFQ.sh %s %s %s %s 2>&1' % (proppath, expinfo['PEPCSV'], expinfo['PROTCSV'], getpass.getuser())
         try:
             subprocess.call(reportcmd, shell=True)
             shutil.copy('analyseLFQ.pdf', info['DROPBOXSTAGE'])

@@ -84,7 +84,7 @@ class Copy2SwathDropbox(BasicApp):
         IniInfoHandler().write(info.copy(), os.path.join(stagebox, 'input.ini'))
 
         #create witolds SWATH report mail
-        reportcmd = 'mailSWATH.sh "%s" "%s"' % (info['ALIGNMENT_TSV'], info['COMMENT'])
+        reportcmd = 'mailSWATH.sh "%s" "%s" 2>&1' % (info['ALIGNMENT_TSV'], info['COMMENT'])
         if Keys.MODULE in info:
             reportcmd = 'module load %s && %s'%(info[Keys.MODULE],reportcmd)
         try:
