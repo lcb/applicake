@@ -103,6 +103,11 @@ class OpenSwathWorkflow(WrappedApp):
 
     def validate_run(self, log, info, exit_code, stdout):
         for line in stdout.splitlines():
+            #Determined there to be 35792 SWATH windows and in total 6306 MS1 spectra
+            if 'Determined there to be' in line:
+                no_swathes = float(line.split()[4])
+                if no_swathes > 64:
+                    raise RuntimeError('This is a DDA sample, not SWATH!')
             if 'is below limit of ' in line:
                 raise RuntimeError('iRT calibration failed for ' + os.path.basename(info['MZXML']) + "!\n" + line)
 

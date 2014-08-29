@@ -71,7 +71,7 @@ class BasicApp(IApp):
             info = dicts.merge(info, ret_info, priority='right')
             ci.teardown(log, info)
         except Exception, e:
-            msg = cls.__name__ + " failed: " + str(e)
+            msg = cls.__name__ + " failed: " + str(e) + "\n"
             if isinstance(e, KeyError):
                 msg += " key not found in info"
             # if app fails before logger is created use sys.exit for message
