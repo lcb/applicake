@@ -35,6 +35,7 @@ DESCRIPTION = newUPS measurement 3 technical replicates
 
 MS_TYPE = CID-QTOF
 RTCALIB_TYPE = linear
+RSQ_THRESHOLD = 0.95
 RTKIT = /cluster/apps/imsbtools/stable/files/irtkit.txt
 CONSENSUS_TYPE = Consensus
 

@@ -56,43 +56,52 @@ class SpectrastRTcalib(WrappedApp):
                                                        mayuout=info.get('MAYUOUT'),
                                                        pepxml=info.get(Keys.PEPXML))
 
-        if info.get("RTCALIB_TYPE") == "spline":
-            rtcorrect = "-c_IRT%s " % info['RTKIT']
-        elif info.get("RTCALIB_TYPE") == "linear":
+        if info.get("RTCALIB_TYPE") == "linear":
             rtcorrect = "-c_IRT%s -c_IRR" % info['RTKIT']
         else:
             rtcorrect = ""
 
         basename = os.path.join(info[Keys.WORKDIR], 'SpectrastNodecoyRTcalib')
+        info['SPLOG'] = basename + '.log'
 
-        command = "spectrast -Lspectrast.log -c_BIN! -c_RDYDECOY -cI%s -cP%s -cA%s %s -cN%s %s" % (
-            info['MS_TYPE'], info['IPROB'], consensustype, rtcorrect, basename, peplink)
+        command = "spectrast -L%s -c_BIN! -c_RDYDECOY -cI%s -cP%s -cA%s %s -cN%s %s" % (
+            info['SPLOG'],info['MS_TYPE'], info['IPROB'], consensustype, rtcorrect, basename, peplink)
 
         info['SPLIB'] = basename + '.splib'
 
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):
+        #Some entries are only found in logfile, not in stdout
         notenough = []
         prevline = None
-        for line in open("spectrast.log").readlines():
-            if 'Advanced option "-c_RDYDECOY is undefined. Ignored.' in line:
-                raise RuntimeError("Old spectrast version used which cannot do iRT calibration!")
+        for line in open(info['SPLOG']).readlines():
             if "Final fitted equation:" in line:
-                #Final fitted equation: iRT = (rRT - 1383) / (41.05); R^2 = 0.9995; 1 outliers removed.
-                if float(line.split()[-4].replace(";","")) < float(info['RSQ_THRESHOLD']):
-                    raise RuntimeError("R^2 below threshold of %s!"%info['RSQ_THRESHOLD'])
+                #PEPXML IMPORT: RT normalization by linear regression. Found 4 landmarks in MS run "CHLUD_L110830_21".
+                #PEPXML_IMPORT: Final fitted equation: iRT = (rRT - 1383) / (41.05); R^2 = 0.9995; 1 outliers removed.
+                samplename = prevline.strip().split(" ")[-1]
+                rsq = line.split()[-4].replace(";", "")
+                if float(rsq) < float(info['RSQ_THRESHOLD']):
+                    raise RuntimeError("R^2 of %s is below threshold of %s for %s!" % (rsq, info['RSQ_THRESHOLD'],samplename))
+                else:
+                    log.debug("R^2 of %s is OK for %s" % (rsq,samplename))
 
             if "Too few landmarks with distinct iRTs to perform RT normalization." in line:
-                notenough.append(prevline.split(" ")[-2])
+                #PEPXML IMPORT: RT normalization by linear regression. Found 1 landmarks in MS run "CHLUD_L110830_17".
+                #ERROR PEPXML IMPORT: Too few landmarks with distinct iRTs to perform RT normalization.
+                samplename = prevline.strip().split(" ")[-1]
+                notenough.append(samplename)
             else:
                 prevline = line
-
         if notenough:
-            raise RuntimeError("Not enough iRT peptides found in samples: " + notenough)
+            raise RuntimeError("Not enough iRT peptides found in samples " + str(notenough))
+
+        if 'Advanced option "-c_RDYDECOY is undefined. Ignored.' in stdout:
+                raise RuntimeError("Old spectrast version used which cannot do iRT calibration!")
 
         if not " without error." in stdout:
             raise RuntimeError("SpectraST finished with errors!")
+
         validation.check_exitcode(log, exit_code)
         validation.check_file(log, info['SPLIB'])
         return info
