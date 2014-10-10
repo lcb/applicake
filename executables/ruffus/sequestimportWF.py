@@ -24,7 +24,7 @@ PEPTIDEFDR = 0.01
 IPROPHET_ARGS = MINPROB=0
 LOG_LEVEL = DEBUG
 STORAGE = unchanged
-BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows/
+BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_ident
 USERNAME = loblum
 DECOY_STRING = DECOY_

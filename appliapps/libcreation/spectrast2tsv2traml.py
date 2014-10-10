@@ -38,6 +38,10 @@ class Spectrast2TSV2traML(WrappedApp):
 
         tsvopts = '-k openswath '
         tsvopts += ' -l ' + info['TSV_MASS_LIMITS'].replace("-", ",")
+        try:
+           _, _ = info['TSV_ION_LIMITS'].split("-")
+        except:
+            raise RuntimeError("Ions per peptide [%s] not in format n-m!" % info['TSV_ION_LIMITS'])
         mini, maxi = info['TSV_ION_LIMITS'].split("-")
         tsvopts += ' -o %s -n %s ' % (mini, maxi)
         tsvopts += ' -p ' + info['TSV_PRECISION']

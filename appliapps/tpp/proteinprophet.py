@@ -28,7 +28,7 @@ class ProteinProphet(WrappedApp):
         if isinstance(info[Keys.PEPXML], list):
             raise RuntimeError("This ProteinProphet only takes one iProphet inputfile!")
 
-        info['IPROB'],info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'], mayuout=info['MAYUOUT'],
+        info['IPROB'],info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'], mayuout=info.get('MAYUOUT'),
                                                       pepxml=info[Keys.PEPXML])
 
         info['PROTEINPROPHET'] = 'IPROPHET MINPROB%s' % info['IPROB']

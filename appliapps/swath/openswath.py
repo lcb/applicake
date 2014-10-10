@@ -86,7 +86,7 @@ class OpenSwathWorkflow(WrappedApp):
         OpenSwathWorkflow -in %s -tr %s -tr_irt %s -out_tsv %s %s
         -min_rsq %s -min_coverage %s
         -min_upper_edge_dist %s -mz_extraction_window %s %s -rt_extraction_window %s %s
-        -tempDirectory %s -readOptions cache -batchSize 4000 -threads %s | grep -v "^WARNING" &&
+        -tempDirectory %s -readOptions cache -batchSize 4000 -threads %s &&
         mv -v %s %s &&
         %s""" % (
             info["MZXML"], tmpmzxml,
@@ -111,7 +111,7 @@ class OpenSwathWorkflow(WrappedApp):
             if 'is below limit of ' in line:
                 raise RuntimeError('iRT calibration failed for ' + os.path.basename(info['MZXML']) + "!\n" + line)
 
-        validation.check_stdout(log,stdout)
+        #validation.check_stdout(log,stdout)
         validation.check_exitcode(log, exit_code)
         validation.check_file(log, info['FEATURETSV'])
         if 'CHROM_MZML' in info:

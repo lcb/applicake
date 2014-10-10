@@ -16,7 +16,7 @@ def setup():
         print 'Starting from scratch by creating new input.ini'
         subprocess.call("rm *ini* *.log", shell=True)
         with open("input.ini", 'w+') as f:
-            f.write("""BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows
+            f.write("""BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 SPACE = ROSETTA
 PROJECT = DECOYS
 OUTEXPERIMENT = DECOYS

@@ -16,7 +16,7 @@ def create_workdir(log, info):
         log.debug("Using specified WORKDIR [%s]" % info[Keys.WORKDIR])
         return info
 
-    #No workdir specified, creating one using BASEDIR, JOB_IDX, SUBJOBLIST, NAME
+    # No workdir specified, creating one using BASEDIR, JOB_IDX, SUBJOBLIST, NAME
     if info.get(Keys.JOB_ID, "") == "":
         info[Keys.JOB_ID] = create_unique_jobdir(info[Keys.BASEDIR])
         log.debug("JOB_ID was not set, generated [%s]" % info[Keys.JOB_ID])
@@ -41,15 +41,8 @@ def create_workdir(log, info):
     return info
 
 
-def makedirs_clean(wd):
-    if os.path.exists(wd):
-        shutil.rmtree(wd)
-    os.makedirs(wd)
-    os.chmod(wd, 0775)
-
-
 def create_unique_jobdir(basedir):
-    #dirname using timestamp, principle from tempfile.mkdtemp()
+    # dirname using timestamp, principle from tempfile.mkdtemp()
     #limits: longer foldername if >1 dir/min error on >1000 dir/min
     dirname = time.strftime("%y%m%d%H%M")
     ext = ""
@@ -61,7 +54,24 @@ def create_unique_jobdir(basedir):
             return dirname + ext
         except OSError, e:
             if e.errno == errno.EEXIST:
-                ext = '.' + str(i)
+                ext = '-' + str(i)
                 continue  # try again
             raise
     raise Exception("Could not create a unique job directory")
+
+
+def makedirs_clean(wd):
+    """like os.makedirs(dir) but cleans lowest folder"""
+    if os.path.exists(wd):
+        shutil.rmtree(wd)
+    makedirs_chmod(wd)
+
+
+def makedirs_chmod(newdir, mode=0775):
+    """like os.makedirs(dir,mode) but chmod of ALL created subfolders"""
+    head, tail = os.path.split(newdir)
+    if head and not os.path.isdir(head):
+        makedirs_chmod(head)
+    if tail:
+        os.mkdir(newdir)
+        os.chmod(newdir, mode)

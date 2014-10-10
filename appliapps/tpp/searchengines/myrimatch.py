@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import os
+import shutil
+import re
 
 from appliapps.tpp.searchengines.enzymes import enzymestr_to_engine
 from appliapps.tpp.searchengines.modifications import genmodstr_to_engine
@@ -64,6 +66,16 @@ class Myrimatch(WrappedApp):
     def validate_run(self, log, info, exit_code, stdout):
         check_exitcode(log, exit_code)
         check_xml(log, info[Keys.PEPXML])
+
+        #https://groups.google.com/forum/#!topic/spctools-discuss/dV8LSaE60ao
+        shutil.move(info[Keys.PEPXML], info[Keys.PEPXML]+'.broken')
+        fout = open(info[Keys.PEPXML],'w')
+        for line in open(info[Keys.PEPXML]+'.broken').readlines():
+            if 'spectrumNativeID' in line:
+                line = re.sub('spectrumNativeID="[^"]*"', '', line)
+            fout.write(line)
+        fout.close()
+
         return info
 
 if __name__ == "__main__":

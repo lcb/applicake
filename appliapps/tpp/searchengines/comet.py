@@ -5,7 +5,7 @@ from appliapps.tpp.searchengines.enzymes import enzymestr_to_engine
 from appliapps.tpp.searchengines.modifications import genmodstr_to_engine
 from applicake.app import WrappedApp
 from applicake.apputils.templates import read_mod_write, get_tpl_of_class
-from applicake.apputils.validation import check_exitcode, check_xml
+from applicake.apputils.validation import check_exitcode, check_xml, check_stdout
 from applicake.coreutils.arguments import Argument
 from applicake.coreutils.keys import Keys, KeyHelp
 
@@ -67,6 +67,9 @@ class Comet(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):
+        if "Warning - no spectra searched" in stdout:
+            raise RuntimeError("No spectra in mzXML!")
+        check_stdout(log,stdout)
         check_exitcode(log, exit_code)
         check_xml(log, info[Keys.PEPXML])
         return info

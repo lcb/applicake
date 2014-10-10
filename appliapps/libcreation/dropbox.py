@@ -44,7 +44,7 @@ class Copy2LibcreateDropbox(BasicApp):
         dsprop['WORKFLOW'] = info['WORKFLOW']
         dsprop['HASSPLIB'] = "true"
 
-        for key in ["FDR", "MS_TYPE", "RTCALIB_TYPE", "RTKIT",
+        for key in ["FDR", "MS_TYPE", "RUNRT", "RTKIT",
                     "TSV_MASS_LIMITS", "TSV_ION_LIMITS", "TSV_PRECISION", "TSV_CHARGE", "TSV_REMOVE_DUPLICATES",
                     "TSV_EXACT", "TSV_GAIN", "TSV_SERIES", "CONSENSUS_TYPE"]:
             dsprop[key] = info[key]

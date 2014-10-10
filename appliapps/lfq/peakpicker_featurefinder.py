@@ -42,7 +42,7 @@ class PeakpickerFeaturefinder(WrappedApp):
     def prepare_run(self, log, info):
         wd = info[Keys.WORKDIR]
         # get iProb corresponding FDR for IDFilter
-        info['IPROB'], info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'], mayuout=info['MAYUOUT'],
+        info['IPROB'], info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'], mayuout=info.get('MAYUOUT'),
                                                       pepxml=info[Keys.PEPXML])
 
         # required because openbis requires prot.xml and openms protXML
@@ -59,9 +59,9 @@ class PeakpickerFeaturefinder(WrappedApp):
         rawfeatxml = os.path.join(wd, 'TOPPAS_out/012-IDConflictResolver/*.featureXML')
         info['FEATUREXML'] = os.path.join(wd, os.path.splitext(os.path.basename(info[Keys.MZXML]))[0] + '.featureXML')
 
-        command = 'ExecutePipeline -in %s -out_dir %s  | grep -v "^WARNING" && ' \
+        command = 'ExecutePipeline -in %s -out_dir %s  | grep -v "^WARNING" && chmod -R g+w %s && ' \
                   'mv -v %s %s' % (
-                      tpl, wd,
+                      tpl, wd, wd,
                       rawfeatxml, info['FEATUREXML'])
         return info, command
 

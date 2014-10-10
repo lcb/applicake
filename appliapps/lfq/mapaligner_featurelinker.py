@@ -57,11 +57,11 @@ class MapalignerFeaturelinker(WrappedApp):
         info['PEPCSV'] = os.path.join(wd, 'peptides.csv')
         info['CONSENSUSXML'] = os.path.join(wd, 'FeatureLinker.consensusXML')
 
-        command = 'ExecutePipeline -in %s -out_dir %s && ' \
+        command = 'ExecutePipeline -in %s -out_dir %s && chmod -R g+w %s && ' \
                   'mv -v %s %s && ' \
                   'mv -v %s %s && ' \
                   'mv -v %s %s' % (
-                      tpl, wd,
+                      tpl, wd, wd,
                       rawprot, info['PROTCSV'],
                       rawpep, info['PEPCSV'],
                       rawconsensusxml, info['CONSENSUSXML'])

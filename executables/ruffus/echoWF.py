@@ -35,7 +35,7 @@ def echo(infile, outfile):
 @merge(echo, "merged.ini")
 def merge(unused_infile, outfile):
     subprocess.check_call(['python', basepath + 'appliapps/flow/merge.py',
-                           '--MERGE', 'echoout.ini', '--MERGED', outfile])
+                           '--MERGE', 'echo.ini', '--MERGED', outfile])
 
 
 if __name__ == "__main__":

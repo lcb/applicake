@@ -17,34 +17,42 @@ def setup():
         print 'Starting from scratch by creating new input.ini'
         subprocess.call("rm *ini* *.log", shell=True)
         with open("input.ini", 'w+') as f:
-            f.write("""DATASET_CODE = 20120320163951515-361883, 20120320163653755-361882, 20120320164249179-361886
-PRECMASSERR = 25
-DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
-STORAGE = unchanged
-PEPTIDEFDR = 0.01
-RUNTANDEM = True
-PRECMASSUNIT = ppm
-COMMENT = TPP of UPS1 ruffus
-RUNMYRIMATCH = True
+            f.write("""
+WORKFLOW = wf
 LOG_LEVEL = DEBUG
-MISSEDCLEAVAGE = 1
-FRAGMASSERR = 0.2
-WORKFLOW = TPP_ruffus
-DB_SOURCE = PersonalDB
-DBASE = PDB-BEHULLAR-LOBLUM_UPS1-20130912113123
+BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
+DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets/
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_ident
-XTANDEM_SCORE = k-score
-SPACE = LOBLUM
-DECOY_STRING = DECOY_
-BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows/
-PROJECT = JUNK
+COMMENT = WFTEST - newUPS TPP
+
+RUNTPP2VIEWER = no
+RUNCOMET = False
+RUNTANDEM = True
+RUNOMSSA = True
+RUNMYRIMATCH = False
+FDR_CUTOFF = 0.01
+FDR_TYPE = iprophet-pepFDR
+FRAGMASSERR = 0.4
+FRAGMASSUNIT = Da
+PRECMASSERR = 15
+PRECMASSUNIT = ppm
+MISSEDCLEAVAGE = 1
+ENZYME = Trypsin
 STATIC_MODS = Carbamidomethyl (C)
 VARIABLE_MODS =
-FRAGMASSUNIT = Da
-ENZYME = Trypsin
-RUNOMSSA = True
-RUNCOMET = False
-RUNTPP2VIEWER = fast""")
+XTANDEM_SCORE = k-score
+DECOY_STRING = DECOY_
+XINTERACT_ARGS = -dDECOY_ -p0 -OAPdlIw
+IPROPHET_ARGS = MINPROB=0
+DB_SOURCE = BioDB
+DBASE = /cluster/apps/biodb/data/ex_pd/20130621/decoy/loblum_UPS1_iRT.fasta
+MAYU_MASS_RANGE = 0-5000
+MAYU_REMAMB = False
+
+SPACE = LOBLUM
+PROJECT = JUNK
+DATASET_CODE = 20120320164249179-361886,20120320163951515-361883,20120320163653755-361882
+""")
 
 
 @follows(setup)
@@ -123,13 +131,13 @@ def comet(infile, outfile):
 @transform(comet, regex("rawcomet.ini_"), "comet.ini_")
 def pepprocomet(infile, outfile):
     subprocess.check_call(['python', basepath + 'appliapps/tpp/peptideprophet.py',
-                           '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepcomet', '--MODULE', 'tpp/4.7.0'])
+                           '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepcomet'])
 
 
 ############################# MERGE SEARCH ENGINE RESULTS ##################################
 #In guse version conditional branching is used which requires collate to be a full collector to work
 #thus enginecollate is a collector/generator node in guse and simulated in ruffus with a merge/fake_split
-@merge([pepprotandem,pepproomssa,peppromyri], "ecollate.ini")
+@merge([pepprotandem,pepprocomet,pepproomssa,peppromyri], "ecollate.ini")
 def collateengines(infiles, outfiles):
     subprocess.check_call(['python', basepath + 'appliapps/tpp/enginecollate.py',
                            '--INPUT','biopersdb.ini','--OUTPUT','ecollate.ini','--MERGED', 'mergeengine.ini',

@@ -75,8 +75,9 @@ class Omssa(WrappedApp):
         os.symlink(info[Keys.MZXML], mzxmllink)
 
         basename = os.path.splitext(os.path.split(info[Keys.MZXML])[1])[0]
-        result = os.path.join(wd, 'omssa.pep.xml')
-        info[Keys.PEPXML] = result
+        result = os.path.join(wd, basename+'.pep.xml')
+        iresult = os.path.join(wd, basename+'.withRT.pep.xml')
+        info[Keys.PEPXML] = iresult
 
         # need to create a working copy to prevent replacement or generic definitions
         # with app specific definitions
@@ -104,12 +105,15 @@ class Omssa(WrappedApp):
 
         exe = app_info.get(Keys.EXECUTABLE, 'omssacl')
 
+        #grep to prevent log overflow, InteractParser to add RT to pepXML
         command = "makeblastdb -dbtype prot -in %s && " \
                   "MzXML2Search -mgf %s | grep -v scan && " \
-                  "%s %s -fm %s -op %s" % (
+                  "%s %s -fm %s -op %s && " \
+                  "InteractParser %s %s -S" % (
                       omssadbase,
                       mzxmllink,
-                      exe, mod_template, mgffile, result)
+                      exe, mod_template, mgffile, result,
+                      iresult, result)
         return info, command
 
 

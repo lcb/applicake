@@ -17,24 +17,22 @@ def setup():
         subprocess.call("rm *ini* *.log", shell=True)
         with open("input.ini", 'w+') as f:
             f.write("""
-BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows
+COMMENT = WFTEST - newUPS LC
+
+WORKFLOW = wf
+LOG_LEVEL = DEBUG
+BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows
 DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
 
-LOG_LEVEL = DEBUG
-STORAGE = unchanged
-WORKFLOW = traml_create
-
-EXPERIMENT = E287786
+EXPERIMENT = E1309101552
 DATASET_CODE = 20120320163951515-361883, 20120320163653755-361882, 20120320164249179-361886
+
 FDR_CUTOFF = 0.01
 FDR_TYPE = iprophet-pepFDR
 
-COMMENT = newUPS1
-DESCRIPTION = newUPS measurement 3 technical replicates
-
 MS_TYPE = CID-QTOF
-RTCALIB_TYPE = linear
+RUNRT = True
 RSQ_THRESHOLD = 0.95
 RTKIT = /cluster/apps/imsbtools/stable/files/irtkit.txt
 CONSENSUS_TYPE = Consensus
@@ -43,12 +41,11 @@ TSV_MASS_LIMITS = 400-2000
 TSV_ION_LIMITS = 2-6
 TSV_PRECISION = 0.05
 TSV_CHARGE = 1;2
-TSV_REMOVE_DUPLICATES = True 
+TSV_REMOVE_DUPLICATES = True
 TSV_EXACT = False
-TSV_GAIN =  
-TSV_SERIES = 
+TSV_GAIN =
+TSV_SERIES =
 SWATH_WINDOW_FILE = /cluster/apps/imsbtools/stable/files/swath_wnd_32.txt
-
 """)
 
 @follows(setup)

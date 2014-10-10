@@ -15,46 +15,47 @@ def setup():
     else:
         print 'Starting from scratch by creating new input.ini'
         subprocess.call("rm *ini* *.log", shell=True)
-        with open("input.ini", 'w+') as f:
-            f.write("""BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows
-LOG_LEVEL = DEBUG
+        with open("input.ini", 'w') as f:
+            f.write("""
 THREADS = 4
-MODULE = imsbtools/20140210_swath
-WORKFLOW = ruffus_openswath_requant
-COMMENT = ruffus_openswath_requant
-DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
+MODULE = imsbtools/20140808_swath
+WORKFLOW = wf
+LOG_LEVEL = DEBUG
+BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
+DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets/
+DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox/
+COMMENT = WFTEST - newUPS SWATH
 
-IRTTRAML = /cluster/scratch_xl/shareholder/imsb_ra/openswath/tramlpile/hroest_DIA_iRT.TraML
-
-DATASET_CODE = 20130110215707264-761830, 20130110232929822-761848, 	20130110233329710-761850
-
+EXTRACTION_WINDOW = 0.05
+WINDOW_UNIT = Thomson
+RT_EXTRACTION_WINDOW = 600
+MIN_UPPER_EDGE_DIST = 1
+EXTRA_RT_EXTRACTION_WINDOW = 100
+IRTTRAML = /cluster/apps/imsbtools/stable/files/hroest_DIA_iRT.TraML
+MIN_RSQ = 0.95
+MIN_COVERAGE = 0.6
+MPR_NUM_XVAL = 10
+MPR_LDA_PATH = /cluster/apps/guse/stable/wftests/chludwig_L110830_20_SW_scorer.bin
+MPR_MAINVAR = xx_swath_prelim_score
+MPR_VARS = bseries_score elution_model_fit_score intensity_score isotope_correlation_score isotope_overlap_score library_corr library_rmsd log_sn_score massdev_score massdev_score_weighted norm_rt_score xcorr_coelution xcorr_coelution_weighted xcorr_shape xcorr_shape_weighted yseries_score
+ALIGNER_TARGETFDR = 0.01
+ALIGNER_FRACSELECTED = 0
+ALIGNER_MAX_RT_DIFF = 30
+ALIGNER_METHOD = best_overall
+ALIGNER_DSCORE_CUTOFF = 0.5
+ALIGNER_FDR =
+ALIGNER_MAX_FDRQUAL =
+DO_CHROMML_REQUANT = true
+MATRIX_FORMAT = tsv
 DB_SOURCE = PersonalDB
+DATABASE_PACKAGE = LOBLUM
+DATABASE_VERSION = newUPS1 ruffus reference
+DATABASE_DB = 20130823112025
 DBASE = 20130823112244490-872696
 
 SPACE = LOBLUM
 PROJECT = JUNK
-DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox
-
-MIN_RSQ = 0.95
-MIN_COVERAGE = 0.6
-
-MIN_UPPER_EDGE_DIST = 1
-EXTRACTION_WINDOW = 0.05
-WINDOW_UNIT = Thomson
-RT_EXTRACTION_WINDOW = 600
-
-MPR_NUM_XVAL = 5
-MPR_LDA_PATH =
-MPR_MAINVAR = xx_swath_prelim_score
-MPR_VARS = bseries_score elution_model_fit_score intensity_score isotope_correlation_score isotope_overlap_score library_corr library_rmsd log_sn_score massdev_score massdev_score_weighted norm_rt_score xcorr_coelution xcorr_coelution_weighted xcorr_shape xcorr_shape_weighted yseries_score
-
-ALIGNER_TARGETFDR = 0.01
-ALIGNER_MAX_RT_DIFF = 30
-ALIGNER_METHOD = best_overall
-ALIGNER_FRACSELECTED = 0
-
-ALIGNER_DSCORE_CUTOFF = 0.5
-
+DATASET_CODE = 20130110233329710-761850, 20130110232929822-761848, 20130110215707264-761830
 """)
 
 

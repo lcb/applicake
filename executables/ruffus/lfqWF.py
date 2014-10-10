@@ -17,15 +17,15 @@ def setup():
         subprocess.call("rm *ini* *.log", shell=True)
         with open("input.ini", 'w+') as f:
             f.write("""
-WORKFLOW = LFQ_110_ruffus
-COMMENT = ruffus LFQ
+WORKFLOW = wf
 LOG_LEVEL = DEBUG
-
-BASEDIR = /cluster/scratch_xp/shareholder/imsb_ra/workflows/
-DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets
+BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
+DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets/
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_quant
+COMMENT = WFTEST - newUPS LFQ
 
-PEPTIDEFDR = 0.01
+FDR_CUTOFF = 0.01
+FDR_TYPE = iprophet-pepFDR
 FEATUREFINDER_MASS_TRACE__MZ_TOLERANCE = 0.03
 FEATUREFINDER_MASS_TRACE__MIN_SPECTRA = 10
 FEATUREFINDER_MASS_TRACE__MAX_MISSING = 1
@@ -55,7 +55,6 @@ PROTEINQUANTIFIER_INCLUDE_ALL = true
 
 SPACE = LOBLUM
 PROJECT = JUNK
-
 EXPERIMENT = E1309101552
 DATASET_CODE = 20120320163951515-361883,20120320163653755-361882,20120320164249179-361886
 """)

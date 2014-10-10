@@ -13,7 +13,7 @@ def read_mod_write(info, infile, outfile):
 
 
 def read_template(path):
-    fh = open(path, 'r+')
+    fh = open(path, 'r')
     template = fh.read()
     return template
 
@@ -28,6 +28,6 @@ def modify_template(info, template):
 
 
 def write_template(template, path):
-    fh = open(path, 'w+')
+    fh = open(path, 'w')
     fh.write(template)
     fh.close()
