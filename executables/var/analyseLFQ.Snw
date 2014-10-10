@@ -1,0 +1,311 @@
+\documentclass [a4paper]{article}
+\usepackage[left=1cm,right=1cm,top=1cm,bottom=1cm]{geometry}
+\usepackage{hyperref}
+\usepackage{lscape}
+
+\title{LFQ report v1 }
+
+\author{SybitX : \href{mailto:helpdesk@imsb.biol.ethz.ch}{helpdesk@imsb.biol.ethz.ch}}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\maketitle
+
+<<definevarsDebug, eval=FALSE, echo=FALSE>>=
+rm(list=ls())
+setwd("/media/usernas/LFQ")
+lfq.generator.properties <-"./data/lfq-generator.properties"
+peptides.csv <- "./data/peptides.csv" 
+proteins.csv <- "./data/proteins.csv" 
+username <-  "brum"
+comment <- ""
+baseexperiment <- ""
+#lfq.generator.properties <-"quantification.properties"
+#peptides.csv <- "peptides.csv"
+#proteins.csv <- "proteins.csv"
+
+#lfq.generator.properties <-"quantification.properties" 
+#peptides.csv <- "peptides.csv"
+#proteins.csv <-  "proteins.csv"
+
+#lfq.generator.properties = "/cluster/scratch_xl/shareholder/imsb_ra/workflows/olgas/LFQ_v133_2012-09-21-141640_20130325072440608/Output/quantification.properties" 
+#peptides.csv = "/cluster/scratch_xl/shareholder/imsb_ra/workflows/olgas/LFQ_v133_2012-09-21-141640_20130325072440608/ProteinQuantifier/peptides.csv" 
+#proteins.csv = "/cluster/scratch_xl/shareholder/imsb_ra/workflows/olgas/LFQ_v133_2012-09-21-141640_20130325072440608/ProteinQuantifier/proteins.csv"
+
+
+#lfq.generator.properties <-"quantification.properties" 
+#peptides.csv <- "peptides.csv"
+#proteins.csv <-  "proteins.csv"
+#username <-  "loblum"
+@ 
+
+<<definevars,echo=FALSE, eval=TRUE>>=
+comment <-""
+username <-""
+baseexperiment<-""
+if(file.exists(lfq.generator.properties)){
+  gen.prop <- read.table(lfq.generator.properties , sep="=",fill=TRUE)
+  gen.prop.nam <- gen.prop[,1]
+  gen.prop.nam <- sub(" ", "" , gen.prop.nam, fixed=TRUE)
+  username <- as.character(gen.prop[which(gen.prop.nam == "USERNAME"),2])
+  comment <- as.character(gen.prop[which(gen.prop.nam == "COMMENT"),2])
+  baseexperiment <- as.character(gen.prop[which(gen.prop.nam == "BASE_EXPERIMENT"),2])
+  baseexperiment <- gsub("\\_","-",baseexperiment)
+}
+#exit()
+@ 
+
+This report was created automatically by the gUse LFQ workflow for user:\textbf{ \Sexpr{username} }, base search experiment : \textbf{ \Sexpr{baseexperiment} }  and user comment: \begin{verbatim}\Sexpr{comment}\end{verbatim}.
+If you have questions, or if you want support with the downstream analysis of your data, please do conact the SybitX team in room C77 tel: $32197$.
+
+\section*{Peptides}
+
+The pairs plots helps to asses the quality of the feature linking (alignment).
+A single, compact, and well correlated cloud indicates good data and alignment quality.
+
+<<readTheData,echo=FALSE>>=
+peptides <- read.table(peptides.csv, sep=",",header=TRUE)
+#head(peptides)
+col.peptides <- colnames(peptides)
+ab.idx <- 5:dim(peptides)[2]
+
+datafram <- peptides[,ab.idx]
+nam<-colnames(datafram)
+ll <- strsplit(nam,"\\.")
+nams <- lapply(ll,function(x){ return (x[1]) } )
+dims <- dim(datafram)
+colnames(datafram)  <- unlist(nams)
+
+
+@ 
+
+The dataset consists of \Sexpr{dims[2]} experiments, and in total \Sexpr{dims[1]} features were assigned to peptides.
+
+<<computestats1,echo=FALSE>>=
+
+notnulls <- NULL
+for(i in 1:dims[2])
+  {
+   notnulls <- c(notnulls,sum(datafram[,i] > 0))
+  }
+names(notnulls) <- colnames(datafram)
+notnulls <- rbind(notnulls, dims[1] - notnulls)
+rownames(notnulls) <- c("# observed peptides","# not observed")
+
+@ 
+
+The following table shows how many features in the datassts were assigned to peptides
+
+<<detected,echo=FALSE,results=tex>>=
+library(xtable)
+print(
+      xtable(t(notnulls )
+             ,caption="Nr of detected features assigned to peptides.",
+              label = "tab:nrdetectedfeatures", table.placement = "tbp", caption.placement = "top")
+      )
+
+@ 
+
+\begin{figure}[!ht]
+\begin{center}
+<<pairsSQRT,fig=true, echo=false>>=
+nrcol <- dim(datafram)[2]
+x <- sample(1:nrcol ,min(nrcol,6) )
+x <- sort(x)
+dataframesel <- datafram[x]
+pairs(sqrt(dataframesel), panel=function(x,y){
+	points(x, y, pch=".")
+	abline(0,1)
+      }
+      , lower.panel=NULL
+      )
+
+@ 
+\end{center}
+\caption{Pairs plot for randomly selected samples and sqrt transformed intensities.}
+\label{fig:pairspeptidesNormalized}
+\end{figure}
+
+
+\begin{figure}[!ht]
+\begin{center}
+<<pairsLog,fig=true, echo=false>>=
+#nrcol <- dim(datafram)[2]
+pairs(log(dataframesel), panel=function(x,y){
+	points(x, y, pch=".")
+	abline(0,1)
+      }
+      , lower.panel=NULL
+      )
+
+@ 
+\end{center}
+\caption{Pairs plot of randomly selected samples and log transformed intensities.}
+\label{fig:pairspeptidesNormalized}
+\end{figure}
+
+
+\begin{figure}[!ht]
+\begin{center}
+<<Violinplot,fig=true, echo=false>>=
+
+pairs(sqrt(dataframesel), panel=function(x,y){
+	r <- qqplot(x , y , plot.it = FALSE)
+        points(r,pch="*")
+	abline(0,1,col=2)
+      }
+      , lower.panel=NULL
+      )
+    
+
+@ 
+\end{center}
+\caption{Quantile Quantile plot to compare the distributions of the intensities in the samples. Ideally the points should be on the red line (same distribution).}
+\label{fig:violinplot}
+\end{figure}
+
+
+
+
+<<label=tab1,echo=FALSE,results=tex>>=
+cors <- cor(datafram,method="spearman")
+library(xtable)
+
+tmp <- summary(cors[upper.tri(cors)])
+tmp <- as.data.frame(c(tmp))
+tmp <- t(tmp)
+rownames(tmp) <- "Spearman cor"
+print(
+      xtable(t(tmp)
+             ,caption="Summary of Spearman correlation among datasets",
+             label = "tab:spearmansummary", table.placement = "tbp", caption.placement = "top")
+      )
+
+@
+
+\clearpage
+
+\section*{Proteins}
+
+\begin{figure}[!ht]
+\begin{center}
+
+
+<<readProt,echo=FALSE>>=
+proteins <- read.table(proteins.csv, sep=",",header=TRUE)
+col.proteins <- colnames(proteins)
+datafram <- proteins[,5:dim(proteins)[2]]
+nam<-colnames(datafram)
+ll <- strsplit(nam,"\\.")
+dims<-dim(datafram)
+nams <- lapply(ll,function(x){ return (x[1]) } )
+colnames(datafram) <- nams
+
+@ 
+
+The number of quantified proteins is \Sexpr{dims[1]}.
+
+<<pairsSQRT,fig=true, echo=false>>=
+
+#nrcol <- dim(datafram)[2]
+#x <- sample(1:nrcol ,min(nrcol,6) )
+#x <- sort(x)
+dataframesel <- datafram[x]
+pairs(sqrt(dataframesel), panel=function(x,y){
+  points(x, y, pch=".")
+  abline(0,1)
+      }
+      , lower.panel=NULL
+      )
+
+@ 
+\end{center}
+\caption{Pairs plot for randomly selected samples and sqrt transformed intensities (protein).}
+\label{fig:pairspeptidesNormalized}
+\end{figure}
+
+
+<<computestats1,echo=FALSE>>=
+notnulls <- NULL
+for(i in 1:dims[2])
+  {
+   notnulls <- c(notnulls,sum(datafram[,i] > 0))
+  }
+names(notnulls) <- colnames(datafram)
+notnulls <- rbind(notnulls, dims[1] - notnulls)
+rownames(notnulls) <- c("# observed proteins","# not observed")
+
+@
+
+
+<<detectedProteins,echo=FALSE,results=tex>>=
+library(xtable)
+print(
+      xtable(t(notnulls )
+             ,caption="Number of quantified proteins in sample.",
+              label = "tab:nrdetectedproteins", table.placement = "tbp", caption.placement = "top")
+      )
+@ 
+
+
+\begin{figure}[!ht]
+\begin{center}
+<<histNRproteins, echo=false, fig=true>>=
+par(mfrow=c(1,2))
+hist(proteins$protein_score,main="proteins score distribution",xlab="score")
+hist(proteins$n_peptides,main="nr of peptides/protein distribution",xlab="nr of peptides",breaks=c(1:10,max(11,max(proteins$n_peptides))),xlim=c(0,15))
+@ 
+\end{center}
+\caption{Left - distribution of protein scores, Right - Nr of peptides used to quantify a protein.}
+\label{fig:histNRproteins}
+\end{figure}
+
+<<label=tab1,echo=FALSE,results=tex>>=
+cors <- cor(datafram,method="spearman")
+
+library(xtable)
+tmp <- summary(cors[upper.tri(cors)])
+tmp <- as.data.frame(c(tmp))
+tmp <- t(tmp)
+rownames(tmp) <- "Spearman cor"
+print(
+      xtable(t(tmp)
+             ,caption="Summary of Spearman correlation among datasets",
+              label = "tab:spearmansummaryprot", table.placement = "tbp", caption.placement = "top")
+      )
+
+@
+
+\begin{figure}[!ht]
+\begin{center}
+<<correlationImage, fig=true, echo=false>>=
+col.ab = colnames(datafram)
+dim1 <- dim(cors)[1]
+dim2 <- dim(cors)[2]
+image(1:dim1,1:dim2,t(cors[dim(cors)[1]:1,]),axes=FALSE, ylab="", xlab="")
+axis(1, 1:dim1, col.ab , cex.axis = 0.5)
+axis(2, 1:dim2, col.ab[length(col.ab):1] , cex.axis = 0.5,las=1)
+
+@ 
+\end{center}
+\caption{Color coded spearman correlation between datasets.}
+\label{fig:correlationImage}
+\end{figure}
+
+\begin{figure}[!ht]
+\begin{center}
+<<clustering,fig=True, echo=false>>=
+distM <- dist(t(log(datafram+1)))
+if(length(distM)>=2){
+plot(hclust(distM))
+}else{
+plot(0)
+} 
+@
+\end{center}
+\caption{Clustering of the datasets in the experiment (euclidean distance of log transformed data).}
+\label{fig:clustering}
+\end{figure}
+
+
+\end{document}

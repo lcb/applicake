@@ -19,7 +19,8 @@ class Test(unittest.TestCase):
         cls.tdir = tempfile.mkdtemp(dir=".")
         os.chdir(cls.tdir)
         with open("input.ini", "w") as f:
-            f.write("""COMMENT = comm,ent
+            f.write("""
+COMMENT = comm,ent
 LOG_STORAGE = memory
 LOG_LEVEL = DEBUG
 FILE = test.txt""")
