@@ -69,7 +69,7 @@ def move_stage_to_dropbox(log, stage, dropbox, keepCopy=False):
 
 
 def extendWorkflowID(wfstring):
-    applivers = subprocess.check_output("awk 'NR==4' /cluster/apps/guse/stable/applicake/trunk/.svn/entries",
+    applivers = subprocess.check_output("git --git-dir=/cluster/apps/guse/stable/applicake/master/.git rev-parse --short HEAD",
                                         shell=True).strip()
     imsbtoolvers = subprocess.check_output("printenv LOADEDMODULES| grep -o 'imsbtools/[^:]*' | tail -1",
                                            shell=True).strip()
