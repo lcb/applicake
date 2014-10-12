@@ -23,5 +23,5 @@ print(lfq.generator.properties)
 print(peptides.csv)
 print(proteins.csv)
 
-Sweave("/cluster/apps/guse/stable/applicake/executables/var/analyseLFQ.Snw")
+Sweave("/cluster/apps/guse/stable/applicake/master/executables/var/analyseLFQ.Snw")
 tools::texi2dvi("analyseLFQ.tex",pdf=TRUE)
