@@ -23,5 +23,11 @@ print(lfq.generator.properties)
 print(peptides.csv)
 print(proteins.csv)
 
-Sweave("/cluster/apps/guse/stable/applicake/master/executables/var/analyseLFQ.Snw")
+initial.options <- commandArgs(trailingOnly = FALSE)
+file.arg.name <- "--file="
+script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
+script.basename <- dirname(script.name)
+other.name <- paste(sep="/", script.basename, "analyseLFQ.Snw")
+print(other.name)
+Sweave(other.name)
 tools::texi2dvi("analyseLFQ.tex",pdf=TRUE)
