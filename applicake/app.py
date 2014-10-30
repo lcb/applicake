@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import time
 
 from applicake.apputils import dirs
 from applicake.apputils import dicts
@@ -64,12 +65,15 @@ class BasicApp(IApp):
     def main(cls):
         log = None
         try:
+            start = time.time()
             ci = cls()
             app_args = ci.add_args()
             log, req_info, info = ci.setup(app_args)
             ret_info = ci.run(log, req_info)
             info = dicts.merge(info, ret_info, priority='right')
             ci.teardown(log, info)
+            end = int(time.time() - start)
+            log.info("%s finished sucessfully after %ss" % (cls.__name__,end))
         except Exception, e:
             msg = cls.__name__ + " failed: " + str(e) + "\n"
             if isinstance(e, KeyError):
@@ -144,7 +148,6 @@ class BasicApp(IApp):
     def teardown(self, log, info):
         ih = get_handler(info.get(Keys.OUTPUT))
         ih.write(info, info.get(Keys.OUTPUT))
-        log.info(self.__class__.__name__ + " finished sucessfully")
 
 
 class WrappedApp(BasicApp):
