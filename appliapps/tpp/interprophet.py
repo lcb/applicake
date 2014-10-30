@@ -33,12 +33,13 @@ class InterProphet(WrappedApp):
 
 
     def validate_run(self, log, info, exit_code, stdout):
-        validation.check_exitcode(log, exit_code)
-
+        if exit_code == -8:
+            raise RuntimeError("iProphet failed most probably because too few peptides were found in the search before")
         for line in stdout.splitlines():
             if 'fin: error opening' in line:
                 raise RuntimeError("Could not read the input file " + line)
 
+        validation.check_exitcode(log, exit_code)
         validation.check_xml(log, info[Keys.PEPXML])
         return info
 
