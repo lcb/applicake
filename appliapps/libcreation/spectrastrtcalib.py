@@ -46,11 +46,7 @@ class SpectrastRTcalib(WrappedApp):
             log.debug('create symlink [%s] -> [%s]' % (f, dest))
             os.symlink(f, dest)
 
-        consensustype = ""  # None
-        if info['CONSENSUS_TYPE'] == "Consensus":
-            consensustype = "C"
-        elif info['CONSENSUS_TYPE'] == "Best replicate":
-            consensustype = "B"
+        info['SPLOG'] = os.path.join(info[Keys.WORKDIR], 'spectrast.log')
 
         # get iProb corresponding FDR for IDFilter
         info['IPROB'], info['FDR'] = get_iprob_for_fdr(info['FDR_CUTOFF'], info['FDR_TYPE'],
@@ -62,37 +58,49 @@ class SpectrastRTcalib(WrappedApp):
         else:
             rtcorrect = ""
 
-        basename = os.path.join(info[Keys.WORKDIR], 'SpectrastNodecoyRTcalib')
-        info['SPLOG'] = basename + '.log'
+        rtcalib_base = os.path.join(info[Keys.WORKDIR], 'RTcalib')
+        rtcalib = rtcalib_base + '.splib'
 
-        command = "spectrast -L%s -c_BIN! -c_RDYDECOY -cI%s -cP%s -cA%s %s -cN%s %s" % (
-            info['SPLOG'],info['MS_TYPE'], info['IPROB'], consensustype, rtcorrect, basename, peplink)
 
-        info['SPLIB'] = basename + '.splib'
+        consensustype = ""
+        if info['CONSENSUS_TYPE'] == "Consensus":
+            consensustype = "C"
+        elif info['CONSENSUS_TYPE'] == "Best replicate":
+            consensustype = "B"
+
+        consensus_base = os.path.join(info[Keys.WORKDIR], 'consensus')
+        consensus = consensus_base + '.splib'
+        info['SPLIB'] = consensus
+
+        command = "spectrast -L%s -c_RDYDECOY -cI%s -cP%s %s -cN%s %s && " \
+                  "spectrast -L%s -c_BIN! -cA%s -cN%s %s" % (
+                      info['SPLOG'], info['MS_TYPE'], info['IPROB'], rtcorrect, rtcalib_base, peplink,
+                      info['SPLOG'], consensustype, consensus_base, rtcalib)
 
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):
-        #Spectrast imports sample also when not enough iRTs found. These entries have Comment: without iRT attribute
+        # Spectrast imports sample also when not enough iRTs found. These entries have Comment: without iRT attribute
         notenough = set()
         for line in open(info['SPLIB']).readlines():
             if "Comment:" in line and not "iRT=" in line:
-                sample = re.search("RawSpectrum=([^\.]*)\.",line).group(1)
+                sample = re.search("RawSpectrum=([^\.]*)\.", line).group(1)
                 notenough.add(sample)
         if info['RUNRT'] == "True" and notenough:
-            raise RuntimeError("Not enough iRT peptides found in sample(s): " + ",".join(notenough))
+            raise RuntimeError("Not enough iRT peptides found in sample(s): " + ", ".join(notenough))
 
-        #Parse logfile to see whether RSQ is high enough
-        #PEPXML IMPORT: RT normalization by linear regression. Found 4 landmarks in MS run "CHLUD_L110830_21".
+        # Parse logfile to see whether RSQ is high enough
+        # PEPXML IMPORT: RT normalization by linear regression. Found 4 landmarks in MS run "CHLUD_L110830_21".
         #PEPXML_IMPORT: Final fitted equation: iRT = (rRT - 1383) / (41.05); R^2 = 0.9995; 1 outliers removed.
         for line in open(info['SPLOG']).readlines():
             if "Final fitted equation:" in line:
                 samplename = prevline.strip().split(" ")[-1]
                 rsq = line.split()[-4].replace(";", "")
                 if float(rsq) < float(info['RSQ_THRESHOLD']):
-                    raise RuntimeError("R^2 of %s is below threshold of %s for %s!" % (rsq, info['RSQ_THRESHOLD'],samplename))
+                    raise RuntimeError(
+                        "R^2 of %s is below threshold of %s for %s!" % (rsq, info['RSQ_THRESHOLD'], samplename))
                 else:
-                    log.debug("R^2 of %s is OK for %s" % (rsq,samplename))
+                    log.debug("R^2 of %s is OK for %s" % (rsq, samplename))
             else:
                 prevline = line
 
