@@ -72,8 +72,8 @@ class BasicApp(IApp):
             ret_info = ci.run(log, req_info)
             info = dicts.merge(info, ret_info, priority='right')
             ci.teardown(log, info)
-            end = int(time.time() - start)
-            log.info("%s finished sucessfully after %ss" % (cls.__name__,end))
+            log.debug("%s finished sucessfully at %s" % time.asctime())
+            log.info("%s finished sucessfully after %ss" % (cls.__name__,int(time.time() - start)))
         except Exception, e:
             msg = cls.__name__ + " failed: " + str(e) + "\n"
             if isinstance(e, KeyError):
