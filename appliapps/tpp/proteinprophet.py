@@ -41,13 +41,13 @@ class ProteinProphet(WrappedApp):
     def validate_run(self, log, info, exit_code, stdout):
         validation.check_exitcode(log, exit_code)
 
-        for msg in ['did not find any InterProphet results in input data!',
+        for msg in ['Error:','did not find any InterProphet results in input data!',
                     'no data - quitting',
                     'WARNING: No database referenced']:
             if msg in stdout:
                 raise RuntimeError('ProteinProphet error [%s]' % msg)
 
-        validation.check_xml(log, info[Keys.PEPXML])
+        validation.check_xml(log, info[Keys.PROTXML])
         return info
 
 

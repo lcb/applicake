@@ -35,6 +35,7 @@ class OpenSwathWorkflow(WrappedApp):
             Argument('EXTRA_RT_EXTRACTION_WINDOW', 'extra RT extraction window to extract around'),
             Argument('RT_EXTRACTION_WINDOW', 'RT extraction window to extract around'),
             Argument('WINDOW_UNIT', 'extraction window unit thompson/ppm'),
+            Argument('USE_MS1_TRACES','use ms1 traces'),
 
             Argument('DO_CHROMML_REQUANT', 'to skip set to false')
         ]
@@ -58,6 +59,10 @@ class OpenSwathWorkflow(WrappedApp):
         ppm = ''
         if info['WINDOW_UNIT'] == 'ppm':
             ppm = '-ppm'
+
+        ms1tr = ""
+        if info.get("USE_MS1_TRACES","") == "True":
+            ms1tr = "-use_ms1_traces"
 
         samplename = os.path.basename(info['MZXML']).split(".")[0]
         info['FEATURETSV'] = os.path.join(info[Keys.WORKDIR], samplename + '.tsv')
@@ -84,14 +89,14 @@ class OpenSwathWorkflow(WrappedApp):
         #command: copy mzXML to local scratch, run OpenSwathWorkflow, copy & zip result tsv (& ev. chrom.mzml)
         command = """cp -v %s %s &&
         OpenSwathWorkflow -in %s -tr %s -tr_irt %s -out_tsv %s %s
-        -min_rsq %s -min_coverage %s
+        -min_rsq %s -min_coverage %s %s
         -min_upper_edge_dist %s -mz_extraction_window %s %s -rt_extraction_window %s %s
         -tempDirectory %s -readOptions cache -batchSize 4000 -threads %s &&
         mv -v %s %s &&
         %s""" % (
             info["MZXML"], tmpmzxml,
             tmpmzxml, library, info['IRTTRAML'], tmptsv, chrommlflag,
-            info['MIN_RSQ'], info['MIN_COVERAGE'],
+            info['MIN_RSQ'], info['MIN_COVERAGE'], ms1tr,
             info['MIN_UPPER_EDGE_DIST'], info['EXTRACTION_WINDOW'], ppm, info['RT_EXTRACTION_WINDOW'], extraextract,
             tmpdir, info['THREADS'],
             tmptsv, info['FEATURETSV'],
