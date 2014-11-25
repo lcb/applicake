@@ -35,7 +35,7 @@ class Copy2SwathDropbox(BasicApp):
 
         #copy and compress align.csv, but not the matrix
         dropbox.keys_to_dropbox(log, info, ['ALIGNMENT_TSV'], stagebox)
-        subprocess.check_call('gzip -v ' + stagebox + '/*', shell=True)
+        subprocess.check_call('gzip ' + stagebox + '/* 2>&1', shell=True)
         dropbox.keys_to_dropbox(log, info, ['ALIGNMENT_MATRIX','ALIGNER_STDOUT'], stagebox)
 
         #compress all mprophet files into one zip
@@ -45,11 +45,11 @@ class Copy2SwathDropbox(BasicApp):
         if not isinstance(info['MPROPHET_STATS'], list):
             info['MPROPHET_STATS'] = [info['MPROPHET_STATS']]
         for entry in info['MPROPHET_STATS']:
-            subprocess.check_call('zip -j ' + archive + ' ' + entry, shell=True)
+            subprocess.check_call('zip -j ' + archive + ' ' + entry + "2>&1", shell=True)
 
         #PATCH: reimport old classifier if existing was used
         if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
-            subprocess.check_call('zip -j ' + archive + ' ' + info['MPR_LDA_PATH'], shell=True)
+            subprocess.check_call('zip -j ' + archive + ' ' + info['MPR_LDA_PATH'] + "2>&1", shell=True)
 
         #SPACE PROJECT given
         dsinfo = {}
