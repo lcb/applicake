@@ -119,6 +119,7 @@ class Omssa(WrappedApp):
 
     def validate_run(self, log, info, exit_code, stdout):
         validation.check_exitcode(log, exit_code)
+        validation.check_stdout(log,stdout)
         validation.check_xml(log, info[Keys.PEPXML])
         return info
 

@@ -12,9 +12,9 @@ def check_exitcode(log, exit_code):
 def check_stdout(log, stdout):
     for line in stdout.splitlines():
         if any(x in line for x in ["Disk quota exceeded"]):
-            raise RuntimeError("Job ran out of scratch space! Please remove old workflow files! (%s)" % line.strip())
+            raise RuntimeError("%s. Job ran out of scratch space! Please remove old workflow files!" % line.strip())
         if any(x in line for x in ["std::bad_alloc", "MemoryError"]):
-            raise RuntimeError("The job run out of RAM! (%s)!" % line.strip())
+            raise RuntimeError("%s. The job run out of RAM!" % line.strip())
         if any(x in line for x in ["Exception:",  "IOError"]):
             raise RuntimeError("%s. Check stdout for more details!" % line.strip())
     log.debug("No known error message in stdout")

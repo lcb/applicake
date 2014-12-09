@@ -3,7 +3,7 @@
 #$1 full align/requant output tsv 
 #$2 comment
 
-nrsamples=$(awk '{print $(NF)}' $1 | sort -u | grep -v align_origfilename | wc -l)
+nrsamples=$(awk '{print $(NF-1)}' $1 | sort -u | grep -v align_origfilename | wc -l)
 if [ $nrsamples -gt 1 ];
 then
 	echo reportSWATH.R "$1"
