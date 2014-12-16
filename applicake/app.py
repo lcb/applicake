@@ -75,7 +75,7 @@ class BasicApp(IApp):
             log.debug("%s finished sucessfully at %s" % (cls.__name__,time.asctime()))
             log.info("%s finished sucessfully after %ss" % (cls.__name__,int(time.time() - start)))
         except Exception, e:
-            msg = cls.__name__ + " failed: " + str(e) + "\n"
+            msg = cls.__name__ + " failed! " + str(e) + "\n"
             if isinstance(e, KeyError):
                 msg += " key not found in info"
             # if app fails before logger is created use sys.exit for message

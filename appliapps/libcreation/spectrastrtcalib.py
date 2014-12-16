@@ -11,7 +11,7 @@ from applicake.coreutils.keys import Keys, KeyHelp
 
 class SpectrastRTcalib(WrappedApp):
     """
-    Create raw text library without DECOYS_ from pepxml 
+    Create raw text library with iRT correction and without DECOYS_ from pepxml
     """
 
     def add_args(self):
@@ -28,7 +28,7 @@ class SpectrastRTcalib(WrappedApp):
             Argument('RSQ_THRESHOLD', 'specify r-squared threshold to accept linear regression'),
             Argument('RTKIT', 'RT kit (file)'),
             Argument('MS_TYPE', 'ms instrument type'),
-            Argument('CONSENSUS_TYPE', 'consensus type cAC cAB'),
+            Argument('CONSENSUS_TYPE', 'consensus type consensus/best replicate'),
         ]
 
     def prepare_run(self, log, info):
@@ -61,7 +61,6 @@ class SpectrastRTcalib(WrappedApp):
         rtcalib_base = os.path.join(info[Keys.WORKDIR], 'RTcalib')
         rtcalib = rtcalib_base + '.splib'
 
-
         consensustype = ""
         if info['CONSENSUS_TYPE'] == "Consensus":
             consensustype = "C"
@@ -80,31 +79,40 @@ class SpectrastRTcalib(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):
-        # Spectrast imports sample also when not enough iRTs found. These entries have Comment: without iRT attribute
-        notenough = set()
-        for line in open(info['SPLIB']).readlines():
-            if "Comment:" in line and not "iRT=" in line:
-                sample = re.search("RawSpectrum=([^\.]*)\.", line).group(1)
-                notenough.add(sample)
-        if info['RUNRT'] == "True" and notenough:
-            raise RuntimeError("Not enough iRT peptides found in sample(s): " + ", ".join(notenough))
+        if info['RUNRT'] == 'True':
+            # Spectrast imports sample *whitout error* when no iRTs are found. Thus look for "Comment:" entries without
+            # iRT= attribute in splib
+            notenough = set()
+            for line in open(info['SPLIB']).readlines():
+                if "Comment:" in line and not "iRT=" in line:
+                    samplename = re.search("RawSpectrum=([^\.]*)\.", line).group(1)
+                    notenough.add(samplename)
+            if notenough:
+                log.error("No/not enough iRT peptides found in sample(s): " + ", ".join(notenough))
 
-        # Parse logfile to see whether RSQ is high enough
-        # PEPXML IMPORT: RT normalization by linear regression. Found 4 landmarks in MS run "CHLUD_L110830_21".
-        #PEPXML_IMPORT: Final fitted equation: iRT = (rRT - 1383) / (41.05); R^2 = 0.9995; 1 outliers removed.
-        for line in open(info['SPLOG']).readlines():
-            if "Final fitted equation:" in line:
-                samplename = prevline.strip().split(" ")[-1]
-                rsq = line.split()[-4].replace(";", "")
-                if float(rsq) < float(info['RSQ_THRESHOLD']):
-                    raise RuntimeError(
-                        "R^2 of %s is below threshold of %s for %s!" % (rsq, info['RSQ_THRESHOLD'], samplename))
+            # Parse logfile to see whether R^2 is high enough. Example log for failed calibration (line 3 only when <0.9):
+            # PEPXML IMPORT: RT normalization by linear regression. Found 10 landmarks in MS run "CHLUD_L110830_21".
+            # PEPXML_IMPORT: Final fitted equation: iRT = (rRT - 1758) / (8.627); R^2 = 0.5698; 5 outliers removed.
+            # ERROR PEPXML_IMPORT: R^2 still too low at required coverage. No RT normalization performed. Consider...
+            rtcalibfailed = False
+            for line in open(info['SPLOG']).readlines():
+                if "Final fitted equation:" in line:
+                    samplename = prevline.strip().split(" ")[-1]
+                    rsq = line.split()[-4].replace(";", "")
+                    if float(rsq) < float(info['RSQ_THRESHOLD']):
+                        log.error(
+                            "R^2 of %s is below threshold of %s for %s" % (rsq, info['RSQ_THRESHOLD'], samplename))
+                        rtcalibfailed = True
+                    else:
+                        log.debug("R^2 of %s is OK for %s" % (rsq, samplename))
                 else:
-                    log.debug("R^2 of %s is OK for %s" % (rsq, samplename))
-            else:
-                prevline = line
+                    prevline = line
 
-        #Double check
+            # Raise only here to have all errors shown
+            if rtcalibfailed or notenough:
+                raise RuntimeError("Error in iRT calibration.")
+
+        # Double check "Spectrast finished ..."
         if not " without error." in stdout:
             raise RuntimeError("SpectraST finished with some error!")
 
