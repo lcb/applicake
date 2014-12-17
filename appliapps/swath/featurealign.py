@@ -14,16 +14,26 @@ class FeatureAlignment(WrappedApp):
     200 sample small lib:
     with dscore cutoff and external R: 2h20m, 5G RAM
     """
+    opts = {
+        'ALIGNER_FDR': "fdr_cutoff",
+        'ALIGNER_MAX_RT_DIFF': 'max_rt_diff',
+        'ALIGNER_MAX_FDRQUAL': "max_fdr_quality",
+        'ALIGNER_FRACSELECTED': 'frac_selected',
+        'ALIGNER_METHOD': "method", #clustering default=best_overall
+        "ALIGNER_REALIGN_METHOD": "realign_method", #RTalign default=splineR_external
+
+        'ALIGNER_TARGETFDR': 'target_fdr',
+    }
 
     def add_args(self):
         return [
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument('MPROPHET_TSV', ''),
             Argument('ALIGNER_METHOD', ''),
+            Argument("ALIGNER_REALIGNMETHOD", ""),
             Argument('ALIGNER_FRACSELECTED', ''),
             Argument('ALIGNER_MAX_RT_DIFF', ''),
             Argument('ALIGNER_TARGETFDR', '', default=-1),
-            Argument('ALIGNER_DSCORE_CUTOFF', 'if not set dont filter. if set use dscore cutoff'),
 
             Argument('ALIGNER_FDR', 'seeding m_score (FDR) cutoff , what is used as starting points'),
             Argument('ALIGNER_MAX_FDRQUAL', 'extension m_score (FDR) cutoff, what is used for realignment points'),
@@ -36,34 +46,17 @@ class FeatureAlignment(WrappedApp):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
         info['ALIGNMENT_TSV'] = os.path.join(info[Keys.WORKDIR], "feature_alignment.tsv")
         info['ALIGNMENT_YAML'] = os.path.join(info[Keys.WORKDIR], "feature_alignment.yaml")
-
         tmpdir = os.environ.get('TMPDIR', info[Keys.WORKDIR]) + '/'
 
-        realignruns = ""
-        if info['ALIGNER_REALIGNRUNS'] == "true":
-            realignruns = '--realign_runs'
+        flags = ''
+        for k, v in self.opts.iteritems():
+            if info.get(k, "") != "":
+                flags += " --%s %s" % (v, info[k])
 
-        alignfdr = ''
-        if info.get('ALIGNER_FDR', "") != "":
-            alignfdr = "--fdr_cutoff " + str(info['ALIGNER_FDR'])
-
-        maxfdrqual = ""
-        if info.get('ALIGNER_MAX_FDRQUAL', "") != "":
-            maxfdrqual = "--max_fdr_quality " + str(info['ALIGNER_MAX_FDRQUAL'])
-
-        dfilter = ""
-        if info.get("ALIGNER_DSCORE_CUTOFF", "") != "":
-            dfilter = "--use_dscore_filter --dscore_cutoff " + info["ALIGNER_DSCORE_CUTOFF"]
-
-        command = "feature_alignment.py --use_external_r --file_format openswath --in %s --out %s " \
-                  "%s %s %s " \
-                  "--max_rt_diff %s --method %s --frac_selected %s " \
-                  "%s --target_fdr %s --tmpdir %s --out_meta %s" % (
+        command = "feature_alignment.py --file_format openswath --in %s --out %s " \
+                  "--out_meta %s --tmpdir %s %s" % (
                       " ".join(info["MPROPHET_TSV"]), info['ALIGNMENT_TSV'],
-                      realignruns, alignfdr, maxfdrqual,
-                      info['ALIGNER_MAX_RT_DIFF'], info['ALIGNER_METHOD'],
-                      info['ALIGNER_FRACSELECTED'],
-                      dfilter, info['ALIGNER_TARGETFDR'], tmpdir, info['ALIGNMENT_YAML'])
+                      info['ALIGNMENT_YAML'], tmpdir, flags)
 
         return info, command
 
@@ -79,16 +72,16 @@ class FeatureAlignment(WrappedApp):
         f.close()
         info["ALIGNER_STDOUT"] = out2log
 
-        #Move out .tr files of pyprophet to be rescue safe
+        # Move out .tr files of pyprophet to be rescue safe
         info["TRAFO_FILES"] = []
         for fil in info["MPROPHET_TSV"]:
             trfile = glob.glob(os.path.dirname(fil) + "/*.tr")
             if len(trfile) != 1:
-                raise RuntimeError("More than one .tr file for "+fil)
+                raise RuntimeError("More than one .tr file for " + fil)
             basename = os.path.basename(trfile[0])
-            tgt = os.path.join(info['WORKDIR'],basename)
+            tgt = os.path.join(info['WORKDIR'], basename)
             log.debug("Moved tr file %s into WORKDIR" % basename)
-            shutil.move(trfile[0],tgt)
+            shutil.move(trfile[0], tgt)
             info["TRAFO_FILES"].append(tgt)
 
         return info
