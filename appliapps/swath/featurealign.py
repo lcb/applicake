@@ -16,30 +16,22 @@ class FeatureAlignment(WrappedApp):
     """
     opts = {
         'ALIGNER_FDR': "fdr_cutoff",
-        'ALIGNER_MAX_RT_DIFF': 'max_rt_diff',
         'ALIGNER_MAX_FDRQUAL': "max_fdr_quality",
+        'ALIGNER_TARGETFDR': 'target_fdr',
+        'ALIGNER_MAX_RT_DIFF': 'max_rt_diff',
         'ALIGNER_FRACSELECTED': 'frac_selected',
         'ALIGNER_METHOD': "method", #clustering default=best_overall
         "ALIGNER_REALIGN_METHOD": "realign_method", #RTalign default=splineR_external
-
-        'ALIGNER_TARGETFDR': 'target_fdr',
     }
 
     def add_args(self):
-        return [
+        ret = [
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument('MPROPHET_TSV', ''),
-            Argument('ALIGNER_METHOD', ''),
-            Argument("ALIGNER_REALIGNMETHOD", ""),
-            Argument('ALIGNER_FRACSELECTED', ''),
-            Argument('ALIGNER_MAX_RT_DIFF', ''),
-            Argument('ALIGNER_TARGETFDR', '', default=-1),
-
-            Argument('ALIGNER_FDR', 'seeding m_score (FDR) cutoff , what is used as starting points'),
-            Argument('ALIGNER_MAX_FDRQUAL', 'extension m_score (FDR) cutoff, what is used for realignment points'),
-            Argument('ALIGNER_REALIGNRUNS', 'true=realign, false=use iRTfaster, less datapoints, but less accurate',
-                     default="true")
         ]
+        for k, v in self.opts.iteritems():
+            ret.append(Argument(k, v))
+        return ret
 
     def prepare_run(self, log, info):
         if not isinstance(info["MPROPHET_TSV"], list):

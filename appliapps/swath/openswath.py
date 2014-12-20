@@ -14,91 +14,83 @@ class OpenSwathWorkflow(WrappedApp):
     MEM: can be controlled with -batchSize. 4000-5000 batchSize ~ 1G RAM per thread
     """
 
+    # Note: Only put static opts here
+    opts = {
+        'IRTTRAML': "tr_irt",
+        'THREADS': 'threads',
+        'MIN_RSQ': 'min_rsq',
+        'MIN_COVERAGE': 'min_coverage',
+        'MIN_UPPER_EDGE_DIST': 'min_upper_edge_dist',
+        'EXTRACTION_WINDOW': 'mz_extraction_window',
+        'RT_EXTRACTION_WINDOW': 'rt_extraction_window',
+        'EXTRA_RT_EXTRACTION_WINDOW': 'extra_rt_extraction_window',
+        'USE_DIA_SCORES': 'Scoring:Scores:use_dia_scores',
+    }
+
     def add_args(self):
-        """
-        See super class.
-        """
-        return [
+        ret = [
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
-            Argument('DSSOUT', "if getdataset was used kez MZXML is not set"),
-            Argument('THREADS', 'Number of threads used in the process.'),
+            Argument('DSSOUT', "if key MZXML not set, get from DSSOUT file (after getdataset)"),
+            Argument('TRAML_CSV', "Path to the traml2csv library"),
 
-            Argument('TRAML', 'Path to the TraML file.'),
-            Argument('TRAML_CSV', 'Path to the TraML file.'),
-            Argument('IRTTRAML', 'Path to the iRT TraML file.'),
-
-            Argument('MIN_RSQ', ''),
-            Argument('MIN_COVERAGE', ''),
-
-            Argument('MIN_UPPER_EDGE_DIST', 'minimum upper edge distance parameter'),
-            Argument('EXTRACTION_WINDOW', 'extraction window to extract around'),
-            Argument('EXTRA_RT_EXTRACTION_WINDOW', 'extra RT extraction window to extract around'),
-            Argument('RT_EXTRACTION_WINDOW', 'RT extraction window to extract around'),
             Argument('WINDOW_UNIT', 'extraction window unit thompson/ppm'),
-            Argument('USE_MS1_TRACES','use ms1 traces'),
-
-            Argument('DO_CHROMML_REQUANT', 'to skip set to false')
+            Argument('USE_MS1_TRACES', ""),
+            Argument('DO_CHROMML_REQUANT', 'to skip set to false'),
         ]
+        for k, v in self.opts.iteritems():
+            ret.append(Argument(k, v))
 
-    def prepare_run(self, log, info):
-        #in case getdataset instead of getmsdata was used key MZXML is not set but mzXML.gz is in DSSOUT list
+        return ret
+
+    def _getmzxml_from_dssout(self, info, log):
+        # in case getdataset instead of getmsdata was used key MZXML is not set but mzXML.gz is in DSSOUT list
         if not Keys.MZXML in info:
             if not isinstance(info['DSSOUT'], list):
                 info['DSSOUT'] = [info['DSSOUT']]
             for key in info['DSSOUT']:
                 if '.mzXML' in key:
                     info[Keys.MZXML] = key
-                    log.info("MZXML is "+os.path.basename(key))
+                    log.info("MZXML is " + os.path.basename(key))
+        return info
 
-        if info.get('TRAML_CSV', "") == "":
-            log.warn("No tsv library found, using traml library. Affects mem usage significantly!")
-            library = info['TRAML']
-        else:
-            library = info['TRAML_CSV']
+    def prepare_run(self, log, info):
+        info = self._getmzxml_from_dssout(info, log)
 
-        ppm = ''
+        flags = ''
+        for k, v in self.opts.iteritems():
+            if info.get(k, "") != "":
+                flags += " -%s %s" % (v, info[k])
+
+        #These two cannot be 'flags' because they are options without argument
         if info['WINDOW_UNIT'] == 'ppm':
-            ppm = '-ppm'
+            flags += ' -ppm'
 
-        ms1tr = ""
-        if info.get("USE_MS1_TRACES","") == "True":
-            ms1tr = "-use_ms1_traces"
+        if info.get("USE_MS1_TRACES", "") == "true":
+            flags += " -use_ms1_traces"
 
-        samplename = os.path.basename(info['MZXML']).split(".")[0]
-        info['FEATURETSV'] = os.path.join(info[Keys.WORKDIR], samplename + '.tsv')
-
-        #copy mzxml, featureTSV and chormML first to local scratch, then back to global to decrease netI/O
+        # We need to decrease netI/O here, so we move everything to local scratch and calc here, then move back
         tmpdir = os.environ.get('TMPDIR', info[Keys.WORKDIR]) + '/'
         tmpmzxml = os.path.join(tmpdir, os.path.basename(info['MZXML']))
+        samplename = os.path.basename(info['MZXML']).split(".")[0]
         tmptsv = os.path.join(tmpdir, samplename + '.tsv.tmp')
-
-        extraextract = ''
-        if info.get('EXTRA_RT_EXTRACTION_WINDOW', "") != "":
-            extraextract = "-extra_rt_extraction_window " + info['EXTRA_RT_EXTRACTION_WINDOW']
+        info['FEATURETSV'] = os.path.join(info[Keys.WORKDIR], samplename + '.tsv')
 
         if info.get('DO_CHROMML_REQUANT', "") == "false":
             log.info("Skipping creation of chromMZML")
-            chrommlflag = ""
             chrommlmv = "/bin/true"
         else:
-            info['CHROM_MZML'] = os.path.join(info[Keys.WORKDIR], samplename + '.chrom.mzML.gz')
             tmpchrom = os.path.join(tmpdir, samplename + '.chrom.mzML.tmp')
-            chrommlflag = "-out_chrom " + tmpchrom
+            flags += " -out_chrom " + tmpchrom
+            info['CHROM_MZML'] = os.path.join(info[Keys.WORKDIR], samplename + '.chrom.mzML.gz')
             chrommlmv = " gzip -c %s > %s " % (tmpchrom, info['CHROM_MZML'])
 
-        #command: copy mzXML to local scratch, run OpenSwathWorkflow, copy & zip result tsv (& ev. chrom.mzml)
+        #command: 1) copy mzXML to local, 2) OpenSwathWorkflow, 3) copy result tsv (& ev. chrom.mzml) to global
         command = """cp -v %s %s &&
-        OpenSwathWorkflow -in %s -tr %s -tr_irt %s -out_tsv %s %s
-        -min_rsq %s -min_coverage %s %s
-        -min_upper_edge_dist %s -mz_extraction_window %s %s -rt_extraction_window %s %s
-        -tempDirectory %s -readOptions cache -batchSize 4000 -threads %s &&
-        mv -v %s %s &&
+        OpenSwathWorkflow -in %s -tr %s -out_tsv %s -tempDirectory %s -readOptions cache -batchSize 4000 %s &&
+        cp -v %s %s &&
         %s""" % (
             info["MZXML"], tmpmzxml,
-            tmpmzxml, library, info['IRTTRAML'], tmptsv, chrommlflag,
-            info['MIN_RSQ'], info['MIN_COVERAGE'], ms1tr,
-            info['MIN_UPPER_EDGE_DIST'], info['EXTRACTION_WINDOW'], ppm, info['RT_EXTRACTION_WINDOW'], extraextract,
-            tmpdir, info['THREADS'],
+            tmpmzxml, info['TRAML_CSV'], tmptsv, tmpdir, flags,
             tmptsv, info['FEATURETSV'],
             chrommlmv
         )
@@ -108,22 +100,23 @@ class OpenSwathWorkflow(WrappedApp):
 
     def validate_run(self, log, info, exit_code, stdout):
         for line in stdout.splitlines():
-            #Determined there to be 35792 SWATH windows and in total 6306 MS1 spectra
+            # Determined there to be 35792 SWATH windows and in total 6306 MS1 spectra
             if 'Determined there to be' in line:
                 no_swathes = float(line.split()[4])
-                if no_swathes > 64:
+                if no_swathes > 128:
                     raise RuntimeError('This is a DDA sample, not SWATH!')
             if 'is below limit of ' in line:
-                raise RuntimeError('iRT calibration failed for ' + os.path.basename(info['MZXML']) + "!\n" + line)
+                raise RuntimeError("iRT calibration failed: " + line)
 
-        #validation.check_stdout(log,stdout)
+        # validation.check_stdout(log,stdout)
         validation.check_exitcode(log, exit_code)
         validation.check_file(log, info['FEATURETSV'])
         if 'CHROM_MZML' in info:
-            #don't check_xml because of .gz
+            #don't use check_xml() because of .gz
             validation.check_file(log, info['CHROM_MZML'])
 
         return info
+
 
 if __name__ == "__main__":
     OpenSwathWorkflow.main()

@@ -31,6 +31,9 @@ class PyProphet(WrappedApp):
         ret = [
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument('FEATURETSV', 'input openswathfeaturetsv'),
+
+            Argument('MPR_MAINVAR',"main mprophet var"),
+            Argument('MPR_VARS',"side mprophet vars"),
         ]
         for k, v in self.opts.iteritems():
             ret.append(Argument(k, v))
@@ -55,6 +58,11 @@ class PyProphet(WrappedApp):
         base = os.path.join(info[Keys.WORKDIR], os.path.splitext(os.path.basename(info['FEATURETSV']))[0])
         info['MPROPHET_TSV'] = base + "_with_dscore_filtered.csv"
         validation.check_file(log, info['MPROPHET_TSV'])
+
+        hdr = open(info['MPROPHET_TSV']).readline()
+        for var in [info['MPR_MAINVAR']] + info['MPR_VARS'].split():
+            if not var in hdr:
+                log.warn("var %s not found in input thus not used for scoring")
 
         prophet_stats = []
         for end in ["_full_stat.csv", "_scorer.bin", "_weights.txt", "_report.pdf", "_dscores_top_target_peaks.txt",

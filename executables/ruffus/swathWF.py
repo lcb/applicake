@@ -26,26 +26,32 @@ DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets/
 DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/openbis_dropbox/
 COMMENT = WFTEST - newUPS SWATH
 
-EXTRACTION_WINDOW = 0.05
-WINDOW_UNIT = Thomson
-RT_EXTRACTION_WINDOW = 600
-MIN_UPPER_EDGE_DIST = 1
-EXTRA_RT_EXTRACTION_WINDOW = 100
 IRTTRAML = /cluster/apps/imsbtools/stable/files/hroest_DIA_iRT.TraML
 MIN_RSQ = 0.95
 MIN_COVERAGE = 0.6
+MIN_UPPER_EDGE_DIST = 1
+EXTRACTION_WINDOW = 0.05
+RT_EXTRACTION_WINDOW = 600
+EXTRA_RT_EXTRACTION_WINDOW = 100
+WINDOW_UNIT = Thomson
+DO_CHROMML_REQUANT = true
+USE_DIA_SCORES = true
+USE_MS1_TRACES = false
+
 MPR_NUM_XVAL = 10
 MPR_LDA_PATH = /cluster/apps/guse/stable/wftests/chludwig_L110830_20_SW_scorer.bin
 MPR_MAINVAR = xx_swath_prelim_score
 MPR_VARS = bseries_score elution_model_fit_score intensity_score isotope_correlation_score isotope_overlap_score library_corr library_rmsd log_sn_score massdev_score massdev_score_weighted norm_rt_score xcorr_coelution xcorr_coelution_weighted xcorr_shape xcorr_shape_weighted yseries_score
-ALIGNER_TARGETFDR = 0.01
-ALIGNER_FRACSELECTED = 0
-ALIGNER_MAX_RT_DIFF = 30
-ALIGNER_METHOD = best_overall
-ALIGNER_DSCORE_CUTOFF = 0.5
+MPR_DSCORE_CUTOFF = 1
+
 ALIGNER_FDR =
 ALIGNER_MAX_FDRQUAL =
-DO_CHROMML_REQUANT = true
+ALIGNER_TARGETFDR = 0.01
+ALIGNER_MAX_RT_DIFF = 30
+ALIGNER_FRACSELECTED = 0
+ALIGNER_METHOD = best_overall
+ALIGNER_REALIGN_METHOD = splineR_external
+
 MATRIX_FORMAT = tsv
 DB_SOURCE = PersonalDB
 DATABASE_PACKAGE = LOBLUM
