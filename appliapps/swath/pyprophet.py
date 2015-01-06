@@ -16,15 +16,14 @@ class PyProphet(WrappedApp):
     opts = {
         'MPR_DSCORE_CUTOFF': "d_score.cutoff",
         'MPR_NUM_XVAL': "xeval.num_iter",
-        'MPR_FRACT': "xeval.fraction",
         'MPR_LDA_PATH': "apply_scorer",
         'MPR_WT_PATH': "apply_weights",
+        'MPR_FRACT': "xeval.fraction",
         'MPR_SSL_IF': "semi_supervised_learner.initial_fdr",
         'MPR_SSL_IL': 'semi_supervised_learner.initial_lambda',
         'MPR_SSL_TF': 'semi_supervised_learner.iteration_fdr',
         'MPR_SSL_TL': 'semi_supervised_learner.iteration_lambda',
         'MPR_SSL_NI': 'semi_supervised_learner.num_iter',
-        'MPR_MAYU': "export.mayu",
     }
 
     def add_args(self):
@@ -34,16 +33,22 @@ class PyProphet(WrappedApp):
 
             Argument('MPR_MAINVAR',"main mprophet var"),
             Argument('MPR_VARS',"side mprophet vars"),
+            Argument('MPR_MAYU',"true to export mayu")
         ]
         for k, v in self.opts.iteritems():
             ret.append(Argument(k, v))
         return ret
 
     def prepare_run(self, log, info):
+        if info['MPR_MAINVAR'] in info['MPR_VARS']:
+            raise RuntimeError("Mainvar [%s] occurs duplicated in vars!" % info['MPR_MAINVAR'])
         flags = ''
         for k, v in self.opts.iteritems():
             if info.get(k, "") != "":
                 flags += " --%s=%s" % (v, info[k])
+
+        if info.get("MPR_MAYU", "") == "True":
+            flags += " --export.mayu"
 
         command = 'mProphetScoreSelector.sh %s %s %s && ' \
                   'pyprophet --ignore.invalid_score_columns --target.dir=%s %s %s' % (
@@ -62,7 +67,7 @@ class PyProphet(WrappedApp):
         hdr = open(info['MPROPHET_TSV']).readline()
         for var in [info['MPR_MAINVAR']] + info['MPR_VARS'].split():
             if not var in hdr:
-                log.warn("var %s not found in input thus not used for scoring")
+                log.warn("Requested var [%s] not found in input, thus not used for scoring" % var)
 
         prophet_stats = []
         for end in ["_full_stat.csv", "_scorer.bin", "_weights.txt", "_report.pdf", "_dscores_top_target_peaks.txt",

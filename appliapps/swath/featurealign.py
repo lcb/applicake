@@ -10,18 +10,17 @@ from applicake.coreutils.keys import Keys, KeyHelp
 
 
 class FeatureAlignment(WrappedApp):
-    """
-    200 sample small lib:
-    with dscore cutoff and external R: 2h20m, 5G RAM
-    """
+
     opts = {
-        'ALIGNER_FDR': "fdr_cutoff",
-        'ALIGNER_MAX_FDRQUAL': "max_fdr_quality",
+        "ALIGNER_REALIGN_METHOD": "realign_method", #RTalign default=splineR_external
         'ALIGNER_TARGETFDR': 'target_fdr',
         'ALIGNER_MAX_RT_DIFF': 'max_rt_diff',
-        'ALIGNER_FRACSELECTED': 'frac_selected',
+
         'ALIGNER_METHOD': "method", #clustering default=best_overall
-        "ALIGNER_REALIGN_METHOD": "realign_method", #RTalign default=splineR_external
+        'ALIGNER_FDR': "fdr_cutoff",
+        'ALIGNER_MAX_FDRQUAL': "max_fdr_quality",
+        'ALIGNER_FRACSELECTED': 'frac_selected',
+
     }
 
     def add_args(self):
