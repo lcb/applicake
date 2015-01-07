@@ -64,11 +64,19 @@ class PyProphet(WrappedApp):
         info['MPROPHET_TSV'] = base + "_with_dscore_filtered.csv"
         validation.check_file(log, info['MPROPHET_TSV'])
 
-        hdr = open(info['MPROPHET_TSV']).readline()
-        for var in [info['MPR_MAINVAR']] + info['MPR_VARS'].split():
-            if not var in hdr:
-                log.warn("Requested var [%s] not found in input, thus not used for scoring" % var)
+        with open(info['MPROPHET_TSV']) as f:
+            hdr = f.readline().split("\t")
+            dta = f.readline().split("\t")
 
+        for var in [info['MPR_MAINVAR']] + info['MPR_VARS'].split():
+            if not var in "".join(hdr):
+                log.warn("Requested var [%s] not found in input, thus not used for scoring" % var)
+            else:
+                idx = [idx for idx, col in enumerate(hdr) if var in col][0]
+                if dta[idx] == "":
+                    log.warn("Requested var [%s] has no values, thus ignored in scoring" % var)
+                else:
+                    log.debug("Var [%s] was used for scoring" % var)
         prophet_stats = []
         for end in ["_full_stat.csv", "_scorer.bin", "_weights.txt", "_report.pdf", "_dscores_top_target_peaks.txt",
                     "_dscores_top_decoy_peaks.txt"]:

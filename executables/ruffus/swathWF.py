@@ -152,5 +152,5 @@ def cp2dropbox(infile, outfile):
                            '--INPUT', infile, '--OUTPUT', outfile])
 
 ########################################################
-pipeline_run([cp2dropbox], multiprocess=3, verbose=2)
+pipeline_run([pprophet], multiprocess=3, verbose=2)
     
