@@ -6,6 +6,7 @@ import subprocess
 
 from applicake.app import BasicApp
 from applicake.apputils import dropbox
+from applicake.apputils.dirs import makedirs_clean
 from applicake.coreutils.arguments import Argument
 from applicake.coreutils.info import IniInfoHandler
 from applicake.coreutils.keys import Keys, KeyHelp
@@ -99,6 +100,20 @@ class Copy2SwathDropbox(BasicApp):
             shutil.copy('analyseSWATH.pdf', stagebox)
         except:
             log.warn("SWATH report command [%s] failed, skipping" % reportcmd)
+
+        if info.get("RUNSWATH2VIEWER","") == "true":
+            try:
+                destdir = "/IMSB/ra/%s/html/tapir/%s" % (getpass.getuser(), dsinfo['EXPERIMENT'])
+                makedirs_clean(destdir)
+                shutil.copy(info['ALIGNMENT_TSV'],destdir)
+                for chrom in info['CHROM_MZML']:
+                    shutil.copy(chrom,destdir)
+                subprocess.call("gunzip -v %s/*.gz 2>&1" % destdir, shell=True)
+                log.info("swath2viewer finished! Visualize results by running [user@crick# "
+                         "/opt/imsb/georger/py26/bin/python /opt/imsb/georger/msproteomicstools/gui/TAPIR.py "
+                         "--in %s/*]" % destdir)
+            except Exception, e:
+                log.warn("swath2viewer failed! " + e.message)
 
         dropbox.move_stage_to_dropbox(log, stagebox, info['DROPBOX'], keepCopy=False)
 

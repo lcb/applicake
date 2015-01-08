@@ -17,6 +17,7 @@ def setup():
         subprocess.call("rm *ini* *.log", shell=True)
         with open("input.ini", 'w') as f:
             f.write("""
+RUNSWATH2VIEWER = true
 THREADS = 4
 MODULE = imsbtools/20140808_swath
 WORKFLOW = wf
