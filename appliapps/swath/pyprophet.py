@@ -42,6 +42,32 @@ class PyProphet(WrappedApp):
     def prepare_run(self, log, info):
         if info['MPR_MAINVAR'] in info['MPR_VARS']:
             raise RuntimeError("Mainvar [%s] occurs duplicated in vars!" % info['MPR_MAINVAR'])
+
+        #check if vars exist in input and have values
+        with open(info['FEATURETSV']) as f:
+            hdr = f.readline().split("\t")
+            dta = f.readline().split("\t")
+        vars_to_really_use = set()
+        for var in info['MPR_VARS'].split():
+            if not var in "".join(hdr):
+                log.warn("Requested var [%s] not found in input, thus not used for scoring" % var)
+            else:
+                idx = [idx for idx, col in enumerate(hdr) if var in col][0]
+                if dta[idx] == "":
+                    log.warn("Requested var [%s] has no values, thus ignored in scoring" % var)
+                else:
+                    vars_to_really_use.add(var)
+                    log.debug("Requested var [%s] will be used for scoring" % var)
+        info['MPR_VARS'] = " ".join(vars_to_really_use)
+        #the same for mainvar but with raise
+        mainvar = info['MPR_MAINVAR']
+        if not mainvar in "".join(hdr):
+            raise RuntimeError("Mainvar [%s] not found in input!" % mainvar)
+        if dta[[idx for idx, col in enumerate(hdr) if mainvar in col][0]] == "":
+            raise RuntimeError("Requested mainvar [%s] has no values!" % mainvar)
+        else:
+            log.debug("Requested mainvar [%s] will be used for scoring" % mainvar)
+
         flags = ''
         for k, v in self.opts.iteritems():
             if info.get(k, "") != "":
@@ -64,19 +90,6 @@ class PyProphet(WrappedApp):
         info['MPROPHET_TSV'] = base + "_with_dscore_filtered.csv"
         validation.check_file(log, info['MPROPHET_TSV'])
 
-        with open(info['MPROPHET_TSV']) as f:
-            hdr = f.readline().split("\t")
-            dta = f.readline().split("\t")
-
-        for var in [info['MPR_MAINVAR']] + info['MPR_VARS'].split():
-            if not var in "".join(hdr):
-                log.warn("Requested var [%s] not found in input, thus not used for scoring" % var)
-            else:
-                idx = [idx for idx, col in enumerate(hdr) if var in col][0]
-                if dta[idx] == "":
-                    log.warn("Requested var [%s] has no values, thus ignored in scoring" % var)
-                else:
-                    log.debug("Var [%s] was used for scoring" % var)
         prophet_stats = []
         for end in ["_full_stat.csv", "_scorer.bin", "_weights.txt", "_report.pdf", "_dscores_top_target_peaks.txt",
                     "_dscores_top_decoy_peaks.txt"]:

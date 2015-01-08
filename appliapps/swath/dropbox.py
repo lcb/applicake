@@ -51,6 +51,9 @@ class Copy2SwathDropbox(BasicApp):
         if 'MPR_LDA_PATH' in info and info['MPR_LDA_PATH'] != "":
             subprocess.check_call('zip -j ' + archive + ' ' + info['MPR_LDA_PATH'] + " 2>&1", shell=True)
 
+        if 'MPR_WT_PATH' in info and info['MPR_WT_PATH'] != "":
+            subprocess.check_call('zip -j ' + archive + ' ' + info['MPR_WT_PATH'] + " 2>&1", shell=True)
+
         #SPACE PROJECT given
         dsinfo = {}
         dsinfo['SPACE'] = info['SPACE']
@@ -70,11 +73,15 @@ class Copy2SwathDropbox(BasicApp):
 
         expinfo = {}
         expinfo['PARENT-DATA-SET-CODES'] = dsinfo['PARENT_DATASETS']
-        for key in ['WORKFLOW', 'COMMENT', 'TRAML', 'EXTRACTION_WINDOW', 'WINDOW_UNIT', 'RT_EXTRACTION_WINDOW',
-                    'MIN_UPPER_EDGE_DIST', 'IRTTRAML', 'MIN_RSQ', 'MIN_COVERAGE', 'MPR_NUM_XVAL',
-                    'MPR_LDA_PATH', 'MPR_MAINVAR', 'MPR_VARS', 'ALIGNER_FRACSELECTED', 'ALIGNER_MAX_RT_DIFF',
-                    'ALIGNER_METHOD', 'ALIGNER_DSCORE_CUTOFF',
-                    'ALIGNER_FDR', 'ALIGNER_MAX_FDRQUAL', 'ALIGNER_TARGETFDR', 'DO_CHROMML_REQUANT']:
+        expinfo['ALIGNER_DSCORE_CUTOFF'] = info['MPR_DSCORE_CUTOFF']
+        for key in ['WORKFLOW', 'COMMENT',
+                    'TRAML', 'EXTRACTION_WINDOW', 'WINDOW_UNIT', 'RT_EXTRACTION_WINDOW',
+                    'MIN_UPPER_EDGE_DIST', 'IRTTRAML', 'MIN_RSQ', 'MIN_COVERAGE',
+                    'MPR_NUM_XVAL','MPR_LDA_PATH', 'MPR_WT_PATH', 'MPR_FRACT', 'MPR_SSL_IF', 'MPR_SSL_IL', 'MPR_SSL_TF',
+                    'MPR_SSL_TL', 'MPR_SSL_NI', 'MPR_MAINVAR', 'MPR_VARS',
+                    'ALIGNER_FRACSELECTED', 'ALIGNER_MAX_RT_DIFF', 'ALIGNER_METHOD', 'ALIGNER_FDR',
+                    'ALIGNER_MAX_FDRQUAL', 'ALIGNER_TARGETFDR', 'ALIGNER_REALIGN_METHOD', 'DO_CHROMML_REQUANT',
+        ]:
             if info.get(key, "") != "":
                 expinfo[key] = info[key]
         path = os.path.join(stagebox, 'experiment.properties')
