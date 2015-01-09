@@ -91,16 +91,7 @@ class Copy2SwathDropbox(BasicApp):
         #put a copy of the whole ini into the dropbox. copy() to prevent OUTPUT being removed from main ini
         IniInfoHandler().write(info.copy(), os.path.join(stagebox, 'input.ini'))
 
-        #create witolds SWATH report mail
-        reportcmd = 'mailSWATH.sh "%s" "%s" 2>&1' % (info['ALIGNMENT_TSV'], info['COMMENT'])
-        if Keys.MODULE in info:
-            reportcmd = 'module load %s && %s'%(info[Keys.MODULE],reportcmd)
-        try:
-            subprocess.call(reportcmd, shell=True)
-            shutil.copy('analyseSWATH.pdf', stagebox)
-        except:
-            log.warn("SWATH report command [%s] failed, skipping" % reportcmd)
-
+        mailtext = ""
         if info.get("RUNSWATH2VIEWER","") == "true":
             try:
                 destdir = "/IMSB/ra/%s/html/tapir/%s" % (getpass.getuser(), dsinfo['EXPERIMENT'])
@@ -109,11 +100,23 @@ class Copy2SwathDropbox(BasicApp):
                 for chrom in info['CHROM_MZML']:
                     shutil.copy(chrom,destdir)
                 subprocess.call("gunzip -v %s/*.gz 2>&1" % destdir, shell=True)
-                log.info("swath2viewer finished! Visualize results by running [user@crick# "
-                         "/opt/imsb/georger/py26/bin/python /opt/imsb/georger/msproteomicstools/gui/TAPIR.py "
-                         "--in %s/*]" % destdir)
+                mailtext = "\n\nswath2viewer was enabled. To visualize results use e.g.\n" \
+                           "user@crick# /opt/imsb/georger/py26/bin/python " \
+                           "/opt/imsb/georger/msproteomicstools/gui/TAPIR.py --in %s/*" % destdir
             except Exception, e:
                 log.warn("swath2viewer failed! " + e.message)
+
+        #create witolds SWATH report mail
+        reportcmd = 'mailSWATH.sh "%s" "%s" "%s" 2>&1' % (info['ALIGNMENT_TSV'], info['COMMENT'], mailtext)
+        if Keys.MODULE in info:
+            reportcmd = 'module load %s && %s'%(info[Keys.MODULE],reportcmd)
+        try:
+            subprocess.call(reportcmd, shell=True)
+            shutil.copy('analyseSWATH.pdf', stagebox)
+        except:
+            log.warn("SWATH report command [%s] failed, skipping" % reportcmd)
+
+
 
         dropbox.move_stage_to_dropbox(log, stagebox, info['DROPBOX'], keepCopy=False)
 
