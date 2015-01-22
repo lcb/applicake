@@ -33,11 +33,17 @@ class Copy2SwathDropbox(BasicApp):
             "git --git-dir=/cluster/apps/openms/svn-current/OpenMS/.git rev-parse --short HEAD", shell=True).strip()
 
         stagebox = dropbox.make_stagebox(log, info)
+        expcode = dropbox.get_experiment_code(info)
 
-        #copy and compress align.csv, but not the matrix
+        #copy and compress align.csv, but not the matrix REQUEST: expcode in name
+        tgt = os.path.join(stagebox, expcode + '_' + os.path.basename(info['ALIGNMENT_TSV']))
+        shutil.copy(info['ALIGNMENT_TSV'], tgt)
         dropbox.keys_to_dropbox(log, info, ['ALIGNMENT_TSV'], stagebox)
         subprocess.check_call('gzip ' + stagebox + '/* 2>&1', shell=True)
-        dropbox.keys_to_dropbox(log, info, ['ALIGNMENT_MATRIX','ALIGNER_STDOUT'], stagebox)
+
+        tgt = os.path.join(stagebox, expcode + '_' + os.path.basename(info['ALIGNMENT_MATRIX']))
+        shutil.copy(info['ALIGNMENT_MATRIX'], tgt)
+        dropbox.keys_to_dropbox(log, info, ['ALIGNER_STDOUT'], stagebox)
 
         #compress all mprophet files into one zip
         archive = os.path.join(stagebox, 'pyprophet_stats.zip')
@@ -68,7 +74,7 @@ class Copy2SwathDropbox(BasicApp):
 
         dsinfo['DATASET_TYPE'] = 'SWATH_RESULT'
         dsinfo['EXPERIMENT_TYPE'] = 'SWATH_SEARCH'
-        dsinfo['EXPERIMENT'] = dropbox.get_experiment_code(info)
+        dsinfo['EXPERIMENT'] = expcode
         path = os.path.join(stagebox, 'dataset.attributes')
         IniInfoHandler().write(dsinfo, path)
 

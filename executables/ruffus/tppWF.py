@@ -175,7 +175,13 @@ def proteinprophet(infile, outfile):
                            '--INPUT', infile, '--OUTPUT', outfile])
 
 @follows(proteinprophet)
-@files("proteinprophet.ini", "protxml2openbis.ini")
+@files("proteinprophet.ini", "mayu.ini")
+def mayu(infile, outfile):
+    subprocess.check_call(['python', basepath + 'appliapps/tpp/mayu.py',
+                           '--INPUT', infile, '--OUTPUT', outfile])
+
+@follows(mayu)
+@files("mayu.ini", "protxml2openbis.ini")
 def protxml2openbis(infile, outfile):
     subprocess.check_call(['python', basepath + 'appliapps/tpp/protxml2openbis.py',
                            '--INPUT', infile, '--OUTPUT', outfile])
