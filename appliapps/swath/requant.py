@@ -53,7 +53,7 @@ class RequantValues(WrappedApp):
         info['REQUANT_TSV'] = os.path.join(info[Keys.WORKDIR], "requant.tsv")
 
         command = "gunzip -c %s > %s && " \
-                  "requantAlignedValues.py --in %s --peakgroups_infile %s --do_single_run %s --out %s " \
+                  "requantAlignedValues.py --disable_isotopic_transfer --in %s --peakgroups_infile %s --do_single_run %s --out %s " \
                   "--border_option %s " % (
                       info["CHROM_MZML"], localmzml,
                       " ".join(trlist), info['ALIGNMENT_TSV'], localtr, info['REQUANT_TSV'],
