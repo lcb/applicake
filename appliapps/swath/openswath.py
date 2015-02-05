@@ -111,6 +111,8 @@ class OpenSwathWorkflow(WrappedApp):
         # validation.check_stdout(log,stdout)
         validation.check_exitcode(log, exit_code)
         validation.check_file(log, info['FEATURETSV'])
+        if os.path.getsize(info['FEATURETSV']) < 1000:
+            raise RuntimeError("No peak found, output is empty!")
         if 'CHROM_MZML' in info:
             #don't use check_xml() because of .gz
             validation.check_file(log, info['CHROM_MZML'])
