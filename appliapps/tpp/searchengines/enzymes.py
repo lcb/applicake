@@ -91,6 +91,13 @@ _enzymes = {
         'Omssa': ['5', None],
         'InteractParser': ['LysC', None],
     },
+      'Arg-C' : {
+        'XTandem': [ '[R]|{P}' , 'no' ],
+        'Myrimatch': ['Arg-C' , '2'],
+        'Comet': [ '5' , '2' ],
+        'Omssa': [ '1', None ],
+        'InteractParser': [ 'argc', None ],
+    }
 }
 
 
