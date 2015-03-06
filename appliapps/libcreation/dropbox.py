@@ -21,7 +21,7 @@ class Copy2LibcreateDropbox(BasicApp):
 
     def run(self, log, info):
         info['WORKFLOW'] = dropbox.extendWorkflowID(info['WORKFLOW'])
-        stagebox = dropbox.make_stagebox(log, info)
+        info['DROPBOXSTAGE'] = stagebox = dropbox.make_stagebox(log, info)
 
         info['PEPIDX'] = info['SPLIB'].replace(".splib", ".pepidx")
         dropbox.keys_to_dropbox(log, info, ['SPLIB', 'PEPIDX', 'TSV', 'TRAML'], stagebox)

@@ -32,7 +32,7 @@ class Copy2SwathDropbox(BasicApp):
         info['WORKFLOW'] += " openms@" + subprocess.check_output(
             "git --git-dir=/cluster/apps/openms/svn-current/OpenMS/.git rev-parse --short HEAD", shell=True).strip()
 
-        stagebox = dropbox.make_stagebox(log, info)
+        info['DROPBOXSTAGE'] = stagebox = dropbox.make_stagebox(log, info)
         expcode = dropbox.get_experiment_code(info)
 
         #copy and compress align.csv, but not the matrix REQUEST: expcode in name
