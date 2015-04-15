@@ -38,7 +38,6 @@ class Copy2SwathDropbox(BasicApp):
         #copy and compress align.csv, but not the matrix REQUEST: expcode in name
         tgt = os.path.join(stagebox, expcode + '_' + os.path.basename(info['ALIGNMENT_TSV']))
         shutil.copy(info['ALIGNMENT_TSV'], tgt)
-        dropbox.keys_to_dropbox(log, info, ['ALIGNMENT_TSV'], stagebox)
         subprocess.check_call('gzip ' + stagebox + '/* 2>&1', shell=True)
 
         tgt = os.path.join(stagebox, expcode + '_' + os.path.basename(info['ALIGNMENT_MATRIX']))
