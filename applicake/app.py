@@ -75,10 +75,12 @@ class BasicApp(IApp):
             log.debug("%s finished sucessfully at %s" % (cls.__name__,time.asctime()))
             log.info("%s finished sucessfully after %ss" % (cls.__name__,int(time.time() - start)))
         except Exception, e:
-            msg = cls.__name__ + " failed! " + str(e) + "\n"
+            msg = cls.__name__ + " failed! " + str(e)
             if isinstance(e, KeyError):
                 msg += " key not found in info"
+            msg+= "\n"
             # if app fails before logger is created use sys.exit for message
+            #subprocess.call("echo \"applifake msg: %s\" | mail -s \"WFTestFailed\" sis.helpdesk@bsse.ethz.ch" % msg ,shell=True)
             if not log:
                 sys.exit(msg)
             log.error(msg)

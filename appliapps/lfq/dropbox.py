@@ -26,7 +26,7 @@ class Copy2QuantDropbox(BasicApp):
         info['WORKFLOW'] = dropbox.extendWorkflowID(info['WORKFLOW'])
         info['DROPBOXSTAGE'] = dropbox.make_stagebox(log, info)
 
-        #copy files        
+        #copy files
         keys = ['PEPCSV', 'PROTCSV', 'CONSENSUSXML']
         dropbox.keys_to_dropbox(log, info, keys, info['DROPBOXSTAGE'])
 

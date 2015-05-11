@@ -28,7 +28,7 @@ class Copy2SwathDropbox(BasicApp):
 
         info['WORKFLOW'] = dropbox.extendWorkflowID(info['WORKFLOW'])
         info['WORKFLOW'] += " msproteomicstools@" + subprocess.check_output(
-            "awk 'NR==4' /cluster/apps/imsbtools/stable/msproteomicstools/trunk/.svn/entries", shell=True).strip()
+            "git --git-dir=/cluster/apps/imsbtools/stable/msproteomicstools/master/.git rev-parse --short HEAD", shell=True).strip()
         info['WORKFLOW'] += " openms@" + subprocess.check_output(
             "git --git-dir=/cluster/apps/openms/svn-current/OpenMS/.git rev-parse --short HEAD", shell=True).strip()
 

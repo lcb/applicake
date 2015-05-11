@@ -40,7 +40,7 @@ USE_DIA_SCORES = true
 USE_MS1_TRACES = false
 
 MPR_NUM_XVAL = 10
-MPR_LDA_PATH = /cluster/apps/guse/stable/wftests/chludwig_L110830_20_SW_scorer.bin
+#MPR_LDA_PATH = /cluster/apps/guse/stable/wftests/chludwig_L110830_20_SW_scorer.bin
 MPR_MAINVAR = xx_swath_prelim_score
 MPR_VARS = bseries_score elution_model_fit_score intensity_score isotope_correlation_score isotope_overlap_score library_corr library_rmsd log_sn_score massdev_score massdev_score_weighted norm_rt_score xcorr_coelution xcorr_coelution_weighted xcorr_shape xcorr_shape_weighted yseries_score
 MPR_DSCORE_CUTOFF = 1

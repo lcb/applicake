@@ -20,13 +20,15 @@ class FeatureAlignment(WrappedApp):
         'ALIGNER_FDR': "fdr_cutoff",
         'ALIGNER_MAX_FDRQUAL': "max_fdr_quality",
         'ALIGNER_FRACSELECTED': 'frac_selected',
-
+        'ALGNER_MST_USERTCORR' : 'mst:useRTCorrection',
+        'ALIGNER_MST_STDEVMULT' : 'mst:Stdev_multiplier',
     }
 
     def add_args(self):
         ret = [
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
-            Argument('MPROPHET_TSV', ''),
+            Argument('MPROPHET_TSV', 'mprophet outputfiles to use for alignment'),
+            Argument('ISOTOPIC_GROUPING','featurealingn+requant: enable/disable isotopic grouping'),
         ]
         for k, v in self.opts.iteritems():
             ret.append(Argument(k, v))
@@ -43,6 +45,9 @@ class FeatureAlignment(WrappedApp):
         for k, v in self.opts.iteritems():
             if info.get(k, "") != "":
                 flags += " --%s %s" % (v, info[k])
+
+        if info['ISOTOPIC_GROUPING'] == "false":
+            flags += " --disable_isotopic_grouping "
 
         command = "feature_alignment.py --file_format openswath --in %s --out %s " \
                   "--out_meta %s --tmpdir %s %s" % (
