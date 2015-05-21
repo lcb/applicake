@@ -25,6 +25,7 @@ class OpenSwathWorkflow(WrappedApp):
         'RT_EXTRACTION_WINDOW': 'rt_extraction_window',
         'EXTRA_RT_EXTRACTION_WINDOW': 'extra_rt_extraction_window',
         'USE_DIA_SCORES': 'Scoring:Scores:use_dia_scores',
+        'USE_BG_SUBTRACT': 'Scoring:TransitionGroupPicker:background_subtraction',
     }
 
     def add_args(self):
