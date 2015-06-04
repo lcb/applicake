@@ -25,6 +25,7 @@ class RequantValues(WrappedApp):
             Argument('ISOTOPIC_TRANSFER', 'requant only: not yet finished',default='false'),
             Argument('ALIGNER_REALIGN_METHOD', 'featurealingn+requant: RT realign method. req for SingleShortestPath'),
             Argument('REQUANT_METHOD', ''),
+            Argument('ALIGNER_METHOD','for checking only'),
         ]
 
     def prepare_run(self, log, info):
@@ -50,6 +51,9 @@ class RequantValues(WrappedApp):
         #when method allTrafo is set --in *.tr must be set and the tr corresponding to the current chrom.mzML must be
         #linked to TMPDIR
         if info['REQUANT_METHOD'] == "allTrafo":
+            if "LocalMST" in info['ALIGNER_METHOD']:
+                raise RuntimeError("Boundary method 'allTrafo' does not work with feature aligner clustering method "
+                                   "'LocalMST', use 'singleShortest*' instead")
             mzmlroot = os.path.basename(info["CHROM_MZML"]).split(".")[0]
             localtr = ""
             trlist = []
