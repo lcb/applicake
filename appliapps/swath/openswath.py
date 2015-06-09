@@ -87,7 +87,7 @@ class OpenSwathWorkflow(WrappedApp):
 
         #command: 1) copy mzXML to local, 2) OpenSwathWorkflow, 3) copy result tsv (& ev. chrom.mzml) to global
         command = """cp -v %s %s &&
-        OpenSwathWorkflow -in %s -tr %s -out_tsv %s -tempDirectory %s -readOptions cache -batchSize 4000 %s &&
+        OpenSwathWorkflow -in %s -tr %s -out_tsv %s -tempDirectory %s -readOptions cacheWorkingInMemory -batchSize 1000 %s &&
         cp -v %s %s &&
         %s""" % (
             info["MZXML"], tmpmzxml,
