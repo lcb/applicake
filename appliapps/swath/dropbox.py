@@ -30,7 +30,7 @@ class Copy2SwathDropbox(BasicApp):
         info['WORKFLOW'] += " msproteomicstools@" + subprocess.check_output(
             "git --git-dir=/cluster/apps/imsbtools/stable/msproteomicstools/master/.git rev-parse --short HEAD", shell=True).strip()
         info['WORKFLOW'] += " openms@" + subprocess.check_output(
-            "git --git-dir=/cluster/apps/openms/svn-current/OpenMS/.git rev-parse --short HEAD", shell=True).strip()
+            "git --git-dir=/cluster/apps/openms/2.0.0-memory/OpenMS/.git rev-parse --short HEAD", shell=True).strip()
 
         info['DROPBOXSTAGE'] = stagebox = dropbox.make_stagebox(log, info)
         expcode = dropbox.get_experiment_code(info)
