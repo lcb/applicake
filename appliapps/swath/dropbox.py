@@ -87,6 +87,8 @@ class Copy2SwathDropbox(BasicApp):
                     'MPR_SSL_TL', 'MPR_SSL_NI', 'MPR_MAINVAR', 'MPR_VARS',
                     'ALIGNER_FRACSELECTED', 'ALIGNER_MAX_RT_DIFF', 'ALIGNER_METHOD', 'ALIGNER_FDR',
                     'ALIGNER_MAX_FDRQUAL', 'ALIGNER_TARGETFDR', 'ALIGNER_REALIGN_METHOD', 'DO_CHROMML_REQUANT',
+                    'ALGNER_MST_USERTCORR','ALIGNER_MST_STDEVMULT',
+                    'ISOTOPIC_GROUPING', 'REQUANT_METHOD',
         ]:
             if info.get(key, "") != "":
                 expinfo[key] = info[key]

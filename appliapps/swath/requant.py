@@ -21,11 +21,12 @@ class RequantValues(WrappedApp):
             Argument('CHROM_MZML', 'the chrom.mzml to requant'),
             Argument('TRAFO_FILES', 'all tr files'),
 
+            Argument('ALIGNER_METHOD','for checking only'),
+            Argument('ALIGNER_REALIGN_METHOD', 'featurealingn+requant: RT realign method. req for SingleShortestPath'),
             Argument('ISOTOPIC_GROUPING', 'featurealingn+requant: enable/disable isotopic grouping'),
             Argument('ISOTOPIC_TRANSFER', 'requant only: not yet finished',default='false'),
-            Argument('ALIGNER_REALIGN_METHOD', 'featurealingn+requant: RT realign method. req for SingleShortestPath'),
             Argument('REQUANT_METHOD', ''),
-            Argument('ALIGNER_METHOD','for checking only'),
+
         ]
 
     def prepare_run(self, log, info):
