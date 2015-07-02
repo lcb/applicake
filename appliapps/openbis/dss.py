@@ -50,6 +50,9 @@ class Dss(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, exit_code, out):
+        if "TypeError: expected str or unicode but got <type 'NoneType'>" in out:
+            raise RuntimeError("Dataset is archived. Please unarchive first!")
+
         validation.check_exitcode(log, exit_code)
 
         #KEY where to store downloaded file paths
