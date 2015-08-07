@@ -25,7 +25,7 @@ class Mayu(WrappedApp):
 
     def prepare_run(self, log, info):
         outbase = os.path.join(info[Keys.WORKDIR], 'mayuout')
-        info['MAYUOUT'] = outbase + '_main_1.07.csv'
+        info['MAYUOUT'] = outbase + '_main_1.08.csv'
 
         minmass, maxmass = info['MAYU_MASS_RANGE'].split("-")
         remamb = ""
