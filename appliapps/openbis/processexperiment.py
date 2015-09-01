@@ -18,7 +18,7 @@ class ProcessExperiment(BasicApp):
                 info[Keys.PROTXML] = entry
             if entry.endswith('pep.xml'):
                 info[Keys.PEPXML] = entry
-            if entry.endswith('_main_1.07.csv'):
+            if entry.endswith('_main_1.08.csv'):
                 info['MAYUOUT'] = entry
             if entry.endswith('.properties'):
                 propfile = entry
