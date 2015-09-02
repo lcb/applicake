@@ -12,7 +12,6 @@ from applicake.coreutils.keys import Keys, KeyHelp
 class FeatureAlignment(WrappedApp):
 
     opts = {
-        "ALIGNER_REALIGN_METHOD": "realign_method", #RTalign default=splineR_external
         'ALIGNER_TARGETFDR': 'target_fdr',
         'ALIGNER_MAX_RT_DIFF': 'max_rt_diff',
 
@@ -29,6 +28,7 @@ class FeatureAlignment(WrappedApp):
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument('MPROPHET_TSV', 'mprophet outputfiles to use for alignment'),
             Argument('ISOTOPIC_GROUPING','featurealingn+requant: enable/disable isotopic grouping'),
+            Argument("ALIGNER_REALIGN_METHOD", "realign_method")
         ]
         for k, v in self.opts.iteritems():
             ret.append(Argument(k, v))
@@ -45,6 +45,18 @@ class FeatureAlignment(WrappedApp):
         for k, v in self.opts.iteritems():
             if info.get(k, "") != "":
                 flags += " --%s %s" % (v, info[k])
+
+        if info["ALIGNER_REALIGN_METHOD"] == "iRT":
+            info["ALIGNER_REALIGN_METHOD"] = "diRT"
+        elif info["ALIGNER_REALIGN_METHOD"] == "linear":
+            info["ALIGNER_REALIGN_METHOD"] = "linear"
+        elif info["ALIGNER_REALIGN_METHOD"] == "spline":
+            info["ALIGNER_REALIGN_METHOD"] = "splineR_external"
+        elif info["ALIGNER_REALIGN_METHOD"] == "lowess":
+            info["ALIGNER_REALIGN_METHOD"] = "lowess_cython"
+        else:
+            log.debug("Leaving aligner realign method "+info["ALIGNER_REALIGN_METHOD"])
+        flags += " --realign_method "+info["ALIGNER_REALIGN_METHOD"]
 
         if info['ISOTOPIC_GROUPING'] == "false":
             flags += " --disable_isotopic_grouping "
