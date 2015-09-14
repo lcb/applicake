@@ -22,11 +22,11 @@ class WriteMatrix(WrappedApp):
 
     def prepare_run(self, log, info):
         if info.get('DO_CHROMML_REQUANT', "") == "false":
-            intsv = info['ALIGNMENT_TSV']
-            requantsv = ""
+            #if requant is skipped then input for merge is aligner output
+            requantsv = [info['ALIGNMENT_TSV'] ]
             merge = os.path.join(info['WORKDIR'], "feature_alignment.tsv")
         else:
-            intsv = info['ALIGNMENT_TSV']
+            #if requant was done input for merge is requant files
             requantsv = info["REQUANT_TSV"]
             if not isinstance(requantsv, list):
                 requantsv = [requantsv]
@@ -36,9 +36,9 @@ class WriteMatrix(WrappedApp):
         y = yaml.load(open(info['ALIGNMENT_YAML']))
         info['ALIGNER_MSCORE_THRESHOLD'] = y['AlignedSwathRuns']['Parameters']['m_score_cutoff']
 
-        command = "awk 'NR==1 || FNR!=1' %s %s > %s && " \
+        command = "awk 'NR==1 || FNR!=1' %s > %s && " \
                   "compute_full_matrix.py --in %s --out_matrix %s --aligner_mscore_threshold %s --output_method full" % (
-                      intsv, " ".join(requantsv), merge,
+                      " ".join(requantsv), merge,
                       merge, info['ALIGNMENT_MATRIX'], info['ALIGNER_MSCORE_THRESHOLD']
                   )
 

@@ -90,11 +90,18 @@ class SpectrastRTcalib(WrappedApp):
             if notenough:
                 log.error("No/not enough iRT peptides found in sample(s): " + ", ".join(notenough))
 
+            #when irt.txt not readable: PEPXML IMPORT: Cannot read landmark table. No RT normalization will be performed.
+            rtcalibfailed = False
+            for line in open(info['SPLOG']).readlines():
+                if "Cannot read landmark table" in line:
+                    log.error("Problem with reading rtkit file %s!"%info['RTKIT'])
+                    rtcalibfailed = True
+
             # Parse logfile to see whether R^2 is high enough. Example log for failed calibration (line 3 only when <0.9):
             # PEPXML IMPORT: RT normalization by linear regression. Found 10 landmarks in MS run "CHLUD_L110830_21".
             # PEPXML_IMPORT: Final fitted equation: iRT = (rRT - 1758) / (8.627); R^2 = 0.5698; 5 outliers removed.
             # ERROR PEPXML_IMPORT: R^2 still too low at required coverage. No RT normalization performed. Consider...
-            rtcalibfailed = False
+            rsqlow = False
             for line in open(info['SPLOG']).readlines():
                 if "Final fitted equation:" in line:
                     samplename = prevline.strip().split(" ")[-1]
@@ -102,14 +109,14 @@ class SpectrastRTcalib(WrappedApp):
                     if float(rsq) < float(info['RSQ_THRESHOLD']):
                         log.error(
                             "R^2 of %s is below threshold of %s for %s" % (rsq, info['RSQ_THRESHOLD'], samplename))
-                        rtcalibfailed = True
+                        rsqlow = True
                     else:
                         log.debug("R^2 of %s is OK for %s" % (rsq, samplename))
                 else:
                     prevline = line
 
             # Raise only here to have all errors shown
-            if rtcalibfailed or notenough:
+            if rsqlow or rtcalibfailed or notenough:
                 raise RuntimeError("Error in iRT calibration.")
 
         # Double check "Spectrast finished ..."

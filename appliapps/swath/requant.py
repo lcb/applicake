@@ -24,7 +24,7 @@ class RequantValues(WrappedApp):
             Argument('ALIGNER_METHOD','for checking only'),
             Argument('ALIGNER_REALIGN_METHOD', 'featurealingn+requant: RT realign method. req for SingleShortestPath'),
             Argument('ISOTOPIC_GROUPING', 'featurealingn+requant: enable/disable isotopic grouping'),
-            Argument('ISOTOPIC_TRANSFER', 'requant only: not yet finished',default='false'),
+            Argument('ISOTOPIC_TRANSFER', 'requant only: do isotopic transfer'),
             Argument('REQUANT_METHOD', ''),
 
         ]

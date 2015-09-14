@@ -51,8 +51,10 @@ class FeatureAlignment(WrappedApp):
         elif info["ALIGNER_REALIGN_METHOD"] == "linear":
             info["ALIGNER_REALIGN_METHOD"] = "linear"
         elif info["ALIGNER_REALIGN_METHOD"] == "spline":
+            log.info("Changing ALIGNER_REALIGN_METHOD to splineR_external")
             info["ALIGNER_REALIGN_METHOD"] = "splineR_external"
         elif info["ALIGNER_REALIGN_METHOD"] == "lowess":
+            log.info("Changing ALIGNER_REALIGN_METHOD to lowess_cython")
             info["ALIGNER_REALIGN_METHOD"] = "lowess_cython"
         else:
             log.debug("Leaving aligner realign method "+info["ALIGNER_REALIGN_METHOD"])
