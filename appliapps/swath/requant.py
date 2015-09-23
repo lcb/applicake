@@ -62,7 +62,7 @@ class RequantValues(WrappedApp):
                 info["TRAFO_FILES"] = [info["TRAFO_FILES"]]
             for i in info["TRAFO_FILES"]:
                 #the tr corresponding to mzml is linked to tdir
-                if mzmlroot in i:
+                if mzmlroot+"_with_dscore" in i:
                     localtr = os.path.join(tdir, os.path.basename(i))
                     os.symlink(i, localtr)
                     trlist.append(localtr)
