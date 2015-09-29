@@ -54,7 +54,7 @@ class RequantValues(WrappedApp):
         if info['REQUANT_METHOD'] == "allTrafo":
             if "LocalMST" in info['ALIGNER_METHOD']:
                 raise RuntimeError("Boundary method 'allTrafo' does not work with feature aligner clustering method "
-                                   "'LocalMST', use 'singleShortest*' instead")
+                                   "'LocalMST', use 'singleShortestPath' or 'singleShortestRun' instead")
             mzmlroot = os.path.basename(info["CHROM_MZML"]).split(".")[0]
             localtr = ""
             trlist = []
