@@ -14,3 +14,6 @@ export PYTHONPATH=/install_dir/applicake-master/applicake/:/install_dir/applicak
 for testing sucessful install try
 $ /install_dir/applicake-master/executables/ruffus/echoWF.py
 
+for testing sucessful install try
+python.exe .\appliapps\examples\cp.py --FILE "test"
+
