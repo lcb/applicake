@@ -1,2 +1,3 @@
 *.py[cod]
 .idea/
+applicake.egg-info/
