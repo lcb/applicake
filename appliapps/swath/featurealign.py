@@ -21,6 +21,7 @@ class FeatureAlignment(WrappedApp):
         'ALIGNER_FRACSELECTED': 'frac_selected',
         'ALGNER_MST_USERTCORR' : 'mst:useRTCorrection',
         'ALIGNER_MST_STDEVMULT' : 'mst:Stdev_multiplier',
+        'ALIGNER_ALIGNSCORE':'alignment_score',
     }
 
     def add_args(self):
