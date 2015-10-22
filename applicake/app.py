@@ -72,15 +72,15 @@ class BasicApp(IApp):
             ret_info = ci.run(log, req_info)
             info = dicts.merge(info, ret_info, priority='right')
             ci.teardown(log, info)
-            log.debug("%s finished sucessfully at %s" % (cls.__name__,time.asctime()))
-            log.info("%s finished sucessfully after %ss" % (cls.__name__,int(time.time() - start)))
+            log.debug("%s finished sucessfully at %s" % (cls.__name__, time.asctime()))
+            log.info("%s finished sucessfully after %ss" % (cls.__name__, int(time.time() - start)))
         except Exception, e:
             msg = cls.__name__ + " failed! " + str(e)
             if isinstance(e, KeyError):
                 msg += " key not found in info"
-            msg+= "\n"
+            msg += "\n"
             # if app fails before logger is created use sys.exit for message
-            #subprocess.call("echo \"applifake msg: %s\" | mail -s \"WFTestFailed\" sis.helpdesk@bsse.ethz.ch" % msg ,shell=True)
+            # subprocess.call("echo \"applifake msg: %s\" | mail -s \"WFTestFailed\" sis.helpdesk@bsse.ethz.ch" % msg ,shell=True)
             if not log:
                 sys.exit(msg)
             log.error(msg)
@@ -116,10 +116,10 @@ class BasicApp(IApp):
         # setup logging
         log = Logger.create(info[Keys.LOG_LEVEL])
 
-        #request by malars: show dataset prominent in logger
+        # request by malars: show dataset prominent in logger
         if Keys.DATASET_CODE in info:
             if not isinstance(info[Keys.DATASET_CODE], list):
-                if Keys.MZXML in info and not isinstance(info[Keys.MZXML],list):
+                if Keys.MZXML in info and not isinstance(info[Keys.MZXML], list):
                     log.info("Dataset is %s (%s)" % (info[Keys.DATASET_CODE], os.path.basename(info[Keys.MZXML])))
                 else:
                     log.info("Dataset is %s" % info[Keys.DATASET_CODE])
@@ -127,16 +127,16 @@ class BasicApp(IApp):
                 log.debug("Datasets are %s" % info[Keys.DATASET_CODE])
 
 
-        #WORKDIR: create WORKDIR (only after mk log)
+        # WORKDIR: create WORKDIR (only after mk log)
         info = dirs.create_workdir(log, info)
 
-        #filter to requested args
+        # filter to requested args
         if Keys.ALL_ARGS in info:
-            #if ALL_ARGS is set give whole info to app...
+            # if ALL_ARGS is set give whole info to app...
             req_info = info
         else:
             req_info = {}
-            #...otherwise copy only explicitly requested args to app
+            # ...otherwise copy only explicitly requested args to app
             for key in [arg.name for arg in basic_args + app_args]:
                 if key in info:
                     req_info[key] = info[key]
@@ -163,6 +163,21 @@ class WrappedApp(BasicApp):
         raise NotImplementedError("prepare_run() not implemented")
 
     def execute_run(self, log, info, cmd):
+        out = ""
+        exit_code = 0
+        if isinstance(cmd, list):
+            for single_command in cmd:
+                exit_code_s, out_s = self.execute_run_single(log, info, single_command)
+                exit_code += exit_code
+                out += out_s
+                if exit_code_s !=0:
+                    break
+        else:
+            exit_code, out = self.execute_run_single(log, info, cmd)
+        return exit_code, out
+
+    @staticmethod
+    def execute_run_single(log, info, cmd):
         # Fixme: Prettify/document MODULE load system
         # if MODULE is set load specific module before running cmd. requires http://modules.sourceforge.net/
         if info.get('MODULE', '') != '':
