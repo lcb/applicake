@@ -141,7 +141,6 @@ class BasicApp(IApp):
                 if key in info:
                     req_info[key] = info[key]
         log.debug("info for app: %s" % req_info)
-
         return log, req_info, info
 
     def run(self, log, info):
