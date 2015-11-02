@@ -43,7 +43,6 @@ def parse_sysargs(arglist):
             all_args[k] = v
 
     defaults = dict((arg.name, arg.default) for arg in arglist if arg.default is not None)
-
     return defaults, all_args
 
 

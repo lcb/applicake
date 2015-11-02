@@ -33,7 +33,7 @@ class PeptideProphetSequence(WrappedApp):
 
         # XTINERACT
         # TODO check if this is needed
-        info['XINTERACT'] = '-dDECOY_ -OAPdlIw'
+        #info['XINTERACT'] = '-dDECOY_ -OAPdlIw'
         result = os.path.join(info[Keys.WORKDIR], 'interact.pep.xml')
         enz, _ = enzymestr_to_engine(info['ENZYME'], 'InteractParser')
 
@@ -47,7 +47,7 @@ class PeptideProphetSequence(WrappedApp):
         )
         command.append(
             "{tppdir}PeptideProphetParser {result} DECOY={decoy} ACCMASS NONPARAM DECOYPROBS LEAVE PI INSTRWARN".format(
-            tppdir =info['TPPDIR'] ,result=result, )
+            tppdir =info['TPPDIR'], result=result, decoy=info['DECOY'])
         )
 
         info[Keys.PEPXML] = result

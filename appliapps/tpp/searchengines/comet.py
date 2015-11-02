@@ -8,30 +8,14 @@ from applicake.apputils.templates import read_mod_write, get_tpl_of_class
 from applicake.apputils.validation import check_exitcode, check_xml, check_stdout
 from applicake.coreutils.arguments import Argument
 from applicake.coreutils.keys import Keys, KeyHelp
+from appliapps.tpp.searchengines.searchenginebase import SearchEnginesBase
 
 
-class Comet(WrappedApp):
+class Comet(SearchEnginesBase):
     """
     Wrapper for the search engine comet.
     """
 
-    def add_args(self):
-        return [
-            Argument(Keys.EXECUTABLE, KeyHelp.EXECUTABLE),
-            Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
-            Argument(Keys.THREADS, KeyHelp.THREADS),
-            Argument(Keys.MZXML, KeyHelp.MZXML),
-
-            Argument('FRAGMASSERR', 'Fragment mass error'),
-            Argument('FRAGMASSUNIT', 'Unit of the fragment mass error'),
-            Argument('PRECMASSERR', 'Precursor mass error'),
-            Argument('PRECMASSUNIT', 'Unit of the precursor mass error'),
-            Argument('MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages'),
-            Argument('DBASE', 'Sequence database file with target/decoy entries'),
-            Argument('ENZYME', 'Enzyme used to digest the proteins'),
-            Argument('STATIC_MODS', 'List of static modifications'),
-            Argument('VARIABLE_MODS', 'List of variable modifications'),
-        ]
 
     def prepare_run(self, log, info):
         wd = info[Keys.WORKDIR]
@@ -63,7 +47,7 @@ class Comet(WrappedApp):
         read_mod_write(app_info, get_tpl_of_class(self), tplfile)
         exe = app_info.get(Keys.EXECUTABLE, 'comet')
 
-        command = "%s -N%s -P%s %s" % (exe, basename, tplfile, info[Keys.MZXML])
+        command = "{cometdir}{exe} -N{basename} -P{tplfile} {mzxml}".format(exe=exe, basename=basename, tplfile=tplfile, mzxml=info[Keys.MZXML])
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):

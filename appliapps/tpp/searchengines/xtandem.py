@@ -4,36 +4,20 @@ import os
 from applicake.apputils import validation
 from appliapps.tpp.searchengines.enzymes import enzymestr_to_engine
 from appliapps.tpp.searchengines.modifications import genmodstr_to_engine
-from applicake.app import WrappedApp
 from applicake.apputils import templates
 from applicake.coreutils.arguments import Argument
 from applicake.coreutils.keys import Keys,KeyHelp
+from appliapps.tpp.searchengines.searchenginebase import SearchEnginesBase
 
-
-class Xtandem(WrappedApp):
+class Xtandem(SearchEnginesBase):
     """
     Wrapper for the search engine X!Tandem.
     """
 
     def add_args(self):
-        return [
-            Argument(Keys.EXECUTABLE, KeyHelp.EXECUTABLE),
-            Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
-            Argument(Keys.THREADS, KeyHelp.THREADS),
-            Argument(Keys.MZXML, KeyHelp.MZXML),
-
-            Argument('FRAGMASSERR', 'Fragment mass error'),
-            Argument('FRAGMASSUNIT', 'Unit of the fragment mass error'),
-            Argument('PRECMASSERR', 'Precursor mass error'),
-            Argument('PRECMASSUNIT', 'Unit of the precursor mass error'),
-            Argument('MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages'),
-            Argument('DBASE', 'Sequence database file with target/decoy entries'),
-            Argument('ENZYME', 'Enzyme used to digest the proteins'),
-            Argument('STATIC_MODS', 'List of static modifications'),
-            Argument('VARIABLE_MODS', 'List of variable modifications'),
-
-            Argument('XTANDEM_SCORE', 'Scoring algorithm used in the search.')
-        ]
+        args = super(Xtandem, self).add_args()
+        args.append(Argument('XTANDEM_SCORE', 'Scoring algorithm used in the search.'))
+        return args
 
     def prepare_run(self, log, info):
         wd = info[Keys.WORKDIR]
