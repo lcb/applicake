@@ -188,6 +188,6 @@ class CometModConverter(AbstractModConverter):
         for i, mod in enumerate(self._modstr_to_list(var_genmodstr)):
             if i > 5: raise Exception("Comet only supports up to 6 variable mods")
             name, mono, avg, residues = mod
-            vmods += "variable_mod%s = %f %s 0 3\n" % (i + 1, mono, "".join(residues))
+            vmods += "variable_mod0%s = %f %s 0 3\n" % (i + 1, mono, "".join(residues))
 
         return smods, vmods, None
