@@ -1,6 +1,6 @@
 import re
 from string import Template
-
+from Unimod.unimod import database
 
 def genmodstr_to_engine(static_genmodstr, var_genmodstr, engine):
     """
@@ -55,8 +55,6 @@ class AbstractModConverter(object):
             raise Exception("Malformed modification string '%s'. Should be 'Name (Residues)'" % modstr)
 
     def _get_mass_from_unimod_or_string(self, key):
-        from Unimod.unimod import database
-
         entry = database.get_label(key)
         if entry:
             return float(entry['delta_mono_mass']), float(entry['delta_avge_mass'])
