@@ -20,8 +20,8 @@ class PeptideProphetSequence(WrappedApp):
             Argument('ENZYME', 'Enzyme used for digest'),
             Argument('DBASE', 'FASTA dbase'),
             Argument('MZXML', 'Path to the original MZXML inputfile'),
-            Argument('TPPDIR', 'Path to the tpp',  default=''),
-            Argument('DECOY', 'Decoy pattern', default='DECOY_')
+            Argument('DECOY', 'Decoy pattern', default='DECOY_'),
+            Argument('TPPDIR', 'Path to the tpp',  default='')
         ]
 
     def prepare_run(self, log, info):
@@ -37,17 +37,18 @@ class PeptideProphetSequence(WrappedApp):
         result = os.path.join(info[Keys.WORKDIR], 'interact.pep.xml')
         enz, _ = enzymestr_to_engine(info['ENZYME'], 'InteractParser')
 
-        command=[]
+        command = []
+        tpp_dir = info['TPPDIR']
         command.append(
-            "{tppdir}InteractParser {result} {pepxml} -E{enzyme}".format(tppdir=info['TPPDIR'],result=result,pepxml=info[Keys.PEPXML],enzyme=enz)
+            "{exe} {result} {pepxml} -E{enzyme}".format(exe=os.path.join(info['TPPDIR'],"InteractParser"),result=result,pepxml=info[Keys.PEPXML],enzyme=enz)
         )
         command.append(
-            "{tppdir}RefreshParser {result} {database}".format(
-                tppdir=info['TPPDIR'], result=result, pepxml=info[Keys.PEPXML],enzyme=enz,database=info['DBASE'])
+            "{exe} {result} {database}".format(
+            exe=os.path.join(info['TPPDIR'],"RefreshParser"), result=result, pepxml=info[Keys.PEPXML],enzyme=enz,database=info['DBASE'])
         )
         command.append(
-            "{tppdir}PeptideProphetParser {result} DECOY={decoy} ACCMASS NONPARAM DECOYPROBS LEAVE PI INSTRWARN".format(
-            tppdir =info['TPPDIR'], result=result, decoy=info['DECOY'])
+            "{exe} {result} DECOY={decoy} ACCMASS NONPARAM DECOYPROBS LEAVE PI INSTRWARN".format(
+            exe = os.path.join(info['TPPDIR'],"PeptideProphetParser"), result=result, decoy=info['DECOY'])
         )
 
         info[Keys.PEPXML] = result
