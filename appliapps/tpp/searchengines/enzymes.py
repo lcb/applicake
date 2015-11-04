@@ -108,5 +108,5 @@ def enzymestr_to_engine(enzyme, search_engine):
     try:
         enz_name, enz_semi = _enzymes[enzyme][search_engine]
         return enz_name, enz_semi
-    except:
-        raise ("Enzyme " + enzyme + " for engine " + search_engine + " not found")
+    except Exception, e:
+        raise RuntimeError("Enzyme " + enzyme + " for engine " + search_engine + " not found. message : " + e.message)

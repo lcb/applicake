@@ -7,5 +7,6 @@ setup(
     author_email="blum@id.ethz.ch",
     description="doing this and that",
     license="BSD",
-    packages=['applicake','appliapps']
+    packages=['applicake' , 'appliapps'],
+    install_requires=["Unimod"]
 )

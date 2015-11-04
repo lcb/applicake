@@ -8,32 +8,15 @@ from appliapps.tpp.searchengines.modifications import genmodstr_to_engine
 from applicake.app import WrappedApp
 from applicake.apputils.templates import read_mod_write, get_tpl_of_class
 from applicake.apputils.validation import check_exitcode, check_xml
-from applicake.coreutils.arguments import Argument
+#from applicake.coreutils.arguments import Argument
 from applicake.coreutils.keys import Keys, KeyHelp
+from appliapps.tpp.searchengines.searchenginebase import SearchEnginesBase
 
 
-class Myrimatch(WrappedApp):
+class Myrimatch(SearchEnginesBase):
     """
     Wrapper for the search engine Myrimatch.
     """
-
-    def add_args(self):
-        return [
-            Argument(Keys.EXECUTABLE, KeyHelp.EXECUTABLE),
-            Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
-            Argument(Keys.THREADS, KeyHelp.THREADS),
-            Argument(Keys.MZXML, KeyHelp.MZXML),
-
-            Argument('FRAGMASSERR', 'Fragment mass error'),
-            Argument('FRAGMASSUNIT', 'Unit of the fragment mass error'),
-            Argument('PRECMASSERR', 'Precursor mass error'),
-            Argument('PRECMASSUNIT', 'Unit of the precursor mass error'),
-            Argument('MISSEDCLEAVAGE', 'Number of maximal allowed missed cleavages'),
-            Argument('DBASE', 'Sequence database file with target/decoy entries'),
-            Argument('ENZYME', 'Enzyme used to digest the proteins'),
-            Argument('STATIC_MODS', 'List of static modifications'),
-            Argument('VARIABLE_MODS', 'List of variable modifications'),
-        ]
 
     def prepare_run(self, log, info):
         wd = info[Keys.WORKDIR]

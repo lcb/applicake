@@ -1,6 +1,6 @@
 import re
 from string import Template
-
+from Unimod.unimod import database
 
 def genmodstr_to_engine(static_genmodstr, var_genmodstr, engine):
     """
@@ -55,8 +55,6 @@ class AbstractModConverter(object):
             raise Exception("Malformed modification string '%s'. Should be 'Name (Residues)'" % modstr)
 
     def _get_mass_from_unimod_or_string(self, key):
-        from Unimod.unimod import database
-
         entry = database.get_label(key)
         if entry:
             return float(entry['delta_mono_mass']), float(entry['delta_avge_mass'])
@@ -190,6 +188,6 @@ class CometModConverter(AbstractModConverter):
         for i, mod in enumerate(self._modstr_to_list(var_genmodstr)):
             if i > 5: raise Exception("Comet only supports up to 6 variable mods")
             name, mono, avg, residues = mod
-            vmods += "variable_mod%s = %f %s 0 3\n" % (i + 1, mono, "".join(residues))
+            vmods += "variable_mod0%s = %f %s 0 3\n" % (i + 1, mono, "".join(residues))
 
         return smods, vmods, None
