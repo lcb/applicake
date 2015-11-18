@@ -3,7 +3,6 @@ import os
 
 from appliapps.tpp.searchengines.enzymes import enzymestr_to_engine
 from appliapps.tpp.searchengines.modifications import genmodstr_to_engine
-from applicake.app import WrappedApp
 from applicake.apputils.templates import read_mod_write, get_tpl_of_class
 from applicake.apputils.validation import check_exitcode, check_xml, check_stdout
 from applicake.coreutils.arguments import Argument
