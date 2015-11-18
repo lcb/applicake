@@ -17,6 +17,8 @@ class Comet(SearchEnginesBase):
     def add_args(self):
         args = super(Comet, self).add_args()
         args.append(Argument('COMET_DIR', 'executable location.', default=''))
+        args.append(Argument('COMET_EXE', 'executable name.', default='comet'))
+
         return args
 
     def prepare_run(self, log, info):
@@ -50,7 +52,7 @@ class Comet(SearchEnginesBase):
         read_mod_write(app_info,template, tplfile)
 
         exe_path = app_info['COMET_DIR']
-        exe = app_info.get(Keys.EXECUTABLE, 'comet')
+        exe = app_info['COMET_EXE']
 
         command = "{exe} -N{basename} -P{tplfile} {mzxml}".format(exe=os.path.join(exe_path, exe), basename=basename, tplfile=tplfile, mzxml=info[Keys.MZXML])
         return info, command

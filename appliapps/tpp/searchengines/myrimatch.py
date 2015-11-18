@@ -20,6 +20,7 @@ class Myrimatch(SearchEnginesBase):
     def add_args(self):
         args = super(Myrimatch, self).add_args()
         args.append(Argument('MYRIMATCH_DIR', 'executable location.', default=''))
+        args.append(Argument('MYRIMATCH_EXE', 'executable name.', default='myrimatch'))
         return args
 
     def prepare_run(self, log, info):
@@ -42,7 +43,7 @@ class Myrimatch(SearchEnginesBase):
         read_mod_write(app_info, get_tpl_of_class(self), tplfile)
 
         exe_path = app_info['MYRIMATCH_DIR']
-        exe = app_info.get(Keys.EXECUTABLE, 'myrimatch')
+        exe = app_info['MYRIMATCH_EXE']
         command = "{exe} -cpus {threads} -cfg {tpl} -workdir {workdir} -ProteinDatabase {dbase} {mzxml}".format(
             exe=os.path.join(exe_path, exe), threads=app_info['THREADS'], tpl=tpl,
             workdir=app_info[Keys.WORKDIR], dbase=app_info['DBASE'],
