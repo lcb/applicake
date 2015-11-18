@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/lcb/applicake.svg)](https://travis-ci.org/lcb/applicake)
+[![Project Stats](https://www.openhub.net/p/applicake/widgets/project_thin_badge.gif)](https://www.openhub.net/p/applicake)
 
 How to setup applicake
 ======================
