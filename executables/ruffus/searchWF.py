@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 import os
-import shutil
 import sys
 import subprocess
 from ruffus import *
 from multiprocessing import freeze_support
-
+from appliapps.flow.merge import Merge
+from appliapps.flow.split import Split
+from appliapps.tpp.enginecollate import EngineCollate
+from appliapps.tpp.interprophet import InterProphet
+from appliapps.tpp.peptideprophet import PeptideProphetSequence
+from appliapps.tpp.searchengines.comet import Comet
+from appliapps.tpp.searchengines.myrimatch import Myrimatch
 
 basepath = os.path.dirname(__file__) + '/../../'
 
@@ -35,7 +40,7 @@ VARIABLE_MODS = Oxidation (M)
 DECOY_STRING = DECOY_
 IPROPHET_ARGS = MINPROB=0
 
-MZXML=D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2702_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2702_IDA_c.mzXML
+MZXML=D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2702_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2703_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2704_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2705_IDA_c.mzXML
 
 DBASE=D:/projects/p1958/data/databases/CNCL_05640_2015_09_DECOY.fasta
 
@@ -50,34 +55,44 @@ MYRIMATCH_EXE=myrimatch.exe
 @follows(setup)
 @split("input.ini", "split.ini_*")
 def split_dataset(infile, unused_outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/flow/split.py',
-                           '--INPUT', infile, '--SPLIT', 'split.ini', '--SPLIT_KEY', 'MZXML'])
+    sys.argv = ['--INPUT', infile, '--SPLIT', 'split.ini', '--SPLIT_KEY', 'MZXML']
+    Split.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/flow/split.py',
+    #                       '--INPUT', infile, '--SPLIT', 'split.ini', '--SPLIT_KEY', 'MZXML'])
 
 ###################################################################################
 
 @transform(split_dataset, regex("split.ini_"), "rawmyri.ini_")
 def myri(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/tpp/searchengines/myrimatch.py',
-                           '--INPUT', infile, '--OUTPUT', outfile, '--THREADS', '4'])
+    sys.argv = ['--INPUT', infile, '--OUTPUT', outfile, '--THREADS', '4']
+    Myrimatch.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/tpp/searchengines/myrimatch.py',
+    #                       '--INPUT', infile, '--OUTPUT', outfile, '--THREADS', '4'])
 
 
 @transform(myri, regex("rawmyri.ini_"), "myrimatch.ini_")
 def peppromyri(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/tpp/peptideprophet.py',
-                           '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepmyri'])
+    sys.argv = ['--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepmyri']
+    PeptideProphetSequence.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/tpp/peptideprophet.py',
+    #                      '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepmyri'])
 
 ###################################################################################
 
 @transform(split_dataset, regex("split.ini_"), "rawcomet.ini_")
 def comet(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/tpp/searchengines/comet.py',
-                           '--INPUT', infile, '--OUTPUT', outfile, '--THREADS', '4'])
+    sys.argv = ['--INPUT', infile, '--OUTPUT', outfile, '--THREADS', '4']
+    Comet.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/tpp/searchengines/comet.py',
+    #                       '--INPUT', infile, '--OUTPUT', outfile, '--THREADS', '4'])
 
 
 @transform(comet, regex("rawcomet.ini_"), "comet.ini_")
 def pepprocomet(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/tpp/peptideprophet.py',
-                           '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepcomet'])
+    sys.argv = ['--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepcomet']
+    PeptideProphetSequence.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/tpp/peptideprophet.py',
+    #                       '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepcomet'])
 
 
 ############################# MERGE SEARCH ENGINE RESULTS ##################################
@@ -85,9 +100,13 @@ def pepprocomet(infile, outfile):
 #thus enginecollate is a collector/generator node in guse and simulated in ruffus with a merge/fake_split
 @merge([pepprocomet,peppromyri], "ecollate.ini")
 def collateengines(infiles, outfiles):
-    subprocess.check_call(['python', basepath + 'appliapps/tpp/enginecollate.py',
-                           '--INPUT','biopersdb.ini','--OUTPUT','ecollate.ini','--MERGED', 'mergeengine.ini',
-                           '--ENGINES', 'myrimatch',  '--ENGINES', 'comet'])
+    sys.argv = ['--INPUT','biopersdb.ini','--OUTPUT','ecollate.ini','--MERGED', 'mergeengine.ini',
+                           '--ENGINES', 'myrimatch',  '--ENGINES', 'comet']
+
+    EngineCollate.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/tpp/enginecollate.py',
+    #                       '--INPUT','biopersdb.ini','--OUTPUT','ecollate.ini','--MERGED', 'mergeengine.ini',
+    #                       '--ENGINES', 'myrimatch',  '--ENGINES', 'comet'])
 
 @split(collateengines,"mergeengine.ini_*")
 def fake_split(infile,outfiles):
@@ -95,25 +114,31 @@ def fake_split(infile,outfiles):
 
 @transform(fake_split, regex("mergeengine.ini_"), "engineiprophet.ini_")
 def engineiprophet(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/tpp/interprophet.py',
-                           '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'engineiprophet'])
+    sys.argv = ['--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'engineiprophet']
+    InterProphet.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/tpp/interprophet.py',
+    #                       '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'engineiprophet'])
 
 ############################# TAIL: PARAMGENERATE ##################################
 
 @merge(engineiprophet, "mergedatasets.ini")
 def merge_datasets(unused_infiles, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/flow/merge.py',
-                           '--MERGE', 'engineiprophet.ini', '--MERGED', outfile])
+    sys.argv = ['--MERGE', 'engineiprophet.ini', '--MERGED', outfile]
+    Merge.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/flow/merge.py',
+    #                       '--MERGE', 'engineiprophet.ini', '--MERGED', outfile])
 
 @follows(merge_datasets)
 @files("mergedatasets.ini_0", "datasetiprophet.ini")
 def datasetiprophet(infile, outfile):
-    subprocess.check_call(['python', basepath + 'appliapps/tpp/interprophet.py',
-                           '--INPUT', infile, '--OUTPUT', outfile])
+    sys.argv = ['--INPUT', infile, '--OUTPUT', outfile]
+    InterProphet.main()
+    #subprocess.check_call(['python', basepath + 'appliapps/tpp/interprophet.py',
+    #                       '--INPUT', infile, '--OUTPUT', outfile])
 
 if __name__ == '__main__':
 
     freeze_support() # Optional under circumstances described in docs
-    pipeline_run([datasetiprophet])
+    pipeline_run([datasetiprophet],multiprocess=3)
 
 #pipeline_printout_graph ('flowchart.png','png',[copy2dropbox],no_key_legend = False) #svg
