@@ -3,7 +3,6 @@ import os
 
 from appliapps.tpp.searchengines.enzymes import enzymestr_to_engine
 from appliapps.tpp.searchengines.modifications import genmodstr_to_engine
-from applicake.app import WrappedApp
 from applicake.apputils.templates import read_mod_write, get_tpl_of_class
 from applicake.apputils.validation import check_exitcode, check_xml, check_stdout
 from applicake.coreutils.arguments import Argument
@@ -18,6 +17,8 @@ class Comet(SearchEnginesBase):
     def add_args(self):
         args = super(Comet, self).add_args()
         args.append(Argument('COMET_DIR', 'executable location.', default=''))
+        args.append(Argument('COMET_EXE', 'executable name.', default='comet'))
+
         return args
 
     def prepare_run(self, log, info):
@@ -51,7 +52,7 @@ class Comet(SearchEnginesBase):
         read_mod_write(app_info,template, tplfile)
 
         exe_path = app_info['COMET_DIR']
-        exe = app_info.get(Keys.EXECUTABLE, 'comet')
+        exe = app_info['COMET_EXE']
 
         command = "{exe} -N{basename} -P{tplfile} {mzxml}".format(exe=os.path.join(exe_path, exe), basename=basename, tplfile=tplfile, mzxml=info[Keys.MZXML])
         return info, command
