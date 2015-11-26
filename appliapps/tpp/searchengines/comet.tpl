@@ -1,4 +1,4 @@
-# comet_version 2015.02 rev. 0
+# comet_version 2013.02
 # Comet MS/MS search engine parameters file.
 # Everything following the '#' symbol is treated as a comment.
 
@@ -103,12 +103,12 @@ clear_mz_range = 0.0 0.0               # for iTRAQ/TMT type data; will clear out
 # additional modifications
 #
 
-add_Cterm_peptide = 0.0
-add_Nterm_peptide = 0.0
-add_Cterm_protein = 0.0
-add_Nterm_protein = 0.0
-
 $STATIC_MODS
+
+#add_Cterm_peptide = 0.0
+#add_Nterm_peptide = 0.0
+#add_Cterm_protein = 0.0
+#add_Nterm_protein = 0.0
 
 #add_G_glycine = 0.0000                 # added to G - avg.  57.0513, mono.  57.02146
 #add_A_alanine = 0.0000                 # added to A - avg.  71.0779, mono.  71.03711

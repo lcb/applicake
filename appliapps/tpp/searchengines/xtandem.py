@@ -27,7 +27,7 @@ class Xtandem(SearchEnginesBase):
         app_info = info.copy()
 
         app_info = self._define_score(app_info, log)
-        app_info["STATIC_MODS"], app_info["VARIABLE_MODS"], _ = genmodstr_to_engine(info["STATIC_MODS"],
+        app_info["STATIC_MODS"], app_info["VARIABLE_MODS"], app_info['TERMINAL_MODS'] = genmodstr_to_engine(info["STATIC_MODS"],
                                                                                  info["VARIABLE_MODS"], 'XTandem')
         app_info['ENZYME'], app_info['XTANDEM_SEMI_CLEAVAGE'] = enzymestr_to_engine(info['ENZYME'], 'XTandem')
 

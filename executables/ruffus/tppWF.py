@@ -19,16 +19,16 @@ def setup():
             f.write("""
 WORKFLOW = wf
 LOG_LEVEL = DEBUG
-BASEDIR = /cluster/scratch_xl/shareholder/imsb_ra/workflows/
-DATASET_DIR = /cluster/scratch_xl/shareholder/imsb_ra/datasets/
-DROPBOX = /cluster/scratch_xl/shareholder/imsb_ra/drop-box_prot_ident
+BASEDIR = /IMSB/sonas/biol_imsb_aebersold_scratch-2/workflows
+DATASET_DIR = /IMSB/sonas/biol_imsb_aebersold_scratch-2/datasets/
+DROPBOX = /IMSB/sonas/biol_imsb_aebersold_scratch-2/dropbox/generic/
 COMMENT = WFTEST - newUPS TPP
 
 RUNTPP2VIEWER = no
-RUNCOMET = False
+RUNCOMET = True
 RUNTANDEM = True
 RUNOMSSA = True
-RUNMYRIMATCH = False
+RUNMYRIMATCH = True
 FDR_CUTOFF = 0.01
 FDR_TYPE = iprophet-pepFDR
 FRAGMASSERR = 0.4
@@ -149,7 +149,7 @@ def fake_split(infile,outfiles):
 @transform(fake_split, regex("mergeengine.ini_"), "engineiprophet.ini_")
 def engineiprophet(infile, outfile):
     subprocess.check_call(['python', basepath + 'appliapps/tpp/interprophet.py',
-                           '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'engineiprophet', "--MODULE", "imsbtools"])
+                           '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'engineiprophet'])
 
 
 ############################# TAIL: PARAMGENERATE ##################################   

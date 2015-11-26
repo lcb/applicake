@@ -2,6 +2,7 @@ import re
 from string import Template
 from Unimod.unimod import database
 
+
 def genmodstr_to_engine(static_genmodstr, var_genmodstr, engine):
     """
     Main method you should use this
@@ -59,18 +60,17 @@ class AbstractModConverter(object):
         if entry:
             return float(entry['delta_mono_mass']), float(entry['delta_avge_mass'])
         else:
-            #if its not a unimod entry try to parse masses from name itself
+            # if its not a unimod entry try to parse masses from name itself
             try:
                 mm, am = key.split("/")
                 return float(mm), float(am)
             except:
                 raise Exception(key + ": not found unimod and no valid mono/avg mass pair")
 
-
     def _modstr_to_list(self, modstr):
         modlist = []
         for mod in modstr.split(";"):
-            #skip if empty ;;
+            # skip if empty ;;
             if not mod:
                 continue
             name, residuearr = self._get_nameresiduelist_from_modstr(mod)
@@ -81,6 +81,7 @@ class AbstractModConverter(object):
 
 class XTandemModConverter(AbstractModConverter):
     def genmodstrs_to_engine(self, static_genmodstr, var_genmodstr):
+        terminal_mods = ""
         smods = []
         for mod in self._modstr_to_list(static_genmodstr):
             name, mono, avg, residues = mod
@@ -91,9 +92,14 @@ class XTandemModConverter(AbstractModConverter):
         for mod in self._modstr_to_list(var_genmodstr):
             name, mono, avg, residues = mod
             for residue in residues:
+                #Peptide terminal modifications can be specified with the symbol '[' for N-terminus and ']' for C-terminus, such as 42.0@[ .
+                if residue == "n":
+                    residue = "["
+                if residue == "c":
+                    residue = "]"
                 vmods.append("%f@%s" % (mono, residue))
 
-        return ",".join(smods), ",".join(vmods), None
+        return ",".join(smods), ",".join(vmods), terminal_mods
 
 
 class OmssaModConverter(AbstractModConverter):
@@ -118,6 +124,33 @@ class OmssaModConverter(AbstractModConverter):
       <MSModSpec_residues_E>$RESIDUE</MSModSpec_residues_E>
     </MSModSpec_residues>
   </MSModSpec>"""
+
+    __tplNterm = """<MSModSpec>
+    <MSModSpec_mod>
+        <MSMod value="usermod$I">$NUM</MSMod>
+    </MSModSpec_mod>
+    <MSModSpec_type>
+        <MSModType value="modnp">5</MSModType>
+    </MSModSpec_type>
+    <MSModSpec_name>$NAME</MSModSpec_name>
+    <MSModSpec_monomass>$MONOMASS</MSModSpec_monomass>
+        <MSModSpec_averagemass>$AVGMASS</MSModSpec_averagemass>
+    <MSModSpec_n15mass>0</MSModSpec_n15mass>
+    </MSModSpec>"""
+
+    __tplCterm = """<MSModSpec>
+    <MSModSpec_mod>
+        <MSMod value="usermod$I">$NUM</MSMod>
+    </MSModSpec_mod>
+    <MSModSpec_type>
+        <MSModType value="modcp">7</MSModType>
+    </MSModSpec_type>
+    <MSModSpec_name>$NAME</MSModSpec_name>
+    <MSModSpec_monomass>$MONOMASS</MSModSpec_monomass>
+        <MSModSpec_averagemass>$AVGMASS</MSModSpec_averagemass>
+    <MSModSpec_n15mass>0</MSModSpec_n15mass>
+    </MSModSpec>"""
+
     __tpltail = """</MSModSpecSet>"""
 
     def genmodstrs_to_engine(self, static_genmodstr, var_genmodstr):
@@ -145,7 +178,13 @@ class OmssaModConverter(AbstractModConverter):
                 no = i + 118
                 vmods.append(str(no))
                 dict_ = {"I": i, "NUM": no, "NAME": name, "MONOMASS": mono, "AVGMASS": avg, "RESIDUE": res}
-                modtpl += Template(self.__tpl).safe_substitute(dict_)
+                if res == "n":
+                    tpl = self.__tplNterm
+                elif res == "c":
+                    tpl = self.__tplCterm
+                else:
+                    tpl = self.__tpl
+                modtpl += Template(tpl).safe_substitute(dict_)
 
         modtpl += self.__tpltail
         return ",".join(smods), ",".join(vmods), modtpl
@@ -162,7 +201,20 @@ class MyrimatchModConverter(AbstractModConverter):
         vmods = []
         for mod in self._modstr_to_list(var_genmodstr):
             name, mono, avg, residues = mod
-            vmods.append("[%s] * %f" % ("".join(residues), mono))
+            # special handling for n/c term modifications
+            # variableModifications += nTerm + aminoAcidsAtTarget + cTerm + " " + symbols[symbolsCounter++] + " " + tempPtm.getMass() + " ";
+            nTerm = ''
+            cTerm = ''
+            if 'n' in residues:
+                residues.remove('n')
+                nTerm = "("
+            if 'c' in residues:
+                residues.remove('c')
+                cTerm = ")"
+            middle = ""
+            if residues:
+                middle= "[%s]" % "".join(residues)
+            vmods.append("%s%s%s * %f" % (nTerm,middle,cTerm, mono))
 
         return " ".join(smods), " ".join(vmods), None
 
@@ -172,7 +224,7 @@ class CometModConverter(AbstractModConverter):
                    "G": "glycine", "H": "histidine", "I": "isoleucine", "K": "lysine", "L": "leucine",
                    "M": "methionine", "N": "asparagine", "O": "ornithine", "P": "proline", "Q": "glutamine",
                    "R": "arginine", "S": "serine", "T": "threonine", "V": "valine", "W": "tryptophan",
-                   "Y": "tyrosine", }
+                   "Y": "tyrosine"}
 
     def genmodstrs_to_engine(self, static_genmodstr, var_genmodstr):
         smods = ""
@@ -185,9 +237,20 @@ class CometModConverter(AbstractModConverter):
                     raise Exception("Residue " + e.message + " not known")
 
         vmods = ""
-        for i, mod in enumerate(self._modstr_to_list(var_genmodstr)):
-            if i > 5: raise Exception("Comet only supports up to 6 variable mods")
+        i=0
+        for mod in self._modstr_to_list(var_genmodstr):
             name, mono, avg, residues = mod
-            vmods += "variable_mod0%s = %f %s 0 3\n" % (i + 1, mono, "".join(residues))
+            if 'n' in residues:
+                residues.remove('n')
+                vmods += "variable_N_terminus = %s\n" % mono
+            if 'c' in residues:
+                residues.remove('c')
+                vmods += "variable_C_terminus = %s\n" % mono
+            if not residues: continue
+            i+=1
+            if i > 6: raise Exception("Comet only supports up to 6 variable mods")
+
+            vmods += "variable_mod%s = %f %s 0 3\n" % (i, mono, "".join(residues))
+
 
         return smods, vmods, None
