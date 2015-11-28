@@ -20,7 +20,7 @@ class Myrimatch(SearchEnginesBase):
     def add_args(self):
         args = super(Myrimatch, self).add_args()
         args.append(Argument('MYRIMATCH_DIR', 'executable location.', default=''))
-        args.append(Argument('MYRIMATCH_EXE', 'executable name.', default='myrimatch'))
+        args.append(Argument('MYRIMATCH_EXE',KeyHelp.EXECUTABLE, default='myrimatch'))
         return args
 
     def prepare_run(self, log, info):

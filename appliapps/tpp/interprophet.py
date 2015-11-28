@@ -14,7 +14,8 @@ class InterProphet(WrappedApp):
 
     def add_args(self):
         return [
-            Argument(Keys.EXECUTABLE, KeyHelp.EXECUTABLE),
+            Argument("IPROPHET_DIR",  KeyHelp.EXECDIR, default=''),
+            Argument("IPROPHET_EXE", KeyHelp.EXECUTABLE, defaul='InterProphetParser'),
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument(Keys.PEPXML, KeyHelp.PEPXML),
             Argument('IPROPHET_ARGS', 'Arguments for InterProphetParser', default='MINPROB=0'),
@@ -26,8 +27,9 @@ class InterProphet(WrappedApp):
         if not isinstance(info[Keys.PEPXML], list):
             info[Keys.PEPXML] = [info[Keys.PEPXML]]
 
-        command = '%s %s %s %s' % (
-            info.get(Keys.EXECUTABLE, 'InterProphetParser'), info['IPROPHET_ARGS'], ' '.join(info[Keys.PEPXML]), result)
+        command = '{exe} {arg} {pepxml} {result}'.format(exe = os.path.join(info['IPROPHET_DIR'],info['IPROPHET_EXE'])
+                                                         , arg=info['IPROPHET_ARGS'],pepxml= ' '.join( info[Keys.PEPXML] ),
+                                        result = result)
         info[Keys.PEPXML] = result
         return info, command
 
