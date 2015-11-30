@@ -25,7 +25,7 @@ def setup():
 LOG_LEVEL = DEBUG
 COMMENT = WFTEST - newUPS TPP
 
-
+# Search parameters
 FDR_CUTOFF = 0.01
 FDR_TYPE = iprophet-pepFDR
 FRAGMASSERR = 0.5
@@ -37,12 +37,15 @@ ENZYME = Nonspecific
 STATIC_MODS =
 VARIABLE_MODS = Oxidation (M)
 
+## TPP
 TPPDIR=D:/projects/p1958/prog/tpp/
 DECOY_STRING = DECOY_
 IPROPHET_ARGS = MINPROB=0
 
-MZXML=D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2702_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2703_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2704_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2705_IDA_c.mzXML
 
+## Parameters
+MZXML=D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2702_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2703_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2704_IDA_c.mzXML
+#,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2705_IDA_c.mzXML
 DBASE=D:/projects/p1958/data/databases/CNCL_05640_2015_09_DECOY.fasta
 
 COMET_DIR=C:/Users/wolski/prog/searchgui/resources/Comet/windows/windows_64bit
