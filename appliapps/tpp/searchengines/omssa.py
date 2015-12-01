@@ -3,6 +3,7 @@ import os
 
 from appliapps.tpp.searchengines.enzymes import enzymestr_to_engine
 from appliapps.tpp.searchengines.modifications import genmodstr_to_engine
+from appliapps.tpp.searchengines.searchenginebase import SearchEnginesBase
 from applicake.app import WrappedApp
 from applicake.apputils import validation
 from applicake.apputils import templates
@@ -10,7 +11,7 @@ from applicake.coreutils.arguments import Argument
 from applicake.coreutils.keys import Keys, KeyHelp
 
 
-class Omssa(WrappedApp):
+class Omssa(SearchEnginesBase):
     """
     Wrapper for the search engine OMSSA.
 

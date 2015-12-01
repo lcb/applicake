@@ -22,13 +22,13 @@ if __name__ == "__main__":
         print "Testing modification '%s'" % mod
         try:
             for i in ['XTandem', 'Omssa', 'Myrimatch', 'Comet']:
-                genmodstr_to_engine(mod, "", i)
                 genmodstr_to_engine("", mod, i)
             # print out one example to show masses. myri varmod is most compact
-            _, p, _ = genmodstr_to_engine("", mod, 'Myrimatch')
-            print p
+            _, p, _ = genmodstr_to_engine("", mod, 'Comet')
+            print p,_
             print "OK"
         except Exception, e:
+            raise
             print "ERROR"
             print e.message
     else:
