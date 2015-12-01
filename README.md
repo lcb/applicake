@@ -16,3 +16,8 @@ $ /install_dir/applicake-master/executables/ruffus/echoWF.py
 
 for testing sucessful install try
 python.exe .\appliapps\examples\cp.py --FILE "test"
+
+
+# Related Projects
+https://github.com/iracooke/protk
+
