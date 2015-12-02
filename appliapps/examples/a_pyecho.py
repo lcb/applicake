@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from applicake.app import BasicApp
 from applicake.coreutils.arguments import Argument
+from applicake.coreutils.keys import Keys, KeyHelp
 
 
 class PythonEcho(BasicApp):
@@ -11,6 +12,7 @@ class PythonEcho(BasicApp):
 
     def add_args(self):
         return [
+            Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument("COMMENT", "String to be displayed")
         ]
 
