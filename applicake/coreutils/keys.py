@@ -57,7 +57,9 @@ class KeyHelp(object):
     MERGE = 'Basenames for input config files to merge (volatile argument)'
     MERGED = 'Basename for merged output config files (volatile argument)'
 
+
     EXECUTABLE = "Echo executable to be run (volatile argument)"
+    EXECDIR = "Executable directory location"
     THREADS = "Number of threads/processors to be used"
     DATASET_CODE = ''
     MZXML = ''

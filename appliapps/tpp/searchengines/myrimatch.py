@@ -20,12 +20,11 @@ class Myrimatch(SearchEnginesBase):
     def add_args(self):
         args = super(Myrimatch, self).add_args()
         args.append(Argument('MYRIMATCH_DIR', 'executable location.', default=''))
-        args.append(Argument('MYRIMATCH_EXE', 'executable name.', default='myrimatch'))
+        args.append(Argument('MYRIMATCH_EXE',KeyHelp.EXECUTABLE, default='myrimatch'))
         return args
 
     def prepare_run(self, log, info):
         wd = info[Keys.WORKDIR]
-        tpl = os.path.join(wd, 'myrimatch.cfg')
         basename = os.path.splitext(os.path.split(info[Keys.MZXML])[1])[0]
         info[Keys.PEPXML] = os.path.join(wd, basename + ".pepXML")  #myrimatch default is pepXML NOT pep.xml
 
@@ -39,7 +38,9 @@ class Myrimatch(SearchEnginesBase):
         if app_info['FRAGMASSUNIT'] == 'Da':
             app_info['FRAGMASSUNIT'] = 'daltons'
 
-        tplfile = os.path.join(wd, "myrimatch.cfg")
+        #tpl = os.path.join(wd, 'myrimatch.cfg')
+        tpl = 'myrimatch.cfg'
+        tplfile = os.path.join(wd, tpl)
         read_mod_write(app_info, get_tpl_of_class(self), tplfile)
 
         exe_path = app_info['MYRIMATCH_DIR']
