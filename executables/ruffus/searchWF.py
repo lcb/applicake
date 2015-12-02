@@ -4,6 +4,7 @@ import sys
 import subprocess
 from ruffus import *
 from multiprocessing import freeze_support
+from appliapps.examples.a_pyecho import PythonEcho
 from appliapps.flow.merge import Merge
 from appliapps.flow.split import Split
 from appliapps.tpp.enginecollate import EngineCollate
@@ -38,26 +39,38 @@ STATIC_MODS =
 VARIABLE_MODS = Oxidation (M)
 
 ## TPP
-TPPDIR=D:/projects/p1958/prog/tpp/
 DECOY_STRING = DECOY_
 IPROPHET_ARGS = MINPROB=0
 
 
 ## Parameters
-MZXML=D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2702_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2703_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2704_IDA_c.mzXML
+MZXML=D:/projects/p1958/data/datafiles/mzXML/PBMC1_Tubingen_120724_CB_Buffy18_W_20_Rep1_msms1_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/PBMC1_Tubingen_120724_CB_Buffy18_W_20_Rep2_msms2_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/PBMC1_Tubingen_120724_CB_Buffy18_W_20_Rep3_msms3_c.mzXML
+
+#D:/projects/p1958/data/datafiles/mzXML/PBMC#1_Tubingen_120724_CB_Buffy18_W_20_Rep4_msms4_c.mzXML
+#D:/projects/p1958/data/datafiles/mzXML/PBMC#1_Tubingen_120724_CB_Buffy18_W_20_Rep5_msms5_c.mzXML
+#D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2702_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2703_IDA_c.mzXML,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2704_IDA_c.mzXML
 #,D:/projects/p1958/data/datafiles/mzXML/C1R1_Monash_RS_20141103_B2705_IDA_c.mzXML
+
 DBASE=D:/projects/p1958/data/databases/CNCL_05640_2015_09_DECOY.fasta
 
 COMET_DIR=C:/Users/wolski/prog/searchgui/resources/Comet/windows/windows_64bit
 COMET_EXE=comet.exe
 MYRIMATCH_DIR=c:/Users/wolski/prog/searchgui/resources/MyriMatch/windows/windows_64bit
 MYRIMATCH_EXE=myrimatch.exe
+TPPDIR=D:/projects/p1958/prog/tpp/
+
 
 """)
 
 
 @follows(setup)
-@split("input.ini", "split.ini_*")
+@files("input.ini", "inputfix.ini")
+def biopersdb(infile, outfile):
+    sys.argv = ['--INPUT', infile, '--OUTPUT', outfile]
+    PythonEcho.main()
+
+@follows(biopersdb)
+@split("inputfix.ini", "split.ini_*")
 def split_dataset(infile, unused_outfile):
     sys.argv = ['--INPUT', infile, '--SPLIT', 'split.ini', '--SPLIT_KEY', 'MZXML']
     Split.main()
@@ -99,41 +112,17 @@ def pepprocomet(infile, outfile):
     #                       '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'pepcomet'])
 
 
-############################# MERGE SEARCH ENGINE RESULTS ##################################
-#In guse version conditional branching is used which requires collate to be a full collector to work
-#thus enginecollate is a collector/generator node in guse and simulated in ruffus with a merge/fake_split
-@merge([pepprocomet,peppromyri], "ecollate.ini")
-def collateengines(infiles, outfiles):
-    sys.argv = ['--INPUT','biopersdb.ini','--OUTPUT','ecollate.ini','--MERGED', 'mergeengine.ini',
-                           '--ENGINES', 'myrimatch',  '--ENGINES', 'comet']
-
-    EngineCollate.main()
-    #subprocess.check_call(['python', basepath + 'appliapps/tpp/enginecollate.py',
-    #                       '--INPUT','biopersdb.ini','--OUTPUT','ecollate.ini','--MERGED', 'mergeengine.ini',
-    #                       '--ENGINES', 'myrimatch',  '--ENGINES', 'comet'])
-
-@split(collateengines,"mergeengine.ini_*")
-def fake_split(infile,outfiles):
-    pass
-
-@transform(fake_split, regex("mergeengine.ini_"), "engineiprophet.ini_")
-def engineiprophet(infile, outfile):
-    sys.argv = ['--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'engineiprophet']
-    InterProphet.main()
-    #subprocess.check_call(['python', basepath + 'appliapps/tpp/interprophet.py',
-    #                       '--INPUT', infile, '--OUTPUT', outfile, '--NAME', 'engineiprophet'])
-
 ############################# TAIL: PARAMGENERATE ##################################
 
-@merge(engineiprophet, "mergedatasets.ini")
+@merge([pepprocomet,peppromyri], "ecollate.ini")
 def merge_datasets(unused_infiles, outfile):
-    sys.argv = ['--MERGE', 'engineiprophet.ini', '--MERGED', outfile]
+    sys.argv = ['--MERGE', 'comet.ini', '--MERGED', outfile]
     Merge.main()
     #subprocess.check_call(['python', basepath + 'appliapps/flow/merge.py',
     #                       '--MERGE', 'engineiprophet.ini', '--MERGED', outfile])
 
 @follows(merge_datasets)
-@files("mergedatasets.ini_0", "datasetiprophet.ini")
+@files("ecollate.ini_0", "datasetiprophet.ini")
 def datasetiprophet(infile, outfile):
     sys.argv = ['--INPUT', infile, '--OUTPUT', outfile]
     InterProphet.main()

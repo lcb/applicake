@@ -15,7 +15,7 @@ class InterProphet(WrappedApp):
     def add_args(self):
         return [
             Argument("TPPDIR",  KeyHelp.EXECDIR, default=''),
-            Argument("IPROPHET_EXE", KeyHelp.EXECUTABLE, defaul='InterProphetParser'),
+            Argument("IPROPHET_EXE", KeyHelp.EXECUTABLE, default='InterProphetParser'),
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument(Keys.PEPXML, KeyHelp.PEPXML),
             Argument('IPROPHET_ARGS', 'Arguments for InterProphetParser', default='MINPROB=0'),

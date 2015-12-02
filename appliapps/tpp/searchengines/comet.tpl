@@ -1,4 +1,4 @@
-# comet_version 2013.02
+# comet_version 2015.02 rev. 0
 # Comet MS/MS search engine parameters file.
 # Everything following the '#' symbol is treated as a comment.
 
