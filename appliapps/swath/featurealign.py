@@ -38,6 +38,10 @@ class FeatureAlignment(WrappedApp):
     def prepare_run(self, log, info):
         if not isinstance(info["MPROPHET_TSV"], list):
             info["MPROPHET_TSV"] = [info["MPROPHET_TSV"]]
+            #bugfix: when only 1 sample, stdev is 0 and aligner produces no output, so override to 30s
+            if "auto" in info["ALIGNER_MAX_RT_DIFF"]:
+                log.warn("Set max_RT_diff to 30 seconds because auto... fails for only 1 sample")
+                info["ALIGNER_MAX_RT_DIFF"] = "30"
         info['ALIGNMENT_TSV'] = os.path.join(info[Keys.WORKDIR], "feature_alignment.tsv")
         info['ALIGNMENT_YAML'] = os.path.join(info[Keys.WORKDIR], "feature_alignment.yaml")
         tmpdir = os.environ.get('TMPDIR', info[Keys.WORKDIR]) + '/'
@@ -49,8 +53,8 @@ class FeatureAlignment(WrappedApp):
 
         if info["ALIGNER_REALIGN_METHOD"] == "iRT":
             info["ALIGNER_REALIGN_METHOD"] = "diRT"
-        elif info["ALIGNER_REALIGN_METHOD"] == "linear":
-            info["ALIGNER_REALIGN_METHOD"] = "linear"
+        #elif info["ALIGNER_REALIGN_METHOD"] == "linear":
+        #    info["ALIGNER_REALIGN_METHOD"] = "linear"
         elif info["ALIGNER_REALIGN_METHOD"] == "spline":
             log.info("Changing ALIGNER_REALIGN_METHOD to splineR_external")
             info["ALIGNER_REALIGN_METHOD"] = "splineR_external"
@@ -82,6 +86,13 @@ class FeatureAlignment(WrappedApp):
         f.write(stdout)
         f.close()
         info["ALIGNER_STDOUT"] = out2log
+        for line in stdout.splitlines():
+            if "We were able to quantify " in line:
+                aligned = int(line.split()[13])
+                before = int(line.split()[19])
+                if aligned<before/2:
+                    log.warn("Much less features after alignment than before!")
+
 
         # Move out .tr files of pyprophet to be rescue safe
         info["TRAFO_FILES"] = []

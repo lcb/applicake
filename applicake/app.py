@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import time
+import getpass
 
 from applicake.apputils import dirs
 from applicake.apputils import dicts
@@ -79,8 +80,10 @@ class BasicApp(IApp):
             if isinstance(e, KeyError):
                 msg += " key not found in info"
             msg += "\n"
+            #feature request cuklinaj: mail when fail
+            if os.environ.get("LSB_JOBID"):
+                subprocess.call("echo \"Failure reason: %s\" | mail -s \"Workflow Failed\" %s" % (msg, getpass.getuser()) ,shell=True)
             # if app fails before logger is created use sys.exit for message
-            # subprocess.call("echo \"applifake msg: %s\" | mail -s \"WFTestFailed\" sis.helpdesk@bsse.ethz.ch" % msg ,shell=True)
             if not log:
                 sys.exit(msg)
             log.error(msg)

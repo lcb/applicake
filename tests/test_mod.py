@@ -12,6 +12,8 @@ class Test(unittest.TestCase):
                                              "300/300.1 (STY);Label:13C(6)15N(4) (H)",
                                              "Myrimatch")
         print static, var
+        self.assertEqual(static,"C 57.021464 K 226.077598")
+        self.assertEqual(var,"[STY] * 300.000000 [H] * 10.008269")
         with self.assertRaises(Exception):
             genmodstr_to_engine("Doesnotexist (C)", "", "Myrimatch")
 
