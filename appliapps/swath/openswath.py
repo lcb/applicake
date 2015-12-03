@@ -26,9 +26,8 @@ class OpenSwathWorkflow(WrappedApp):
         'EXTRA_RT_EXTRACTION_WINDOW': 'extra_rt_extraction_window',
         'USE_DIA_SCORES': 'Scoring:Scores:use_dia_scores',
         'USE_BG_SUBTRACT': 'Scoring:TransitionGroupPicker:background_subtraction',
-        'USE_UIS_SCORES': '-enable_uis_scoring',
-        'UIS_SN_THRESHOLD': '-Scoring:uis_threshold_sn',
-        'UIS_PEAKAREA_THRESHOLD': '-Scoring:uis_threshold_peak_area',
+        'UIS_SN_THRESHOLD': 'Scoring:uis_threshold_sn',
+        'UIS_PEAKAREA_THRESHOLD': 'Scoring:uis_threshold_peak_area',
     }
 
     def add_args(self):
@@ -39,6 +38,7 @@ class OpenSwathWorkflow(WrappedApp):
 
             Argument('WINDOW_UNIT', 'extraction window unit thompson/ppm'),
             Argument('USE_MS1_TRACES', ""),
+            Argument('USE_UIS_SCORES', ''),
             Argument('DO_CHROMML_REQUANT', 'to skip set to false'),
         ]
         for k, v in self.opts.iteritems():
@@ -71,6 +71,9 @@ class OpenSwathWorkflow(WrappedApp):
 
         if info.get("USE_MS1_TRACES", "") == "true":
             flags += " -use_ms1_traces"
+
+        if info.get("USE_UIS_SCORES", "") == "true":
+            flags += " -enable_uis_scoring"
 
         # We need to decrease netI/O here, so we move everything to local scratch and calc here, then move back
         tmpdir = os.environ.get('TMPDIR', info[Keys.WORKDIR]) + '/'
