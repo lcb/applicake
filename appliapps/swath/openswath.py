@@ -26,6 +26,9 @@ class OpenSwathWorkflow(WrappedApp):
         'EXTRA_RT_EXTRACTION_WINDOW': 'extra_rt_extraction_window',
         'USE_DIA_SCORES': 'Scoring:Scores:use_dia_scores',
         'USE_BG_SUBTRACT': 'Scoring:TransitionGroupPicker:background_subtraction',
+        'USE_UIS_SCORES': '-enable_uis_scoring',
+        'UIS_SN_THRESHOLD': '-Scoring:uis_threshold_sn',
+        'UIS_PEAKAREA_THRESHOLD': '-Scoring:uis_threshold_peak_area',
     }
 
     def add_args(self):
