@@ -19,7 +19,7 @@ class FeatureAlignment(WrappedApp):
         'ALIGNER_FDR': "fdr_cutoff",
         'ALIGNER_MAX_FDRQUAL': "max_fdr_quality",
         'ALIGNER_FRACSELECTED': 'frac_selected',
-        'ALGNER_MST_USERTCORR' : 'mst:useRTCorrection',
+        'ALIGNER_MST_USERTCORR' : 'mst:useRTCorrection',
         'ALIGNER_MST_STDEVMULT' : 'mst:Stdev_multiplier',
         'ALIGNER_ALIGNSCORE':'alignment_score',
     }
@@ -76,6 +76,8 @@ class FeatureAlignment(WrappedApp):
         return info, command
 
     def validate_run(self, log, info, exit_code, stdout):
+        if 'max_rt_diff = self._stdev_max_rt_per_run * tr_data.getStdev(source, target)' in stdout:
+            raise RuntimeError("No peptides found which are shared between all runs. Try to increase FDR.")
         validation.check_stdout(log, stdout)
         validation.check_exitcode(log, exit_code)
         validation.check_file(log, info['ALIGNMENT_TSV'])
