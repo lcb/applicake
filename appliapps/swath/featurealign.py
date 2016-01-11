@@ -88,13 +88,6 @@ class FeatureAlignment(WrappedApp):
         f.write(stdout)
         f.close()
         info["ALIGNER_STDOUT"] = out2log
-        #for line in stdout.splitlines():
-        #    if "We were able to quantify " in line:
-        #        aligned = int(line.split()[13])
-        #        before = int(line.split()[19])
-        #        if aligned<before/2:
-        #            log.warn("Much less features after alignment than before!")
-
 
         # Move out .tr files of pyprophet to be rescue safe
         info["TRAFO_FILES"] = []

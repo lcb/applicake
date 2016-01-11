@@ -250,7 +250,7 @@ class CometModConverter(AbstractModConverter):
             i+=1
             if i > 6: raise Exception("Comet only supports up to 6 variable mods")
 
-            vmods += "variable_mod%s = %f %s 0 3\n" % (i, mono, "".join(residues))
+            vmods += "variable_mod0%s = %f %s 0 3\n" % (i, mono, "".join(residues))
 
 
         return smods, vmods, None

@@ -21,11 +21,10 @@ class RequantValues(WrappedApp):
             Argument('CHROM_MZML', 'the chrom.mzml to requant'),
             Argument('TRAFO_FILES', 'all tr files'),
 
-            Argument('ALIGNER_METHOD','for checking only'),
+            Argument('ALIGNER_METHOD','infers the REQUANT_METHOD'),
             Argument('ALIGNER_REALIGN_METHOD', 'featurealingn+requant: RT realign method. req for SingleShortestPath'),
             Argument('ISOTOPIC_GROUPING', 'featurealingn+requant: enable/disable isotopic grouping'),
             Argument('ISOTOPIC_TRANSFER', 'requant only: do isotopic transfer'),
-            Argument('REQUANT_METHOD', ''),
 
         ]
 
@@ -48,13 +47,17 @@ class RequantValues(WrappedApp):
         if info['ISOTOPIC_TRANSFER'] == "false":
             flags += " --disable_isotopic_transfer "
         flags += " --realign_runs %s " % info['ALIGNER_REALIGN_METHOD']
-        flags += " --method %s " % info['REQUANT_METHOD']
-        #when method allTrafo is set --in *.tr must be set and the tr corresponding to the current chrom.mzML must be
-        #linked to TMPDIR
-        if info['REQUANT_METHOD'] == "allTrafo":
-            if "LocalMST" in info['ALIGNER_METHOD']:
-                raise RuntimeError("Boundary method 'allTrafo' does not work with feature aligner clustering method "
-                                   "'LocalMST', use 'singleShortestPath' or 'singleShortestRun' instead")
+
+        if "MST" in info.get("ALIGNER_METHOD"):
+            #for MST alignments, just set method and the current run to requant
+            info['REQUANT_METHOD'] = "singleShortestPath"
+            flags += " --method %s --do_single_run %s" % (info['REQUANT_METHOD'],localmzml)
+        else:
+            #for reference based alignments you need
+            # - the 'current' chrom.mzML uncompressed in TEMPDIR
+            # - its corresponding .tr trafo in TEMPDIR
+            # - the remaining .tr files as options to "--in"
+            info['REQUANT_METHOD'] = "allTrafo"
             mzmlroot = os.path.basename(info["CHROM_MZML"]).split(".")[0]
             localtr = ""
             trlist = []
@@ -71,10 +74,7 @@ class RequantValues(WrappedApp):
                     trlist.append(i)
             if not localtr:
                 raise RuntimeError("No corresponding tr found for " + mzmlroot)
-            flags += " --in %s --do_single_run %s" % (" ".join(trlist),localtr)
-        else:
-            #for singleShortestPath or singleClosest*
-            flags += " --do_single_run %s " % localmzml
+            flags += " --method %s --in %s --do_single_run %s" % (info['REQUANT_METHOD']," ".join(trlist),localtr)
 
         command = "gunzip -c %s > %s && " \
                   "requantAlignedValues.py --peakgroups_infile %s --out %s %s" % (
