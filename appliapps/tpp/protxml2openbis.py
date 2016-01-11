@@ -32,11 +32,11 @@ class ProtXml2OpenbisSequence(WrappedApp):
 
         command = """pepxml2csv -IPROPHET -header -cP=%s -OUT=%s %s &&
         protxml2spectralcount -CSV=%s -OUT=%s %s &&
-        protxml2modifications -CSV=%s -OUT=%s %s &&
+        protxml2modifications.py -TYP %s -CSV=%s -OUT=%s %s &&
         protxml2openbis -DB=%s -OUT=%s %s""" % (
             info['IPROB'], info['PEPCSV'], info[Keys.PEPXML],
             info['PEPCSV'], countprotxml, info['PROTXML'],
-            info['PEPCSV'], modprotxml, countprotxml,
+            info['PEPCSV'], info['SPECTRALCOUNT_TYPE'], modprotxml, countprotxml,
             info['DBASE'], bisprotxml, modprotxml )
 
         info['PROTXML'] = bisprotxml

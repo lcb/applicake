@@ -80,9 +80,12 @@ class BasicApp(IApp):
             if isinstance(e, KeyError):
                 msg += " key not found in info"
             msg += "\n"
-            #feature request cuklinaj: mail when fail
+            # feature request cuklinaj: mail when fail, delay between
             if os.environ.get("LSB_JOBID"):
-                subprocess.call("echo \"Failure reason: %s\" | mail -s \"Workflow Failed\" %s" % (msg, getpass.getuser()) ,shell=True)
+                controlfile = os.getenv("HOME") + "/.last_error_message"
+                if not os.path.exists(controlfile) or (time.time() - os.stat(controlfile).st_mtime) > 600:
+                    subprocess.call("touch %s; echo \"Failure reason: %s\" | mail -s \"Workflow Failed\" %s" % (
+                        controlfile, msg, getpass.getuser()), shell=True)
             # if app fails before logger is created use sys.exit for message
             if not log:
                 sys.exit(msg)
