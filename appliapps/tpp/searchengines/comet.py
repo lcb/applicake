@@ -60,6 +60,10 @@ class Comet(SearchEnginesBase):
     def validate_run(self, log, info, exit_code, stdout):
         if "Warning - no spectra searched" in stdout:
             raise RuntimeError("No spectra in mzXML!")
+        if "CometMemAlloc" in stdout:
+            #print to stdout to reach gUSE rescue functionality. ugly, no?
+            print "MemoryError"
+            raise RuntimeError("The job run out of RAM!")
         check_stdout(log,stdout)
         check_exitcode(log, exit_code)
         check_xml(log, info[Keys.PEPXML])
