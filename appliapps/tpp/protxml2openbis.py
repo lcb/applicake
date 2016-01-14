@@ -32,15 +32,17 @@ class ProtXml2OpenbisSequence(WrappedApp):
         bisprotxml = os.path.join(wd, 'protxml2openbis.prot.xml')
 
         command = """pepxml2csv -IPROPHET -header -cP=%s -OUT=%s %s &&
-        protxml2spectralcount.py -CSV=%s -TYP %s -OUT=%s %s &&
         protxml2modifications -CSV=%s -OUT=%s %s &&
-        protxml2openbis -DB=%s -OUT=%s %s""" % (
+        protxml2openbis -DB=%s -OUT=%s %s &&
+        protxml2spectralcount.py -CSV=%s -TYP %s -OUT=%s %s
+        """ % (
             info['IPROB'], info['PEPCSV'], info[Keys.PEPXML],
-            info['PEPCSV'], info['SPECTRALCOUNT_TYPE'],  countprotxml, info['PROTXML'],
-            info['PEPCSV'], modprotxml, countprotxml,
-            info['DBASE'], bisprotxml, modprotxml )
+            info['PEPCSV'], modprotxml, info['PROTXML'],
+            info['DBASE'], bisprotxml, modprotxml,
+            info['PEPCSV'], info['SPECTRALCOUNT_TYPE'], countprotxml, bisprotxml,
+        )
 
-        info['PROTXML'] = bisprotxml
+        info['PROTXML'] = countprotxml
 
         return info, command
 
