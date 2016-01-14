@@ -19,7 +19,8 @@ class ProtXml2OpenbisSequence(WrappedApp):
             Argument(Keys.PEPXML, KeyHelp.PEPXML),
             Argument('PROTXML', 'Path to a file in protXML format'),
             Argument('DBASE', 'Sequence database file with target/decoy entries'),
-            Argument('IPROB','Use same iprob cutoff as used in ProteinProphet (before).')
+            Argument('IPROB','Use same iprob cutoff as used in ProteinProphet (before).'),
+            Argument('SPECTRALCOUNT_TYPE','type of spectralcount {all, unique}')
         ]
 
     def prepare_run(self, log, info):
