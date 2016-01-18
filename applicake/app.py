@@ -84,7 +84,7 @@ class BasicApp(IApp):
             if os.environ.get("LSB_JOBID"):
                 controlfile = os.getenv("HOME") + "/.last_error_message"
                 if not os.path.exists(controlfile) or (time.time() - os.stat(controlfile).st_mtime) > 600:
-                    subprocess.call("touch %s; echo \"Failure reason: %s\nTo prevent spam you won't get such a warning for the next 10 minutes\" | mail -s \"Workflow Failed\" %s" % (
+                    subprocess.call("touch %s; echo \"Failure reason: %s\nTo prevent spam you won't get such warnings for the next 10 minutes\" | mail -s \"Workflow Failed\" %s" % (
                         controlfile, msg, getpass.getuser()), shell=True)
             # if app fails before logger is created use sys.exit for message
             if not log:
