@@ -38,6 +38,10 @@ class Myrimatch(SearchEnginesBase):
         if app_info['FRAGMASSUNIT'] == 'Da':
             app_info['FRAGMASSUNIT'] = 'daltons'
 
+        #link DB to cwd
+        app_info['DBASE'] = os.path.join(wd, os.path.basename(info['DBASE']))
+        os.symlink(info['DBASE'], app_info['DBASE'])
+
         #tpl = os.path.join(wd, 'myrimatch.cfg')
         tpl = 'myrimatch.cfg'
         tplfile = os.path.join(wd, tpl)
