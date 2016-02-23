@@ -42,6 +42,9 @@ class FeatureAlignment(WrappedApp):
             if "auto" in info["ALIGNER_MAX_RT_DIFF"]:
                 log.warn("Set max_RT_diff to 30 seconds because auto... fails for only 1 sample")
                 info["ALIGNER_MAX_RT_DIFF"] = "30"
+        if "auto" in info["ALIGNER_MAX_RT_DIFF"] and "MST" in info['ALIGNER_METHOD']:
+                log.warn("Set max_RT_diff to 30 seconds because auto... fails for only 1 sample")
+                info["ALIGNER_MAX_RT_DIFF"] = "30"
         info['ALIGNMENT_TSV'] = os.path.join(info[Keys.WORKDIR], "feature_alignment.tsv")
         info['ALIGNMENT_YAML'] = os.path.join(info[Keys.WORKDIR], "feature_alignment.yaml")
         tmpdir = os.environ.get('TMPDIR', info[Keys.WORKDIR]) + '/'
