@@ -28,6 +28,7 @@ class OpenSwathWorkflow(WrappedApp):
         'USE_BG_SUBTRACT': 'Scoring:TransitionGroupPicker:background_subtraction',
         'UIS_SN_THRESHOLD': 'Scoring:uis_threshold_sn',
         'UIS_PEAKAREA_THRESHOLD': 'Scoring:uis_threshold_peak_area',
+        'STOP_AFTER_FEATURE': 'Scoring:stop_report_after_feature',
     }
 
     def add_args(self):

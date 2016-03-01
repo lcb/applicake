@@ -24,6 +24,25 @@ class PyProphet(WrappedApp):
         'MPR_SSL_TF': 'semi_supervised_learner.iteration_fdr',
         'MPR_SSL_TL': 'semi_supervised_learner.iteration_lambda',
         'MPR_SSL_NI': 'semi_supervised_learner.num_iter',
+        "MPR_QVALITY_ENABLE": "qvality.enable",
+        "MPR_QVALITY_EPSILONCROSSVALIDATION": "qvality.epsilon-cross-validation",
+        "MPR_QVALITY_EPSILONSTEP": "qvality.epsilon-step",
+        "MPR_QVALITY_GENERALIZED": "qvality.generalized",
+        "MPR_QVALITY_NUMBEROFBINS": "qvality.number-of-bins",
+        "MPR_QVALITY_QVALUE": "qvality.q-value",
+        "MPR_MS1_SCORING_ENABLE": "ms1_scoring.enable",
+        "MPR_MS1_SCORING_FINAL_STATISTICS_EMP_P": "ms1_scoring.final_statistics.emp_p",
+        "MPR_MS2_SCORING_ENABLE": "ms2_scoring.enable",
+        "MPR_MS2_SCORING_FINAL_STATISTICS_EMP_P": "ms2_scoring.final_statistics.emp_p",
+        "MPR_MS2_SCORING_DETECTION_FDR_MS1": "ms2_scoring.detection_fdr_ms1",
+        "MPR_UIS_SCORING_ENABLE": "uis_scoring.enable",
+        "MPR_UIS_SCORING_FINAL_STATISTICS_EMP_P": "uis_scoring.final_statistics.emp_p",
+        "MPR_UIS_SCORING_DETECTION_FDR_MS1": "uis_scoring.detection_fdr_ms1",
+        "MPR_UIS_SCORING_DETECTION_FDR_MS2": "uis_scoring.detection_fdr_ms2",
+        "MPR_UIS_SCORING_DISABLE_H0": "uis_scoring.disable_h0",
+        "MPR_UIS_SCORING_IDENTIFICATION_FDR": "uis_scoring.identification_fdr",
+        "MPR_UIS_SCORING_IDENTIFICATION_PROBABILITY": "uis_scoring.identification_probability",
+        "MPR_UIS_SCORING_ISOTOPE_OVERLAP_THRESHOLD": "uis_scoring.isotope_overlap_threshold",
     }
 
     def add_args(self):
@@ -31,9 +50,9 @@ class PyProphet(WrappedApp):
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR),
             Argument('FEATURETSV', 'input openswathfeaturetsv'),
 
-            Argument('MPR_MAINVAR',"main mprophet var"),
-            Argument('MPR_VARS',"side mprophet vars"),
-            Argument('MPR_MAYU',"true to export mayu")
+            Argument('MPR_MAINVAR', "main mprophet var"),
+            Argument('MPR_VARS', "side mprophet vars"),
+            Argument('MPR_MAYU', "true to export mayu")
         ]
         for k, v in self.opts.iteritems():
             ret.append(Argument(k, v))
@@ -43,7 +62,7 @@ class PyProphet(WrappedApp):
         if info['MPR_MAINVAR'] in info['MPR_VARS']:
             raise RuntimeError("Mainvar [%s] occurs duplicated in vars!" % info['MPR_MAINVAR'])
 
-        #check if vars exist in input and have values
+        # check if vars exist in input and have values
         with open(info['FEATURETSV']) as f:
             hdr = f.readline().split("\t")
             dta = f.readline().split("\t")
@@ -59,7 +78,7 @@ class PyProphet(WrappedApp):
                     vars_to_really_use.add(var)
                     log.debug("Requested var [%s] will be used for scoring" % var)
         info['MPR_VARS'] = " ".join(vars_to_really_use)
-        #the same for mainvar but with raise
+        # the same for mainvar but with raise
         mainvar = info['MPR_MAINVAR']
         if not mainvar in "".join(hdr):
             raise RuntimeError("Mainvar [%s] not found in input!" % mainvar)
