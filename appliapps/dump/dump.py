@@ -11,12 +11,14 @@ class Dump(WrappedApp):
     def add_args(self):
         return [
             Argument(Keys.MZXML, KeyHelp.MZXML),
+            Argument("WINDOWTYPE","window type"),
             Argument(Keys.WORKDIR, KeyHelp.WORKDIR)
         ]
 
     def prepare_run(self, log, info):
         info = dirs.create_workdir(log, info)
 
+        log.info("WindowType = "+info['WINDOWTYPE'])
         basename = os.path.splitext(os.path.basename(info['MZXML']))[0]
         basename = os.path.join(info[Keys.WORKDIR], basename)
         info['DUMP_MZXML'] = [ basename + ".1.mzXML", basename + ".2.mzXML", basename + ".3.mzXML"]
