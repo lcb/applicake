@@ -61,6 +61,7 @@ As you can see from the example above the parameters required from command line 
 
 ### WrappedApp
 To wrap an external tool there is the framework class `applicake.app.WrappedApp` (which is derived from BasicApp) but splits up the run method into three steps: 
+
 1. prepare_run 
 2. (execute_run) 
 3. validate_run 
